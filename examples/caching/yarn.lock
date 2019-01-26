@@ -18,7 +18,15 @@
     esutils "^2.0.2"
     js-tokens "^4.0.0"
 
-"@nestjs/common@^5.4.0":
+"@nestjs-plus/caching@^0.0.3-alpha.0":
+  version "0.0.3-alpha.0"
+  resolved "https://registry.yarnpkg.com/@nestjs-plus/caching/-/caching-0.0.3-alpha.0.tgz#0f1c4bd094dfe36f0cb7b5c654daed88234e1805"
+  integrity sha512-87jtYA3PIChIkXWJ5hVVqyF1XanWDZm3AAIsIU9vipmO/44WSta9JYbnvr839RGzxFmxFbIXCA+mw+De8cJ2SA==
+  dependencies:
+    "@nestjs/common" "^5.6.2"
+    "@nestjs/core" "^5.6.2"
+
+"@nestjs/common@^5.4.0", "@nestjs/common@^5.6.2":
   version "5.6.2"
   resolved "https://registry.yarnpkg.com/@nestjs/common/-/common-5.6.2.tgz#e9f7b6516d1f31bcff428cfd688b816b25787966"
   integrity sha512-LJkG60HXtOL0/8MgdITMUEMF9CCMa3gtmxcnxfxvqZN/cFGEFZ5QzMWbEdcP5N+kUJY2BL8gENdmPGyqBNJm0A==
@@ -29,7 +37,7 @@
     multer "1.3.0"
     uuid "3.3.2"
 
-"@nestjs/core@^5.4.0":
+"@nestjs/core@^5.4.0", "@nestjs/core@^5.6.2":
   version "5.6.2"
   resolved "https://registry.yarnpkg.com/@nestjs/core/-/core-5.6.2.tgz#9735423667b29add537a74f6a65abbdc650fd3fe"
   integrity sha512-XuCK/veePY4ggEmGSj9XZFd1+rQdjmHXovdbkEFSmORl7gIwzxk6qupCRq8BuTCHqbMYj8qcgBRk9YXmHMR1TA==

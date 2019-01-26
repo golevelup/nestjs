@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
-import { CachingInterceptor } from './caching.interceptor';
 
 @Module({
-  providers: [CachingInterceptor]
+  providers: []
 })
 export class CachingModule {}
