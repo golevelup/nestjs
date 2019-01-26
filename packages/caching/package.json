@@ -1,10 +1,9 @@
 {
   "name": "@nestjs-plus/caching",
-  "version": "0.0.0",
-  "description": "> TODO: description",
+  "version": "0.0.1-alpha.0",
+  "description": "A Badass Caching Module for NestJS",
   "author": "Jesse Carter <jesse.r.carter@gmail.com>",
-  "homepage": "",
-  "license": "ISC",
+  "license": "MIT",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "directories": {
@@ -21,5 +20,6 @@
   "dependencies": {
     "@nestjs/common": "^5.6.2",
     "@nestjs/core": "^5.6.2"
-  }
+  },
+  "gitHead": "7b399fe285b6dc36a3e007d5b82c09af87b1d8c4"
 }
