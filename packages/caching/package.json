@@ -21,5 +21,8 @@
     "@nestjs/common": "^5.6.2",
     "@nestjs/core": "^5.6.2"
   },
-  "gitHead": "7b399fe285b6dc36a3e007d5b82c09af87b1d8c4"
+  "publishConfig": {
+    "access": "public"
+  },
+  "gitHead": "5e55f7938681f7e5efa9414fa45d17fc2b6c7045"
 }
