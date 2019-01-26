@@ -18,10 +18,10 @@
     esutils "^2.0.2"
     js-tokens "^4.0.0"
 
-"@nestjs-plus/caching@^0.0.3-alpha.0":
-  version "0.0.3-alpha.0"
-  resolved "https://registry.yarnpkg.com/@nestjs-plus/caching/-/caching-0.0.3-alpha.0.tgz#0f1c4bd094dfe36f0cb7b5c654daed88234e1805"
-  integrity sha512-87jtYA3PIChIkXWJ5hVVqyF1XanWDZm3AAIsIU9vipmO/44WSta9JYbnvr839RGzxFmxFbIXCA+mw+De8cJ2SA==
+"@nestjs-plus/caching@^0.0.4-alpha.0":
+  version "0.0.4-alpha.0"
+  resolved "https://registry.yarnpkg.com/@nestjs-plus/caching/-/caching-0.0.4-alpha.0.tgz#3dbea0a8079a97f51c17942f805dccc7bc0fbaae"
+  integrity sha512-VZzGZYy0zuWu3rkvIhFGDErPIS+Nkk2nihZYjNjDvo03Khd9ODD0NvWhJCG0vRl4GBixtm2h1nPv9x4bgiAtxw==
   dependencies:
     "@nestjs/common" "^5.6.2"
     "@nestjs/core" "^5.6.2"
