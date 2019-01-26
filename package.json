@@ -1,0 +1,14 @@
+{
+  "name": "root",
+  "private": true,
+  "devDependencies": {
+    "@types/node": "^10.12.18",
+    "lerna": "^3.10.2",
+    "typescript": "^3.2.4"
+  },
+  "dependencies": {},
+  "scripts": {
+    "publish": "lerna run tsc && lerna publish"
+  },
+  "version": "0.0.0"
+}
