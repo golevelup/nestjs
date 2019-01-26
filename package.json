@@ -1,11 +1,14 @@
 {
   "name": "root",
-  "private": false,
+  "private": true,
   "devDependencies": {
     "@types/node": "^10.12.18",
     "lerna": "^3.10.2",
     "typescript": "^3.2.4"
   },
+  "workspaces": [
+    "packages/*"
+  ],
   "dependencies": {},
   "scripts": {
     "publish": "lerna run tsc && lerna publish"

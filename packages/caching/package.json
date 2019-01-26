@@ -18,11 +18,19 @@
     "test": "echo \"Error: run tests from root\" && exit 1"
   },
   "dependencies": {
+    "@nestjs-plus/common": "^0.0.0",
     "@nestjs/common": "^5.6.2",
     "@nestjs/core": "^5.6.2"
   },
   "publishConfig": {
     "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/WonderPanda/nestjs-plus.git"
+  },
+  "bugs": {
+    "url": "https://github.com/WonderPanda/nestjs-plus/issues"
   },
   "gitHead": "5e55f7938681f7e5efa9414fa45d17fc2b6c7045"
 }

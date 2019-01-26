@@ -1,11 +1,3 @@
-# `caching`
+# NestJS+ Caching
 
-> TODO: description
-
-## Usage
-
-```
-const caching = require('caching');
-
-// TODO: DEMONSTRATE API
-```
+A flexible caching module that can be used with different cache providers

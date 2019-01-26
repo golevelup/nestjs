@@ -9,7 +9,7 @@ export class AppController {
   @Get()
   @UseInterceptors(
     makeCacheInterceptor({
-      ttl: 1000,
+      ttl: 5,
       getKey: () => '42',
     }),
   )
