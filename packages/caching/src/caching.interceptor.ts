@@ -1,14 +1,13 @@
+import { makeInjectableMixin } from '@nestjs-plus/common';
 import {
   ExecutionContext,
   Inject,
   Injectable,
-  mixin,
   NestInterceptor
 } from '@nestjs/common';
 import { forkJoin, Observable, of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import { Cache, CacheToken } from './cache';
-// import { makeInjectableMixin } from '@nestjs-plus/common';
 
 @Injectable()
 export abstract class CachingInterceptor implements NestInterceptor {
@@ -47,7 +46,7 @@ export interface CacheOptions {
 }
 
 export const makeCacheInterceptor = (options: CacheOptions) => {
-  return mixin(
+  return makeInjectableMixin('CachingInterceptor')(
     class extends CachingInterceptor {
       protected readonly options = options;
     }

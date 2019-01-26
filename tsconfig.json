@@ -9,7 +9,11 @@
     "experimentalDecorators": true,
     "target": "es6",
     "sourceMap": true,
-    "lib": ["es6"]
+    "lib": ["es6"],
+    "baseUrl": "./",
+    "paths": {
+      "@nestjs-plus/*": ["packages/*/src"]
+    }
   },
   "exclude": ["node_modules", "**/*.spec.ts"]
 }
