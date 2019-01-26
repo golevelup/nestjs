@@ -20,7 +20,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
-    "@nestjs-plus/caching": "^0.0.5-alpha.0",
+    "@nestjs-plus/caching": "^0.0.7-alpha.0",
     "@nestjs/common": "^5.4.0",
     "@nestjs/core": "^5.4.0",
     "node-cache": "^4.2.0",

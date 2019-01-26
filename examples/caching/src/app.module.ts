@@ -1,8 +1,7 @@
-import { CacheToken, CachingModule } from '@nestjs-plus/caching';
+import { CachingModule } from '@nestjs-plus/caching';
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { MemoryCache } from './memory-cache';
 
 // const testCache: Cache = {
 //   get: async (key: string) => null,
@@ -21,10 +20,10 @@ import { MemoryCache } from './memory-cache';
   controllers: [AppController],
   providers: [
     AppService,
-    {
-      provide: CacheToken,
-      useValue: new MemoryCache(),
-    },
+    // {
+    //   provide: CacheToken,
+    //   useValue: new MemoryCache(),
+    // },
   ],
 })
 export class AppModule {}
