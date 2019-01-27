@@ -10,9 +10,9 @@
     "target": "es6",
     "sourceMap": true,
     "lib": ["es6"],
-    "baseUrl": "./",
+    "baseUrl": "./packages",
     "paths": {
-      "@nestjs-plus/*": ["packages/*/src"]
+      "@nestjs-plus/*": ["./*/src"]
     }
   },
   "exclude": ["node_modules", "**/*.spec.ts"]
