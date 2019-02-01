@@ -46,7 +46,7 @@ export interface CacheOptions {
 }
 
 export const makeCacheInterceptor = (options: CacheOptions) => {
-  return makeInjectableMixin('Caching')(
+  return makeInjectableMixin('CachingInterceptor')(
     class extends CachingInterceptor {
       protected readonly options = options;
     }

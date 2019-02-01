@@ -9,7 +9,10 @@
   "workspaces": [
     "packages/*"
   ],
-  "dependencies": {},
+  "dependencies": {
+    "reflect-metadata": "^0.1.13",
+    "rxjs": "^6.4.0"
+  },
   "scripts": {
     "publish": "lerna run tsc && lerna publish"
   },
