@@ -7,7 +7,8 @@ import {
 } from '@nestjs/common';
 import { forkJoin, Observable, of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
-import { Cache, CacheToken } from './cache';
+import { CacheToken } from './caching.constants';
+import { Cache } from './interfaces/cache';
 
 @Injectable()
 export abstract class CachingInterceptor implements NestInterceptor {
