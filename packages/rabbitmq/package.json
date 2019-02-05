@@ -5,7 +5,8 @@
   "author": "Jesse Carter <jesse.r.carter@gmail.com>",
   "homepage": "https://github.com/WonderPanda/nestjs-plus#readme",
   "license": "MIT",
-  "main": "lib/rabbitmq.js",
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
   "directories": {
     "lib": "lib",
     "test": "__tests__"
@@ -25,5 +26,8 @@
   },
   "dependencies": {
     "amqplib": "^0.5.3"
+  },
+  "devDependencies": {
+    "@types/amqplib": "^0.5.9"
   }
 }

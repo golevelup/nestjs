@@ -29,7 +29,6 @@
     "access": "public"
   },
   "dependencies": {
-    "@nestjs/common": "^5.6.2",
     "shortid": "^2.2.14"
   },
   "devDependencies": {

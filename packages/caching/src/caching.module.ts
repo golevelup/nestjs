@@ -1,9 +1,9 @@
 import { DynamicModule, Module } from '@nestjs/common';
-import { CacheToken } from './caching.constants';
+import { CACHE_TOKEN } from './caching.constants';
 
 @Module({
   providers: [],
-  exports: [CacheToken]
+  exports: [CACHE_TOKEN]
 })
 export class CachingModule {
   static register(): DynamicModule {

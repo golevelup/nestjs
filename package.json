@@ -2,6 +2,7 @@
   "name": "root",
   "private": true,
   "devDependencies": {
+    "@types/lodash": "^4.14.120",
     "@types/node": "^10.12.18",
     "lerna": "^3.10.2",
     "typescript": "^3.2.4"
@@ -10,6 +11,9 @@
     "packages/*"
   ],
   "dependencies": {
+    "@nestjs/common": "^5.7.0",
+    "@nestjs/core": "^5.7.0",
+    "lodash": "^4.17.11",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^6.4.0"
   },

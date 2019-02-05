@@ -1,1 +1,1 @@
-export const CacheToken = Symbol('CacheToken');
+export const CACHE_TOKEN = Symbol('CACHE_TOKEN');

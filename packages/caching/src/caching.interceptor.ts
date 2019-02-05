@@ -7,14 +7,14 @@ import {
 } from '@nestjs/common';
 import { forkJoin, Observable, of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
-import { CacheToken } from './caching.constants';
+import { CACHE_TOKEN } from './caching.constants';
 import { Cache } from './interfaces/cache';
 
 @Injectable()
 export abstract class CachingInterceptor implements NestInterceptor {
   protected abstract readonly options: CacheOptions;
 
-  constructor(@Inject(CacheToken) private readonly cache: Cache) {}
+  constructor(@Inject(CACHE_TOKEN) private readonly cache: Cache) {}
 
   async intercept(
     context: ExecutionContext,
