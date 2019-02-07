@@ -7,6 +7,4 @@ import { DiscoveryService } from './discovery.service';
   providers: [DiscoveryService, MetadataScanner],
   exports: [DiscoveryService]
 })
-export class DiscoveryModule {
-  constructor(private readonly discoveryService: DiscoveryService) {}
-}
+export class DiscoveryModule {}
