@@ -12,6 +12,8 @@ export function withMetaKey(
   return Reflect.getMetadata(metaKey, injectableWrapper.instance.constructor);
 }
 
+type ProviderFilter = (injectable: InstanceWrapper<NestInjectable>) => boolean;
+
 @Injectable()
 export class DiscoveryService {
   constructor(
@@ -19,14 +21,14 @@ export class DiscoveryService {
     private readonly metadataScanner: MetadataScanner
   ) {}
 
-  discoverClasses(
-    predicate: (injectable: InstanceWrapper<NestInjectable>) => boolean
-  ) {
-    const components = this.getKeyedModuleComponents();
+  discoverProviders(
+    providerFilter: ProviderFilter
+  ): InstanceWrapper<NestInjectable>[] {
+    const providers = this.getKeyedModuleProviders();
 
-    const filtered = flatMap(components, componentMap =>
+    const filtered = flatMap(providers, componentMap =>
       flatMap([...componentMap.entries()], ([key, value]) => ({
-        match: predicate(value),
+        match: providerFilter(value),
         value
       }))
     )
@@ -36,7 +38,29 @@ export class DiscoveryService {
     return filtered;
   }
 
-  private getKeyedModuleComponents() {
+  discoverHandlers(providerFilter: ProviderFilter) {
+    const providers = this.discoverProviders(providerFilter);
+
+    return flatMap(providers, provider => {
+      const { instance } = provider;
+      const prototype = Object.getPrototypeOf(instance);
+
+      return this.metadataScanner.scanFromPrototype(
+        instance,
+        prototype,
+        name => {
+          const method = prototype[name];
+
+          const check = Reflect.getMetadataKeys(method);
+          console.log(name, check);
+
+          return true;
+        }
+      );
+    });
+  }
+
+  private getKeyedModuleProviders() {
     return [...this.modulesContainer.values()].map(
       nestModule => nestModule.components
     );

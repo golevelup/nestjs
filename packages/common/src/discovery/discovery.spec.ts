@@ -2,17 +2,23 @@ import { Injectable, Module, ReflectMetadata } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { DiscoveryModule, DiscoveryService, withMetaKey } from '.';
 
-const TestConfigSymbol = Symbol('TestConfigSymbol');
+const ExampleClassSymbol = Symbol('ExampleClassSymbol');
 
-const TestDecorator = (config: any) =>
-  ReflectMetadata(TestConfigSymbol, config);
+const ExampleMethodSymbol = Symbol('ExampleMethodSymbol');
+
+const ExampleClassDecorator = (config: any) =>
+  ReflectMetadata(ExampleClassSymbol, config);
+
+const ExampleMethodDecorator = (config: any) => (target, key, descriptor) =>
+  ReflectMetadata(ExampleMethodSymbol, config)(target, key, descriptor);
 
 @Injectable()
-@TestDecorator('42')
+@ExampleClassDecorator('class')
 class ExampleService {
-  doSomething() {
-    console.log('doing something');
-  }
+  @ExampleMethodDecorator('method')
+  method() {}
+
+  anotherMethod() {}
 }
 
 @Module({
@@ -33,11 +39,19 @@ describe('Discovery', () => {
 
   it('should discover providers based on metadata', () => {
     const discoveryService = app.get<DiscoveryService>(DiscoveryService);
-    const testProviders = discoveryService.discoverClasses(x =>
-      withMetaKey(TestConfigSymbol, x)
+    const testProviders = discoveryService.discoverProviders(x =>
+      withMetaKey(ExampleClassSymbol, x)
     );
 
     expect(testProviders).toHaveLength(1);
     console.log(testProviders[0].instance);
+  });
+
+  it('should discover method handlers based on a predicate', () => {
+    const discoveryService = app.get<DiscoveryService>(DiscoveryService);
+
+    const handlers = discoveryService.discoverHandlers(x =>
+      withMetaKey(ExampleClassSymbol, x)
+    );
   });
 });
