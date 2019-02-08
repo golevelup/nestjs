@@ -5,14 +5,28 @@ import { ModulesContainer } from '@nestjs/core/injector/modules-container';
 import { MetadataScanner } from '@nestjs/core/metadata-scanner';
 import { flatMap } from 'lodash';
 
-export function withMetaKey(
-  metaKey: string | number | Symbol,
-  injectableWrapper: InstanceWrapper<NestInjectable>
-): boolean {
-  return Reflect.getMetadata(metaKey, injectableWrapper.instance.constructor);
-}
+export type MetaKey = string | number | Symbol;
 
-type ProviderFilter = (injectable: InstanceWrapper<NestInjectable>) => boolean;
+type ProviderFilter = (
+  injectableWrapper: InstanceWrapper<NestInjectable>
+) => boolean;
+
+type HandlerFilter = (
+  injectable: NestInjectable,
+  prototype: any,
+  methodName: string
+) => boolean;
+
+export const providerWithMetaKey: (
+  key: MetaKey
+) => ProviderFilter = key => injectable =>
+  Reflect.getMetadata(key, injectable.instance.constructor);
+
+export const handlerWithMetaKey: (key: MetaKey) => HandlerFilter = key => (
+  injectable,
+  prototype,
+  methodName
+) => Reflect.getMetadata(key, prototype[methodName]);
 
 @Injectable()
 export class DiscoveryService {
@@ -21,6 +35,10 @@ export class DiscoveryService {
     private readonly metadataScanner: MetadataScanner
   ) {}
 
+  /**
+   * Discovers all providers in a Nest App that match a filter
+   * @param providerFilter
+   */
   discoverProviders(
     providerFilter: ProviderFilter
   ): InstanceWrapper<NestInjectable>[] {
@@ -38,24 +56,23 @@ export class DiscoveryService {
     return filtered;
   }
 
-  discoverHandlers(providerFilter: ProviderFilter) {
+  /**
+   * Discovers all the handlers that exist on providers in a Nest App that match a filter
+   * @param providerFilter
+   * @param handlerFilter
+   */
+  discoverHandlers(
+    providerFilter: ProviderFilter,
+    handlerFilter: HandlerFilter
+  ) {
     const providers = this.discoverProviders(providerFilter);
 
     return flatMap(providers, provider => {
       const { instance } = provider;
       const prototype = Object.getPrototypeOf(instance);
 
-      return this.metadataScanner.scanFromPrototype(
-        instance,
-        prototype,
-        name => {
-          const method = prototype[name];
-
-          const check = Reflect.getMetadataKeys(method);
-          console.log(name, check);
-
-          return true;
-        }
+      return this.metadataScanner.scanFromPrototype(instance, prototype, name =>
+        handlerFilter(instance, prototype, name)
       );
     });
   }

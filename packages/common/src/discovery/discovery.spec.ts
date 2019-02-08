@@ -1,6 +1,7 @@
 import { Injectable, Module, ReflectMetadata } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { DiscoveryModule, DiscoveryService, withMetaKey } from '.';
+import { DiscoveryModule, DiscoveryService, providerWithMetaKey } from '.';
+import { handlerWithMetaKey } from './discovery.service';
 
 const ExampleClassSymbol = Symbol('ExampleClassSymbol');
 
@@ -39,8 +40,9 @@ describe('Discovery', () => {
 
   it('should discover providers based on metadata', () => {
     const discoveryService = app.get<DiscoveryService>(DiscoveryService);
-    const testProviders = discoveryService.discoverProviders(x =>
-      withMetaKey(ExampleClassSymbol, x)
+
+    const testProviders = discoveryService.discoverProviders(
+      providerWithMetaKey(ExampleClassSymbol)
     );
 
     expect(testProviders).toHaveLength(1);
@@ -50,8 +52,11 @@ describe('Discovery', () => {
   it('should discover method handlers based on a predicate', () => {
     const discoveryService = app.get<DiscoveryService>(DiscoveryService);
 
-    const handlers = discoveryService.discoverHandlers(x =>
-      withMetaKey(ExampleClassSymbol, x)
+    const handlers = discoveryService.discoverHandlers(
+      injectable => true,
+      handlerWithMetaKey(ExampleMethodSymbol)
     );
+
+    console.log(handlers);
   });
 });
