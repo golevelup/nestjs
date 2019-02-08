@@ -19,7 +19,7 @@
     "url": "git+https://github.com/WonderPanda/nestjs-plus.git"
   },
   "scripts": {
-    "tsc": "tsc",
+    "build": "tsc --build tsconfig.build.json",
     "test": "jest"
   },
   "bugs": {

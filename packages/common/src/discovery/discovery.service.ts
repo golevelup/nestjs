@@ -5,10 +5,12 @@ import { ModulesContainer } from '@nestjs/core/injector/modules-container';
 import { MetadataScanner } from '@nestjs/core/metadata-scanner';
 import { flatMap } from 'lodash';
 
-export const withMetaKey = (
+export function withMetaKey(
   metaKey: string | number | Symbol,
   injectableWrapper: InstanceWrapper<NestInjectable>
-) => Reflect.getMetadata(metaKey, injectableWrapper.instance.constructor);
+): boolean {
+  return Reflect.getMetadata(metaKey, injectableWrapper.instance.constructor);
+}
 
 @Injectable()
 export class DiscoveryService {
