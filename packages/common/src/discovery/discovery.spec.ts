@@ -1,7 +1,6 @@
 import { Injectable, Module, ReflectMetadata } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { DiscoveryModule, DiscoveryService, providerWithMetaKey } from '.';
-import { handlerWithMetaKey } from './discovery.service';
 
 const ExampleClassSymbol = Symbol('ExampleClassSymbol');
 
@@ -16,8 +15,8 @@ const ExampleMethodDecorator = (config: any) => (target, key, descriptor) =>
 @Injectable()
 @ExampleClassDecorator('class')
 class ExampleService {
-  @ExampleMethodDecorator('method')
-  method() {}
+  @ExampleMethodDecorator('example method meta')
+  specialMethod() {}
 
   anotherMethod() {}
 }
@@ -38,25 +37,36 @@ describe('Discovery', () => {
     await app.init();
   });
 
-  it('should discover providers based on metadata', () => {
+  it('should discover providers based on a metadata key', () => {
     const discoveryService = app.get<DiscoveryService>(DiscoveryService);
 
-    const testProviders = discoveryService.discoverProviders(
+    const providers = discoveryService.discoverProviders(
       providerWithMetaKey(ExampleClassSymbol)
     );
 
-    expect(testProviders).toHaveLength(1);
-    console.log(testProviders[0].instance);
+    expect(providers).toHaveLength(1);
+    const [provider] = providers;
+    expect(provider.metatype).toBe(ExampleService);
+    expect(provider.instance).toBeInstanceOf(ExampleService);
   });
 
-  it('should discover method handlers based on a predicate', () => {
+  it('should discover method handler meta based on a metadata key', () => {
     const discoveryService = app.get<DiscoveryService>(DiscoveryService);
 
-    const handlers = discoveryService.discoverHandlers(
+    const handlerMeta = discoveryService.discoverHandlersWithMeta(
       injectable => true,
-      handlerWithMetaKey(ExampleMethodSymbol)
+      ExampleMethodSymbol
     );
 
-    console.log(handlers);
+    expect(handlerMeta.length).toBe(1);
+
+    const meta = handlerMeta[0];
+
+    expect(meta).toMatchObject({
+      meta: 'example method meta',
+      methodName: 'specialMethod'
+    });
+
+    expect(meta.provider).toBeInstanceOf(ExampleService);
   });
 });

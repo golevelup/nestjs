@@ -23,7 +23,7 @@
     "typescript": "^3.2.4"
   },
   "scripts": {
-    "publish": "lerna run tsc && lerna publish",
+    "publish:lerna": "lerna run build && lerna publish",
     "build": "lerna run build",
     "clean": "rimraf packages/**/lib",
     "test": "jest"

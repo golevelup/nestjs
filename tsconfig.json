@@ -4,6 +4,8 @@
     "declaration": true,
     "noImplicitAny": false,
     "removeComments": false,
+    "strict": true,
+    "strictNullChecks": true,
     "noLib": false,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,

@@ -4,12 +4,7 @@ import { InstanceWrapper } from '@nestjs/core/injector/container';
 import { ModulesContainer } from '@nestjs/core/injector/modules-container';
 import { MetadataScanner } from '@nestjs/core/metadata-scanner';
 import { flatMap } from 'lodash';
-
-export type MetaKey = string | number | Symbol;
-
-type ProviderFilter = (
-  injectableWrapper: InstanceWrapper<NestInjectable>
-) => boolean;
+import { MetaKey, MethodMeta, ProviderFilter } from './discovery.interfaces';
 
 type HandlerFilter = (
   injectable: NestInjectable,
@@ -57,23 +52,25 @@ export class DiscoveryService {
   }
 
   /**
-   * Discovers all the handlers that exist on providers in a Nest App that match a filter
+   * Discovers all the handlers that exist on providers in a Nest App that contain metadata under a specific key
    * @param providerFilter
    * @param handlerFilter
    */
-  discoverHandlers(
+  discoverHandlersWithMeta<T>(
     providerFilter: ProviderFilter,
-    handlerFilter: HandlerFilter
-  ) {
+    metaKey: MetaKey
+  ): MethodMeta<T>[] {
     const providers = this.discoverProviders(providerFilter);
 
     return flatMap(providers, provider => {
       const { instance } = provider;
       const prototype = Object.getPrototypeOf(instance);
 
-      return this.metadataScanner.scanFromPrototype(instance, prototype, name =>
-        handlerFilter(instance, prototype, name)
-      );
+      return this.metadataScanner
+        .scanFromPrototype(instance, prototype, name =>
+          extractMeta<T>(metaKey, instance, prototype, name)
+        )
+        .filter(x => !!x.meta);
     });
   }
 
@@ -82,4 +79,21 @@ export class DiscoveryService {
       nestModule => nestModule.components
     );
   }
+}
+
+function extractMeta<T>(
+  metaKey: MetaKey,
+  provider: NestInjectable,
+  prototype: any,
+  methodName: string
+): MethodMeta<T> {
+  const handler: Function = prototype[methodName];
+  const meta: T = Reflect.getMetadata(metaKey, handler);
+
+  return {
+    meta,
+    handler,
+    provider,
+    methodName
+  };
 }
