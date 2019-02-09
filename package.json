@@ -18,11 +18,14 @@
     "@types/node": "^10.12.18",
     "jest": "^24.1.0",
     "lerna": "^3.10.2",
+    "rimraf": "^2.6.3",
     "ts-jest": "^23.10.5",
     "typescript": "^3.2.4"
   },
   "scripts": {
     "publish": "lerna run tsc && lerna publish",
+    "build": "lerna run build",
+    "clean": "rimraf packages/**/lib",
     "test": "jest"
   },
   "version": "0.0.0"

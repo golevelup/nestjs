@@ -4,5 +4,5 @@
     "composite": true
   },
   "include": ["./src"],
-  "references": [{ "path": "../common" }]
+  "references": [{ "path": "../common/tsconfig.build.json" }]
 }
