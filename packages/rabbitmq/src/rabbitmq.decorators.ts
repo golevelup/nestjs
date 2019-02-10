@@ -1,14 +1,21 @@
 import { ReflectMetadata } from '@nestjs/common';
-import { RABBIT_RPC, RABBIT_SUBSCRIBE } from './rabbitmq.constants';
+import {
+  RABBIT_HANDLER,
+  RABBIT_RPC,
+  RABBIT_SUBSCRIBE
+} from './rabbitmq.constants';
+import { RabbitHandlerConfig } from './rabbitmq.interfaces';
 
-export const placeholder = () => 42;
-
-type RabbitDecoratorFactory = () => MethodDecorator;
+type RabbitDecoratorFactory = (config: RabbitHandlerConfig) => MethodDecorator;
 
 const makeRabbitDecorator = (
   rabbitType: Symbol
-): RabbitDecoratorFactory => () => (target, key, descriptor) =>
-  ReflectMetadata('someKey', { type: rabbitType })(target, key, descriptor);
+): RabbitDecoratorFactory => config => (target, key, descriptor) =>
+  ReflectMetadata(RABBIT_HANDLER, { type: rabbitType, config })(
+    target,
+    key,
+    descriptor
+  );
 
 export const RabbitSubscribe = makeRabbitDecorator(RABBIT_SUBSCRIBE);
 export const RabbitRPC = makeRabbitDecorator(RABBIT_RPC);

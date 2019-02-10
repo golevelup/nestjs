@@ -19,12 +19,14 @@
     "url": "git+https://github.com/WonderPanda/nestjs-plus.git"
   },
   "scripts": {
+    "build": "tsc --build tsconfig.build.json",
     "test": "echo \"Error: run tests from root\" && exit 1"
   },
   "bugs": {
     "url": "https://github.com/WonderPanda/nestjs-plus/issues"
   },
   "dependencies": {
+    "@nestjs-plus/common": "^0.0.4-alpha.0",
     "amqplib": "^0.5.3"
   },
   "devDependencies": {
