@@ -1,6 +1,6 @@
 {
   "name": "@nestjs-plus/caching",
-  "version": "0.0.9-alpha.0",
+  "version": "0.0.10-alpha.0",
   "description": "A Badass Caching Module for NestJS",
   "author": "Jesse Carter <jesse.r.carter@gmail.com>",
   "license": "MIT",
@@ -18,7 +18,7 @@
     "test": "echo \"Error: run tests from root\" && exit 1"
   },
   "dependencies": {
-    "@nestjs-plus/common": "^0.0.2-alpha.0",
+    "@nestjs-plus/common": "^0.0.3-alpha.0",
     "@nestjs/common": "^5.6.2",
     "@nestjs/core": "^5.6.2",
     "cache-manager": "^2.9.0"
@@ -33,7 +33,7 @@
   "bugs": {
     "url": "https://github.com/WonderPanda/nestjs-plus/issues"
   },
-  "gitHead": "5e55f7938681f7e5efa9414fa45d17fc2b6c7045",
+  "gitHead": "cd4d0dc1f3f6fde54549d09d42e181f139d7f4e4",
   "devDependencies": {
     "@types/cache-manager": "^1.2.6"
   }
