@@ -6,22 +6,10 @@ import { MetadataScanner } from '@nestjs/core/metadata-scanner';
 import { flatMap } from 'lodash';
 import { MetaKey, MethodMeta, ProviderFilter } from './discovery.interfaces';
 
-type HandlerFilter = (
-  injectable: NestInjectable,
-  prototype: any,
-  methodName: string
-) => boolean;
-
 export const providerWithMetaKey: (
   key: MetaKey
 ) => ProviderFilter = key => injectable =>
   Reflect.getMetadata(key, injectable.instance.constructor);
-
-export const handlerWithMetaKey: (key: MetaKey) => HandlerFilter = key => (
-  injectable,
-  prototype,
-  methodName
-) => Reflect.getMetadata(key, prototype[methodName]);
 
 @Injectable()
 export class DiscoveryService {
@@ -68,7 +56,7 @@ export class DiscoveryService {
 
       return this.metadataScanner
         .scanFromPrototype(instance, prototype, name =>
-          extractMeta<T>(metaKey, instance, prototype, name)
+          this.extractMeta<T>(metaKey, instance, prototype, name)
         )
         .filter(x => !!x.meta);
     });
@@ -79,21 +67,21 @@ export class DiscoveryService {
       nestModule => nestModule.components
     );
   }
-}
 
-function extractMeta<T>(
-  metaKey: MetaKey,
-  provider: NestInjectable,
-  prototype: any,
-  methodName: string
-): MethodMeta<T> {
-  const handler: Function = prototype[methodName];
-  const meta: T = Reflect.getMetadata(metaKey, handler);
+  private extractMeta<T>(
+    metaKey: MetaKey,
+    provider: NestInjectable,
+    prototype: any,
+    methodName: string
+  ): MethodMeta<T> {
+    const handler: Function = prototype[methodName];
+    const meta: T = Reflect.getMetadata(metaKey, handler);
 
-  return {
-    meta,
-    handler,
-    provider,
-    methodName
-  };
+    return {
+      meta,
+      handler,
+      provider,
+      methodName
+    };
+  }
 }

@@ -16,6 +16,5 @@ const makeRabbitDecorator = (
     key,
     descriptor
   );
-
 export const RabbitSubscribe = makeRabbitDecorator(RABBIT_SUBSCRIBE);
 export const RabbitRPC = makeRabbitDecorator(RABBIT_RPC);

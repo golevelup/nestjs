@@ -5,6 +5,5 @@
     "composite": true
   },
   "include": ["./src"],
-  "exclude": ["./src/**/*.spec.ts"],
   "references": [{ "path": "../common/tsconfig.build.json" }]
 }

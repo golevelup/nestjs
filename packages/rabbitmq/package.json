@@ -20,17 +20,33 @@
   },
   "scripts": {
     "build": "tsc --build tsconfig.build.json",
-    "test": "echo \"Error: run tests from root\" && exit 1"
+    "test": "jest"
   },
   "bugs": {
     "url": "https://github.com/WonderPanda/nestjs-plus/issues"
   },
   "dependencies": {
     "@nestjs-plus/common": "^0.0.4-alpha.0",
-    "amqplib": "^0.5.3"
+    "amqplib": "^0.5.3",
+    "uuid": "^3.3.2"
   },
   "devDependencies": {
-    "@types/amqplib": "^0.5.9"
+    "@types/amqplib": "^0.5.9",
+    "@types/uuid": "^3.4.4"
+  },
+  "jest": {
+    "moduleFileExtensions": [
+      "js",
+      "json",
+      "ts"
+    ],
+    "rootDir": "src",
+    "testRegex": ".spec.ts$",
+    "transform": {
+      "^.+\\.(t|j)s$": "ts-jest"
+    },
+    "coverageDirectory": "../coverage",
+    "testEnvironment": "node"
   },
   "gitHead": "cd4d0dc1f3f6fde54549d09d42e181f139d7f4e4"
 }
