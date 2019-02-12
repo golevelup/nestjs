@@ -1,16 +1,21 @@
-import { DynamicModule, Module, OnModuleInit } from '@nestjs/common';
-import { DiscoveryModule, DiscoveryService } from '../../common/src';
+import { DiscoveryModule, DiscoveryService } from '@nestjs-plus/common';
+import { DynamicModule, Logger, Module, OnModuleInit } from '@nestjs/common';
+import { ExternalContextCreator } from '@nestjs/core/helpers/external-context-creator';
+import { groupBy } from 'lodash';
 import { AmqpConnection } from './amqp/AmqpConnection';
 import { RABBIT_HANDLER } from './rabbitmq.constants';
-import { RabbitMQConfig } from './rabbitmq.interfaces';
+import { RabbitHandlerConfig, RabbitMQConfig } from './rabbitmq.interfaces';
 
 @Module({
   imports: [DiscoveryModule]
 })
 export class RabbitMQModule implements OnModuleInit {
+  private readonly logger = new Logger(RabbitMQModule.name);
+
   constructor(
     private readonly discoveryService: DiscoveryService,
-    private readonly amqpConnection: AmqpConnection
+    private readonly amqpConnection: AmqpConnection,
+    private readonly externalContextCreator: ExternalContextCreator
   ) {}
 
   public static build(config: RabbitMQConfig): DynamicModule {
@@ -31,14 +36,34 @@ export class RabbitMQModule implements OnModuleInit {
   }
 
   public async onModuleInit() {
-    console.log('rabbit module init');
+    const rabbitMeta = this.discoveryService.discoverHandlersWithMeta<
+      RabbitHandlerConfig
+    >(RABBIT_HANDLER);
 
-    const rabbitMeta = this.discoveryService.discoverHandlersWithMeta(
-      () => true,
-      RABBIT_HANDLER
-    );
+    const grouped = groupBy(rabbitMeta, x => x.provider.metatype.name);
 
-    console.log('connection', this.amqpConnection);
-    console.log(rabbitMeta);
+    const providerKeys = Object.keys(grouped);
+    for (const key of providerKeys) {
+      await Promise.all(
+        grouped[key].map(async x => {
+          const handler = this.externalContextCreator.create(
+            x.provider.instance,
+            x.handler,
+            x.methodName
+          );
+
+          const { exchange, routingKey } = x.meta;
+
+          return x.meta.type === 'rpc'
+            ? this.amqpConnection.createRpc(handler, { exchange, routingKey })
+            : null;
+        })
+      );
+    }
+
+    // await this.amqpConnection.createRpc(async () => 42, {
+    //   exchange: '',
+    //   routingKey: ''
+    // });
   }
 }

@@ -20,17 +20,31 @@ class ExampleModule {}
 
 describe('RabbitMQ', () => {
   let app: TestingModule;
+  let amqpMock: AmqpConnection;
 
   beforeEach(async () => {
+    // amqpMock = jest.fn<Partial<AmqpConnection>, []>(() => {
+    //   return {
+    //     createRpc: jest.fn()
+    //   };
+    // });
+
+    // const something = new amqpMock();
+
     app = await Test.createTestingModule({
       imports: [RabbitMQModule, ExampleModule]
     })
       .overrideProvider(AmqpConnection)
-      .useValue({})
+      .useValue({
+        createRpc: jest.fn()
+      })
       .compile();
 
     await app.init();
+    amqpMock = app.get<AmqpConnection>(AmqpConnection);
   });
 
-  it('should register rabbit handlers', async () => {});
+  it('should register rabbit handlers', async () => {
+    expect(amqpMock.createRpc).toBeCalled();
+  });
 });

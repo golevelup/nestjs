@@ -3,9 +3,9 @@ import { InstanceWrapper } from '@nestjs/core/injector/container';
 
 export interface MethodMeta<T> {
   meta: T;
-  handler: Function;
+  handler: (...args: any[]) => any;
   methodName: string;
-  provider: Injectable;
+  provider: InstanceWrapper<Injectable>;
 }
 
 export interface ProviderMeta<T> {

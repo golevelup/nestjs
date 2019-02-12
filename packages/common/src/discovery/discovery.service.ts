@@ -41,14 +41,10 @@ export class DiscoveryService {
 
   /**
    * Discovers all the handlers that exist on providers in a Nest App that contain metadata under a specific key
-   * @param providerFilter
-   * @param handlerFilter
+   * @param metaKey The metakey to scan for
    */
-  discoverHandlersWithMeta<T>(
-    providerFilter: ProviderFilter,
-    metaKey: MetaKey
-  ): MethodMeta<T>[] {
-    const providers = this.discoverProviders(providerFilter);
+  discoverHandlersWithMeta<T>(metaKey: MetaKey): MethodMeta<T>[] {
+    const providers = this.discoverProviders(() => true);
 
     return flatMap(providers, provider => {
       const { instance } = provider;
@@ -56,7 +52,7 @@ export class DiscoveryService {
 
       return this.metadataScanner
         .scanFromPrototype(instance, prototype, name =>
-          this.extractMeta<T>(metaKey, instance, prototype, name)
+          this.extractMeta<T>(metaKey, provider, prototype, name)
         )
         .filter(x => !!x.meta);
     });
@@ -70,11 +66,11 @@ export class DiscoveryService {
 
   private extractMeta<T>(
     metaKey: MetaKey,
-    provider: NestInjectable,
+    provider: InstanceWrapper<NestInjectable>,
     prototype: any,
     methodName: string
   ): MethodMeta<T> {
-    const handler: Function = prototype[methodName];
+    const handler = prototype[methodName];
     const meta: T = Reflect.getMetadata(metaKey, handler);
 
     return {

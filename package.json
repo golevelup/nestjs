@@ -13,11 +13,13 @@
   },
   "devDependencies": {
     "@nestjs/testing": "^5.7.0",
+    "@types/express": "^4.16.1",
     "@types/jest": "^24.0.0",
     "@types/lodash": "^4.14.120",
     "@types/node": "^10.12.18",
     "jest": "^24.1.0",
     "lerna": "^3.10.2",
+    "prettier": "^1.16.4",
     "rimraf": "^2.6.3",
     "ts-jest": "^23.10.5",
     "typescript": "^3.2.4"
@@ -27,6 +29,17 @@
     "build": "lerna run build",
     "clean": "rimraf packages/**/lib",
     "test": "jest"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "projects": [
+      "<rootDir>/packages/*"
+    ],
+    "globals": {
+      "ts-jest": {
+        "tsConfig": "tsconfig.json"
+      }
+    }
   },
   "version": "0.0.0"
 }

@@ -9,7 +9,11 @@ export interface RabbitMQConfig {
   prefetchCount?: number;
   exchanges: RabbitMQExchangeConfig[];
 }
+
+export type RabbitHandlerType = 'rpc' | 'subscribe';
+
 export interface RabbitHandlerConfig {
   exchange: string;
   routingKey: string;
+  type: RabbitHandlerType;
 }

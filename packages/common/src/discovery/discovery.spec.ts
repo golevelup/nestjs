@@ -54,7 +54,6 @@ describe('Discovery', () => {
     const discoveryService = app.get<DiscoveryService>(DiscoveryService);
 
     const handlerMeta = discoveryService.discoverHandlersWithMeta(
-      injectable => true,
       ExampleMethodSymbol
     );
 
@@ -67,6 +66,6 @@ describe('Discovery', () => {
       methodName: 'specialMethod'
     });
 
-    expect(meta.provider).toBeInstanceOf(ExampleService);
+    expect(meta.provider.instance).toBeInstanceOf(ExampleService);
   });
 });
