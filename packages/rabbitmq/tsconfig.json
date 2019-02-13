@@ -2,8 +2,8 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "./lib",
-    "composite": true
+    "rootDir": "./src"
   },
   "include": ["./src"],
-  "references": [{ "path": "../common/tsconfig.build.json" }]
+  "references": [{ "path": "../common" }]
 }
