@@ -83,8 +83,34 @@ export class AmqpConnection {
     return race(response$, timeout$).toPromise();
   }
 
+  public async createSubscriber<T>(
+    handler: (msg: T) => Promise<void>,
+    msgOptions: MessageOptions,
+    exchangeType: string = 'topic',
+    options?: amqplib.Options.AssertExchange
+  ) {
+    const { exchange, routingKey } = msgOptions;
+
+    await this._channel.assertExchange(exchange, exchangeType, options);
+
+    const { queue } = await this.channel.assertQueue(msgOptions.queue || '');
+
+    await this.channel.bindQueue(queue, exchange, routingKey);
+
+    await this.channel.consume(queue, async msg => {
+      if (msg == null) {
+        throw new Error('Received null message');
+      }
+
+      const message = JSON.parse(msg.content.toString()) as T;
+      await handler(message);
+
+      this._channel.ack(msg);
+    });
+  }
+
   public async createRpc<T, U>(
-    handler: (msg: T) => Promise<T>,
+    handler: (msg: T) => Promise<U>,
     msgOptions: MessageOptions,
     exchangeType: string = 'topic',
     options?: amqplib.Options.AssertExchange
@@ -110,6 +136,7 @@ export class AmqpConnection {
       this._channel.ack(msg);
     });
   }
+
   public publish(
     exchange: string,
     routingKey: string,
@@ -123,6 +150,7 @@ export class AmqpConnection {
       options
     );
   }
+
   private async initDirectReplyQueue() {
     // Set up a consumer on the Direct Reply-To queue to facilitate RPC functionality
     await this._channel.consume(

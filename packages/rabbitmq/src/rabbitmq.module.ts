@@ -56,14 +56,12 @@ export class RabbitMQModule implements OnModuleInit {
 
           return x.meta.type === 'rpc'
             ? this.amqpConnection.createRpc(handler, { exchange, routingKey })
-            : null;
+            : this.amqpConnection.createSubscriber(handler, {
+                exchange,
+                routingKey
+              });
         })
       );
     }
-
-    // await this.amqpConnection.createRpc(async () => 42, {
-    //   exchange: '',
-    //   routingKey: ''
-    // });
   }
 }
