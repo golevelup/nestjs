@@ -1,8 +1,8 @@
 {
-  "name": "caching",
+  "name": "kitchen-sink",
   "version": "0.0.0",
-  "description": "description",
-  "author": "",
+  "description": "Example NestJS app using various modules from @nestjs-plus",
+  "author": "Jesse Carter",
   "license": "MIT",
   "scripts": {
     "build": "tsc -p tsconfig.build.json",

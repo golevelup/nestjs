@@ -8,10 +8,7 @@
     "target": "es6",
     "sourceMap": true,
     "outDir": "./dist",
-    "baseUrl": "./",
-    "paths": {
-      "@nestjs-plus/*": ["../../packages/*/src"]
-    }
+    "baseUrl": "./"
   },
   "exclude": ["node_modules"]
 }

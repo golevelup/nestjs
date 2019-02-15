@@ -32,6 +32,9 @@
   },
   "jest": {
     "preset": "ts-jest",
+    "transform": {
+      "^.+\\.(j|t)sx?$": "ts-jest"
+    },
     "projects": [
       "<rootDir>/packages/*"
     ],

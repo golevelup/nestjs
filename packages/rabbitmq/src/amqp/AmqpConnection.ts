@@ -22,6 +22,7 @@ const defaultConfig = {
   prefetchCount: 10,
   exchangeType: 'topic'
 };
+
 export class AmqpConnection {
   private messageSubject = new Subject<CorrelationMessage>();
   private _connection!: amqplib.Connection;
@@ -30,12 +31,15 @@ export class AmqpConnection {
   constructor(config: RabbitMQConfig) {
     this.config = { ...defaultConfig, ...config };
   }
+
   get channel() {
     return this._channel;
   }
+
   get connection() {
     return this._connection;
   }
+
   public async init() {
     this._connection = await amqplib.connect(this.config.uri);
     this._channel = await this._connection.createChannel();
