@@ -25,10 +25,10 @@
   dependencies:
     shortid "^2.2.14"
 
-"@nestjs-plus/rabbitmq@^0.0.4-alpha.0":
-  version "0.0.4-alpha.0"
-  resolved "https://registry.yarnpkg.com/@nestjs-plus/rabbitmq/-/rabbitmq-0.0.4-alpha.0.tgz#98f9a3e6074c8e84f08900ccd93bb527f77f7f58"
-  integrity sha512-1g3xBQz42BT3KR/dI04PCA/MIR1l0RD6Ohc7oUdVZIaL86pRcIeBHequSVWz+2yHCEuDmCp9N7RRnA8wBrd5dQ==
+"@nestjs-plus/rabbitmq@^0.1.0-alpha.0":
+  version "0.1.0-alpha.0"
+  resolved "https://registry.yarnpkg.com/@nestjs-plus/rabbitmq/-/rabbitmq-0.1.0-alpha.0.tgz#12922d15c99389e3a7ad0eb007a6b924ad7a2659"
+  integrity sha512-sZnniMo5c+N8hKzqMFwMsrnwtBdM4IOHy1K70kciTi47ZEGUvQ8MJxTUw9AOwr0Ra48jyMNGJEloLo6hArRMiA==
   dependencies:
     "@nestjs-plus/common" "^0.0.6-alpha.0"
     amqplib "^0.5.3"

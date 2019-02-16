@@ -168,6 +168,8 @@ export class AmqpConnection {
           correlationId: msg.properties.correlationId.toString(),
           message: JSON.parse(msg.content.toString())
         };
+
+        this.messageSubject.next(correlationMessage);
       },
       {
         noAck: true

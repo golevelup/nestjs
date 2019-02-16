@@ -20,7 +20,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
-    "@nestjs-plus/rabbitmq": "^0.0.4-alpha.0",
+    "@nestjs-plus/rabbitmq": "^0.1.0-alpha.0",
     "@nestjs/common": "^5.4.0",
     "@nestjs/core": "^5.4.0",
     "reflect-metadata": "^0.1.12",
