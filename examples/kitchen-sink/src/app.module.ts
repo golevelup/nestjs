@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { RabbitExampleModule } from './rabbit-example/rabbit-example.module';
 
 @Module({
-  imports: [],
+  imports: [RabbitExampleModule],
   controllers: [AppController],
   providers: [AppService],
 })

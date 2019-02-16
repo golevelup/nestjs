@@ -16,4 +16,5 @@ export interface RabbitHandlerConfig {
   exchange: string;
   routingKey: string;
   type: RabbitHandlerType;
+  queue?: string;
 }

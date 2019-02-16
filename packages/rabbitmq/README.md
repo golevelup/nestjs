@@ -1,6 +1,7 @@
 # @nestjs-plus/rabbitmq
 
-This module features an opinionated set of decorators for common RabbitMQ patterns including Publish/Subscribe and RPC Rabbit's Direct Reply-To Queue for optimal performance.
+This module features an opinionated set of decorators for common RabbitMQ patterns including Publish/Subscribe and RPC using Rabbit's Direct Reply-To Queue for optimal performance.
+
 
 ## TODO
 

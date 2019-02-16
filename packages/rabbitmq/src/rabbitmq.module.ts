@@ -44,6 +44,7 @@ export class RabbitMQModule implements OnModuleInit {
 
     const providerKeys = Object.keys(grouped);
     for (const key of providerKeys) {
+      this.logger.log(`Registering rabbitmq handlers from ${key}`);
       await Promise.all(
         grouped[key].map(async x => {
           const handler = this.externalContextCreator.create(
@@ -52,13 +53,24 @@ export class RabbitMQModule implements OnModuleInit {
             x.methodName
           );
 
-          const { exchange, routingKey } = x.meta;
+          const { exchange, routingKey, queue } = x.meta;
+
+          this.logger.log(
+            `Attaching ${
+              x.meta.type
+            } handler on exchange ${exchange} and routingKey ${routingKey}`
+          );
 
           return x.meta.type === 'rpc'
-            ? this.amqpConnection.createRpc(handler, { exchange, routingKey })
+            ? this.amqpConnection.createRpc(handler, {
+                exchange,
+                routingKey,
+                queue
+              })
             : this.amqpConnection.createSubscriber(handler, {
                 exchange,
-                routingKey
+                routingKey,
+                queue
               });
         })
       );
