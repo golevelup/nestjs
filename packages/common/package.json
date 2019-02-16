@@ -1,6 +1,6 @@
 {
   "name": "@nestjs-plus/common",
-  "version": "0.0.5-alpha.0",
+  "version": "0.0.6-alpha.0",
   "description": "Common functions and utilities",
   "author": "Jesse Carter <jesse.r.carter@gmail.com>",
   "homepage": "https://github.com/WonderPanda/nestjs-plus#readme",
