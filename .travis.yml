@@ -1,0 +1,11 @@
+language: node_js
+node_js:
+  - stable
+install:
+  - yarn travis
+script:
+  - yarn test
+cache:
+  yarn: true
+  directories:
+    - node_modules
