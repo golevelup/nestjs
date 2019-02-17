@@ -9,7 +9,6 @@ export class MessagingService {
     queue: 'rpc-queue',
   })
   public async rpcHandler(msg: {}) {
-    console.log(`Received message: ${JSON.stringify(msg)}`);
     return {
       response: 42,
     };
