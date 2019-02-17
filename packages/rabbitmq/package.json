@@ -3,7 +3,7 @@
   "version": "0.1.1-alpha.0",
   "description": "Powerful RabbitMQ addons for NestJS",
   "author": "Jesse Carter <jesse.r.carter@gmail.com>",
-  "homepage": "https://github.com/WonderPanda/nestjs-plus#readme",
+  "homepage": "https://github.com/WonderPanda/nestjs-plus/blob/master/packages/rabbitmq/README.md",
   "license": "MIT",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
