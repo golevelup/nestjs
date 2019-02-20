@@ -3,6 +3,7 @@
 <p align="center">
 <a href="https://www.npmjs.com/package/@nestjs-plus/rabbitmq"><img src="https://img.shields.io/npm/v/@nestjs-plus/rabbitmq.svg?style=flat" alt="version" /></a>
 <a href="https://www.npmjs.com/package/@nestjs-plus/rabbitmq"><img alt="downloads" src="https://img.shields.io/npm/dt/@nestjs-plus/rabbitmq.svg?style=flat"></a>
+<img alt="license" src="https://img.shields.io/npm/l/@nestjs-plus/rabbitmq.svg">
 </p>
 
 ## Description
@@ -98,7 +99,7 @@ export class MessagingService {
 
 The competing consumer pattern is useful when building decoupled applications especially when it comes to things like RPC or [Work Queues](https://www.rabbitmq.com/tutorials/tutorial-two-javascript.html). In these scenarios, it often desirable to ensure that only one handler processes a given message especially if your app is horizontally scaled.
 
-In the previous examples, both RPC and Pub/Sub would be using the Competing Consumer patter by default through the use of a named `queue` parameter. If running multiple instances of the application, each instance would bind to the same named queue and receive the messages in a round robin fashion.
+In the previous examples, both RPC and Pub/Sub would be using the Competing Consumer pattern by default through the use of a named `queue` parameter. If running multiple instances of the application, each instance would bind to the same named queue and receive the messages in a round robin fashion.
 
 If you don't want this behavior, simply don't provide a queue name. A unique one will be generated automatically and all instances of the handler will receive their own copy of the message.
 

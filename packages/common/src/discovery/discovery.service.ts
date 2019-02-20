@@ -1,15 +1,31 @@
 import { Injectable } from '@nestjs/common';
-import { Injectable as NestInjectable } from '@nestjs/common/interfaces';
+import {
+  Controller,
+  Injectable as NestInjectable
+} from '@nestjs/common/interfaces';
 import { InstanceWrapper } from '@nestjs/core/injector/container';
 import { ModulesContainer } from '@nestjs/core/injector/modules-container';
 import { MetadataScanner } from '@nestjs/core/metadata-scanner';
 import { flatMap } from 'lodash';
-import { MetaKey, MethodMeta, ProviderFilter } from './discovery.interfaces';
+import {
+  ComponentWrapper,
+  Filter,
+  MetaKey,
+  MethodMeta
+} from './discovery.interfaces';
+
+type ProviderFilter = Filter<InstanceWrapper<NestInjectable>>;
+type ControllerFilter = Filter<InstanceWrapper<Controller>>;
 
 export const providerWithMetaKey: (
   key: MetaKey
 ) => ProviderFilter = key => injectable =>
   Reflect.getMetadata(key, injectable.instance.constructor);
+
+export const controllerWithMetaKey: (
+  key: MetaKey
+) => ControllerFilter = key => controller =>
+  Reflect.getMetadata(key, controller.instance.constructor);
 
 @Injectable()
 export class DiscoveryService {
@@ -22,14 +38,12 @@ export class DiscoveryService {
    * Discovers all providers in a Nest App that match a filter
    * @param providerFilter
    */
-  discoverProviders(
-    providerFilter: ProviderFilter
-  ): InstanceWrapper<NestInjectable>[] {
+  discoverProviders(filter: ProviderFilter): InstanceWrapper<NestInjectable>[] {
     const providers = this.getKeyedModuleProviders();
 
     const filtered = flatMap(providers, componentMap =>
       flatMap([...componentMap.entries()], ([key, value]) => ({
-        match: providerFilter(value),
+        match: filter(value),
         value
       }))
     )
@@ -40,22 +54,60 @@ export class DiscoveryService {
   }
 
   /**
-   * Discovers all the handlers that exist on providers in a Nest App that contain metadata under a specific key
+   * Discovers all controllers in a Nest App that match a filter
+   * @param providerFilter
+   */
+  discoverControllers(filter: ControllerFilter): InstanceWrapper<Controller>[] {
+    const controllers = this.getKeyedModuleControllers();
+
+    const filtered = flatMap(controllers, componentMap =>
+      flatMap([...componentMap.entries()], ([key, value]) => ({
+        match: filter(value),
+        value
+      }))
+    )
+      .filter(x => x.match)
+      .map(x => x.value);
+
+    return filtered;
+  }
+
+  discoverMethodMeta<T>(
+    component: ComponentWrapper,
+    metaKey: MetaKey
+  ): MethodMeta<T>[] {
+    const { instance } = component;
+    const prototype = Object.getPrototypeOf(instance);
+
+    return this.metadataScanner
+      .scanFromPrototype(instance, prototype, name =>
+        this.extractMethodMeta<T>(metaKey, component, prototype, name)
+      )
+      .filter(x => !!x.meta);
+  }
+
+  /**
+   * Discovers all the methods that exist on providers in a Nest App that contain metadata under a specific key
    * @param metaKey The metakey to scan for
    */
-  discoverHandlersWithMeta<T>(metaKey: MetaKey): MethodMeta<T>[] {
+  discoverProviderMethodsWithMeta<T>(metaKey: MetaKey): MethodMeta<T>[] {
     const providers = this.discoverProviders(() => true);
 
-    return flatMap(providers, provider => {
-      const { instance } = provider;
-      const prototype = Object.getPrototypeOf(instance);
+    return flatMap(providers, provider =>
+      this.discoverMethodMeta<T>(provider, metaKey)
+    );
+  }
 
-      return this.metadataScanner
-        .scanFromPrototype(instance, prototype, name =>
-          this.extractMeta<T>(metaKey, provider, prototype, name)
-        )
-        .filter(x => !!x.meta);
-    });
+  /**
+   * Discovers all the methods that exist on controllers in a Nest App that contain metadata under a specific key
+   * @param metaKey The metakey to scan for
+   */
+  discoverControllerMethodsWithMeta<T>(metaKey: MetaKey): MethodMeta<T>[] {
+    const controllers = this.discoverControllers(() => true);
+
+    return flatMap(controllers, controller =>
+      this.discoverMethodMeta<T>(controller, metaKey)
+    );
   }
 
   private getKeyedModuleProviders() {
@@ -64,9 +116,15 @@ export class DiscoveryService {
     );
   }
 
-  private extractMeta<T>(
+  private getKeyedModuleControllers() {
+    return [...this.modulesContainer.values()].map(
+      nestModule => nestModule.routes
+    );
+  }
+
+  private extractMethodMeta<T>(
     metaKey: MetaKey,
-    provider: InstanceWrapper<NestInjectable>,
+    component: ComponentWrapper,
     prototype: any,
     methodName: string
   ): MethodMeta<T> {
@@ -76,7 +134,7 @@ export class DiscoveryService {
     return {
       meta,
       handler,
-      provider,
+      component,
       methodName
     };
   }

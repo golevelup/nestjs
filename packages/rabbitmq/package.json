@@ -5,6 +5,7 @@
   "author": "Jesse Carter <jesse.r.carter@gmail.com>",
   "homepage": "https://github.com/WonderPanda/nestjs-plus/blob/master/packages/rabbitmq/README.md",
   "license": "MIT",
+  "keywords": ["NestJS", "RabbitMQ", "microservices", "messaging"],
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "directories": {

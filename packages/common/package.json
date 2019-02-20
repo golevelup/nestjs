@@ -1,10 +1,11 @@
 {
   "name": "@nestjs-plus/common",
   "version": "0.0.6-alpha.0",
-  "description": "Common functions and utilities",
+  "description": "Common module and utility building blocks for badass NestJS applications",
   "author": "Jesse Carter <jesse.r.carter@gmail.com>",
   "homepage": "https://github.com/WonderPanda/nestjs-plus#readme",
   "license": "MIT",
+  "keywords": ["NestJS"],
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "directories": {
