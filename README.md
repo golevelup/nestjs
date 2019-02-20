@@ -32,4 +32,8 @@ The various packages are managed using Yarn Workspaces and Lerna and published u
 
 - A flexible module for response caching that allows per route/handler cache configuration
 
+#### [Slack - @nestjs-plus/slack](packages/slack/README.md)
+
+- Utilities and middlewares for building slack commands and integrations
+
 #### Cloud specific packages (@nestjs-plus/azure)
