@@ -1,6 +1,6 @@
 {
   "name": "@nestjs-plus/caching",
-  "version": "0.0.13-alpha.0",
+  "version": "0.0.14-alpha.0",
   "description": "A Badass Caching Module for NestJS",
   "author": "Jesse Carter <jesse.r.carter@gmail.com>",
   "license": "MIT",
@@ -18,7 +18,7 @@
     "test": "echo \"Error: run tests from root\" && exit 1"
   },
   "dependencies": {
-    "@nestjs-plus/common": "^0.0.6-alpha.0",
+    "@nestjs-plus/common": "^0.1.0-alpha.0",
     "@nestjs/common": "^5.6.2",
     "@nestjs/core": "^5.6.2",
     "cache-manager": "^2.9.0"
