@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { PATH_METADATA } from '@nestjs/common/constants';
 import { Test, TestingModule } from '@nestjs/testing';
-import { DiscoveryModule, DiscoveryService, providerWithMetaKey } from '.';
+import { DiscoveryModule, DiscoveryService, providerWithMetaKey } from '..';
 
 // Set up a Controller and Provider that can be used by the Testing Module
 
@@ -18,8 +18,8 @@ const ExampleMethodSymbol = Symbol('ExampleMethodSymbol');
 const ExampleClassDecorator = (config: any) =>
   ReflectMetadata(ExampleClassSymbol, config);
 
-const ExampleMethodDecorator = (config: any) => (target, key, descriptor) =>
-  ReflectMetadata(ExampleMethodSymbol, config)(target, key, descriptor);
+const ExampleMethodDecorator = (config: any) =>
+  ReflectMetadata(ExampleMethodSymbol, config);
 
 @Injectable()
 @ExampleClassDecorator('class')
@@ -72,13 +72,13 @@ describe('Discovery', () => {
     });
 
     it('should discover provider method handler meta based on a metadata key', () => {
-      const handlerMeta = discoveryService.discoverProviderMethodsWithMeta(
+      const providerMethodMeta = discoveryService.discoverProviderMethodsWithMeta(
         ExampleMethodSymbol
       );
 
-      expect(handlerMeta.length).toBe(1);
+      expect(providerMethodMeta.length).toBe(1);
 
-      const meta = handlerMeta[0];
+      const meta = providerMethodMeta[0];
 
       expect(meta).toMatchObject({
         meta: 'example provider method meta',
@@ -94,6 +94,7 @@ describe('Discovery', () => {
       const controllers = discoveryService.discoverControllers(
         controller => true
       );
+
       expect(controllers).toHaveLength(1);
       const [controller] = controllers;
       expect(controller.metatype).toBe(ExampleController);
@@ -101,15 +102,21 @@ describe('Discovery', () => {
     });
 
     it('should discover controller method handler meta based on a metadata key', () => {
-      const handlerMeta = discoveryService.discoverControllerMethodsWithMeta<
+      const controllerMethodMeta = discoveryService.discoverControllerMethodsWithMeta<
         string
       >(PATH_METADATA);
-      const [first] = handlerMeta;
+      const [first] = controllerMethodMeta;
 
-      // console.log(first.meta);
-      // console.log(Reflect.getMetadataKeys(first.handler));
-      // console.log(Reflect.getMetadata('path', first.handler));
-      // console.log(Reflect.getMetadata('method', first.handler));
+      expect(controllerMethodMeta.length).toBe(1);
+
+      const meta = controllerMethodMeta[0];
+
+      expect(meta).toMatchObject({
+        meta: 'route',
+        methodName: 'get'
+      });
+
+      expect(meta.component.instance).toBeInstanceOf(ExampleController);
     });
   });
 });

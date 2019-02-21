@@ -8,6 +8,7 @@ import { ModulesContainer } from '@nestjs/core/injector/modules-container';
 import { MetadataScanner } from '@nestjs/core/metadata-scanner';
 import { flatMap } from 'lodash';
 import {
+  ComponentMeta,
   ComponentWrapper,
   Filter,
   MetaKey,
@@ -17,15 +18,25 @@ import {
 type ProviderFilter = Filter<InstanceWrapper<NestInjectable>>;
 type ControllerFilter = Filter<InstanceWrapper<Controller>>;
 
+/**
+ * A controller filter that can be used to scan for all Providers in an App that contain meta at a
+ * certain key
+ * @param key The meta key to search for
+ */
 export const providerWithMetaKey: (
   key: MetaKey
-) => ProviderFilter = key => injectable =>
-  Reflect.getMetadata(key, injectable.instance.constructor);
+) => ProviderFilter = key => provider =>
+  Reflect.getMetadata(key, provider.metatype);
 
+/**
+ * A controller filter that can be used to scan for all Controllers in an App that contain meta at a
+ * certain key
+ * @param key The meta key to search for
+ */
 export const controllerWithMetaKey: (
   key: MetaKey
 ) => ControllerFilter = key => controller =>
-  Reflect.getMetadata(key, controller.instance.constructor);
+  Reflect.getMetadata(key, controller.metatype);
 
 @Injectable()
 export class DiscoveryService {
@@ -54,6 +65,19 @@ export class DiscoveryService {
   }
 
   /**
+   * Discovers all providers in an App that have meta at a specific key and returns the provider(s) and associated meta
+   * @param metaKey The metakey to scan for
+   */
+  discoverProvidersWithMeta<T>(metaKey: MetaKey): ComponentMeta<T>[] {
+    const providers = this.discoverControllers(providerWithMetaKey(metaKey));
+
+    return providers.map(x => ({
+      meta: Reflect.getMetadata(metaKey, x.metatype) as T,
+      component: x
+    }));
+  }
+
+  /**
    * Discovers all controllers in a Nest App that match a filter
    * @param providerFilter
    */
@@ -72,7 +96,27 @@ export class DiscoveryService {
     return filtered;
   }
 
-  discoverMethodMeta<T>(
+  /**
+   * Discovers all controllers in an App that have meta at a specific key and returns the controller(s) and associated meta
+   * @param metaKey The metakey to scan for
+   */
+  discoverControllersWithMeta<T>(metaKey: MetaKey): ComponentMeta<T>[] {
+    const controllers = this.discoverControllers(
+      controllerWithMetaKey(metaKey)
+    );
+
+    return controllers.map(x => ({
+      meta: Reflect.getMetadata(metaKey, x.metatype) as T,
+      component: x
+    }));
+  }
+
+  /**
+   * Discovers all method handlers matching a particular metakey from a Provider or Controller
+   * @param component
+   * @param metaKey
+   */
+  discoverMethodMetaFromComponent<T>(
     component: ComponentWrapper,
     metaKey: MetaKey
   ): MethodMeta<T>[] {
@@ -89,24 +133,32 @@ export class DiscoveryService {
   /**
    * Discovers all the methods that exist on providers in a Nest App that contain metadata under a specific key
    * @param metaKey The metakey to scan for
+   * @param providerFilter A predicate used to limit the providers being scanned. Defaults to all providers in the app module
    */
-  discoverProviderMethodsWithMeta<T>(metaKey: MetaKey): MethodMeta<T>[] {
-    const providers = this.discoverProviders(() => true);
+  discoverProviderMethodsWithMeta<T>(
+    metaKey: MetaKey,
+    providerFilter: ProviderFilter = x => true
+  ): MethodMeta<T>[] {
+    const providers = this.discoverProviders(providerFilter);
 
     return flatMap(providers, provider =>
-      this.discoverMethodMeta<T>(provider, metaKey)
+      this.discoverMethodMetaFromComponent<T>(provider, metaKey)
     );
   }
 
   /**
    * Discovers all the methods that exist on controllers in a Nest App that contain metadata under a specific key
    * @param metaKey The metakey to scan for
+   * @param controllerFilter A predicate used to limit the controllers being scanned. Defaults to all providers in the app module
    */
-  discoverControllerMethodsWithMeta<T>(metaKey: MetaKey): MethodMeta<T>[] {
-    const controllers = this.discoverControllers(() => true);
+  discoverControllerMethodsWithMeta<T>(
+    metaKey: MetaKey,
+    controllerFilter: ControllerFilter = x => true
+  ): MethodMeta<T>[] {
+    const controllers = this.discoverControllers(controllerFilter);
 
     return flatMap(controllers, controller =>
-      this.discoverMethodMeta<T>(controller, metaKey)
+      this.discoverMethodMetaFromComponent<T>(controller, metaKey)
     );
   }
 
