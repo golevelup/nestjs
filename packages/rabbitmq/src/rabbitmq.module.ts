@@ -36,11 +36,11 @@ export class RabbitMQModule implements OnModuleInit {
   }
 
   public async onModuleInit() {
-    const rabbitMeta = this.discoveryService.discoverHandlersWithMeta<
+    const rabbitMeta = this.discoveryService.discoverProviderMethodsWithMeta<
       RabbitHandlerConfig
     >(RABBIT_HANDLER);
 
-    const grouped = groupBy(rabbitMeta, x => x.provider.metatype.name);
+    const grouped = groupBy(rabbitMeta, x => x.component.metatype.name);
 
     const providerKeys = Object.keys(grouped);
     for (const key of providerKeys) {
@@ -48,7 +48,7 @@ export class RabbitMQModule implements OnModuleInit {
       await Promise.all(
         grouped[key].map(async x => {
           const handler = this.externalContextCreator.create(
-            x.provider.instance,
+            x.component.instance,
             x.handler,
             x.methodName
           );

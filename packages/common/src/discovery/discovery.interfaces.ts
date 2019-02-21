@@ -1,20 +1,22 @@
-import { Injectable } from '@nestjs/common/interfaces';
+import { Controller, Injectable } from '@nestjs/common/interfaces';
 import { InstanceWrapper } from '@nestjs/core/injector/container';
+
+export type ComponentWrapper =
+  | InstanceWrapper<Injectable>
+  | InstanceWrapper<Controller>;
 
 export interface MethodMeta<T> {
   meta: T;
   handler: (...args: any[]) => any;
   methodName: string;
-  provider: InstanceWrapper<Injectable>;
+  component: ComponentWrapper;
 }
 
-export interface ProviderMeta<T> {
+export interface ComponentMeta<T> {
   meta: T;
-  provider: InstanceWrapper<Injectable>;
+  component: ComponentWrapper;
 }
 
 export type MetaKey = string | number | Symbol;
 
-export type ProviderFilter = (
-  injectableWrapper: InstanceWrapper<Injectable>
-) => boolean;
+export type Filter<T> = (item: T) => boolean;
