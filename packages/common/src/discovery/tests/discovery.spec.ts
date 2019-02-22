@@ -61,7 +61,7 @@ describe('Discovery', () => {
 
   describe('Providers', () => {
     it('should discover providers based on a metadata key', () => {
-      const providers = discoveryService.discoverProviders(
+      const providers = discoveryService.providers(
         providerWithMetaKey(ExampleClassSymbol)
       );
 
@@ -72,7 +72,7 @@ describe('Discovery', () => {
     });
 
     it('should discover provider method handler meta based on a metadata key', () => {
-      const providerMethodMeta = discoveryService.discoverProviderMethodsWithMeta(
+      const providerMethodMeta = discoveryService.providerMethodsWithMeta(
         ExampleMethodSymbol
       );
 
@@ -91,9 +91,7 @@ describe('Discovery', () => {
 
   describe('Controllers', () => {
     it('should discover controllers', () => {
-      const controllers = discoveryService.discoverControllers(
-        controller => true
-      );
+      const controllers = discoveryService.controllers(controller => true);
 
       expect(controllers).toHaveLength(1);
       const [controller] = controllers;
@@ -102,7 +100,7 @@ describe('Discovery', () => {
     });
 
     it('should discover controller method handler meta based on a metadata key', () => {
-      const controllerMethodMeta = discoveryService.discoverControllerMethodsWithMeta<
+      const controllerMethodMeta = discoveryService.controllerMethodsWithMeta<
         string
       >(PATH_METADATA);
       const [first] = controllerMethodMeta;
