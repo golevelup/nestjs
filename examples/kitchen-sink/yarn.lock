@@ -18,19 +18,19 @@
     esutils "^2.0.2"
     js-tokens "^4.0.0"
 
-"@nestjs-plus/common@^0.0.6-alpha.0":
-  version "0.0.6-alpha.0"
-  resolved "https://registry.yarnpkg.com/@nestjs-plus/common/-/common-0.0.6-alpha.0.tgz#d33ca335b9f39edf0affb0dcbeb9cf97cf534c7c"
-  integrity sha512-q0AAlMlGpa0QOhUXUAbJzEN3xN49ib2jfZILKLzS96k3g6XNMo2cAnb4kUpGyy6dKXYz48XMjT/5UpEOuK2JCA==
+"@nestjs-plus/common@^0.1.0":
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/@nestjs-plus/common/-/common-0.1.0.tgz#466cb5999be88ffb1f1db3a68081541bba7a05cd"
+  integrity sha512-Tzgm1DfYmSV/PWCDhPjjJUujgF9A8/I5cq9QcNTjghRVh667rhLmvq77xQTd5PyIqlmdYfkMRQA1XR7p8DBdGQ==
   dependencies:
     shortid "^2.2.14"
 
-"@nestjs-plus/rabbitmq@^0.1.1-alpha.0":
-  version "0.1.1-alpha.0"
-  resolved "https://registry.yarnpkg.com/@nestjs-plus/rabbitmq/-/rabbitmq-0.1.1-alpha.0.tgz#e906187f03b37e0970bd2d838efaba3350c7fb19"
-  integrity sha512-lIkhkDBPsQdgljyzzjGAfSw6RKoV+SmtFeHq6qlvzIeajjDu7KcE+EKqX41i4AcxNzCwRSLLLUkuh6nV4zgWLw==
+"@nestjs-plus/rabbitmq@^0.2.1-alpha.0":
+  version "0.2.1-alpha.0"
+  resolved "https://registry.yarnpkg.com/@nestjs-plus/rabbitmq/-/rabbitmq-0.2.1-alpha.0.tgz#aad2865b8dc6c51557ef61c7cf416032a264ce9c"
+  integrity sha512-2KjEUU2815AvoYkF0OZJBXBwMNsSJdKFx3WAShKYX021biWkOB8reIw0OXHunVmY/a0KIlEfnNEfAvOkXJuNgg==
   dependencies:
-    "@nestjs-plus/common" "^0.0.6-alpha.0"
+    "@nestjs-plus/common" "^0.1.0"
     amqplib "^0.5.3"
     uuid "^3.3.2"
 
