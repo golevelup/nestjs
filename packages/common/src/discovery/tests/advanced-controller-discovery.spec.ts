@@ -1,18 +1,31 @@
-import { Controller, Get, Module, Post, ReflectMetadata, RequestMethod } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Module,
+  Post,
+  Put,
+  ReflectMetadata,
+  RequestMethod
+} from '@nestjs/common';
 import { METHOD_METADATA, PATH_METADATA } from '@nestjs/common/constants';
 import { Test, TestingModule } from '@nestjs/testing';
-import { flatMap } from 'lodash';
 import { DiscoveryModule, DiscoveryService } from '..';
 
 const rolesKey = 'roles';
 const Roles = (roles: string[]) => ReflectMetadata(rolesKey, roles);
 
 @Controller('guest')
-@Roles(['guest'])
+@Roles(['guest', 'anotherRole'])
 class GuestController {
   @Get('route-path-one')
   method1() {
     return 'method1';
+  }
+
+  @Roles(['guest'])
+  @Put('some-put-route')
+  putMethod() {
+    return 'whatever';
   }
 }
 
@@ -48,7 +61,7 @@ class ExampleModule {}
 
 describe('Advanced Controller Discovery', () => {
   let app: TestingModule;
-  let discoveryService: DiscoveryService;
+  let discover: DiscoveryService;
 
   beforeEach(async () => {
     app = await Test.createTestingModule({
@@ -57,13 +70,11 @@ describe('Advanced Controller Discovery', () => {
 
     await app.init();
 
-    discoveryService = app.get<DiscoveryService>(DiscoveryService);
+    discover = app.get<DiscoveryService>(DiscoveryService);
   });
 
   it('can discover all controllers with roles', () => {
-    const rolesControllers = discoveryService.discoverControllersWithMeta<
-      string[]
-    >(rolesKey);
+    const rolesControllers = discover.controllersWithMeta<string[]>(rolesKey);
 
     expect(rolesControllers).toHaveLength(2);
 
@@ -78,57 +89,52 @@ describe('Advanced Controller Discovery', () => {
   });
 
   it('can discover controller methods with roles', () => {
-    const rolesMethods = discoveryService.discoverControllerMethodsWithMeta<
-      string[]
-    >(rolesKey);
+    const rolesMethods = discover.controllerMethodsWithMeta<string[]>(rolesKey);
 
-    expect(rolesMethods).toHaveLength(3);
+    expect(rolesMethods).toHaveLength(4);
 
     const guestMethods = rolesMethods.filter(x => x.meta.includes('guest'));
-    expect(guestMethods).toHaveLength(2);
+    expect(guestMethods).toHaveLength(3);
   });
 
-  it('can discover all controller methods tagged with guest or belonging to guest controllers', () => {
-    const guestControllers = discoveryService
-      .discoverControllersWithMeta<string[]>(rolesKey)
-      .filter(x => x.meta.includes('guest'));
-
-    const methodsFromGuestControllers = flatMap(
-      guestControllers,
-      controller => {
-        return discoveryService.discoverMethodMetaFromComponent(
-          controller.component,
-          PATH_METADATA
-        );
-      }
+  it('can discover all controller methods decorated with guest roles or belonging to controllers with guest roles', () => {
+    const allMethods = discover.methodsAndControllerMethodsWithMeta<string[]>(
+      rolesKey,
+      x => x.includes('guest')
     );
 
-    const guestMethods = discoveryService
-      .discoverControllerMethodsWithMeta<string[]>(rolesKey)
-      .filter(x => x.meta.includes('guest'));
+    expect(allMethods).toHaveLength(4);
 
-    const allGuestMethods = [...methodsFromGuestControllers, ...guestMethods];
-   
-    const fullPaths = allGuestMethods.map(x => {
+    const fullPaths = allMethods.map(x => {
       const controllerPath = Reflect.getMetadata(
         PATH_METADATA,
         x.component.metatype
       );
 
       const methodPath = Reflect.getMetadata(PATH_METADATA, x.handler);
-      const methodHttpVerb = Reflect.getMetadata(
-        METHOD_METADATA,
-        x.handler
-      );
+      const methodHttpVerb = Reflect.getMetadata(METHOD_METADATA, x.handler);
 
       return {
         verb: methodHttpVerb,
         path: `${controllerPath}/${methodPath}`
-      }
+      };
     });
 
-    expect(fullPaths).toContainEqual({verb: RequestMethod.GET, path: 'guest/route-path-one'});
-    expect(fullPaths).toContainEqual({verb: RequestMethod.GET, path: 'super/route-path-two'});
-    expect(fullPaths).toContainEqual({verb: RequestMethod.POST, path: 'admin/route-path-three'});
+    expect(fullPaths).toContainEqual({
+      verb: RequestMethod.GET,
+      path: 'guest/route-path-one'
+    });
+    expect(fullPaths).toContainEqual({
+      verb: RequestMethod.GET,
+      path: 'super/route-path-two'
+    });
+    expect(fullPaths).toContainEqual({
+      verb: RequestMethod.POST,
+      path: 'admin/route-path-three'
+    });
+    expect(fullPaths).toContainEqual({
+      verb: RequestMethod.PUT,
+      path: 'guest/some-put-route'
+    });
   });
 });

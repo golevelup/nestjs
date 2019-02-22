@@ -13,7 +13,7 @@ export class RabbitMQModule implements OnModuleInit {
   private readonly logger = new Logger(RabbitMQModule.name);
 
   constructor(
-    private readonly discoveryService: DiscoveryService,
+    private readonly discover: DiscoveryService,
     private readonly amqpConnection: AmqpConnection,
     private readonly externalContextCreator: ExternalContextCreator
   ) {}
@@ -36,7 +36,7 @@ export class RabbitMQModule implements OnModuleInit {
   }
 
   public async onModuleInit() {
-    const rabbitMeta = this.discoveryService.discoverProviderMethodsWithMeta<
+    const rabbitMeta = this.discover.providerMethodsWithMeta<
       RabbitHandlerConfig
     >(RABBIT_HANDLER);
 
