@@ -1,6 +1,9 @@
+import * as amqplib from 'amqplib';
+
 export interface RabbitMQExchangeConfig {
   name: string;
   type?: string;
+  options?: amqplib.Options.AssertExchange;
 }
 
 export interface RabbitMQConfig {
