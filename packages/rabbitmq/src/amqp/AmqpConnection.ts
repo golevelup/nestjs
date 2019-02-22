@@ -11,7 +11,7 @@ export interface CorrelationMessage {
   message: {};
 }
 
-interface MessageOptions {
+export interface MessageOptions {
   exchange: string;
   routingKey: string;
   queue?: string;
@@ -20,7 +20,7 @@ interface MessageOptions {
 const defaultConfig = {
   timeout: 10000,
   prefetchCount: 10,
-  exchangeType: 'topic'
+  defaultExchangeType: 'topic'
 };
 
 export class AmqpConnection {
@@ -48,7 +48,8 @@ export class AmqpConnection {
       this.config.exchanges.map(async x =>
         this._channel.assertExchange(
           x.name,
-          x.type || defaultConfig.exchangeType
+          x.type || this.config.defaultExchangeType,
+          x.options,
         )
       )
     );
@@ -90,12 +91,8 @@ export class AmqpConnection {
   public async createSubscriber<T>(
     handler: (msg: T) => Promise<void>,
     msgOptions: MessageOptions,
-    exchangeType: string = 'topic',
-    options?: amqplib.Options.AssertExchange
   ) {
     const { exchange, routingKey } = msgOptions;
-
-    await this._channel.assertExchange(exchange, exchangeType, options);
 
     const { queue } = await this.channel.assertQueue(msgOptions.queue || '');
 
@@ -116,12 +113,8 @@ export class AmqpConnection {
   public async createRpc<T, U>(
     handler: (msg: T) => Promise<U>,
     msgOptions: MessageOptions,
-    exchangeType: string = 'topic',
-    options?: amqplib.Options.AssertExchange
   ) {
     const { exchange, routingKey } = msgOptions;
-
-    await this._channel.assertExchange(exchange, exchangeType, options);
 
     const { queue } = await this.channel.assertQueue(msgOptions.queue || '');
 
