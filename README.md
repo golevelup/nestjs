@@ -1,4 +1,6 @@
-# NestJS Plus
+<p align="center">
+    <image src="nestpluslogo.svg">
+</p>
 
 <p align="center">
 A collection of badass modules and utilities to help you level up your NestJS application. 
@@ -21,10 +23,11 @@ The various packages are managed using Yarn Workspaces and Lerna and published u
 
 - A NestJS native module for RabbitMQ that supports both RPC and PubSub messaging patterns
 
+
+## Incubating (Potential future packages)
+
 #### [Caching - @nestjs-plus/caching](packages/caching/README.md)
 
 - A flexible module for response caching that allows per route/handler cache configuration
-
-## Incubating (Potential future packages)
 
 #### Cloud specific packages (@nestjs-plus/azure)
