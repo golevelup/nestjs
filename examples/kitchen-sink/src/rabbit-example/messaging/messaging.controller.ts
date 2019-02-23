@@ -5,7 +5,7 @@ import { Controller, Get } from '@nestjs/common';
 export class MessagingController {
   constructor(private readonly amqpConnection: AmqpConnection) {}
 
-  @Get('/')
+  @Get('/rpc')
   public async getMessage() {
     const response = await this.amqpConnection.request(
       {
@@ -16,5 +16,13 @@ export class MessagingController {
     );
 
     return response;
+  }
+
+  @Get('/pubsub')
+  public async publishMessage() {
+    await this.amqpConnection.publish('exchange2', 'subscribe-route', { message: 42 });
+    return {
+      result: 'Published message',
+    };
   }
 }

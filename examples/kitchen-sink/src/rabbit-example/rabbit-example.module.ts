@@ -11,6 +11,10 @@ import { MessagingService } from './messaging/messaging.service';
           name: 'exchange1',
           type: 'topic',
         },
+        {
+          name: 'exchange2',
+          type: 'fanout',
+        },
       ],
       uri: 'amqp://rabbitmq:rabbitmq@localhost:5672',
     }),
