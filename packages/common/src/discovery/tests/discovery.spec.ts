@@ -67,7 +67,7 @@ describe('Discovery', () => {
 
       expect(providers).toHaveLength(1);
       const [provider] = providers;
-      expect(provider.metatype).toBe(ExampleService);
+      expect(provider.ctorFunction).toBe(ExampleService);
       expect(provider.instance).toBeInstanceOf(ExampleService);
     });
 
@@ -82,10 +82,17 @@ describe('Discovery', () => {
 
       expect(meta).toMatchObject({
         meta: 'example provider method meta',
-        methodName: 'specialMethod'
+        discoveredMethod: {
+          methodName: 'specialMethod',
+          parentClass: {
+            ctorFunction: ExampleService
+          }
+        }
       });
 
-      expect(meta.component.instance).toBeInstanceOf(ExampleService);
+      expect(meta.discoveredMethod.parentClass.instance).toBeInstanceOf(
+        ExampleService
+      );
     });
   });
 
@@ -95,7 +102,7 @@ describe('Discovery', () => {
 
       expect(controllers).toHaveLength(1);
       const [controller] = controllers;
-      expect(controller.metatype).toBe(ExampleController);
+      expect(controller.ctorFunction).toBe(ExampleController);
       expect(controller.instance).toBeInstanceOf(ExampleController);
     });
 
@@ -111,10 +118,17 @@ describe('Discovery', () => {
 
       expect(meta).toMatchObject({
         meta: 'route',
-        methodName: 'get'
+        discoveredMethod: {
+          methodName: 'get',
+          parentClass: {
+            ctorFunction: ExampleController
+          }
+        }
       });
 
-      expect(meta.component.instance).toBeInstanceOf(ExampleController);
+      expect(meta.discoveredMethod.parentClass.instance).toBeInstanceOf(
+        ExampleController
+      );
     });
   });
 });

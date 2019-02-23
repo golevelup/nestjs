@@ -40,28 +40,31 @@ export class RabbitMQModule implements OnModuleInit {
       RabbitHandlerConfig
     >(RABBIT_HANDLER);
 
-    const grouped = groupBy(rabbitMeta, x => x.component.metatype.name);
+    const grouped = groupBy(
+      rabbitMeta,
+      x => x.discoveredMethod.parentClass.name
+    );
 
     const providerKeys = Object.keys(grouped);
     for (const key of providerKeys) {
       this.logger.log(`Registering rabbitmq handlers from ${key}`);
       await Promise.all(
-        grouped[key].map(async x => {
+        grouped[key].map(async ({ discoveredMethod, meta }) => {
           const handler = this.externalContextCreator.create(
-            x.component.instance,
-            x.handler,
-            x.methodName
+            discoveredMethod.parentClass.instance,
+            discoveredMethod.handler,
+            discoveredMethod.methodName
           );
 
-          const { exchange, routingKey, queue } = x.meta;
+          const { exchange, routingKey, queue } = meta;
 
           this.logger.log(
             `Attaching ${
-              x.meta.type
+              meta.type
             } handler on exchange ${exchange} and routingKey ${routingKey}`
           );
 
-          return x.meta.type === 'rpc'
+          return meta.type === 'rpc'
             ? this.amqpConnection.createRpc(handler, {
                 exchange,
                 routingKey,
