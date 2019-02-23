@@ -15,7 +15,7 @@ export class MessagingService {
   }
 
   @RabbitSubscribe({
-    exchange: 'exchange1',
+    exchange: 'exchange2',
     routingKey: 'subscribe-route',
     queue: 'subscribe-queue',
   })
