@@ -84,7 +84,7 @@ describe('Advanced Controller Discovery', () => {
 
     expect(guestControllers).toHaveLength(1);
     const [guestController] = guestControllers;
-    expect(guestController.discoveredClass.ctorFunction).toBe(GuestController);
+    expect(guestController.discoveredClass.classType).toBe(GuestController);
     expect(guestController.discoveredClass.instance).toBeInstanceOf(
       GuestController
     );
@@ -110,7 +110,7 @@ describe('Advanced Controller Discovery', () => {
     const fullPaths = allMethods.map(x => {
       const controllerPath = Reflect.getMetadata(
         PATH_METADATA,
-        x.discoveredMethod.parentClass.ctorFunction
+        x.discoveredMethod.parentClass.classType
       );
 
       const methodPath = Reflect.getMetadata(

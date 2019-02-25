@@ -1,9 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { PATH_METADATA } from '@nestjs/common/constants';
-import {
-  Controller,
-  Injectable as NestInjectable
-} from '@nestjs/common/interfaces';
 import { InstanceWrapper } from '@nestjs/core/injector/container';
 import { Module } from '@nestjs/core/injector/module';
 import { ModulesContainer } from '@nestjs/core/injector/modules-container';
@@ -17,38 +13,20 @@ import {
   MetaKey
 } from './discovery.interfaces';
 
-interface InternalComponent<T> {
-  parentModule: Module;
-  component: InstanceWrapper<T>;
-}
-
-type ProviderFilter = Filter<InstanceWrapper<NestInjectable>>;
-type ControllerFilter = Filter<InstanceWrapper<Controller>>;
-
 /**
- * A controller filter that can be used to scan for all Providers in an App that contain meta at a
+ * A filter that can be used to search for DiscoveredClasses in an App that contain meta attached to a
  * certain key
  * @param key The meta key to search for
  */
-export const providerWithMetaKey: (
+export const withMetaAtKey: (
   key: MetaKey
-) => ProviderFilter = key => provider =>
-  Reflect.getMetadata(key, provider.metatype);
-
-/**
- * A controller filter that can be used to scan for all Controllers in an App that contain meta at a
- * certain key
- * @param key The meta key to search for
- */
-export const controllerWithMetaKey: (
-  key: MetaKey
-) => ControllerFilter = key => controller =>
-  Reflect.getMetadata(key, controller.metatype);
+) => Filter<DiscoveredClass> = key => component =>
+  Reflect.getMetadata(key, component.classType);
 
 @Injectable()
 export class DiscoveryService {
-  private readonly appProviders: InternalComponent<NestInjectable>[];
-  private readonly appControllers: InternalComponent<Controller>[];
+  private readonly discoveredControllers: DiscoveredClass[];
+  private readonly discoveredProviders: DiscoveredClass[];
 
   constructor(
     private readonly modulesContainer: ModulesContainer,
@@ -56,20 +34,18 @@ export class DiscoveryService {
   ) {
     const modulesMap = [...this.modulesContainer.entries()];
 
-    this.appProviders = flatMap(modulesMap, ([key, nestModule]) => {
-      const components = [...nestModule.components.values()];
-      return components.map(component => ({
-        parentModule: nestModule,
-        component
-      }));
+    this.discoveredControllers = flatMap(modulesMap, ([key, nestModule]) => {
+      const components = [...nestModule.routes.values()];
+      return components.map(component =>
+        this.toDiscoveredClass(nestModule, component)
+      );
     });
 
-    this.appControllers = flatMap(modulesMap, ([key, nestModule]) => {
-      const components = [...nestModule.routes.values()];
-      return components.map(component => ({
-        parentModule: nestModule,
-        component
-      }));
+    this.discoveredProviders = flatMap(modulesMap, ([key, nestModule]) => {
+      const components = [...nestModule.components.values()];
+      return components.map(component =>
+        this.toDiscoveredClass(nestModule, component)
+      );
     });
   }
 
@@ -77,8 +53,8 @@ export class DiscoveryService {
    * Discovers all providers in a Nest App that match a filter
    * @param providerFilter
    */
-  providers(filter: ProviderFilter): DiscoveredClass[] {
-    return this.discover(this.appProviders, filter);
+  providers(filter: Filter<DiscoveredClass>): DiscoveredClass[] {
+    return this.discoveredProviders.filter(x => filter(x));
   }
 
   /**
@@ -89,7 +65,7 @@ export class DiscoveryService {
    */
   methodsAndControllerMethodsWithMeta<T>(
     metaKey: MetaKey,
-    metaFilter: (T) => boolean = meta => true
+    metaFilter: Filter<T> = meta => true
   ): DiscoveredMethodMeta<T>[] {
     const controllersWithMeta = this.controllersWithMeta<T>(metaKey).filter(x =>
       metaFilter(x.meta)
@@ -120,10 +96,10 @@ export class DiscoveryService {
    * @param metaKey The metakey to scan for
    */
   providersWithMeta<T>(metaKey: MetaKey): DiscoveredClassMeta<T>[] {
-    const providers = this.providers(providerWithMetaKey(metaKey));
+    const providers = this.providers(withMetaAtKey(metaKey));
 
     return providers.map(x => ({
-      meta: Reflect.getMetadata(metaKey, x.ctorFunction) as T,
+      meta: Reflect.getMetadata(metaKey, x.classType) as T,
       discoveredClass: x
     }));
   }
@@ -132,8 +108,8 @@ export class DiscoveryService {
    * Discovers all controllers in a Nest App that match a filter
    * @param providerFilter
    */
-  controllers(filter: ControllerFilter): DiscoveredClass[] {
-    return this.discover(this.appControllers, filter);
+  controllers(filter: Filter<DiscoveredClass>): DiscoveredClass[] {
+    return this.discoveredControllers.filter(x => filter(x));
   }
 
   /**
@@ -141,10 +117,10 @@ export class DiscoveryService {
    * @param metaKey The metakey to scan for
    */
   controllersWithMeta<T>(metaKey: MetaKey): DiscoveredClassMeta<T>[] {
-    const controllers = this.controllers(controllerWithMetaKey(metaKey));
+    const controllers = this.controllers(withMetaAtKey(metaKey));
 
     return controllers.map(x => ({
-      meta: Reflect.getMetadata(metaKey, x.ctorFunction) as T,
+      meta: Reflect.getMetadata(metaKey, x.classType) as T,
       discoveredClass: x
     }));
   }
@@ -175,7 +151,7 @@ export class DiscoveryService {
    */
   providerMethodsWithMeta<T>(
     metaKey: MetaKey,
-    providerFilter: ProviderFilter = x => true
+    providerFilter: Filter<DiscoveredClass> = x => true
   ): DiscoveredMethodMeta<T>[] {
     const providers = this.providers(providerFilter);
 
@@ -191,7 +167,7 @@ export class DiscoveryService {
    */
   controllerMethodsWithMeta<T>(
     metaKey: MetaKey,
-    controllerFilter: ControllerFilter = x => true
+    controllerFilter: Filter<DiscoveredClass> = x => true
   ): DiscoveredMethodMeta<T>[] {
     const controllers = this.controllers(controllerFilter);
 
@@ -200,29 +176,20 @@ export class DiscoveryService {
     );
   }
 
-  private discover(
-    components: InternalComponent<any>[],
-    filter: Filter<InstanceWrapper<any>>
-  ) {
-    return components
-      .map(x => ({
-        match: filter(x.component),
-        internalComponent: x
-      }))
-      .filter(x => x.match)
-      .map(x => {
-        const { component, parentModule } = x.internalComponent;
-        return {
-          name: component.name as string,
-          instance: component.instance,
-          ctorFunction: component.metatype,
-          parentModule: {
-            name: parentModule.metatype.name,
-            instance: parentModule.instance,
-            ctorFunction: parentModule.metatype
-          }
-        };
-      });
+  private toDiscoveredClass(
+    nestModule: Module,
+    component: InstanceWrapper<any>
+  ): DiscoveredClass {
+    return {
+      name: component.name as string,
+      instance: component.instance,
+      classType: component.metatype,
+      parentModule: {
+        name: nestModule.metatype.name,
+        instance: nestModule.instance,
+        classType: nestModule.metatype
+      }
+    };
   }
 
   private extractMethodMeta<T>(

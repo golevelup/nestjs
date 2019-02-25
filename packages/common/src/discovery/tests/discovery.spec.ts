@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { PATH_METADATA } from '@nestjs/common/constants';
 import { Test, TestingModule } from '@nestjs/testing';
-import { DiscoveryModule, DiscoveryService, providerWithMetaKey } from '..';
+import { DiscoveryModule, DiscoveryService, withMetaAtKey } from '..';
 
 // Set up a Controller and Provider that can be used by the Testing Module
 
@@ -62,12 +62,12 @@ describe('Discovery', () => {
   describe('Providers', () => {
     it('should discover providers based on a metadata key', () => {
       const providers = discoveryService.providers(
-        providerWithMetaKey(ExampleClassSymbol)
+        withMetaAtKey(ExampleClassSymbol)
       );
 
       expect(providers).toHaveLength(1);
       const [provider] = providers;
-      expect(provider.ctorFunction).toBe(ExampleService);
+      expect(provider.classType).toBe(ExampleService);
       expect(provider.instance).toBeInstanceOf(ExampleService);
     });
 
@@ -85,7 +85,7 @@ describe('Discovery', () => {
         discoveredMethod: {
           methodName: 'specialMethod',
           parentClass: {
-            ctorFunction: ExampleService
+            classType: ExampleService
           }
         }
       });
@@ -102,7 +102,7 @@ describe('Discovery', () => {
 
       expect(controllers).toHaveLength(1);
       const [controller] = controllers;
-      expect(controller.ctorFunction).toBe(ExampleController);
+      expect(controller.classType).toBe(ExampleController);
       expect(controller.instance).toBeInstanceOf(ExampleController);
     });
 
@@ -121,7 +121,7 @@ describe('Discovery', () => {
         discoveredMethod: {
           methodName: 'get',
           parentClass: {
-            ctorFunction: ExampleController
+            classType: ExampleController
           }
         }
       });
