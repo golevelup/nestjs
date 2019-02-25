@@ -1,20 +1,29 @@
-import { Controller, Injectable } from '@nestjs/common/interfaces';
-import { InstanceWrapper } from '@nestjs/core/injector/container';
+import { Type } from '@nestjs/common';
 
-export type ComponentWrapper =
-  | InstanceWrapper<Injectable>
-  | InstanceWrapper<Controller>;
-
-export interface MethodMeta<T> {
-  meta: T;
-  handler: (...args: any[]) => any;
-  methodName: string;
-  component: ComponentWrapper;
+export interface DiscoveredModule {
+  name: string;
+  instance: {};
+  classType: Type<{}>;
 }
 
-export interface ComponentMeta<T> {
+export interface DiscoveredClass extends DiscoveredModule {
+  parentModule: DiscoveredModule;
+}
+
+export interface DiscoveredMethod {
+  handler: (...args: any[]) => any;
+  methodName: string;
+  parentClass: DiscoveredClass;
+}
+
+export interface DiscoveredMethodMeta<T> {
+  discoveredMethod: DiscoveredMethod;
   meta: T;
-  component: ComponentWrapper;
+}
+
+export interface DiscoveredClassMeta<T> {
+  discoveredClass: DiscoveredClass;
+  meta: T;
 }
 
 export type MetaKey = string | number | Symbol;

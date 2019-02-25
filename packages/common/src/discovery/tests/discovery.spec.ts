@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { PATH_METADATA } from '@nestjs/common/constants';
 import { Test, TestingModule } from '@nestjs/testing';
-import { DiscoveryModule, DiscoveryService, providerWithMetaKey } from '..';
+import { DiscoveryModule, DiscoveryService, withMetaAtKey } from '..';
 
 // Set up a Controller and Provider that can be used by the Testing Module
 
@@ -62,12 +62,12 @@ describe('Discovery', () => {
   describe('Providers', () => {
     it('should discover providers based on a metadata key', () => {
       const providers = discoveryService.providers(
-        providerWithMetaKey(ExampleClassSymbol)
+        withMetaAtKey(ExampleClassSymbol)
       );
 
       expect(providers).toHaveLength(1);
       const [provider] = providers;
-      expect(provider.metatype).toBe(ExampleService);
+      expect(provider.classType).toBe(ExampleService);
       expect(provider.instance).toBeInstanceOf(ExampleService);
     });
 
@@ -82,10 +82,17 @@ describe('Discovery', () => {
 
       expect(meta).toMatchObject({
         meta: 'example provider method meta',
-        methodName: 'specialMethod'
+        discoveredMethod: {
+          methodName: 'specialMethod',
+          parentClass: {
+            classType: ExampleService
+          }
+        }
       });
 
-      expect(meta.component.instance).toBeInstanceOf(ExampleService);
+      expect(meta.discoveredMethod.parentClass.instance).toBeInstanceOf(
+        ExampleService
+      );
     });
   });
 
@@ -95,7 +102,7 @@ describe('Discovery', () => {
 
       expect(controllers).toHaveLength(1);
       const [controller] = controllers;
-      expect(controller.metatype).toBe(ExampleController);
+      expect(controller.classType).toBe(ExampleController);
       expect(controller.instance).toBeInstanceOf(ExampleController);
     });
 
@@ -111,10 +118,17 @@ describe('Discovery', () => {
 
       expect(meta).toMatchObject({
         meta: 'route',
-        methodName: 'get'
+        discoveredMethod: {
+          methodName: 'get',
+          parentClass: {
+            classType: ExampleController
+          }
+        }
       });
 
-      expect(meta.component.instance).toBeInstanceOf(ExampleController);
+      expect(meta.discoveredMethod.parentClass.instance).toBeInstanceOf(
+        ExampleController
+      );
     });
   });
 });

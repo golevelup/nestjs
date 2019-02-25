@@ -84,8 +84,10 @@ describe('Advanced Controller Discovery', () => {
 
     expect(guestControllers).toHaveLength(1);
     const [guestController] = guestControllers;
-    expect(guestController.component.metatype).toBe(GuestController);
-    expect(guestController.component.instance).toBeInstanceOf(GuestController);
+    expect(guestController.discoveredClass.classType).toBe(GuestController);
+    expect(guestController.discoveredClass.instance).toBeInstanceOf(
+      GuestController
+    );
   });
 
   it('can discover controller methods with roles', () => {
@@ -108,11 +110,17 @@ describe('Advanced Controller Discovery', () => {
     const fullPaths = allMethods.map(x => {
       const controllerPath = Reflect.getMetadata(
         PATH_METADATA,
-        x.component.metatype
+        x.discoveredMethod.parentClass.classType
       );
 
-      const methodPath = Reflect.getMetadata(PATH_METADATA, x.handler);
-      const methodHttpVerb = Reflect.getMetadata(METHOD_METADATA, x.handler);
+      const methodPath = Reflect.getMetadata(
+        PATH_METADATA,
+        x.discoveredMethod.handler
+      );
+      const methodHttpVerb = Reflect.getMetadata(
+        METHOD_METADATA,
+        x.discoveredMethod.handler
+      );
 
       return {
         verb: methodHttpVerb,
