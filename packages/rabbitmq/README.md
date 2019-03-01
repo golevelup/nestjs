@@ -23,7 +23,9 @@ Some of the most notable missing functionality includes common messaging pattern
 ### Install
 
 `npm install ---save @nestjs-plus/rabbitmq`
+
 or
+
 `yarn add @nestjs-plus/rabbitmq`
 
 ### Module Initialization

@@ -21,7 +21,8 @@ import {
 export const withMetaAtKey: (
   key: MetaKey
 ) => Filter<DiscoveredClass> = key => component =>
-  Reflect.getMetadata(key, component.classType);
+  Reflect.getMetadata(key, component.classType) ||
+  Reflect.getMetadata(key, component.instance.constructor);
 
 @Injectable()
 export class DiscoveryService {
@@ -105,7 +106,9 @@ export class DiscoveryService {
     const providers = await this.providers(withMetaAtKey(metaKey));
 
     return providers.map(x => ({
-      meta: Reflect.getMetadata(metaKey, x.classType) as T,
+      meta:
+        (Reflect.getMetadata(metaKey, x.classType) as T) ||
+        Reflect.getMetadata(metaKey, x.instance.constructor),
       discoveredClass: x
     }));
   }
@@ -145,9 +148,7 @@ export class DiscoveryService {
     metaKey: MetaKey
   ): DiscoveredMethodWithMeta<T>[] {
     const { instance } = component;
-    if (!instance) {
-      console.log('hmmm');
-    }
+
     const prototype = Object.getPrototypeOf(instance);
 
     return this.metadataScanner
@@ -193,13 +194,10 @@ export class DiscoveryService {
     nestModule: Module,
     component: InstanceWrapper<any>
   ): Promise<DiscoveredClass> {
-    if (component.isPending) {
-      console.log(component);
-      // await new Promise((resolve, reject) => {
-      //   setTimeout(() => resolve(42), 2000);
-      // });
-
-      const test = await component.done$;
+    // This may be a bug in NestJS core as it doesn't seem that isPending is properly
+    // updated once the component is resolved
+    if (component.isPending && !component.isResolved) {
+      await component.done$;
     }
 
     return {

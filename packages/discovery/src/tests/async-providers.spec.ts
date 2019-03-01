@@ -4,6 +4,8 @@ import { DiscoveryModule, DiscoveryService, withMetaAtKey } from '..';
 
 const TestDecorator = (config: any) => ReflectMetadata('test', config);
 
+@Injectable()
+@TestDecorator('dynamicProvider')
 class DynamicProvider {
   @TestDecorator('dynamicMethod')
   doSomething() {
@@ -11,21 +13,14 @@ class DynamicProvider {
   }
 }
 
-@Injectable()
-@TestDecorator('class')
-class ExampleService {
-  specialMethod() {}
-}
-
 @Module({
   providers: [
-    ExampleService,
     {
       provide: DynamicProvider,
       useFactory: async (): Promise<DynamicProvider> => {
         const dynamic = new DynamicProvider();
         return new Promise((resolve, reject) => {
-          setTimeout(() => resolve(dynamic), 500);
+          setTimeout(() => resolve(dynamic), 100);
         });
       }
     }
@@ -47,14 +42,13 @@ describe('DiscoveryWithDynamicProviders', () => {
     discoveryService = app.get<DiscoveryService>(DiscoveryService);
   });
 
-  describe('Discovering Providers', () => {
-    it('should discover providers based on a metadata key', async () => {
+  describe('Discovering Dynamic Providers', () => {
+    it('should discover providers based on a metadata key on dynamic async providers', async () => {
       const providers = await discoveryService.providers(withMetaAtKey('test'));
 
       expect(providers).toHaveLength(1);
       const [provider] = providers;
-      expect(provider.classType).toBe(ExampleService);
-      expect(provider.instance).toBeInstanceOf(ExampleService);
+      expect(provider.instance).toBeInstanceOf(DynamicProvider);
     });
 
     it('should discover provider method handler meta based on a metadata key', async () => {
@@ -67,17 +61,14 @@ describe('DiscoveryWithDynamicProviders', () => {
       const meta = providerMethodMeta[0];
 
       expect(meta).toMatchObject({
-        meta: 'example provider method meta',
+        meta: 'dynamicMethod',
         discoveredMethod: {
-          methodName: 'specialMethod',
-          parentClass: {
-            classType: ExampleService
-          }
+          methodName: 'doSomething'
         }
       });
 
       expect(meta.discoveredMethod.parentClass.instance).toBeInstanceOf(
-        ExampleService
+        DynamicProvider
       );
     });
   });
