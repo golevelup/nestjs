@@ -1,6 +1,6 @@
 {
   "name": "@nestjs-plus/rabbitmq",
-  "version": "0.2.4-rc.1",
+  "version": "0.2.4-rc.2",
   "description": "Badass RabbitMQ addons for NestJS",
   "author": "Jesse Carter <jesse.r.carter@gmail.com>",
   "homepage": "https://github.com/WonderPanda/nestjs-plus/blob/master/packages/rabbitmq/README.md",
@@ -32,7 +32,7 @@
     "url": "https://github.com/WonderPanda/nestjs-plus/issues"
   },
   "dependencies": {
-    "@nestjs-plus/discovery": "^1.0.1-rc.1",
+    "@nestjs-plus/discovery": "^1.0.1-rc.2",
     "amqplib": "^0.5.3",
     "uuid": "^3.3.2"
   },
