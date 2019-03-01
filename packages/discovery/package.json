@@ -1,6 +1,6 @@
 {
   "name": "@nestjs-plus/discovery",
-  "version": "1.0.1-rc.0",
+  "version": "1.0.1-rc.1",
   "description": "A Badass NestJS module for querying your app's controllers, providers and handlers",
   "keywords": [
     "NestJS",

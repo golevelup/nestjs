@@ -36,7 +36,7 @@ export class RabbitMQModule implements OnModuleInit {
   }
 
   public async onModuleInit() {
-    const rabbitMeta = this.discover.providerMethodsWithMetaAtKey<
+    const rabbitMeta = await this.discover.providerMethodsWithMetaAtKey<
       RabbitHandlerConfig
     >(RABBIT_HANDLER);
 

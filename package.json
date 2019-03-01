@@ -28,8 +28,8 @@
     "typescript": "^3.2.4"
   },
   "scripts": {
-    "lerna:publish": "lerna run build && lerna publish",
-    "lerna:prerelease": "lerna publish prerelease --preid rc",
+    "lerna:publish": "lerna run build && yarn test && lerna publish",
+    "lerna:prerelease": "lerna run build && yarn test && lerna publish prerelease --preid rc",
     "build": "lerna run build",
     "clean": "rimraf packages/**/lib",
     "test": "jest",
