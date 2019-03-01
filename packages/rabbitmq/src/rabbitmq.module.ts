@@ -1,4 +1,4 @@
-import { DiscoveryModule, DiscoveryService } from '@nestjs-plus/common';
+import { DiscoveryModule, DiscoveryService } from '@nestjs-plus/discovery';
 import { DynamicModule, Logger, Module, OnModuleInit } from '@nestjs/common';
 import { ExternalContextCreator } from '@nestjs/core/helpers/external-context-creator';
 import { groupBy } from 'lodash';
@@ -36,7 +36,7 @@ export class RabbitMQModule implements OnModuleInit {
   }
 
   public async onModuleInit() {
-    const rabbitMeta = this.discover.providerMethodsWithMeta<
+    const rabbitMeta = this.discover.providerMethodsWithMetaAtKey<
       RabbitHandlerConfig
     >(RABBIT_HANDLER);
 
