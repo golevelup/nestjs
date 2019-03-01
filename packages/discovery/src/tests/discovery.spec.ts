@@ -72,7 +72,7 @@ describe('Discovery', () => {
     });
 
     it('should discover provider method handler meta based on a metadata key', () => {
-      const providerMethodMeta = discoveryService.providerMethodsWithMeta(
+      const providerMethodMeta = discoveryService.providerMethodsWithMetaAtKey(
         ExampleMethodSymbol
       );
 
@@ -107,7 +107,7 @@ describe('Discovery', () => {
     });
 
     it('should discover controller method handler meta based on a metadata key', () => {
-      const controllerMethodMeta = discoveryService.controllerMethodsWithMeta<
+      const controllerMethodMeta = discoveryService.controllerMethodsWithMetaAtKey<
         string
       >(PATH_METADATA);
       const [first] = controllerMethodMeta;

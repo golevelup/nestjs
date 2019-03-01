@@ -1,16 +1,15 @@
 {
-  "name": "@nestjs-plus/rabbitmq",
-  "version": "0.2.2",
-  "description": "Badass RabbitMQ addons for NestJS",
-  "author": "Jesse Carter <jesse.r.carter@gmail.com>",
-  "homepage": "https://github.com/WonderPanda/nestjs-plus/blob/master/packages/rabbitmq/README.md",
-  "license": "MIT",
+  "name": "@nestjs-plus/discovery",
+  "version": "0.0.0",
+  "description": "A Badass NestJS module for querying your app's controllers, providers and handlers",
   "keywords": [
     "NestJS",
-    "RabbitMQ",
-    "microservices",
-    "messaging"
+    "discovery",
+    "modules"
   ],
+  "author": "Jesse Carter <jesse.r.carter@gmail.com>",
+  "homepage": "https://github.com/WonderPanda/nestjs-plus#readme",
+  "license": "MIT",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "directories": {
@@ -20,6 +19,9 @@
   "files": [
     "lib"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/WonderPanda/nestjs-plus.git"
@@ -30,18 +32,6 @@
   },
   "bugs": {
     "url": "https://github.com/WonderPanda/nestjs-plus/issues"
-  },
-  "dependencies": {
-    "@nestjs-plus/discovery": "^0.0.0",
-    "amqplib": "^0.5.3",
-    "uuid": "^3.3.2"
-  },
-  "devDependencies": {
-    "@types/amqplib": "^0.5.9",
-    "@types/uuid": "^3.4.4"
-  },
-  "publishConfig": {
-    "access": "public"
   },
   "jest": {
     "moduleFileExtensions": [
@@ -56,6 +46,5 @@
     },
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
-  },
-  "gitHead": "6f97aab8ce9d65dc074750a3ee467ec5ff3b9908"
+  }
 }

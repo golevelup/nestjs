@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-A collection of badass modules and utilities to help you level up your NestJS application. 
+A collection of Badass modules and utilities to help you level up your NestJS application. 
 </p>
 
 <p align="center">
@@ -17,12 +17,14 @@ The various packages are managed using Yarn Workspaces and Lerna and published u
 #### [Common - @nestjs-plus/common](packages/common/README.md)
 
 - Mixin Utilities
-- `DiscoveryModule` for finding providers and handlers from your app that have certain metadata
+
+#### [Discovery - @nestjs-plus/discovery](packages/discovery/README.md)
+
+- `DiscoveryModule` for finding providers, controllers and method handlers from your NestJS app that have certain metadata
 
 #### [RabbitMQ - @nestjs-plus/rabbitmq](packages/rabbitmq/README.md)
 
-- A NestJS native module for RabbitMQ that supports both RPC and PubSub messaging patterns
-
+- A NestJS native module for RabbitMQ that supports both RPC and Publish/Subscribe messaging patterns
 
 ## Incubating (Potential future packages)
 

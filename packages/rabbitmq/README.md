@@ -10,6 +10,8 @@
 
 This module features an opinionated set of decorators for common RabbitMQ patterns including Publish/Subscribe and RPC using Rabbit's [Direct Reply-To Queue](https://www.rabbitmq.com/direct-reply-to.html) for optimal performance.
 
+Expose normal NestJS service methods as messaging handlers that can be configured to support a variety of messaging patterns. The `Kitchen Sink` sample app in the examples directory provides a working example with the provided docker-compose for running a RabbitMQ instance locally.
+
 ## Motivation
 
 NestJS offers an out of the box microservices experience with support for a variety of transports. However, because NestJS microservices strives to work with a variety of transport mechanisms in a generic way, it misses out on some of the powerful functionality offered by individual transport layers.
@@ -18,7 +20,11 @@ Some of the most notable missing functionality includes common messaging pattern
 
 ## Usage
 
-This package allows you to expose normal NestJS service methods as messaging handlers that can be configured to support a variety of messaging patterns. The `Kitchen Sink` sample app in the examples directory provides a working example with the provided docker-compose for running a RabbitMQ instance locally.
+### Install
+
+`npm install ---save @nestjs-plus/rabbitmq`
+or
+`yarn add @nestjs-plus/rabbitmq`
 
 ### Module Initialization
 

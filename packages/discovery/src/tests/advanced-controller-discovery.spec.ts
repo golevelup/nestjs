@@ -74,7 +74,9 @@ describe('Advanced Controller Discovery', () => {
   });
 
   it('can discover all controllers with roles', () => {
-    const rolesControllers = discover.controllersWithMeta<string[]>(rolesKey);
+    const rolesControllers = discover.controllersWithMetaAtKey<string[]>(
+      rolesKey
+    );
 
     expect(rolesControllers).toHaveLength(2);
 
@@ -91,7 +93,9 @@ describe('Advanced Controller Discovery', () => {
   });
 
   it('can discover controller methods with roles', () => {
-    const rolesMethods = discover.controllerMethodsWithMeta<string[]>(rolesKey);
+    const rolesMethods = discover.controllerMethodsWithMetaAtKey<string[]>(
+      rolesKey
+    );
 
     expect(rolesMethods).toHaveLength(4);
 
@@ -100,10 +104,9 @@ describe('Advanced Controller Discovery', () => {
   });
 
   it('can discover all controller methods decorated with guest roles or belonging to controllers with guest roles', () => {
-    const allMethods = discover.methodsAndControllerMethodsWithMeta<string[]>(
-      rolesKey,
-      x => x.includes('guest')
-    );
+    const allMethods = discover.methodsAndControllerMethodsWithMetaAtKey<
+      string[]
+    >(rolesKey, x => x.includes('guest'));
 
     expect(allMethods).toHaveLength(4);
 

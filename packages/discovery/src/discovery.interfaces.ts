@@ -16,12 +16,12 @@ export interface DiscoveredMethod {
   parentClass: DiscoveredClass;
 }
 
-export interface DiscoveredMethodMeta<T> {
+export interface DiscoveredMethodWithMeta<T> {
   discoveredMethod: DiscoveredMethod;
   meta: T;
 }
 
-export interface DiscoveredClassMeta<T> {
+export interface DiscoveredClassWithMeta<T> {
   discoveredClass: DiscoveredClass;
   meta: T;
 }
