@@ -60,8 +60,8 @@ describe('Discovery', () => {
   });
 
   describe('Providers', () => {
-    it('should discover providers based on a metadata key', () => {
-      const providers = discoveryService.providers(
+    it('should discover providers based on a metadata key', async () => {
+      const providers = await discoveryService.providers(
         withMetaAtKey(ExampleClassSymbol)
       );
 
@@ -71,8 +71,8 @@ describe('Discovery', () => {
       expect(provider.instance).toBeInstanceOf(ExampleService);
     });
 
-    it('should discover provider method handler meta based on a metadata key', () => {
-      const providerMethodMeta = discoveryService.providerMethodsWithMetaAtKey(
+    it('should discover provider method handler meta based on a metadata key', async () => {
+      const providerMethodMeta = await discoveryService.providerMethodsWithMetaAtKey(
         ExampleMethodSymbol
       );
 
@@ -97,8 +97,10 @@ describe('Discovery', () => {
   });
 
   describe('Controllers', () => {
-    it('should discover controllers', () => {
-      const controllers = discoveryService.controllers(controller => true);
+    it('should discover controllers', async () => {
+      const controllers = await discoveryService.controllers(
+        controller => true
+      );
 
       expect(controllers).toHaveLength(1);
       const [controller] = controllers;
@@ -106,8 +108,8 @@ describe('Discovery', () => {
       expect(controller.instance).toBeInstanceOf(ExampleController);
     });
 
-    it('should discover controller method handler meta based on a metadata key', () => {
-      const controllerMethodMeta = discoveryService.controllerMethodsWithMetaAtKey<
+    it('should discover controller method handler meta based on a metadata key', async () => {
+      const controllerMethodMeta = await discoveryService.controllerMethodsWithMetaAtKey<
         string
       >(PATH_METADATA);
       const [first] = controllerMethodMeta;

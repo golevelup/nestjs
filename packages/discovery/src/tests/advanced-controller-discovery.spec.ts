@@ -73,8 +73,8 @@ describe('Advanced Controller Discovery', () => {
     discover = app.get<DiscoveryService>(DiscoveryService);
   });
 
-  it('can discover all controllers with roles', () => {
-    const rolesControllers = discover.controllersWithMetaAtKey<string[]>(
+  it('can discover all controllers with roles', async () => {
+    const rolesControllers = await discover.controllersWithMetaAtKey<string[]>(
       rolesKey
     );
 
@@ -92,10 +92,10 @@ describe('Advanced Controller Discovery', () => {
     );
   });
 
-  it('can discover controller methods with roles', () => {
-    const rolesMethods = discover.controllerMethodsWithMetaAtKey<string[]>(
-      rolesKey
-    );
+  it('can discover controller methods with roles', async () => {
+    const rolesMethods = await discover.controllerMethodsWithMetaAtKey<
+      string[]
+    >(rolesKey);
 
     expect(rolesMethods).toHaveLength(4);
 
@@ -103,8 +103,8 @@ describe('Advanced Controller Discovery', () => {
     expect(guestMethods).toHaveLength(3);
   });
 
-  it('can discover all controller methods decorated with guest roles or belonging to controllers with guest roles', () => {
-    const allMethods = discover.methodsAndControllerMethodsWithMetaAtKey<
+  it('can discover all controller methods decorated with guest roles or belonging to controllers with guest roles', async () => {
+    const allMethods = await discover.methodsAndControllerMethodsWithMetaAtKey<
       string[]
     >(rolesKey, x => x.includes('guest'));
 

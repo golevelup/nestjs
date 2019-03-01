@@ -21,7 +21,9 @@ NestJS provides the `MetadataScanner` class to be able to retrieve this data but
 ### Install
 
 `npm install ---save @nestjs-plus/discovery`
+
 or
+
 `yarn add @nestjs-plus/discovery`
 
 ### Import
@@ -39,7 +41,7 @@ export class ExampleModule implements OnModuleInit {
   constructor(private readonly discover: DiscoveryService) {}
 
   public async onModuleInit() {
-    // const providers = this.discover.providersWithMetaAtKey<number>('metaKey')
+    // const providers = await this.discover.providersWithMetaAtKey<number>('metaKey')
   }
 }
 ```
@@ -101,7 +103,7 @@ const ExampleDecorator = (meta: string) => ReflectMetadata('exampleKey', meta);
 Find all controller methods that have been decorated with `@ExampleDecorator` and retrieve the value they set for meta:
 
 ```typescript
-const exampleMethodsMeta = this.discover.controllerMethodsWithMetaAtKey<string>(
-  'exampleKey'
-);
+const exampleMethodsMeta = await this.discover.controllerMethodsWithMetaAtKey<
+  string
+>('exampleKey');
 ```
