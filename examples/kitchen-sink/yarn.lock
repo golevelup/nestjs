@@ -18,17 +18,17 @@
     esutils "^2.0.2"
     js-tokens "^4.0.0"
 
-"@nestjs-plus/discovery@^1.0.1-rc.1":
-  version "1.0.1-rc.1"
-  resolved "https://registry.yarnpkg.com/@nestjs-plus/discovery/-/discovery-1.0.1-rc.1.tgz#f6ce85fd27da523d797642e3dd3dd3f8cbf39593"
-  integrity sha512-DOgeKWDeo+N+ngKzPox5t2bzbjfjqYUReLAYPw9GkChPH2hAo2EmNOjCcFrRYY8z2kYGPxGpZLiFeXA6aqg6qw==
+"@nestjs-plus/discovery@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@nestjs-plus/discovery/-/discovery-1.1.0.tgz#6c92b7a279c78767c1503982c5acceecf114fef2"
+  integrity sha512-P04n1s/1KAp3SnaRXannPYNM2F8cRc0aEPBsG6d/2G/zAbr6+fG4RBIIRbdJWkh7ZGpV0C+fJBcukhqRZjsbZg==
 
-"@nestjs-plus/rabbitmq@^0.2.4-rc.1":
-  version "0.2.4-rc.1"
-  resolved "https://registry.yarnpkg.com/@nestjs-plus/rabbitmq/-/rabbitmq-0.2.4-rc.1.tgz#83f95ee763ffcc4c71d1f217e32361d6c56e4da3"
-  integrity sha512-X7BhEo4VfMZyGlM29qVDkbLaC+rCamHVQWCrGZBbfNCc7XruGGZS7UwbUCqdrWihdztyEKoLT6KSYtNskZegzA==
+"@nestjs-plus/rabbitmq@^0.2.4":
+  version "0.2.4"
+  resolved "https://registry.yarnpkg.com/@nestjs-plus/rabbitmq/-/rabbitmq-0.2.4.tgz#9fae98bdf31b1edc0ef77c30e793a53e05a892fb"
+  integrity sha512-V7IDKOoJq9e2XB+ZIODzDPjWqnCO7O3922cckMkHXWgzv/Fjmyz2sCJxd5TEtLPT7CkO5blAs5fB/XnjdYDKuA==
   dependencies:
-    "@nestjs-plus/discovery" "^1.0.1-rc.1"
+    "@nestjs-plus/discovery" "^1.1.0"
     amqplib "^0.5.3"
     uuid "^3.3.2"
 
