@@ -4,7 +4,7 @@ import { InstanceWrapper } from '@nestjs/core/injector/container';
 import { Module } from '@nestjs/core/injector/module';
 import { ModulesContainer } from '@nestjs/core/injector/modules-container';
 import { MetadataScanner } from '@nestjs/core/metadata-scanner';
-import { flatMap, uniqBy } from 'lodash';
+import { flatMap, some, uniqBy } from 'lodash';
 import {
   DiscoveredClass,
   DiscoveredClassWithMeta,
@@ -14,15 +14,42 @@ import {
 } from './discovery.interfaces';
 
 /**
+ * Attempts to retrieve meta information from a Nest DiscoveredClass component
+ * @param key The meta key to retrieve data from
+ * @param component The discovered component to retrieve meta from
+ */
+export function getComponentMetaAtKey<T>(
+  key: MetaKey,
+  component: DiscoveredClass
+): T | undefined {
+  const dependencyMeta = Reflect.getMetadata(
+    key,
+    component.dependencyType
+  ) as T;
+  if (dependencyMeta) {
+    return dependencyMeta;
+  }
+
+  if (component.injectType != null) {
+    return Reflect.getMetadata(key, component.injectType) as T;
+  }
+}
+
+/**
  * A filter that can be used to search for DiscoveredClasses in an App that contain meta attached to a
  * certain key
  * @param key The meta key to search for
  */
 export const withMetaAtKey: (
   key: MetaKey
-) => Filter<DiscoveredClass> = key => component =>
-  Reflect.getMetadata(key, component.classType) ||
-  Reflect.getMetadata(key, component.instance.constructor);
+) => Filter<DiscoveredClass> = key => component => {
+  const metaTargets: Function[] = [
+    component.instance.constructor,
+    component.injectType as Function
+  ].filter(x => x != null);
+
+  return some(metaTargets, x => Reflect.getMetadata(key, x));
+};
 
 @Injectable()
 export class DiscoveryService {
@@ -106,9 +133,7 @@ export class DiscoveryService {
     const providers = await this.providers(withMetaAtKey(metaKey));
 
     return providers.map(x => ({
-      meta:
-        (Reflect.getMetadata(metaKey, x.classType) as T) ||
-        Reflect.getMetadata(metaKey, x.instance.constructor),
+      meta: getComponentMetaAtKey<T>(metaKey, x) as T,
       discoveredClass: x
     }));
   }
@@ -133,7 +158,7 @@ export class DiscoveryService {
     const controllers = await this.controllers(withMetaAtKey(metaKey));
 
     return controllers.map(x => ({
-      meta: Reflect.getMetadata(metaKey, x.classType) as T,
+      meta: getComponentMetaAtKey<T>(metaKey, x) as T,
       discoveredClass: x
     }));
   }
@@ -203,11 +228,13 @@ export class DiscoveryService {
     return {
       name: component.name as string,
       instance: component.instance,
-      classType: component.metatype,
+      injectType: component.metatype,
+      dependencyType: component.instance.constructor,
       parentModule: {
         name: nestModule.metatype.name,
         instance: nestModule.instance,
-        classType: nestModule.metatype
+        injectType: nestModule.metatype,
+        dependencyType: component.instance.constructor
       }
     };
   }

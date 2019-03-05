@@ -10,6 +10,7 @@ import {
 import { METHOD_METADATA, PATH_METADATA } from '@nestjs/common/constants';
 import { Test, TestingModule } from '@nestjs/testing';
 import { DiscoveryModule, DiscoveryService } from '..';
+import { getComponentMetaAtKey } from '../discovery.service';
 
 const rolesKey = 'roles';
 const Roles = (roles: string[]) => ReflectMetadata(rolesKey, roles);
@@ -86,7 +87,7 @@ describe('Advanced Controller Discovery', () => {
 
     expect(guestControllers).toHaveLength(1);
     const [guestController] = guestControllers;
-    expect(guestController.discoveredClass.classType).toBe(GuestController);
+    expect(guestController.discoveredClass.injectType).toBe(GuestController);
     expect(guestController.discoveredClass.instance).toBeInstanceOf(
       GuestController
     );
@@ -111,9 +112,9 @@ describe('Advanced Controller Discovery', () => {
     expect(allMethods).toHaveLength(4);
 
     const fullPaths = allMethods.map(x => {
-      const controllerPath = Reflect.getMetadata(
+      const controllerPath = getComponentMetaAtKey<string>(
         PATH_METADATA,
-        x.discoveredMethod.parentClass.classType
+        x.discoveredMethod.parentClass
       );
 
       const methodPath = Reflect.getMetadata(

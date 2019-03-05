@@ -67,7 +67,7 @@ describe('Discovery', () => {
 
       expect(providers).toHaveLength(1);
       const [provider] = providers;
-      expect(provider.classType).toBe(ExampleService);
+      expect(provider.injectType).toBe(ExampleService);
       expect(provider.instance).toBeInstanceOf(ExampleService);
     });
 
@@ -85,7 +85,8 @@ describe('Discovery', () => {
         discoveredMethod: {
           methodName: 'specialMethod',
           parentClass: {
-            classType: ExampleService
+            injectType: ExampleService,
+            dependencyType: ExampleService
           }
         }
       });
@@ -104,7 +105,7 @@ describe('Discovery', () => {
 
       expect(controllers).toHaveLength(1);
       const [controller] = controllers;
-      expect(controller.classType).toBe(ExampleController);
+      expect(controller.injectType).toBe(ExampleController);
       expect(controller.instance).toBeInstanceOf(ExampleController);
     });
 
@@ -123,7 +124,8 @@ describe('Discovery', () => {
         discoveredMethod: {
           methodName: 'get',
           parentClass: {
-            classType: ExampleController
+            injectType: ExampleController,
+            dependencyType: ExampleController
           }
         }
       });

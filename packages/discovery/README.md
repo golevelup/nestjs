@@ -56,7 +56,8 @@ In the case of querying for `providers` or `controllers`, the service returns th
 export interface DiscoveredModule {
   name: string;
   instance: {};
-  classType: Type<{}>;
+  injectType?: Type<{}>;
+  dependencyType: Type<{}>;
 }
 
 export interface DiscoveredClass extends DiscoveredModule {
@@ -64,7 +65,13 @@ export interface DiscoveredClass extends DiscoveredModule {
 }
 ```
 
-This gives access to the (singleton) `instance` of the matching provider or controller created by the NestJS Dependency Injection container as well as the `classType` which is the class constructor function. It also provides the string based name for convenience. A `DiscoveredClass` contains a `parentModule` which provides the same set of information for the `@Module` class that the dependency was discovered in.
+This gives access to the (singleton) `instance` of the matching provider or controller created by the NestJS Dependency Injection container.
+
+The `injectType` can contain the constructor function of the provider token if it is provided as an @Injectable class. In the case of custom providers, this value will either contain the type of the factory function that created the dependency, or undefined if a value was directly provided with `useValue`.
+
+The `dependencyType` is a shortcut to retrieve the constructor function of the actual provided dependency itself. For @Injectable providers/controllers this will simply be the decorated class but for dyanmic providers it will return the constructor function of whatever dependency was actually returned from `useValue` or `useFactory`.
+
+It also provides the string based name for convenience. A `DiscoveredClass` contains a `parentModule` which provides the same set of information for the `@Module` class that the dependency was discovered in.
 
 When querying for methods on `providers` or `controllers` the following interface is returned:
 
