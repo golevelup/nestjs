@@ -3,7 +3,8 @@ import { Type } from '@nestjs/common';
 export interface DiscoveredModule {
   name: string;
   instance: {};
-  classType: Type<{}>;
+  injectType?: Type<{}>;
+  dependencyType: Type<{}>;
 }
 
 export interface DiscoveredClass extends DiscoveredModule {
