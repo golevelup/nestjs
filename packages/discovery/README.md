@@ -104,7 +104,7 @@ export interface DiscoveredClassWithMeta<T> {
 Assuming you were using a custom decorator in your application that attached metadata at a key called `exampleKey`:
 
 ```typescript
-const ExampleDecorator = (meta: string) => ReflectMetadata('exampleKey', meta);
+const ExampleDecorator = (meta: string) => SetMetadata('exampleKey', meta);
 ```
 
 Find all controller methods that have been decorated with `@ExampleDecorator` and retrieve the value they set for meta:

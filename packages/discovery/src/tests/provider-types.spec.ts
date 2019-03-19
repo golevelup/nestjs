@@ -1,8 +1,8 @@
-import { Injectable, Module, ReflectMetadata } from '@nestjs/common';
+import { Injectable, Module, SetMetadata } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { DiscoveryModule, DiscoveryService, withMetaAtKey } from '..';
 
-const TestDecorator = (config: any) => ReflectMetadata('test', config);
+const TestDecorator = (config: any) => SetMetadata('test', config);
 
 @Injectable()
 @TestDecorator('dynamicProvider')
@@ -29,7 +29,7 @@ class DynamicProvider {
 class ExampleModule {}
 
 describe('Provider Types', () => {
-  describe('Value Providers', async () => {
+  describe('Value Providers', () => {
     let app: TestingModule;
     let discover: DiscoveryService;
 

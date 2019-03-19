@@ -1,10 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Scope, Type } from '@nestjs/common';
 import { PATH_METADATA } from '@nestjs/common/constants';
-import { InstanceWrapper } from '@nestjs/core/injector/container';
+import { STATIC_CONTEXT } from '@nestjs/core/injector/constants';
+import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 import { Module } from '@nestjs/core/injector/module';
 import { ModulesContainer } from '@nestjs/core/injector/modules-container';
 import { MetadataScanner } from '@nestjs/core/metadata-scanner';
-import { flatMap, some, uniqBy } from 'lodash';
+import { flatMap, get, some, uniqBy } from 'lodash';
 import {
   DiscoveredClass,
   DiscoveredClassWithMeta,
@@ -65,18 +66,18 @@ export class DiscoveryService {
     this.discoveredControllers = Promise.all(
       flatMap(modulesMap, ([key, nestModule]) => {
         const components = [...nestModule.routes.values()];
-        return components.map(component =>
-          this.toDiscoveredClass(nestModule, component)
-        );
+        return components
+          .filter(component => component.scope !== Scope.REQUEST)
+          .map(component => this.toDiscoveredClass(nestModule, component));
       })
     );
 
     this.discoveredProviders = Promise.all(
       flatMap(modulesMap, ([key, nestModule]) => {
         const components = [...nestModule.components.values()];
-        return components.map(component =>
-          this.toDiscoveredClass(nestModule, component)
-        );
+        return components
+          .filter(component => component.scope !== Scope.REQUEST)
+          .map(component => this.toDiscoveredClass(nestModule, component));
       })
     );
   }
@@ -217,24 +218,27 @@ export class DiscoveryService {
 
   private async toDiscoveredClass(
     nestModule: Module,
-    component: InstanceWrapper<any>
+    wrapper: InstanceWrapper<any>
   ): Promise<DiscoveredClass> {
-    // This may be a bug in NestJS core as it doesn't seem that isPending is properly
-    // updated once the component is resolved
-    if (component.isPending && !component.isResolved) {
-      await component.done$;
+    const instanceHost = wrapper.getInstanceByContextId(
+      STATIC_CONTEXT,
+      wrapper && wrapper.id ? wrapper.id : undefined
+    );
+
+    if (instanceHost.isPending && !instanceHost.isResolved) {
+      await instanceHost.donePromise;
     }
 
     return {
-      name: component.name as string,
-      instance: component.instance,
-      injectType: component.metatype,
-      dependencyType: component.instance.constructor,
+      name: wrapper.name as string,
+      instance: instanceHost.instance,
+      injectType: wrapper.metatype,
+      dependencyType: get(instanceHost, 'instance.constructor'),
       parentModule: {
         name: nestModule.metatype.name,
         instance: nestModule.instance,
         injectType: nestModule.metatype,
-        dependencyType: component.instance.constructor
+        dependencyType: nestModule.instance.constructor as Type<{}>
       }
     };
   }
