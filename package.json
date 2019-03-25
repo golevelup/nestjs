@@ -34,8 +34,8 @@
   },
   "scripts": {
     "commit": "yarn run git-cz",
-    "lerna:publish": "lerna run build && yarn test && lerna publish",
-    "lerna:prerelease": "lerna run build && yarn test && lerna publish prerelease --preid rc",
+    "lerna:publish": "lerna run build && yarn test && lerna publish -m 'chore: publish'",
+    "lerna:prerelease": "lerna run build && yarn test && lerna publish prerelease --preid rc -m 'chore: publish prerelease'",
     "build": "lerna run build",
     "clean": "rimraf packages/**/lib",
     "test": "jest",
