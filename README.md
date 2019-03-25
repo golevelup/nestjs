@@ -7,7 +7,7 @@ A collection of Badass modules and utilities to help you level up your NestJS ap
 </p>
 
 <p align="center">
-    <a href="https://travis-ci.org/nestjs/nest"><img src="https://travis-ci.org/WonderPanda/nestjs-plus.svg?branch=master" alt="Travis" /></a>
+    <a href="https://travis-ci.org/WonderPanda/nestjs-plus"><img src="https://travis-ci.org/WonderPanda/nestjs-plus.svg?branch=master" alt="Travis" /></a>
 </p>
 
 ## Packages
