@@ -4,6 +4,8 @@ import { AmqpConnection } from './amqp/AmqpConnection';
 import { RabbitRPC, RabbitSubscribe } from './rabbitmq.decorators';
 import { RabbitMQModule } from './rabbitmq.module';
 
+jest.mock('./amqp/AmqpConnection');
+
 @Injectable()
 class ExampleService {
   @RabbitRPC({
@@ -29,30 +31,30 @@ describe('RabbitMQ', () => {
   let amqpMock: AmqpConnection;
 
   beforeEach(async () => {
+    amqpMock = new AmqpConnection({
+      uri: '',
+      exchanges: []
+    });
+
     app = await Test.createTestingModule({
-      imports: [RabbitMQModule, ExampleModule]
-    })
-      .overrideProvider(AmqpConnection)
-      .useValue({
-        createRpc: jest.fn(),
-        createSubscriber: jest.fn()
-      })
-      .compile();
+      imports: [ExampleModule, RabbitMQModule.attach(amqpMock)]
+    }).compile();
 
     await app.init();
-    amqpMock = app.get<AmqpConnection>(AmqpConnection);
   });
 
   it('should register rabbit rpc handlers', async () => {
+    expect(amqpMock.createRpc).toBeCalledTimes(1);
+
     expect(amqpMock.createRpc).toBeCalledWith(expect.any(Function), {
       exchange: 'exchange1',
       routingKey: 'rpc'
     });
-
-    expect(amqpMock.createRpc).toBeCalledTimes(1);
   });
 
   it('should register rabbit subscribe handlers', async () => {
+    expect(amqpMock.createSubscriber).toBeCalledTimes(1);
+
     expect(amqpMock.createSubscriber).toBeCalledWith(expect.any(Function), {
       exchange: 'exchange2',
       routingKey: 'subscribe'

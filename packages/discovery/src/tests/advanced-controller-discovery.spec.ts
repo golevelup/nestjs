@@ -4,8 +4,8 @@ import {
   Module,
   Post,
   Put,
-  ReflectMetadata,
-  RequestMethod
+  RequestMethod,
+  SetMetadata
 } from '@nestjs/common';
 import { METHOD_METADATA, PATH_METADATA } from '@nestjs/common/constants';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -13,7 +13,7 @@ import { DiscoveryModule, DiscoveryService } from '..';
 import { getComponentMetaAtKey } from '../discovery.service';
 
 const rolesKey = 'roles';
-const Roles = (roles: string[]) => ReflectMetadata(rolesKey, roles);
+const Roles = (roles: string[]) => SetMetadata(rolesKey, roles);
 
 @Controller('guest')
 @Roles(['guest', 'anotherRole'])

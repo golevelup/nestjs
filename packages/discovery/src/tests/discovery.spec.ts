@@ -3,7 +3,7 @@ import {
   Get,
   Injectable,
   Module,
-  ReflectMetadata
+  SetMetadata
 } from '@nestjs/common';
 import { PATH_METADATA } from '@nestjs/common/constants';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -16,10 +16,10 @@ const ExampleClassSymbol = Symbol('ExampleClassSymbol');
 const ExampleMethodSymbol = Symbol('ExampleMethodSymbol');
 
 const ExampleClassDecorator = (config: any) =>
-  ReflectMetadata(ExampleClassSymbol, config);
+  SetMetadata(ExampleClassSymbol, config);
 
 const ExampleMethodDecorator = (config: any) =>
-  ReflectMetadata(ExampleMethodSymbol, config);
+  SetMetadata(ExampleMethodSymbol, config);
 
 @Injectable()
 @ExampleClassDecorator('class')
@@ -86,7 +86,12 @@ describe('Discovery', () => {
           methodName: 'specialMethod',
           parentClass: {
             injectType: ExampleService,
-            dependencyType: ExampleService
+            dependencyType: ExampleService,
+            parentModule: {
+              name: 'ExampleModule',
+              dependencyType: ExampleModule,
+              injectType: ExampleModule
+            }
           }
         }
       });
@@ -125,7 +130,12 @@ describe('Discovery', () => {
           methodName: 'get',
           parentClass: {
             injectType: ExampleController,
-            dependencyType: ExampleController
+            dependencyType: ExampleController,
+            parentModule: {
+              name: 'ExampleModule',
+              dependencyType: ExampleModule,
+              injectType: ExampleModule
+            }
           }
         }
       });

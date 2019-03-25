@@ -35,6 +35,19 @@ export class RabbitMQModule implements OnModuleInit {
     };
   }
 
+  public static attach(connection: AmqpConnection): DynamicModule {
+    return {
+      module: RabbitMQModule,
+      providers: [
+        {
+          provide: AmqpConnection,
+          useValue: connection
+        }
+      ],
+      exports: [AmqpConnection]
+    };
+  }
+
   public async onModuleInit() {
     const rabbitMeta = await this.discover.providerMethodsWithMetaAtKey<
       RabbitHandlerConfig
