@@ -5,7 +5,17 @@ install:
   - yarn travis
 script:
   - yarn test
+  - docker-compose up -d
+  - yarn --cwd ./integration/rabbitmq
+  - yarn --cwd ./examples/kitchen-sink
+  - yarn test:integration
 cache:
   yarn: true
   directories:
     - node_modules
+services:
+  - docker
+addons:
+  apt:
+    packages:
+      - docker-ce

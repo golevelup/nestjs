@@ -49,6 +49,8 @@ export class RabbitMQModule implements OnModuleInit {
   }
 
   public async onModuleInit() {
+    this.logger.log('Initializing RabbitMQ');
+
     const rabbitMeta = await this.discover.providerMethodsWithMetaAtKey<
       RabbitHandlerConfig
     >(RABBIT_HANDLER);

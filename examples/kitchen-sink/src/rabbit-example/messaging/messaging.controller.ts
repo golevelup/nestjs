@@ -1,4 +1,4 @@
-import { AmqpConnection } from '@nestjs-plus/rabbitmq/lib/amqp/AmqpConnection';
+import { AmqpConnection } from '@nestjs-plus/rabbitmq';
 import { Controller, Get } from '@nestjs/common';
 
 @Controller('messaging')
@@ -20,7 +20,9 @@ export class MessagingController {
 
   @Get('/pubsub')
   public async publishMessage() {
-    await this.amqpConnection.publish('exchange2', 'subscribe-route', { message: 42 });
+    await this.amqpConnection.publish('exchange2', 'subscribe-route', {
+      message: 42,
+    });
     return {
       result: 'Published message',
     };

@@ -39,6 +39,7 @@
     "build": "lerna run build",
     "clean": "rimraf packages/**/lib",
     "test": "jest",
+    "test:integration": "jest --config ./jest-e2e.json --force-exit",
     "travis": "yarn install && yarn build"
   },
   "husky": {

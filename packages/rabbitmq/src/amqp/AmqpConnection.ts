@@ -49,7 +49,7 @@ export class AmqpConnection {
         this._channel.assertExchange(
           x.name,
           x.type || this.config.defaultExchangeType,
-          x.options,
+          x.options
         )
       )
     );
@@ -90,7 +90,7 @@ export class AmqpConnection {
 
   public async createSubscriber<T>(
     handler: (msg: T) => Promise<void>,
-    msgOptions: MessageOptions,
+    msgOptions: MessageOptions
   ) {
     const { exchange, routingKey } = msgOptions;
 
@@ -112,7 +112,7 @@ export class AmqpConnection {
 
   public async createRpc<T, U>(
     handler: (msg: T) => Promise<U>,
-    msgOptions: MessageOptions,
+    msgOptions: MessageOptions
   ) {
     const { exchange, routingKey } = msgOptions;
 
@@ -127,6 +127,7 @@ export class AmqpConnection {
 
       const message = JSON.parse(msg.content.toString()) as T;
       const response = await handler(message);
+
       const { replyTo, correlationId } = msg.properties;
       this.publish('', replyTo, response, { correlationId });
 
