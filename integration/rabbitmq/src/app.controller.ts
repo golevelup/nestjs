@@ -1,5 +1,5 @@
-import { Get, Controller } from '@nestjs/common';
 import { AmqpConnection } from '@nestjs-plus/rabbitmq';
+import { Controller, Get } from '@nestjs/common';
 
 @Controller()
 export class AppController {
@@ -12,13 +12,10 @@ export class AppController {
 
   @Get('rpc')
   async getRpc() {
-    const response = await this.amqpConnection.request(
-      {
-        exchange: 'exchange1',
-        routingKey: 'rpc',
-      },
-      {},
-    );
+    const response = await this.amqpConnection.request({
+      exchange: 'exchange1',
+      routingKey: 'rpc',
+    });
 
     return response;
   }

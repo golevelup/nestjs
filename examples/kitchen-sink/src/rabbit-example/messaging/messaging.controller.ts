@@ -7,13 +7,11 @@ export class MessagingController {
 
   @Get('/rpc')
   public async getMessage() {
-    const response = await this.amqpConnection.request(
-      {
-        exchange: 'exchange1',
-        routingKey: 'rpc-route',
-      },
-      { request: 'request body' },
-    );
+    const response = await this.amqpConnection.request({
+      exchange: 'exchange1',
+      routingKey: 'rpc-route',
+      payload: { request: 'request body' },
+    });
 
     return response;
   }

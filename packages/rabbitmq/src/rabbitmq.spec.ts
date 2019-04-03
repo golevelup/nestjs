@@ -1,10 +1,10 @@
 import { Injectable, Module } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { AmqpConnection } from './amqp/AmqpConnection';
+import { AmqpConnection } from './amqp/connection';
 import { RabbitRPC, RabbitSubscribe } from './rabbitmq.decorators';
 import { RabbitMQModule } from './rabbitmq.module';
 
-jest.mock('./amqp/AmqpConnection');
+jest.mock('./amqp/connection');
 
 @Injectable()
 class ExampleService {
@@ -46,18 +46,24 @@ describe('RabbitMQ', () => {
   it('should register rabbit rpc handlers', async () => {
     expect(amqpMock.createRpc).toBeCalledTimes(1);
 
-    expect(amqpMock.createRpc).toBeCalledWith(expect.any(Function), {
-      exchange: 'exchange1',
-      routingKey: 'rpc'
-    });
+    expect(amqpMock.createRpc).toBeCalledWith(
+      expect.any(Function),
+      expect.objectContaining({
+        exchange: 'exchange1',
+        routingKey: 'rpc'
+      })
+    );
   });
 
   it('should register rabbit subscribe handlers', async () => {
     expect(amqpMock.createSubscriber).toBeCalledTimes(1);
 
-    expect(amqpMock.createSubscriber).toBeCalledWith(expect.any(Function), {
-      exchange: 'exchange2',
-      routingKey: 'subscribe'
-    });
+    expect(amqpMock.createSubscriber).toBeCalledWith(
+      expect.any(Function),
+      expect.objectContaining({
+        exchange: 'exchange2',
+        routingKey: 'subscribe'
+      })
+    );
   });
 });
