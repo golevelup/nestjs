@@ -1,0 +1,1 @@
+export const GOOGLE_PUBSUB_HANDLER = Symbol('GOOGLE_PUBSUB_HANDLER');
