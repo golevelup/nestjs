@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.2.0](https://github.com/WonderPanda/nestjs-plus/compare/@nestjs-plus/rabbitmq@1.1.0...@nestjs-plus/rabbitmq@1.2.0) (2019-04-07)
+
+### Features
+
+- **rabbitmq:** adds consistent rabbitmq config ([8d6de1d](https://github.com/WonderPanda/nestjs-plus/commit/8d6de1d)), closes [#34](https://github.com/WonderPanda/nestjs-plus/issues/34)
+
 # [1.1.0](https://github.com/WonderPanda/nestjs-plus/compare/@nestjs-plus/rabbitmq@1.0.0...@nestjs-plus/rabbitmq@1.1.0) (2019-04-07)
 
 ### Features
