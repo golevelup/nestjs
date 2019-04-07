@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.1](https://github.com/WonderPanda/nestjs-plus/compare/@nestjs-plus/discovery@2.0.0...@nestjs-plus/discovery@2.0.1) (2019-04-07)
+
+**Note:** Version bump only for package @nestjs-plus/discovery
+
 # [2.0.0](https://github.com/WonderPanda/nestjs-plus/compare/@nestjs-plus/discovery@1.2.0...@nestjs-plus/discovery@2.0.0) (2019-03-25)
 
 ### Features
