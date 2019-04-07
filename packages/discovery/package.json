@@ -28,6 +28,7 @@
   },
   "scripts": {
     "build": "tsc --build tsconfig.build.json",
+    "build:watch": "tsc --build tsconfig.build.json --watch",
     "test": "jest"
   },
   "bugs": {

@@ -15,6 +15,7 @@
   ],
   "scripts": {
     "build": "tsc --build tsconfig.build.json",
+    "build:watch": "tsc --build tsconfig.build.json --watch",
     "test": "echo \"Error: run tests from root\" && exit 1"
   },
   "dependencies": {

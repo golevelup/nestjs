@@ -2,7 +2,7 @@ import { DiscoveryModule, DiscoveryService } from '@nestjs-plus/discovery';
 import { DynamicModule, Logger, Module, OnModuleInit } from '@nestjs/common';
 import { ExternalContextCreator } from '@nestjs/core/helpers/external-context-creator';
 import { groupBy } from 'lodash';
-import { AmqpConnection } from './amqp/AmqpConnection';
+import { AmqpConnection } from './amqp/connection';
 import { RABBIT_HANDLER } from './rabbitmq.constants';
 import { RabbitHandlerConfig, RabbitMQConfig } from './rabbitmq.interfaces';
 
@@ -27,6 +27,8 @@ export class RabbitMQModule implements OnModuleInit {
           useFactory: async (): Promise<AmqpConnection> => {
             const connection = new AmqpConnection(config);
             await connection.init();
+            const logger = new Logger(RabbitMQModule.name);
+            logger.log('Successfully connected to RabbitMQ');
             return connection;
           }
         }
@@ -49,7 +51,7 @@ export class RabbitMQModule implements OnModuleInit {
   }
 
   public async onModuleInit() {
-    this.logger.log('Initializing RabbitMQ');
+    this.logger.log('Initializing RabbitMQ Handlers');
 
     const rabbitMeta = await this.discover.providerMethodsWithMetaAtKey<
       RabbitHandlerConfig
@@ -64,32 +66,25 @@ export class RabbitMQModule implements OnModuleInit {
     for (const key of providerKeys) {
       this.logger.log(`Registering rabbitmq handlers from ${key}`);
       await Promise.all(
-        grouped[key].map(async ({ discoveredMethod, meta }) => {
+        grouped[key].map(async ({ discoveredMethod, meta: config }) => {
           const handler = this.externalContextCreator.create(
             discoveredMethod.parentClass.instance,
             discoveredMethod.handler,
             discoveredMethod.methodName
           );
 
-          const { exchange, routingKey, queue } = meta;
+          const { exchange, routingKey, queue } = config;
 
           this.logger.log(
-            `Attaching ${
-              meta.type
-            } handler on exchange ${exchange} and routingKey ${routingKey}`
+            `${discoveredMethod.parentClass.name}.${
+              discoveredMethod.methodName
+            } {${config.type}} -> ${exchange}::${routingKey}::${queue ||
+              'amqpgen'}`
           );
 
-          return meta.type === 'rpc'
-            ? this.amqpConnection.createRpc(handler, {
-                exchange,
-                routingKey,
-                queue
-              })
-            : this.amqpConnection.createSubscriber(handler, {
-                exchange,
-                routingKey,
-                queue
-              });
+          return config.type === 'rpc'
+            ? this.amqpConnection.createRpc(handler, config)
+            : this.amqpConnection.createSubscriber(handler, config);
         })
       );
     }
