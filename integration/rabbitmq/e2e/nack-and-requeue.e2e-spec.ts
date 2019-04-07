@@ -62,14 +62,16 @@ describe('Nack and Requeue', () => {
     const moduleFixture = await Test.createTestingModule({
       providers: [SubscribeService],
       imports: [
-        RabbitMQModule.build({
-          exchanges: [
-            {
-              name: exchange,
-              type: 'topic',
-            },
-          ],
-          uri: 'amqp://rabbitmq:rabbitmq@localhost:5672',
+        RabbitMQModule.forRootAsync({
+          useFactory: () => ({
+            exchanges: [
+              {
+                name: exchange,
+                type: 'topic',
+              },
+            ],
+            uri: 'amqp://rabbitmq:rabbitmq@localhost:5672',
+          }),
         }),
       ],
     }).compile();

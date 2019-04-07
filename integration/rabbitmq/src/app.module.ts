@@ -5,14 +5,16 @@ import { RpcService } from './rpc/rpc.service';
 
 @Module({
   imports: [
-    RabbitMQModule.build({
-      exchanges: [
-        {
-          name: 'exchange1',
-          type: 'topic',
-        },
-      ],
-      uri: 'amqp://rabbitmq:rabbitmq@localhost:5672',
+    RabbitMQModule.forRootAsync({
+      useFactory: () => ({
+        exchanges: [
+          {
+            name: 'exchange1',
+            type: 'topic',
+          },
+        ],
+        uri: 'amqp://rabbitmq:rabbitmq@localhost:5672',
+      }),
     }),
   ],
   controllers: [AppController],

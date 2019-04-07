@@ -35,7 +35,7 @@ describe('Rabbit Subscribe', () => {
     const moduleFixture = await Test.createTestingModule({
       providers: [SubscribeService],
       imports: [
-        RabbitMQModule.build({
+        RabbitMQModule.forRoot({
           exchanges: [
             {
               name: exchange,
