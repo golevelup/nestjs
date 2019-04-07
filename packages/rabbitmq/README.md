@@ -42,7 +42,7 @@ import { MessagingService } from './messaging/messaging.service';
 
 @Module({
   imports: [
-    RabbitMQModule.build({
+    RabbitMQModule.forRoot({
       exchanges: [
         {
           name: 'exchange1',

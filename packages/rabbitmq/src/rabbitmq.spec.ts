@@ -30,40 +30,44 @@ describe('RabbitMQ', () => {
   let app: TestingModule;
   let amqpMock: AmqpConnection;
 
-  beforeEach(async () => {
-    amqpMock = new AmqpConnection({
-      uri: '',
-      exchanges: []
+  describe('Module configuration', () => {});
+
+  describe('Attaching Handlers', () => {
+    beforeEach(async () => {
+      amqpMock = new AmqpConnection({
+        uri: '',
+        exchanges: []
+      });
+
+      app = await Test.createTestingModule({
+        imports: [ExampleModule, RabbitMQModule.attach(amqpMock)]
+      }).compile();
+
+      await app.init();
     });
 
-    app = await Test.createTestingModule({
-      imports: [ExampleModule, RabbitMQModule.attach(amqpMock)]
-    }).compile();
+    it('should register rabbit rpc handlers', async () => {
+      expect(amqpMock.createRpc).toBeCalledTimes(1);
 
-    await app.init();
-  });
+      expect(amqpMock.createRpc).toBeCalledWith(
+        expect.any(Function),
+        expect.objectContaining({
+          exchange: 'exchange1',
+          routingKey: 'rpc'
+        })
+      );
+    });
 
-  it('should register rabbit rpc handlers', async () => {
-    expect(amqpMock.createRpc).toBeCalledTimes(1);
+    it('should register rabbit subscribe handlers', async () => {
+      expect(amqpMock.createSubscriber).toBeCalledTimes(1);
 
-    expect(amqpMock.createRpc).toBeCalledWith(
-      expect.any(Function),
-      expect.objectContaining({
-        exchange: 'exchange1',
-        routingKey: 'rpc'
-      })
-    );
-  });
-
-  it('should register rabbit subscribe handlers', async () => {
-    expect(amqpMock.createSubscriber).toBeCalledTimes(1);
-
-    expect(amqpMock.createSubscriber).toBeCalledWith(
-      expect.any(Function),
-      expect.objectContaining({
-        exchange: 'exchange2',
-        routingKey: 'subscribe'
-      })
-    );
+      expect(amqpMock.createSubscriber).toBeCalledWith(
+        expect.any(Function),
+        expect.objectContaining({
+          exchange: 'exchange2',
+          routingKey: 'subscribe'
+        })
+      );
+    });
   });
 });
