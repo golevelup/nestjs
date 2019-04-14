@@ -1,10 +1,20 @@
-import { PubSub } from '@google-cloud/pubsub';
+import { PubSub, Message } from '@google-cloud/pubsub';
 import { DiscoveryModule, DiscoveryService } from '@nestjs-plus/discovery';
 import { DynamicModule, Logger, Module, OnModuleInit } from '@nestjs/common';
 import { ExternalContextCreator } from '@nestjs/core/helpers/external-context-creator';
 import { groupBy } from 'lodash';
-import { GOOGLE_PUBSUB_HANDLER } from './google-pubsub.constants';
-import { GooglePubSubHandlerConfig } from './google-pubsub.interfaces';
+import {
+  GOOGLE_PUBSUB_HANDLER,
+  GOOGLE_PUBSUB_CONFIG
+} from './google-pubsub.constants';
+import {
+  GooglePubSubHandlerConfig,
+  GooglePubSubConfig
+} from './google-pubsub.interfaces';
+import {
+  AsyncOptionsFactoryProvider,
+  createAsyncProviders
+} from '@nestjs-plus/common';
 
 @Module({
   imports: [DiscoveryModule]
@@ -17,9 +27,30 @@ export class GooglePubSubModule implements OnModuleInit {
     private readonly pubSub: PubSub
   ) {}
 
-  public static forRoot(
-    projectId: string = 'proof-of-concepts-192320'
+  public static forRootAsync(
+    asyncOptionsFactoryProvider: AsyncOptionsFactoryProvider<GooglePubSubConfig>
   ): DynamicModule {
+    return {
+      module: GooglePubSubModule,
+      imports: asyncOptionsFactoryProvider.imports,
+      providers: [
+        ...createAsyncProviders(
+          asyncOptionsFactoryProvider,
+          GOOGLE_PUBSUB_CONFIG
+        ),
+        {
+          provide: PubSub,
+          useFactory: async (config: GooglePubSubConfig): Promise<PubSub> => {
+            const pubSub = new PubSub({ projectId: config.projectId });
+            return pubSub;
+          },
+          inject: [GOOGLE_PUBSUB_CONFIG]
+        }
+      ]
+    };
+  }
+
+  public static forRoot(config: GooglePubSubConfig): DynamicModule {
     return {
       module: GooglePubSubModule,
       providers: [
@@ -28,7 +59,7 @@ export class GooglePubSubModule implements OnModuleInit {
           useFactory: async (): Promise<PubSub> => {
             // const logger = new Logger(GooglePubSubModule.name);
 
-            const pubSub = new PubSub({ projectId });
+            const pubSub = new PubSub({ projectId: config.projectId });
 
             // const [topic] = await pubSub.createTopic('test');
             // console.log(`Topic ${topic.name} created.`);
@@ -39,7 +70,7 @@ export class GooglePubSubModule implements OnModuleInit {
 
             // console.log(result);
 
-            const sub = pubSub.subscription('testSub');
+            // const sub = pubSub.subscription('testSub');
 
             return pubSub;
           }
@@ -63,7 +94,7 @@ export class GooglePubSubModule implements OnModuleInit {
 
     const providerKeys = Object.keys(providerGrouped);
     for (const key of providerKeys) {
-      this.logger.log(`Registering rabbitmq handlers from ${key}`);
+      this.logger.log(`Registering google pubsub handlers from ${key}`);
       await Promise.all(
         providerGrouped[key].map(async ({ discoveredMethod, meta }) => {
           const handler = this.externalContextCreator.create(
@@ -78,10 +109,20 @@ export class GooglePubSubModule implements OnModuleInit {
             `Attaching subscription handler on topic ${topic} and subscription ${subscription}`
           );
 
+          const pubSubHandler = async (msg: Message) => {
+            try {
+              const parsed = JSON.parse(msg.data.toString());
+              await handler(parsed, msg);
+              msg.ack();
+            } catch (e) {
+              throw e;
+            }
+          };
+
           this.pubSub
             .topic(topic)
             .subscription(subscription)
-            .on('message', handler);
+            .on('message', pubSubHandler);
         })
       );
     }

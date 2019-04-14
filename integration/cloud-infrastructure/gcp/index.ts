@@ -19,4 +19,10 @@ const pubSubTopic = new gcp.pubsub.Topic(
   }
 );
 
-export const pubSubArtifact = pubSubTopic.name;
+const pubSubSubscriptionName = named('pubsub-subscription');
+const pubSubSubscription = new gcp.pubsub.Subscription(pubSubSubscriptionName, {
+  topic: pubSubTopic.name
+});
+
+export const PUB_SUB_TOPIC_NAME = pubSubTopic.name;
+export const PUB_SUB_SUBSCRIPTION_NAME = pubSubSubscription.name;
