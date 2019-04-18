@@ -18,6 +18,11 @@ export interface RequestOptions {
   payload?: any;
 }
 
+export interface QueueOptions {
+  durable?: boolean;
+  exclusive?: boolean;
+}
+
 export enum MessageHandlerErrorBehavior {
   ACK,
   NACK,
@@ -28,6 +33,7 @@ export interface MessageHandlerOptions {
   exchange: string;
   routingKey: string;
   queue?: string;
+  queueOptions?: QueueOptions;
   errorBehavior?: MessageHandlerErrorBehavior;
 }
 
