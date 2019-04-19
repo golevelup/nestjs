@@ -101,7 +101,10 @@ export class AmqpConnection {
   ) {
     const { exchange, routingKey } = msgOptions;
 
-    const { queue } = await this.channel.assertQueue(msgOptions.queue || '');
+    const { queue } = await this.channel.assertQueue(
+      msgOptions.queue || '',
+      msgOptions.queueOptions || undefined
+    );
 
     await this.channel.bindQueue(queue, exchange, routingKey);
 
