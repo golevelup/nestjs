@@ -103,6 +103,38 @@ export class MessagingService {
 }
 ```
 
+### Message Handling
+
+NestJS Plus provides sane defaults for message handling with automatic acking of messages that have been successfully processed by either RPC or PubSub handlers. However, there are situtations where an application may want to Negatively Acknowledge (or Nack) a message. To support this, the library exposes the `Nack` object which when returned from a handler allows a developer to control the message handling behavior. Simply return a `Nack` instance to negatively acknowledge the message.
+
+By default, messages that are Nacked will not be requeued. However, if you would like to requeue the message so that another handler has an opportunity to process it use the optional requeue constructor argument set to true.
+
+```typescript
+import { RabbitRPC } from '@nestjs-plus/rabbitmq';
+import { Injectable } from '@nestjs/common';
+
+@Injectable()
+export class MessagingService {
+  @RabbitRPC({
+    exchange: 'exchange1',
+    routingKey: 'rpc-route',
+    queue: 'rpc-queue'
+  })
+  public async rpcHandler(msg: {}) {
+    return {
+      if (someCondition) {
+        return 42;
+      } else if (requeueCondition) {
+        return new Nack(true);
+      } else {
+        // Will not be requeued
+        return new Nack();
+      }
+    };
+  }
+}
+```
+
 ## Competing Consumers
 
 The competing consumer pattern is useful when building decoupled applications especially when it comes to things like RPC or [Work Queues](https://www.rabbitmq.com/tutorials/tutorial-two-javascript.html). In these scenarios, it often desirable to ensure that only one handler processes a given message especially if your app is horizontally scaled.
