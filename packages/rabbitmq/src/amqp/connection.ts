@@ -161,7 +161,10 @@ export class AmqpConnection {
   ) {
     const { exchange, routingKey } = rpcOptions;
 
-    const { queue } = await this.channel.assertQueue(rpcOptions.queue || '');
+    const { queue } = await this.channel.assertQueue(
+      rpcOptions.queue || '',
+      rpcOptions.queueOptions || undefined
+    );
 
     await this.channel.bindQueue(queue, exchange, routingKey);
 
