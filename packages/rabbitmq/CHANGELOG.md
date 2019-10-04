@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.4.0](https://github.com/WonderPanda/nestjs-plus/compare/@nestjs-plus/rabbitmq@1.3.0...@nestjs-plus/rabbitmq@1.4.0) (2019-10-04)
+
+### Features
+
+- **rabbitmq:** adds additional queue options for rpc ([d9b9d14](https://github.com/WonderPanda/nestjs-plus/commit/d9b9d14))
+
 # [1.3.0](https://github.com/WonderPanda/nestjs-plus/compare/@nestjs-plus/rabbitmq@1.2.0...@nestjs-plus/rabbitmq@1.3.0) (2019-04-19)
 
 ### Features
