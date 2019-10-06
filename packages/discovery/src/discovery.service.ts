@@ -45,7 +45,7 @@ export const withMetaAtKey: (
   key: MetaKey
 ) => Filter<DiscoveredClass> = key => component => {
   const metaTargets: Function[] = [
-    component.instance.constructor,
+    get(component, 'instance.constructor'),
     component.injectType as Function
   ].filter(x => x != null);
 
@@ -174,6 +174,10 @@ export class DiscoveryService {
     metaKey: MetaKey
   ): DiscoveredMethodWithMeta<T>[] {
     const { instance } = component;
+
+    if (!instance) {
+      return [];
+    }
 
     const prototype = Object.getPrototypeOf(instance);
 

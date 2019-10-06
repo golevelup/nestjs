@@ -1,4 +1,4 @@
-import { Injectable, Module, SetMetadata } from '@nestjs/common';
+import { Injectable, Module, SetMetadata, Scope } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { DiscoveryModule, DiscoveryService, withMetaAtKey } from '..';
 

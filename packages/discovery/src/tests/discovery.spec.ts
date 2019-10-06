@@ -15,6 +15,8 @@ const ExampleClassSymbol = Symbol('ExampleClassSymbol');
 
 const ExampleMethodSymbol = Symbol('ExampleMethodSymbol');
 
+const NullProviderSymbol = Symbol('NullProvider');
+
 const ExampleClassDecorator = (config: any) =>
   SetMetadata(ExampleClassSymbol, config);
 
@@ -40,7 +42,13 @@ class ExampleController {
 }
 
 @Module({
-  providers: [ExampleService],
+  providers: [
+    ExampleService,
+    {
+      provide: NullProviderSymbol,
+      useValue: null
+    }
+  ],
   controllers: [ExampleController]
 })
 class ExampleModule {}
@@ -60,6 +68,15 @@ describe('Discovery', () => {
   });
 
   describe('Providers', () => {
+    it('should be tolerant of potentially null providers', async () => {
+      const providers = await discoveryService.providers(
+        withMetaAtKey(ExampleClassSymbol)
+      );
+
+      const nullProvider = app.get<{}>(NullProviderSymbol);
+      expect(nullProvider).toBeNull();
+    });
+
     it('should discover providers based on a metadata key', async () => {
       const providers = await discoveryService.providers(
         withMetaAtKey(ExampleClassSymbol)
