@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.4.1](https://github.com/WonderPanda/nestjs-plus/compare/@nestjs-plus/rabbitmq@1.4.0...@nestjs-plus/rabbitmq@1.4.1) (2019-10-06)
+
+**Note:** Version bump only for package @nestjs-plus/rabbitmq
+
 # [1.4.0](https://github.com/WonderPanda/nestjs-plus/compare/@nestjs-plus/rabbitmq@1.3.0...@nestjs-plus/rabbitmq@1.4.0) (2019-10-04)
 
 ### Features
