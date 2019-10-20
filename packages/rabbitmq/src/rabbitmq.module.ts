@@ -8,67 +8,44 @@ import {
 } from '@nestjs/common';
 import {
   AsyncOptionsFactoryProvider,
-  createAsyncOptionsProvider
+  createAsyncOptionsProvider,
+  MakeConfigurableDynamicRootModule
 } from '@nestjs-plus/common';
 import { ExternalContextCreator } from '@nestjs/core/helpers/external-context-creator';
 import { groupBy } from 'lodash';
 import { AmqpConnection } from './amqp/connection';
-import { RABBIT_HANDLER, RABBIT_CONFIG } from './rabbitmq.constants';
+import { RABBIT_HANDLER, RABBIT_CONFIG_TOKEN } from './rabbitmq.constants';
 import { RabbitHandlerConfig, RabbitMQConfig } from './rabbitmq.interfaces';
 
 @Module({
   imports: [DiscoveryModule]
 })
-export class RabbitMQModule implements OnModuleInit {
+export class RabbitMQModule
+  extends MakeConfigurableDynamicRootModule<RabbitMQModule, RabbitMQConfig>(
+    RABBIT_CONFIG_TOKEN,
+    [
+      {
+        provide: AmqpConnection,
+        useFactory: async (config: RabbitMQConfig): Promise<AmqpConnection> => {
+          const connection = new AmqpConnection(config);
+          await connection.init();
+          const logger = new Logger(RabbitMQModule.name);
+          logger.log('Successfully connected to RabbitMQ');
+          return connection;
+        },
+        inject: [RABBIT_CONFIG_TOKEN]
+      }
+    ]
+  )
+  implements OnModuleInit {
   private readonly logger = new Logger(RabbitMQModule.name);
 
   constructor(
     private readonly discover: DiscoveryService,
     private readonly amqpConnection: AmqpConnection,
     private readonly externalContextCreator: ExternalContextCreator
-  ) {}
-
-  public static forRootAsync(
-    asyncOptionsFactoryProvider: AsyncOptionsFactoryProvider<RabbitMQConfig>
-  ): DynamicModule {
-    return {
-      module: RabbitMQModule,
-      exports: [AmqpConnection],
-      imports: asyncOptionsFactoryProvider.imports,
-      providers: [
-        ...this.createAsyncProviders(asyncOptionsFactoryProvider),
-        {
-          provide: AmqpConnection,
-          useFactory: async (config): Promise<AmqpConnection> => {
-            const connection = new AmqpConnection(config);
-            await connection.init();
-            const logger = new Logger(RabbitMQModule.name);
-            logger.log('Successfully connected to RabbitMQ');
-            return connection;
-          },
-          inject: [RABBIT_CONFIG]
-        }
-      ]
-    };
-  }
-
-  public static forRoot(config: RabbitMQConfig): DynamicModule {
-    return {
-      module: RabbitMQModule,
-      providers: [
-        {
-          provide: AmqpConnection,
-          useFactory: async (): Promise<AmqpConnection> => {
-            const connection = new AmqpConnection(config);
-            await connection.init();
-            const logger = new Logger(RabbitMQModule.name);
-            logger.log('Successfully connected to RabbitMQ');
-            return connection;
-          }
-        }
-      ],
-      exports: [AmqpConnection]
-    };
+  ) {
+    super();
   }
 
   public static build(config: RabbitMQConfig): DynamicModule {
@@ -145,42 +122,5 @@ export class RabbitMQModule implements OnModuleInit {
         })
       );
     }
-  }
-
-  private static createAsyncProviders(
-    asyncOptionsFactoryProvider: AsyncOptionsFactoryProvider<RabbitMQConfig>
-  ): Provider[] {
-    const optionsProvider = createAsyncOptionsProvider(
-      RABBIT_CONFIG,
-      asyncOptionsFactoryProvider
-    );
-
-    if (asyncOptionsFactoryProvider.useFactory) {
-      return [optionsProvider];
-    }
-
-    if (asyncOptionsFactoryProvider.useClass) {
-      return [
-        optionsProvider,
-        {
-          provide: asyncOptionsFactoryProvider.useClass,
-          useClass: asyncOptionsFactoryProvider.useClass
-        }
-      ];
-    }
-
-    if (asyncOptionsFactoryProvider.useExisting) {
-      return [
-        optionsProvider,
-        {
-          provide:
-            asyncOptionsFactoryProvider.useExisting.provide ||
-            asyncOptionsFactoryProvider.useExisting.value.constructor.name,
-          useValue: asyncOptionsFactoryProvider.useExisting.value
-        }
-      ];
-    }
-
-    return [];
   }
 }
