@@ -3,8 +3,16 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AmqpConnection } from './amqp/connection';
 import { RabbitRPC, RabbitSubscribe } from './rabbitmq.decorators';
 import { RabbitMQModule } from './rabbitmq.module';
+import { RabbitMQConfig } from './rabbitmq.interfaces';
+import { interval } from 'rxjs';
+import { map, tap, first } from 'rxjs/operators';
 
 jest.mock('./amqp/connection');
+let MockedAmqpConnection = AmqpConnection as jest.Mock<AmqpConnection>;
+
+// let MockedAmqpConnection = (AmqpConnection as unknown) as jest.Mocked<
+//   AmqpConnection
+// >;
 
 @Injectable()
 class ExampleService {
@@ -27,10 +35,81 @@ class ExampleService {
 class ExampleModule {}
 
 describe('RabbitMQ', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   let app: TestingModule;
   let amqpMock: AmqpConnection;
+  let config: RabbitMQConfig;
 
-  describe('Module configuration', () => {});
+  describe('Module configuration', () => {
+    describe('forRoot', () => {
+      beforeAll(async () => {
+        config = {
+          uri: 'fakeuri'
+        };
+
+        app = await Test.createTestingModule({
+          imports: [
+            ExampleModule,
+            RabbitMQModule.forRoot(RabbitMQModule, config)
+          ]
+        }).compile();
+
+        await app.init();
+      });
+
+      it('correctly configures the AmqpConnection', () => {
+        expect(AmqpConnection).toBeCalledTimes(1);
+        expect(AmqpConnection).toBeCalledWith(config);
+
+        const amqpConnection = MockedAmqpConnection.mock
+          .instances[0] as jest.Mocked<AmqpConnection>;
+
+        expect(amqpConnection.init).toBeCalledTimes(1);
+      });
+    });
+
+    describe('forRootAsync', () => {
+      beforeAll(async () => {
+        config = {
+          uri: 'fakeuri'
+        };
+
+        app = await Test.createTestingModule({
+          imports: [
+            ExampleModule,
+            RabbitMQModule.forRootAsync(RabbitMQModule, {
+              useFactory: () => {
+                return interval(100)
+                  .pipe(
+                    map(x => config),
+                    first()
+                  )
+                  .toPromise();
+              }
+            })
+          ]
+        }).compile();
+
+        await app.init();
+      });
+
+      it('correctly configures the AmqpConnection', () => {
+        expect(AmqpConnection).toBeCalledTimes(1);
+        expect(AmqpConnection).toBeCalledWith(config);
+
+        const amqpConnection = MockedAmqpConnection.mock
+          .instances[0] as jest.Mocked<AmqpConnection>;
+
+        expect(amqpConnection.init).toBeCalledTimes(1);
+
+        // console.log(MockedAmqpConnection);
+        // expect(MockedAmqpConnection.init.mock).toBeCalledTimes(1);
+      });
+    });
+  });
 
   describe('Attaching Handlers', () => {
     beforeEach(async () => {
