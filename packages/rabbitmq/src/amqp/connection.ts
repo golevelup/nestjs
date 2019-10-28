@@ -113,8 +113,14 @@ export class AmqpConnection {
         if (msg == null) {
           throw new Error('Received null message');
         }
-
-        const message = JSON.parse(msg.content.toString()) as T;
+        let message = {} as T;
+        try {
+          message = JSON.parse(msg.content.toString()) as T;
+        } catch (e) {
+          // 这里可能不是json格式，比如protobuf格式
+          // 先直接使用try进行捕获，合理的方案应该是直接在
+          // 注解的部分声明消息类型，然后消息进行透明回传，由业务放进行转码，框架默认不处理转码编码部分
+        }
         const response = await handler(message, msg);
         if (response instanceof Nack) {
           this._channel.nack(msg, false, response.requeue);
