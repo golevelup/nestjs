@@ -1,4 +1,4 @@
-import { DiscoveryModule, DiscoveryService } from '@nestjs-plus/discovery';
+import { DiscoveryModule, DiscoveryService } from '@levelup-nestjs/discovery';
 import {
   DynamicModule,
   Logger,
@@ -10,7 +10,7 @@ import {
   AsyncOptionsFactoryProvider,
   createAsyncOptionsProvider,
   MakeConfigurableDynamicRootModule
-} from '@nestjs-plus/common';
+} from '@levelup-nestjs/common';
 import { ExternalContextCreator } from '@nestjs/core/helpers/external-context-creator';
 import { groupBy } from 'lodash';
 import { AmqpConnection } from './amqp/connection';

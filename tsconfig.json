@@ -16,7 +16,7 @@
     "lib": ["es7"],
     "baseUrl": "./src",
     "paths": {
-      "@nestjs-plus/*": ["./*/src"]
+      "@levelup-nestjs/*": ["./*/src"]
     }
   },
   "exclude": ["node_modules"]
