@@ -24,16 +24,18 @@ export interface AsyncModuleConfig<T>
 export function createModuleConfigProvider<T>(
   provide: InjectionToken,
   options: AsyncModuleConfig<T>
-): Provider {
+): Provider[] {
   if (options.useFactory) {
-    return {
-      provide,
-      useFactory: options.useFactory,
-      inject: options.inject || []
-    };
+    return [
+      {
+        provide,
+        useFactory: options.useFactory,
+        inject: options.inject || []
+      }
+    ];
   }
 
-  return {
+  const optionsProvider = {
     provide,
     useFactory: async (moduleConfigFactory: ModuleConfigFactory<T>) => {
       const options = await moduleConfigFactory.createModuleConfig();
@@ -48,6 +50,30 @@ export function createModuleConfigProvider<T>(
         )
     ]
   };
+
+  if (options.useClass) {
+    return [
+      optionsProvider,
+      {
+        provide: options.useClass,
+        useClass: options.useClass
+      }
+    ];
+  }
+
+  if (options.useExisting) {
+    return [
+      optionsProvider,
+      {
+        provide:
+          options.useExisting.provide ||
+          options.useExisting.value.constructor.name,
+        useValue: options.useExisting.value
+      }
+    ];
+  }
+
+  return [];
 }
 
 export interface IConfigurableDynamicRootModule<T, U> {
@@ -84,7 +110,7 @@ export function MakeConfigurableDynamicRootModule<T, U>(
         imports: asyncModuleConfig.imports,
         exports: asyncModuleConfig.exports,
         providers: [
-          createModuleConfigProvider(moduleConfigToken, asyncModuleConfig),
+          ...createModuleConfigProvider(moduleConfigToken, asyncModuleConfig),
           ...additionalProviders
         ]
       };
