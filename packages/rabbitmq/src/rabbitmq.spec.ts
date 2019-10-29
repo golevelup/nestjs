@@ -1,11 +1,11 @@
 import { Injectable, Module } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import { interval } from 'rxjs';
+import { first, map } from 'rxjs/operators';
 import { AmqpConnection } from './amqp/connection';
 import { RabbitRPC, RabbitSubscribe } from './rabbitmq.decorators';
-import { RabbitMQModule } from './rabbitmq.module';
 import { RabbitMQConfig } from './rabbitmq.interfaces';
-import { interval } from 'rxjs';
-import { map, tap, first } from 'rxjs/operators';
+import { RabbitMQModule } from './rabbitmq.module';
 
 jest.mock('./amqp/connection');
 let MockedAmqpConnection = AmqpConnection as jest.Mock<AmqpConnection>;

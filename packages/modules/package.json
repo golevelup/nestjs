@@ -1,15 +1,12 @@
 {
-  "name": "@levelup-nestjs/rabbitmq",
-  "version": "1.4.1",
-  "description": "Badass RabbitMQ addons for NestJS",
+  "name": "@levelup-nestjs/modules",
+  "version": "0.0.1",
+  "description": "Reusable utilties to help level up NestJS Modules",
   "author": "Jesse Carter <jesse.r.carter@gmail.com>",
-  "homepage": "https://github.com/golevelup/nestjs/blob/master/packages/rabbitmq/README.md",
+  "homepage": "https://github.com/golevelup/nestjs#readme",
   "license": "MIT",
   "keywords": [
-    "NestJS",
-    "RabbitMQ",
-    "microservices",
-    "messaging"
+    "NestJS"
   ],
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -32,17 +29,14 @@
   "bugs": {
     "url": "https://github.com/golevelup/nestjs/issues"
   },
-  "dependencies": {
-    "@levelup-nestjs/discovery": "^2.0.2",
-    "amqplib": "^0.5.3",
-    "uuid": "^3.3.2"
-  },
-  "devDependencies": {
-    "@types/amqplib": "^0.5.9",
-    "@types/uuid": "^3.4.4"
-  },
   "publishConfig": {
     "access": "public"
+  },
+  "dependencies": {
+    "shortid": "^2.2.14"
+  },
+  "devDependencies": {
+    "@types/shortid": "^0.0.29"
   },
   "jest": {
     "moduleFileExtensions": [

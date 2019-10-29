@@ -1,20 +1,10 @@
 import { DiscoveryModule, DiscoveryService } from '@levelup-nestjs/discovery';
-import {
-  DynamicModule,
-  Logger,
-  Module,
-  OnModuleInit,
-  Provider
-} from '@nestjs/common';
-import {
-  AsyncOptionsFactoryProvider,
-  createAsyncOptionsProvider,
-  MakeConfigurableDynamicRootModule
-} from '@levelup-nestjs/common';
+import { MakeConfigurableDynamicRootModule } from '@levelup-nestjs/modules';
+import { DynamicModule, Logger, Module, OnModuleInit } from '@nestjs/common';
 import { ExternalContextCreator } from '@nestjs/core/helpers/external-context-creator';
 import { groupBy } from 'lodash';
 import { AmqpConnection } from './amqp/connection';
-import { RABBIT_HANDLER, RABBIT_CONFIG_TOKEN } from './rabbitmq.constants';
+import { RABBIT_CONFIG_TOKEN, RABBIT_HANDLER } from './rabbitmq.constants';
 import { RabbitHandlerConfig, RabbitMQConfig } from './rabbitmq.interfaces';
 
 @Module({
@@ -23,19 +13,24 @@ import { RabbitHandlerConfig, RabbitMQConfig } from './rabbitmq.interfaces';
 export class RabbitMQModule
   extends MakeConfigurableDynamicRootModule<RabbitMQModule, RabbitMQConfig>(
     RABBIT_CONFIG_TOKEN,
-    [
-      {
-        provide: AmqpConnection,
-        useFactory: async (config: RabbitMQConfig): Promise<AmqpConnection> => {
-          const connection = new AmqpConnection(config);
-          await connection.init();
-          const logger = new Logger(RabbitMQModule.name);
-          logger.log('Successfully connected to RabbitMQ');
-          return connection;
-        },
-        inject: [RABBIT_CONFIG_TOKEN]
-      }
-    ]
+    {
+      providers: [
+        {
+          provide: AmqpConnection,
+          useFactory: async (
+            config: RabbitMQConfig
+          ): Promise<AmqpConnection> => {
+            const connection = new AmqpConnection(config);
+            await connection.init();
+            const logger = new Logger(RabbitMQModule.name);
+            logger.log('Successfully connected to RabbitMQ');
+            return connection;
+          },
+          inject: [RABBIT_CONFIG_TOKEN]
+        }
+      ],
+      exports: [AmqpConnection]
+    }
   )
   implements OnModuleInit {
   private readonly logger = new Logger(RabbitMQModule.name);

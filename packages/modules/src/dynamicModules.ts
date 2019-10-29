@@ -96,7 +96,13 @@ export interface IConfigurableDynamicRootModule<T, U> {
 
 export function MakeConfigurableDynamicRootModule<T, U>(
   moduleConfigToken: InjectionToken,
-  additionalProviders: Provider[] = []
+  moduleProperties: Partial<
+    Pick<ModuleMetadata, 'imports' | 'exports' | 'providers'>
+  > = {
+    imports: [],
+    exports: [],
+    providers: []
+  }
 ) {
   abstract class DynamicRootModule {
     static moduleSubject = new Subject<DynamicModule>();
@@ -107,11 +113,17 @@ export function MakeConfigurableDynamicRootModule<T, U>(
     ): DynamicModule {
       const dynamicModule = {
         module: moduleCtor,
-        imports: asyncModuleConfig.imports,
-        exports: asyncModuleConfig.exports,
+        imports: [
+          ...(asyncModuleConfig.imports || []),
+          ...(moduleProperties.imports || [])
+        ],
+        exports: [
+          ...(asyncModuleConfig.exports || []),
+          ...(moduleProperties.exports || [])
+        ],
         providers: [
           ...createModuleConfigProvider(moduleConfigToken, asyncModuleConfig),
-          ...additionalProviders
+          ...(moduleProperties.providers || [])
         ]
       };
 
@@ -123,12 +135,14 @@ export function MakeConfigurableDynamicRootModule<T, U>(
     static forRoot(moduleCtor: Type<T>, moduleConfig: U): DynamicModule {
       const dynamicModule = {
         module: moduleCtor,
+        imports: [...(moduleProperties.imports || [])],
+        exports: [...(moduleProperties.exports || [])],
         providers: [
           {
             provide: moduleConfigToken,
             useValue: moduleConfig
           },
-          ...additionalProviders
+          ...(moduleProperties.providers || [])
         ]
       };
 
