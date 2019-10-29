@@ -1,9 +1,9 @@
 {
-  "name": "@nestjs-plus/rabbitmq",
+  "name": "@levelup-nestjs/rabbitmq",
   "version": "1.4.1",
   "description": "Badass RabbitMQ addons for NestJS",
   "author": "Jesse Carter <jesse.r.carter@gmail.com>",
-  "homepage": "https://github.com/WonderPanda/nestjs-plus/blob/master/packages/rabbitmq/README.md",
+  "homepage": "https://github.com/golevelup/nestjs/blob/master/packages/rabbitmq/README.md",
   "license": "MIT",
   "keywords": [
     "NestJS",
@@ -22,7 +22,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/WonderPanda/nestjs-plus.git"
+    "url": "git+https://github.com/golevelup/nestjs.git"
   },
   "scripts": {
     "build": "tsc --build tsconfig.build.json",
@@ -30,10 +30,10 @@
     "test": "jest"
   },
   "bugs": {
-    "url": "https://github.com/WonderPanda/nestjs-plus/issues"
+    "url": "https://github.com/golevelup/nestjs/issues"
   },
   "dependencies": {
-    "@nestjs-plus/discovery": "^2.0.2",
+    "@levelup-nestjs/discovery": "^2.0.2",
     "amqplib": "^0.5.3",
     "uuid": "^3.3.2"
   },

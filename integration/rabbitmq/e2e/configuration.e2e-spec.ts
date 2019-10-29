@@ -1,12 +1,11 @@
-import { INestApplication } from '@nestjs/common';
+import { RabbitMQConfig, RabbitMQModule } from '@levelup-nestjs/rabbitmq';
 import { Test, TestingModule } from '@nestjs/testing';
-import { RabbitMQModule, RabbitMQConfig } from '@nestjs-plus/rabbitmq';
 import * as amqplib from 'amqplib';
 
 const uri = 'amqp://rabbitmq:rabbitmq@localhost:5672';
 
 class RabbitConfig {
-  createOptions(): RabbitMQConfig {
+  createModuleConfig(): RabbitMQConfig {
     return {
       uri,
     };
@@ -24,7 +23,7 @@ describe('Module Configuration', () => {
 
       app = await Test.createTestingModule({
         imports: [
-          RabbitMQModule.forRoot({
+          RabbitMQModule.forRoot(RabbitMQModule, {
             uri,
           }),
         ],
@@ -41,7 +40,7 @@ describe('Module Configuration', () => {
 
       app = await Test.createTestingModule({
         imports: [
-          RabbitMQModule.forRootAsync({
+          RabbitMQModule.forRootAsync(RabbitMQModule, {
             useFactory: async () => {
               return {
                 uri,
@@ -60,7 +59,7 @@ describe('Module Configuration', () => {
 
       app = await Test.createTestingModule({
         imports: [
-          RabbitMQModule.forRootAsync({
+          RabbitMQModule.forRootAsync(RabbitMQModule, {
             useClass: RabbitConfig,
           }),
         ],
@@ -77,7 +76,7 @@ describe('Module Configuration', () => {
 
       app = await Test.createTestingModule({
         imports: [
-          RabbitMQModule.forRootAsync({
+          RabbitMQModule.forRootAsync(RabbitMQModule, {
             useExisting: {
               provide: RabbitConfig,
               value: instance,
@@ -97,7 +96,7 @@ describe('Module Configuration', () => {
 
       app = await Test.createTestingModule({
         imports: [
-          RabbitMQModule.forRootAsync({
+          RabbitMQModule.forRootAsync(RabbitMQModule, {
             useExisting: {
               value: instance,
             },

@@ -12,24 +12,16 @@ A collection of Badass modules and utilities to help you level up your NestJS ap
 
 ## Packages
 
-The various packages are managed using Yarn Workspaces and Lerna and published under the `@nestjs-plus` organization on NPM.
+The various packages are managed using Yarn Workspaces and Lerna and published under the `@levelup-nestjs` organization on NPM.
 
-#### [Common - @nestjs-plus/common](packages/common/README.md)
+#### [Common - @levelup-nestjs/common](packages/common/README.md)
 
 - Mixin Utilities
 
-#### [Discovery - @nestjs-plus/discovery](packages/discovery/README.md)
+#### [Discovery - @levelup-nestjs/discovery](packages/discovery/README.md)
 
 - `DiscoveryModule` for finding providers, controllers and method handlers from your NestJS app that have certain metadata
 
-#### [RabbitMQ - @nestjs-plus/rabbitmq](packages/rabbitmq/README.md)
+#### [RabbitMQ - @levelup-nestjs/rabbitmq](packages/rabbitmq/README.md)
 
 - A NestJS native module for RabbitMQ that supports both RPC and Publish/Subscribe messaging patterns
-
-## Incubating (Potential future packages)
-
-#### [Caching - @nestjs-plus/caching](packages/caching/README.md)
-
-- A flexible module for response caching that allows per route/handler cache configuration
-
-#### Cloud specific packages (@nestjs-plus/azure)

@@ -6,10 +6,8 @@ export interface OptionsFactory<T> {
   createOptions(): Promise<T> | T;
 }
 
-// type OptionsFactoryImpl<T extends OptionsFactory<T>> = T;
-
 export interface AsyncOptionsFactoryProvider<T>
-  extends Pick<ModuleMetadata, 'imports'> {
+  extends Pick<ModuleMetadata, 'imports' | 'exports'> {
   useExisting?: {
     value: OptionsFactory<T>;
     provide?: string | symbol | Type<any>;

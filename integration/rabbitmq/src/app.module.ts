@@ -1,11 +1,11 @@
+import { RabbitMQModule } from '@levelup-nestjs/rabbitmq';
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
-import { RabbitMQModule } from '@nestjs-plus/rabbitmq';
 import { RpcService } from './rpc/rpc.service';
 
 @Module({
   imports: [
-    RabbitMQModule.forRootAsync({
+    RabbitMQModule.forRootAsync(RabbitMQModule, {
       useFactory: () => ({
         exchanges: [
           {

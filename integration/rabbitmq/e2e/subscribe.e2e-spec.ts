@@ -1,11 +1,10 @@
-import { INestApplication } from '@nestjs/common';
-import { Test } from '@nestjs/testing';
-import { Injectable } from '@nestjs/common';
 import {
   AmqpConnection,
-  RabbitSubscribe,
   RabbitMQModule,
-} from '@nestjs-plus/rabbitmq';
+  RabbitSubscribe,
+} from '@levelup-nestjs/rabbitmq';
+import { INestApplication, Injectable } from '@nestjs/common';
+import { Test } from '@nestjs/testing';
 
 const testHandler = jest.fn();
 
@@ -35,7 +34,7 @@ describe('Rabbit Subscribe', () => {
     const moduleFixture = await Test.createTestingModule({
       providers: [SubscribeService],
       imports: [
-        RabbitMQModule.forRoot({
+        RabbitMQModule.forRoot(RabbitMQModule, {
           exchanges: [
             {
               name: exchange,

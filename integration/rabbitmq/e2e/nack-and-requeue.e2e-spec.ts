@@ -1,12 +1,11 @@
-import { INestApplication } from '@nestjs/common';
-import { Test } from '@nestjs/testing';
-import { Injectable } from '@nestjs/common';
 import {
   AmqpConnection,
-  RabbitSubscribe,
-  RabbitMQModule,
   Nack,
-} from '@nestjs-plus/rabbitmq';
+  RabbitMQModule,
+  RabbitSubscribe,
+} from '@levelup-nestjs/rabbitmq';
+import { INestApplication, Injectable } from '@nestjs/common';
+import { Test } from '@nestjs/testing';
 import * as amqplib from 'amqplib';
 
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
@@ -62,7 +61,7 @@ describe('Nack and Requeue', () => {
     const moduleFixture = await Test.createTestingModule({
       providers: [SubscribeService],
       imports: [
-        RabbitMQModule.forRootAsync({
+        RabbitMQModule.forRootAsync(RabbitMQModule, {
           useFactory: () => ({
             exchanges: [
               {

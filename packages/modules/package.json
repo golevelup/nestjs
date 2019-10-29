@@ -1,7 +1,7 @@
 {
-  "name": "@levelup-nestjs/common",
-  "version": "1.1.0",
-  "description": "Common module and utility building blocks for badass NestJS applications",
+  "name": "@levelup-nestjs/modules",
+  "version": "0.0.1",
+  "description": "Reusable utilties to help level up NestJS Modules",
   "author": "Jesse Carter <jesse.r.carter@gmail.com>",
   "homepage": "https://github.com/golevelup/nestjs#readme",
   "license": "MIT",

@@ -1,74 +1,46 @@
-import { DiscoveryModule, DiscoveryService } from '@nestjs-plus/discovery';
-import {
-  DynamicModule,
-  Logger,
-  Module,
-  OnModuleInit,
-  Provider
-} from '@nestjs/common';
-import {
-  AsyncOptionsFactoryProvider,
-  createAsyncOptionsProvider
-} from '@nestjs-plus/common';
+import { DiscoveryModule, DiscoveryService } from '@levelup-nestjs/discovery';
+import { MakeConfigurableDynamicRootModule } from '@levelup-nestjs/modules';
+import { DynamicModule, Logger, Module, OnModuleInit } from '@nestjs/common';
 import { ExternalContextCreator } from '@nestjs/core/helpers/external-context-creator';
 import { groupBy } from 'lodash';
 import { AmqpConnection } from './amqp/connection';
-import { RABBIT_HANDLER, RABBIT_CONFIG } from './rabbitmq.constants';
+import { RABBIT_CONFIG_TOKEN, RABBIT_HANDLER } from './rabbitmq.constants';
 import { RabbitHandlerConfig, RabbitMQConfig } from './rabbitmq.interfaces';
 
 @Module({
   imports: [DiscoveryModule]
 })
-export class RabbitMQModule implements OnModuleInit {
-  private readonly logger = new Logger(RabbitMQModule.name);
-
-  constructor(
-    private readonly discover: DiscoveryService,
-    private readonly amqpConnection: AmqpConnection,
-    private readonly externalContextCreator: ExternalContextCreator
-  ) {}
-
-  public static forRootAsync(
-    asyncOptionsFactoryProvider: AsyncOptionsFactoryProvider<RabbitMQConfig>
-  ): DynamicModule {
-    return {
-      module: RabbitMQModule,
-      exports: [AmqpConnection],
-      imports: asyncOptionsFactoryProvider.imports,
+export class RabbitMQModule
+  extends MakeConfigurableDynamicRootModule<RabbitMQModule, RabbitMQConfig>(
+    RABBIT_CONFIG_TOKEN,
+    {
       providers: [
-        ...this.createAsyncProviders(asyncOptionsFactoryProvider),
         {
           provide: AmqpConnection,
-          useFactory: async (config): Promise<AmqpConnection> => {
+          useFactory: async (
+            config: RabbitMQConfig
+          ): Promise<AmqpConnection> => {
             const connection = new AmqpConnection(config);
             await connection.init();
             const logger = new Logger(RabbitMQModule.name);
             logger.log('Successfully connected to RabbitMQ');
             return connection;
           },
-          inject: [RABBIT_CONFIG]
-        }
-      ]
-    };
-  }
-
-  public static forRoot(config: RabbitMQConfig): DynamicModule {
-    return {
-      module: RabbitMQModule,
-      providers: [
-        {
-          provide: AmqpConnection,
-          useFactory: async (): Promise<AmqpConnection> => {
-            const connection = new AmqpConnection(config);
-            await connection.init();
-            const logger = new Logger(RabbitMQModule.name);
-            logger.log('Successfully connected to RabbitMQ');
-            return connection;
-          }
+          inject: [RABBIT_CONFIG_TOKEN]
         }
       ],
       exports: [AmqpConnection]
-    };
+    }
+  )
+  implements OnModuleInit {
+  private readonly logger = new Logger(RabbitMQModule.name);
+
+  constructor(
+    private readonly discover: DiscoveryService,
+    private readonly amqpConnection: AmqpConnection,
+    private readonly externalContextCreator: ExternalContextCreator
+  ) {
+    super();
   }
 
   public static build(config: RabbitMQConfig): DynamicModule {
@@ -145,42 +117,5 @@ export class RabbitMQModule implements OnModuleInit {
         })
       );
     }
-  }
-
-  private static createAsyncProviders(
-    asyncOptionsFactoryProvider: AsyncOptionsFactoryProvider<RabbitMQConfig>
-  ): Provider[] {
-    const optionsProvider = createAsyncOptionsProvider(
-      RABBIT_CONFIG,
-      asyncOptionsFactoryProvider
-    );
-
-    if (asyncOptionsFactoryProvider.useFactory) {
-      return [optionsProvider];
-    }
-
-    if (asyncOptionsFactoryProvider.useClass) {
-      return [
-        optionsProvider,
-        {
-          provide: asyncOptionsFactoryProvider.useClass,
-          useClass: asyncOptionsFactoryProvider.useClass
-        }
-      ];
-    }
-
-    if (asyncOptionsFactoryProvider.useExisting) {
-      return [
-        optionsProvider,
-        {
-          provide:
-            asyncOptionsFactoryProvider.useExisting.provide ||
-            asyncOptionsFactoryProvider.useExisting.value.constructor.name,
-          useValue: asyncOptionsFactoryProvider.useExisting.value
-        }
-      ];
-    }
-
-    return [];
   }
 }
