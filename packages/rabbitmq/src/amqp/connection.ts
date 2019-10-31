@@ -117,6 +117,8 @@ export class AmqpConnection {
         try {
           message = JSON.parse(msg.content.toString()) as T;
         } catch (e) {
+          // The message passed over RabbitMQ could not be converted to JSON
+          // This isn't necessarily an error and should be revisited in future releases
           // 这里可能不是json格式，比如protobuf格式
           // 先直接使用try进行捕获，合理的方案应该是直接在
           // 注解的部分声明消息类型，然后消息进行透明回传，由业务放进行转码，框架默认不处理转码编码部分
