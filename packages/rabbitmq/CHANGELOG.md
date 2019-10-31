@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.4.2](https://github.com/WonderPanda/nestjs-plus/compare/@nestjs-plus/rabbitmq@1.4.1...@nestjs-plus/rabbitmq@1.4.2) (2019-10-31)
+
+### Bug Fixes
+
+- **rabbitmq:** fix mq message type not json ([b522930](https://github.com/WonderPanda/nestjs-plus/commit/b522930))
+
 ## [1.4.1](https://github.com/WonderPanda/nestjs-plus/compare/@nestjs-plus/rabbitmq@1.4.0...@nestjs-plus/rabbitmq@1.4.1) (2019-10-06)
 
 **Note:** Version bump only for package @nestjs-plus/rabbitmq
