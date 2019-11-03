@@ -1,0 +1,40 @@
+pr:
+  autoCancel: true
+  branches:
+    include:
+      - '*'
+  paths:
+    exclude:
+      - .gitignore
+      - ./*.md
+      - ./*.yml
+      - ./aws/*.ts
+
+pool: node-docker
+
+
+jobs:
+  - job: ci
+    continueOnError: false
+    displayName: 'Continuous Integration'
+    steps:
+      - script: |
+          yarn build:ci
+        displayName: 'Install Dependencies and Build'
+      - script: |
+          yarn test:ci
+        displayName: 'Unit Test'
+      - task: PublishTestResults@2
+        condition: always()
+        displayName: 'Publish Test Results'
+        inputs:
+          testResultsFormat: 'JUnit'
+          testResultsFiles: 'junit.xml'
+      - task: PublishCodeCoverageResults@1
+        condition: always()
+        displayName: 'Publish Code Coverage'
+        inputs: 
+          codeCoverageTool: cobertura
+          summaryFileLocation: 'coverage/cobertura-coverage.xml'
+          reportDirectory: './coverage'
+          
