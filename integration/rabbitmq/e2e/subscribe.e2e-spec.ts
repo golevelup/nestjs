@@ -30,6 +30,9 @@ describe('Rabbit Subscribe', () => {
   let app: INestApplication;
   let amqpConnection: AmqpConnection;
 
+  const rabbitHost = process.env.NODE_ENV === 'ci' ? 'rabbit' : 'localhost';
+  const uri = `amqp://rabbitmq:rabbitmq@${rabbitHost}:5672`;
+
   beforeEach(async () => {
     const moduleFixture = await Test.createTestingModule({
       providers: [SubscribeService],
@@ -41,7 +44,7 @@ describe('Rabbit Subscribe', () => {
               type: 'topic',
             },
           ],
-          uri: 'amqp://rabbitmq:rabbitmq@localhost:5672',
+          uri,
         }),
       ],
     }).compile();

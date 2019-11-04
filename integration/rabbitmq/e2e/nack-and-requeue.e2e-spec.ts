@@ -57,6 +57,9 @@ describe('Nack and Requeue', () => {
   let app: INestApplication;
   let amqpConnection: AmqpConnection;
 
+  const rabbitHost = process.env.NODE_ENV === 'ci' ? 'rabbit' : 'localhost';
+  const uri = `amqp://rabbitmq:rabbitmq@${rabbitHost}:5672`;
+
   beforeAll(async () => {
     const moduleFixture = await Test.createTestingModule({
       providers: [SubscribeService],
@@ -69,7 +72,7 @@ describe('Nack and Requeue', () => {
                 type: 'topic',
               },
             ],
-            uri: 'amqp://rabbitmq:rabbitmq@localhost:5672',
+            uri,
           }),
         }),
       ],

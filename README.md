@@ -7,8 +7,13 @@ A collection of Badass modules and utilities to help you level up your NestJS ap
 </p>
 
 <p align="center">
-    <a href="https://travis-ci.org/WonderPanda/nestjs-plus"><img src="https://travis-ci.org/WonderPanda/nestjs-plus.svg?branch=master" alt="Travis" /></a>
 </p>
+
+<span align="center">
+
+[![Build Status](https://dev.azure.com/golevelup/nestjs/_apis/build/status/golevelup.nestjs?branchName=master)](https://dev.azure.com/golevelup/nestjs/_build/latest?definitionId=1&branchName=master)
+
+</span>
 
 ## Packages
 

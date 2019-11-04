@@ -2,7 +2,8 @@ import { RabbitMQConfig, RabbitMQModule } from '@levelup-nestjs/rabbitmq';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as amqplib from 'amqplib';
 
-const uri = 'amqp://rabbitmq:rabbitmq@localhost:5672';
+const rabbitHost = process.env.NODE_ENV === 'ci' ? 'rabbit' : 'localhost';
+const uri = `amqp://rabbitmq:rabbitmq@${rabbitHost}:5672`;
 
 class RabbitConfig {
   createModuleConfig(): RabbitMQConfig {
