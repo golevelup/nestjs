@@ -1,6 +1,6 @@
 {
   "name": "@levelup-nestjs/testing",
-  "version": "0.0.0",
+  "version": "0.0.1-rc.0",
   "description": "Reusable utilties to help level up NestJS Testing",
   "author": "Jesse Carter <jesse.r.carter@gmail.com>",
   "homepage": "https://github.com/golevelup/nestjs#readme",
@@ -35,8 +35,6 @@
   "publishConfig": {
     "access": "public"
   },
-  "dependencies": {},
-  "devDependencies": {},
   "jest": {
     "moduleFileExtensions": [
       "js",
