@@ -30,3 +30,7 @@ The various packages are managed using Yarn Workspaces and Lerna and published u
 #### [RabbitMQ - @levelup-nestjs/rabbitmq](packages/rabbitmq/README.md)
 
 - A NestJS native module for RabbitMQ that supports both RPC and Publish/Subscribe messaging patterns
+
+#### [Modules - @levelup-nestjs/modules](packages/modules/README.md)
+
+- A NestJS Dynamic Module helper. Useful for configuring once and importing anywhere else.
