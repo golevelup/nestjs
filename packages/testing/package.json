@@ -1,15 +1,15 @@
 {
-  "name": "@levelup-nestjs/rabbitmq",
-  "version": "1.5.1-rc.0",
-  "description": "Badass RabbitMQ addons for NestJS",
+  "name": "@levelup-nestjs/testing",
+  "version": "0.0.1-rc.0",
+  "description": "Reusable utilties to help level up NestJS Testing",
   "author": "Jesse Carter <jesse.r.carter@gmail.com>",
-  "homepage": "https://github.com/golevelup/nestjs/blob/master/packages/rabbitmq/README.md",
+  "homepage": "https://github.com/golevelup/nestjs#readme",
   "license": "MIT",
   "keywords": [
     "NestJS",
-    "RabbitMQ",
-    "microservices",
-    "messaging"
+    "testing",
+    "utilities",
+    "levelup"
   ],
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -31,16 +31,6 @@
   },
   "bugs": {
     "url": "https://github.com/golevelup/nestjs/issues"
-  },
-  "dependencies": {
-    "@levelup-nestjs/discovery": "^2.1.0",
-    "@levelup-nestjs/modules": "^0.1.0",
-    "amqplib": "^0.5.3",
-    "uuid": "^3.3.2"
-  },
-  "devDependencies": {
-    "@types/amqplib": "^0.5.9",
-    "@types/uuid": "^3.4.4"
   },
   "publishConfig": {
     "access": "public"
