@@ -4,7 +4,7 @@ export type PartialFuncReturn<T> = {
     : T[K]
 };
 
-type DeepMocked<T> = {
+export type DeepMocked<T> = {
   [K in keyof T]: T[K] extends (...args: any[]) => infer U
     ? jest.MockInstance<ReturnType<T[K]>, jest.ArgsType<T[K]>> &
         ((...args: jest.ArgsType<T[K]>) => DeepMocked<U>)
@@ -12,7 +12,7 @@ type DeepMocked<T> = {
 } &
   T;
 
-const makeRecursiveMockProxy = (partial: {} = {}) => {
+const createRecursiveMockProxy = (partial: {} = {}) => {
   const cache = new Map<string | number | symbol, any>();
 
   const proxy = new Proxy(partial, {
@@ -21,26 +21,23 @@ const makeRecursiveMockProxy = (partial: {} = {}) => {
         return cache.get(prop);
       }
 
-      const anyObj = obj as any;
-      const checkProp = anyObj[prop];
-      if (checkProp) {
-        const mockedProp =
-          typeof checkProp === 'function' ? jest.fn(checkProp) : checkProp;
+      const checkProp = obj[prop];
 
-        cache.set(prop, mockedProp);
-        return mockedProp;
-      } else {
-        const mockedProp = makeRecursiveMockProxy();
-        cache.set(prop, mockedProp);
-        return mockedProp;
-      }
+      const mockedProp = checkProp
+        ? typeof checkProp === 'function'
+          ? jest.fn()
+          : checkProp
+        : createRecursiveMockProxy();
+
+      cache.set(prop, mockedProp);
+      return mockedProp;
     }
   });
 
   return jest.fn(() => proxy);
 };
 
-export const makeMock = <T>(
+export const createMock = <T>(
   partial: PartialFuncReturn<T> = {}
 ): DeepMocked<T> => {
   const cache = new Map<string | number | symbol, any>();
@@ -51,19 +48,16 @@ export const makeMock = <T>(
         return cache.get(prop);
       }
 
-      const anyObj = obj as any;
-      const checkProp = anyObj[prop];
-      if (checkProp) {
-        const mockedProp =
-          typeof checkProp === 'function' ? jest.fn(checkProp) : checkProp;
+      const checkProp = obj[prop];
 
-        cache.set(prop, mockedProp);
-        return mockedProp;
-      } else {
-        const mockedProp = makeRecursiveMockProxy();
-        cache.set(prop, mockedProp);
-        return mockedProp;
-      }
+      const mockedProp = checkProp
+        ? typeof checkProp === 'function'
+          ? jest.fn(checkProp)
+          : checkProp
+        : createRecursiveMockProxy();
+
+      cache.set(prop, mockedProp);
+      return mockedProp;
     }
   });
 

@@ -1,6 +1,6 @@
 import { ExecutionContext } from '@nestjs/common';
-import { makeMock } from './mocks';
 import { HttpArgumentsHost } from '@nestjs/common/interfaces';
+import { createMock } from './mocks';
 
 interface TestInterface {
   someNum: number;
@@ -21,7 +21,7 @@ describe('Mocks', () => {
           authorization: 'auth'
         }
       };
-      const mock = makeMock<ExecutionContext>({
+      const mock = createMock<ExecutionContext>({
         switchToHttp: () => ({
           getRequest: () => request
         })
@@ -34,7 +34,7 @@ describe('Mocks', () => {
     });
 
     it('should work with properties and functions', () => {
-      const mock = makeMock<TestInterface>({
+      const mock = createMock<TestInterface>({
         someNum: 42,
         func: (arg1, arg2) => false
       });
@@ -51,7 +51,7 @@ describe('Mocks', () => {
 
   describe('auto mocked', () => {
     it('should auto mock functions that are not provided by user', () => {
-      const mock = makeMock<ExecutionContext>({
+      const mock = createMock<ExecutionContext>({
         switchToHttp: () => ({
           getRequest: () => request
         })
@@ -66,8 +66,8 @@ describe('Mocks', () => {
     });
 
     it('should allow for mock implementation on automocked properties', () => {
-      const executionContextMock = makeMock<ExecutionContext>();
-      const httpArgsHost = makeMock<HttpArgumentsHost>({
+      const executionContextMock = createMock<ExecutionContext>();
+      const httpArgsHost = createMock<HttpArgumentsHost>({
         getRequest: () => request
       });
 
@@ -79,7 +79,7 @@ describe('Mocks', () => {
     });
 
     it('should automock objects returned from automocks', () => {
-      const mock = makeMock<ExecutionContext>();
+      const mock = createMock<ExecutionContext>();
 
       mock.switchToHttp().getRequest.mockImplementation(() => request);
 
@@ -104,7 +104,7 @@ describe('Mocks', () => {
         getTwo: () => Two;
       }
 
-      const mock = makeMock<Three>();
+      const mock = createMock<Three>();
 
       mock
         .getTwo()
