@@ -5,5 +5,15 @@
   "testRegex": ".e2e-spec.ts$",
   "transform": {
     "^.+\\.ts$": "ts-jest"
+  },
+  "globals": {
+    "ts-jest": {
+      "diagnostics": false
+    }
+  },
+  "moduleNameMapper": {
+    "^@golevelup/nestjs-rabbitmq$": "<rootDir>/packages/rabbitmq/src",
+    "^@golevelup/nestjs-discovery$": "<rootDir>/packages/discovery/src",
+    "^@golevelup/nestjs-modules$": "<rootDir>/packages/modules/src"
   }
 }
