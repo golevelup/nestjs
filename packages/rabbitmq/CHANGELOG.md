@@ -3,11 +3,11 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-## [1.5.1-rc.0](https://github.com/golevelup/nestjs/compare/@levelup-nestjs/rabbitmq@1.5.0...@levelup-nestjs/rabbitmq@1.5.1-rc.0) (2019-11-06)
+## [1.5.1-rc.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@1.5.0...@golevelup/nestjs-rabbitmq@1.5.1-rc.0) (2019-11-06)
 
 ### Bug Fixes
 
-- **rabbitmq:** added missing dep on @levelup-nestjs/modules ([b9510b3](https://github.com/golevelup/nestjs/commit/b9510b3))
+- **rabbitmq:** added missing dep on @golevelup/nestjs-modules ([b9510b3](https://github.com/golevelup/nestjs/commit/b9510b3))
 
 # 1.5.0 (2019-10-29)
 

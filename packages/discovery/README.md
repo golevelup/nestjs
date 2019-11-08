@@ -1,9 +1,9 @@
-# @levelup-nestjs/discovery
+# @golevelup/nestjs-discovery
 
 <p align="center">
-<a href="https://www.npmjs.com/package/@levelup-nestjs/discovery"><img src="https://img.shields.io/npm/v/@levelup-nestjs/discovery.svg?style=flat" alt="version" /></a>
-<a href="https://www.npmjs.com/package/@levelup-nestjs/discovery"><img alt="downloads" src="https://img.shields.io/npm/dt/@levelup-nestjs/discovery.svg?style=flat"></a>
-<img alt="license" src="https://img.shields.io/npm/l/@levelup-nestjs/discovery.svg">
+<a href="https://www.npmjs.com/package/@golevelup/nestjs-discovery"><img src="https://img.shields.io/npm/v/@golevelup/nestjs-discovery.svg?style=flat" alt="version" /></a>
+<a href="https://www.npmjs.com/package/@golevelup/nestjs-discovery"><img alt="downloads" src="https://img.shields.io/npm/dt/@golevelup/nestjs-discovery.svg?style=flat"></a>
+<img alt="license" src="https://img.shields.io/npm/l/@golevelup/nestjs-discovery.svg">
 </p>
 
 ## Description
@@ -20,18 +20,18 @@ NestJS provides the `MetadataScanner` class to be able to retrieve this data but
 
 ### Install
 
-`npm install ---save @levelup-nestjs/discovery`
+`npm install ---save @golevelup/nestjs-discovery`
 
 or
 
-`yarn add @levelup-nestjs/discovery`
+`yarn add @golevelup/nestjs-discovery`
 
 ### Import
 
 Import and add `DiscoveryModule` to the `imports` section of the module you wish to implement Discovery features in. It's common to inject it directly into consuming Module's contructor so that it can be used during the `onModuleInit` lifecycle hook at application startup.
 
 ```typescript
-import { DiscoveryModule } from '@levelup-nestjs/discovery';
+import { DiscoveryModule } from '@golevelup/nestjs-discovery';
 import { Module } from '@nestjs/common';
 
 @Module({

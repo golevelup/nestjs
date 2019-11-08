@@ -1,9 +1,9 @@
-# @levelup-nestjs/modules
+# @golevelup/nestjs-modules
 
 <p align="center">
-<a href="https://www.npmjs.com/package/@levelup-nestjs/modules"><img src="https://img.shields.io/npm/v/@levelup-nestjs/modules.svg?style=flat" alt="version" /></a>
-<a href="https://www.npmjs.com/package/@levelup-nestjs/modules"><img alt="downloads" src="https://img.shields.io/npm/dt/@levelup-nestjs/modules.svg?style=flat"></a>
-<img alt="license" src="https://img.shields.io/npm/l/@levelup-nestjs/modules.svg">
+<a href="https://www.npmjs.com/package/@golevelup/nestjs-modules"><img src="https://img.shields.io/npm/v/@golevelup/nestjs-modules.svg?style=flat" alt="version" /></a>
+<a href="https://www.npmjs.com/package/@golevelup/nestjs-modules"><img alt="downloads" src="https://img.shields.io/npm/dt/@golevelup/nestjs-modules.svg?style=flat"></a>
+<img alt="license" src="https://img.shields.io/npm/l/@golevelup/nestjs-modules.svg">
 </p>
 
 ## Description
@@ -27,13 +27,13 @@ In addition to the reusability of the module, this package removes the need to w
 To install, run
 
 ```sh
-npm install @levelup-nestjs/modules
+npm install @golevelup/nestjs-modules
 ```
 
 or
 
 ```sh
-yarn add @levelup-nestjs/modules
+yarn add @golevelup/nestjs-modules
 ```
 
 and wait for the installation to finish.
@@ -43,7 +43,7 @@ and wait for the installation to finish.
 Creating a new dynamic module is now easier than ever, all that is needed is the module's name, the options that are to be provided for the module, and a constant string, symbol, or token that is to be used for providing the options through injection. Following the idea of a non-global `ConfigModule`, you can do something like the following:
 
 ```ts
-import { MakeConfigurableDynamicRootModule } from '@levelup-nestjs/modules';
+import { MakeConfigurableDynamicRootModule } from '@golevelup/nestjs-modules';
 import { Module } from '@nestjs/common';
 import { CONFIG_MODULE_OPTIONS } from './config.constants'; // the constant string/symbol/token
 import { ConfigModuleOptions } from './config.options'; // the options to provide to the service
@@ -95,7 +95,7 @@ export class ConfigModuleDependentModule {}
 if you don't like the idea of calling `externallyConfigured` every time, you can create a `static` property on the Dynamic Module and set it equal to the `externallyConfigured` method. Take the above `ConfigModule` example:
 
 ```ts
-import { MakeConfigurableDynamicRootModule } from '@levelup-nestjs/modules';
+import { MakeConfigurableDynamicRootModule } from '@golevelup/nestjs-modules';
 import { Module } from '@nestjs/common';
 import { CONFIG_MODULE_OPTIONS } from './config.constants'; // the constant string/symbol/token
 import { ConfigModuleOptions } from './config.options'; // the options to provide to the service

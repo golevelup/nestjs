@@ -1,9 +1,9 @@
-# @levelup-nestjs/testing
+# @golevelup/nestjs-testing
 
 <p align="center">
-<a href="https://www.npmjs.com/package/@levelup-nestjs/testing"><img src="https://img.shields.io/npm/v/@levelup-nestjs/testing.svg?style=flat" alt="version" /></a>
-<a href="https://www.npmjs.com/package/@levelup-nestjs/testing"><img alt="downloads" src="https://img.shields.io/npm/dt/@levelup-nestjs/testing.svg?style=flat"></a>
-<img alt="license" src="https://img.shields.io/npm/l/@levelup-nestjs/testing.svg">
+<a href="https://www.npmjs.com/package/@golevelup/nestjs-testing"><img src="https://img.shields.io/npm/v/@golevelup/nestjs-testing.svg?style=flat" alt="version" /></a>
+<a href="https://www.npmjs.com/package/@golevelup/nestjs-testing"><img alt="downloads" src="https://img.shields.io/npm/dt/@golevelup/nestjs-testing.svg?style=flat"></a>
+<img alt="license" src="https://img.shields.io/npm/l/@golevelup/nestjs-testing.svg">
 </p>
 
 ## Description

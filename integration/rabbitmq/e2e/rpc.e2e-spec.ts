@@ -1,4 +1,4 @@
-import { AmqpConnection } from '@levelup-nestjs/rabbitmq';
+import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { AppModule } from '../src/app.module';

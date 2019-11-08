@@ -1,9 +1,9 @@
-# @levelup-nestjs/rabbitmq
+# @golevelup/nestjs-rabbitmq
 
 <p align="center">
-<a href="https://www.npmjs.com/package/@levelup-nestjs/rabbitmq"><img src="https://img.shields.io/npm/v/@levelup-nestjs/rabbitmq.svg?style=flat" alt="version" /></a>
-<a href="https://www.npmjs.com/package/@levelup-nestjs/rabbitmq"><img alt="downloads" src="https://img.shields.io/npm/dt/@levelup-nestjs/rabbitmq.svg?style=flat"></a>
-<img alt="license" src="https://img.shields.io/npm/l/@levelup-nestjs/rabbitmq.svg">
+<a href="https://www.npmjs.com/package/@golevelup/nestjs-rabbitmq"><img src="https://img.shields.io/npm/v/@golevelup/nestjs-rabbitmq.svg?style=flat" alt="version" /></a>
+<a href="https://www.npmjs.com/package/@golevelup/nestjs-rabbitmq"><img alt="downloads" src="https://img.shields.io/npm/dt/@golevelup/nestjs-rabbitmq.svg?style=flat"></a>
+<img alt="license" src="https://img.shields.io/npm/l/@golevelup/nestjs-rabbitmq.svg">
 </p>
 
 ## Description
@@ -22,11 +22,11 @@ Some of the most notable missing functionality includes common messaging pattern
 
 ### Install
 
-`npm install ---save @levelup-nestjs/rabbitmq`
+`npm install ---save @golevelup/nestjs-rabbitmq`
 
 or
 
-`yarn add @levelup-nestjs/rabbitmq`
+`yarn add @golevelup/nestjs-rabbitmq`
 
 ### Module Initialization
 
@@ -35,7 +35,7 @@ Import and add `RabbitMQModule` it to the `imports` array of module for which yo
 If you are using exchanges, provide information about them to the module and they will be automatically asserted for you as part of initialization. If you don't, it's possible message passing will fail if an exchange is addressed that hasn't been created yet.
 
 ```typescript
-import { RabbitMQModule } from '@levelup-nestjs/rabbitmq';
+import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
 import { Module } from '@nestjs/common';
 import { MessagingController } from './messaging/messaging.controller';
 import { MessagingService } from './messaging/messaging.service';
@@ -64,7 +64,7 @@ export class RabbitExampleModule {}
 Simply apply the `RabbitRPC` decorator to a new or existing NestJS service class. When a message matching the exchange and routing key is received over RabbitMQ, the result of the Service method will be automatically sent back to the requester using the [Direct Reply-To Queue](https://www.rabbitmq.com/direct-reply-to.html).
 
 ```typescript
-import { RabbitRPC } from '@levelup-nestjs/rabbitmq';
+import { RabbitRPC } from '@golevelup/nestjs-rabbitmq';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
@@ -87,7 +87,7 @@ export class MessagingService {
 Simply apply the `RabbitSubscribe` decorator to a new or existing NestJS service class. When a message matching the exchange and routing key is received over RabbitMQ, the service method will automatically be invoked with the message allowing it to be handled as necessary.
 
 ```typescript
-import { RabbitSubscribe } from '@levelup-nestjs/rabbitmq';
+import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
@@ -110,7 +110,7 @@ NestJS Plus provides sane defaults for message handling with automatic acking of
 By default, messages that are Nacked will not be requeued. However, if you would like to requeue the message so that another handler has an opportunity to process it use the optional requeue constructor argument set to true.
 
 ```typescript
-import { RabbitRPC } from '@levelup-nestjs/rabbitmq';
+import { RabbitRPC } from '@golevelup/nestjs-rabbitmq';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
@@ -146,7 +146,7 @@ If you don't want this behavior, simply don't provide a queue name. A unique one
 **Important** RPC behavior has not been tested without the use of a named queue as this would cause multiple messages to potentially be sent back in response to a single request. If you're using RPC it is highly recommended that you specify a named queue. The API may be updated in the future to specifically require this.
 
 ```typescript
-import { RabbitSubscribe } from '@levelup-nestjs/rabbitmq';
+import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
