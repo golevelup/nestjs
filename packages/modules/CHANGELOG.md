@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.3.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-modules@0.2.0...@golevelup/nestjs-modules@0.3.0) (2019-11-09)
+
+### Features
+
+- **modules:** udpate create function name to match fit nest terminology ([d3eae4a](https://github.com/golevelup/nestjs/commit/d3eae4a))
+
 # 0.2.0 (2019-11-09)
 
 ### Features

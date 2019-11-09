@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.7.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@1.6.0...@golevelup/nestjs-rabbitmq@1.7.0) (2019-11-09)
+
+### Features
+
+- **modules:** udpate create function name to match fit nest terminology ([d3eae4a](https://github.com/golevelup/nestjs/commit/d3eae4a))
+
 # 1.6.0 (2019-11-09)
 
 ### Bug Fixes
