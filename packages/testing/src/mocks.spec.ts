@@ -63,6 +63,9 @@ describe('Mocks', () => {
 
       expect(mock.switchToRpc).toBeCalledTimes(2);
       expect(mock.switchToWs).toBeCalledTimes(1);
+      expect(first.getContext).toBeDefined();
+      expect(second.getContext).toBeDefined();
+      expect(third.getClient).toBeDefined();
     });
 
     it('should allow for mock implementation on automocked properties', () => {
