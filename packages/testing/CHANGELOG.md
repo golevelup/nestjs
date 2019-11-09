@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.1.1](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-testing@0.1.0...@golevelup/nestjs-testing@0.1.1) (2019-11-09)
+
+**Note:** Version bump only for package @golevelup/nestjs-testing
+
 # 0.1.0 (2019-11-09)
 
 ### Features
