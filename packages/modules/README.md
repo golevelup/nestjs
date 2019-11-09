@@ -43,7 +43,7 @@ and wait for the installation to finish.
 Creating a new dynamic module is now easier than ever, all that is needed is the module's name, the options that are to be provided for the module, and a constant string, symbol, or token that is to be used for providing the options through injection. Following the idea of a non-global `ConfigModule`, you can do something like the following:
 
 ```ts
-import { MakeConfigurableDynamicRootModule } from '@golevelup/nestjs-modules';
+import { createConfigurableDynamicRootModule } from '@golevelup/nestjs-modules';
 import { Module } from '@nestjs/common';
 import { CONFIG_MODULE_OPTIONS } from './config.constants'; // the constant string/symbol/token
 import { ConfigModuleOptions } from './config.options'; // the options to provide to the service
@@ -53,7 +53,7 @@ import { ConfigModule } from './config.service'; // the service to be provided t
   providers: [ConfigService],
   exports: [ConfigService]
 })
-export class ConfigModule extends MakeConfigurableDynamicRootModule<
+export class ConfigModule extends createConfigurableDynamicRootModule<
   ConfigModule,
   ConfigModuleOptions
 >(CONFIG_MODULE_OPTIONS) {}
@@ -95,7 +95,7 @@ export class ConfigModuleDependentModule {}
 if you don't like the idea of calling `externallyConfigured` every time, you can create a `static` property on the Dynamic Module and set it equal to the `externallyConfigured` method. Take the above `ConfigModule` example:
 
 ```ts
-import { MakeConfigurableDynamicRootModule } from '@golevelup/nestjs-modules';
+import { createConfigurableDynamicRootModule } from '@golevelup/nestjs-modules';
 import { Module } from '@nestjs/common';
 import { CONFIG_MODULE_OPTIONS } from './config.constants'; // the constant string/symbol/token
 import { ConfigModuleOptions } from './config.options'; // the options to provide to the service
@@ -105,7 +105,7 @@ import { ConfigModule } from './config.service'; // the service to be provided t
   providers: [ConfigService],
   exports: [ConfigService]
 })
-export class ConfigModule extends MakeConfigurableDynamicRootModule<
+export class ConfigModule extends createConfigurableDynamicRootModule<
   ConfigModule,
   ConfigModuleOptions
 >(CONFIG_MODULE_OPTIONS) {
