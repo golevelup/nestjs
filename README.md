@@ -19,18 +19,18 @@ A collection of Badass modules and utilities to help you level up your NestJS ap
 
 The various packages are managed using Yarn Workspaces and Lerna and published under the `@levelup-nestjs` organization on NPM.
 
-#### [Common - @levelup-nestjs/common](packages/common/README.md)
+#### [Common - @golevelup/nestjs-common](packages/common/README.md)
 
 - Mixin Utilities
 
-#### [Discovery - @levelup-nestjs/discovery](packages/discovery/README.md)
+#### [Discovery - @golevelup/nestjs-discovery](packages/discovery/README.md)
 
 - `DiscoveryModule` for finding providers, controllers and method handlers from your NestJS app that have certain metadata
 
-#### [RabbitMQ - @levelup-nestjs/rabbitmq](packages/rabbitmq/README.md)
+#### [RabbitMQ - @golevelup/nestjs-rabbitmq](packages/rabbitmq/README.md)
 
 - A NestJS native module for RabbitMQ that supports both RPC and Publish/Subscribe messaging patterns
 
-#### [Modules - @levelup-nestjs/modules](packages/modules/README.md)
+#### [Modules - @golevelup/nestjs-modules](packages/modules/README.md)
 
 - A NestJS Dynamic Module helper. Useful for configuring once and importing anywhere else.

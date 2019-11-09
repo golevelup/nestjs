@@ -1,4 +1,4 @@
-import { RabbitMQModule } from '@levelup-nestjs/rabbitmq';
+import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { RpcService } from './rpc/rpc.service';

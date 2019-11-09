@@ -1,4 +1,4 @@
-import { RabbitMQConfig, RabbitMQModule } from '@levelup-nestjs/rabbitmq';
+import { RabbitMQConfig, RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as amqplib from 'amqplib';
 

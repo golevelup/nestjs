@@ -2,7 +2,7 @@ import {
   AmqpConnection,
   RabbitMQModule,
   RabbitSubscribe,
-} from '@levelup-nestjs/rabbitmq';
+} from '@golevelup/nestjs-rabbitmq';
 import { INestApplication, Injectable } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 

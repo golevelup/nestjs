@@ -1,4 +1,4 @@
-import { RabbitRPC } from '@levelup-nestjs/rabbitmq';
+import { RabbitRPC } from '@golevelup/nestjs-rabbitmq';
 import { Injectable, UseInterceptors } from '@nestjs/common';
 import { TransformInterceptor } from '../transform.interceptor';
 
