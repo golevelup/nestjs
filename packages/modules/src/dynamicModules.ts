@@ -94,7 +94,7 @@ export interface IConfigurableDynamicRootModule<T, U> {
   ): Promise<DynamicModule>;
 }
 
-export function MakeConfigurableDynamicRootModule<T, U>(
+export function createConfigurableDynamicRootModule<T, U>(
   moduleConfigToken: InjectionToken,
   moduleProperties: Partial<
     Pick<ModuleMetadata, 'imports' | 'exports' | 'providers'>

@@ -1,5 +1,5 @@
 import { DiscoveryModule, DiscoveryService } from '@golevelup/nestjs-discovery';
-import { MakeConfigurableDynamicRootModule } from '@golevelup/nestjs-modules';
+import { createConfigurableDynamicRootModule } from '@golevelup/nestjs-modules';
 import { DynamicModule, Logger, Module, OnModuleInit } from '@nestjs/common';
 import { ExternalContextCreator } from '@nestjs/core/helpers/external-context-creator';
 import { groupBy } from 'lodash';
@@ -11,7 +11,7 @@ import { RabbitHandlerConfig, RabbitMQConfig } from './rabbitmq.interfaces';
   imports: [DiscoveryModule]
 })
 export class RabbitMQModule
-  extends MakeConfigurableDynamicRootModule<RabbitMQModule, RabbitMQConfig>(
+  extends createConfigurableDynamicRootModule<RabbitMQModule, RabbitMQConfig>(
     RABBIT_CONFIG_TOKEN,
     {
       providers: [
