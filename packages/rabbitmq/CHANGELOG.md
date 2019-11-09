@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.4.4](https://github.com/WonderPanda/nestjs-plus/compare/@nestjs-plus/rabbitmq@1.4.3...@nestjs-plus/rabbitmq@1.4.4) (2019-11-09)
+
+### Bug Fixes
+
+- added missing queue options ([806ce1b](https://github.com/WonderPanda/nestjs-plus/commit/806ce1b))
+
 ## [1.4.3](https://github.com/WonderPanda/nestjs-plus/compare/@nestjs-plus/rabbitmq@1.4.2...@nestjs-plus/rabbitmq@1.4.3) (2019-11-01)
 
 ### Bug Fixes
