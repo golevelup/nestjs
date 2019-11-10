@@ -64,7 +64,7 @@ export class AmqpConnection {
 
   public async request<T extends {}>(
     requestOptions: RequestOptions,
-    publishOptions?: amqplib.Publish.Options
+    publishOptions?: amqplib.Options.Publish
   ): Promise<T> {
     const correlationId = uuid.v4();
     const timeout = requestOptions.timeout || this.config.defaultRpcTimeout;
