@@ -9,6 +9,7 @@ import {
   RequestOptions
 } from '../rabbitmq.interfaces';
 import { Nack, RpcResponse, SubscribeResponse } from './handlerResponses';
+import { IClientPublishOptions } from '@nestjs/common/interfaces/external/mqtt-options.interface';
 
 const DIRECT_REPLY_QUEUE = 'amq.rabbitmq.reply-to';
 
@@ -63,7 +64,8 @@ export class AmqpConnection {
   }
 
   public async request<T extends {}>(
-    requestOptions: RequestOptions
+    requestOptions: RequestOptions,
+    publishOptions?: amqplib.Publish.Options
   ): Promise<T> {
     const correlationId = uuid.v4();
     const timeout = requestOptions.timeout || this.config.defaultRpcTimeout;
@@ -77,7 +79,8 @@ export class AmqpConnection {
 
     this.publish(requestOptions.exchange, requestOptions.routingKey, payload, {
       replyTo: DIRECT_REPLY_QUEUE,
-      correlationId
+      correlationId,
+      ...publishOptions
     });
 
     const timeout$ = interval(timeout).pipe(
