@@ -9,7 +9,6 @@ import {
   RequestOptions
 } from '../rabbitmq.interfaces';
 import { Nack, RpcResponse, SubscribeResponse } from './handlerResponses';
-import { IClientPublishOptions } from '@nestjs/common/interfaces/external/mqtt-options.interface';
 
 const DIRECT_REPLY_QUEUE = 'amq.rabbitmq.reply-to';
 
