@@ -1,10 +1,19 @@
 import { ExecutionContext } from '@nestjs/common';
 import { HttpArgumentsHost } from '@nestjs/common/interfaces';
-import { createMock } from './mocks';
+import { Test, TestingModule } from '@nestjs/testing';
+import { createMock, DeepMocked } from './mocks';
 
 interface TestInterface {
   someNum: number;
   func: (num: number, str: string) => boolean;
+}
+
+class TestClass {
+  someProperty!: number;
+
+  someMethod() {
+    return 42;
+  }
 }
 
 describe('Mocks', () => {
@@ -46,6 +55,15 @@ describe('Mocks', () => {
       expect(funcResult).toBe(false);
       expect(mock.func).toBeCalledTimes(1);
       expect(mock.func).toBeCalledWith(42, '42');
+    });
+
+    it('should work with classes', () => {
+      const mock = createMock<TestClass>();
+
+      mock.someMethod.mockReturnValueOnce(42);
+
+      const result = mock.someMethod();
+      expect(result).toBe(42);
     });
   });
 
@@ -120,6 +138,57 @@ describe('Mocks', () => {
         .getNumber();
 
       expect(result).toBe(42);
+    });
+  });
+
+  describe('Nest DI', () => {
+    let module: TestingModule;
+    let mockedProvider: DeepMocked<ExecutionContext>;
+    let dependentProvider: { dependent: () => string };
+    const diToken = Symbol('diToken');
+    const dependentToken = Symbol('dependentToken');
+
+    beforeEach(async () => {
+      module = await Test.createTestingModule({
+        providers: [
+          {
+            provide: diToken,
+            useValue: createMock<ExecutionContext>({
+              getType: () => 'something'
+            })
+          },
+          {
+            inject: [diToken],
+            provide: dependentToken,
+            useFactory: (dep: DeepMocked<ExecutionContext>) => ({
+              dependent: dep.getType
+            })
+          }
+        ]
+      }).compile();
+
+      mockedProvider = module.get<DeepMocked<ExecutionContext>>(diToken);
+      dependentProvider = module.get<{ dependent: () => string }>(
+        dependentToken
+      );
+    });
+
+    it('should correctly resolve mocked providers', async () => {
+      const request = {
+        key: 'val'
+      };
+
+      mockedProvider.switchToHttp.mockReturnValueOnce(
+        createMock<HttpArgumentsHost>({
+          getRequest: () => request
+        })
+      );
+
+      const mockResult = mockedProvider.switchToHttp().getRequest();
+      expect(mockResult).toBe(request);
+
+      const dependentResult = dependentProvider.dependent();
+      expect(dependentResult).toBe('something');
     });
   });
 });

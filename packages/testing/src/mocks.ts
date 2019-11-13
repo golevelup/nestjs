@@ -44,6 +44,16 @@ export const createMock = <T>(
 
   const proxy = new Proxy(partial, {
     get: (obj, prop) => {
+      if (
+        prop === 'constructor' ||
+        prop === 'inspect' ||
+        prop === 'then' ||
+        (typeof prop === 'symbol' &&
+          prop.toString() === 'Symbol(util.inspect.custom)')
+      ) {
+        return undefined;
+      }
+
       if (cache.has(prop)) {
         return cache.get(prop);
       }
