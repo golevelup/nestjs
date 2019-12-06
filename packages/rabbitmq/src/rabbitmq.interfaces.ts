@@ -39,14 +39,14 @@ export interface MessageHandlerOptions {
 }
 
 export interface RabbitMQConfig {
-  uri: string;
+  uri: string | string[];
   prefetchCount?: number;
   exchanges?: RabbitMQExchangeConfig[];
   defaultRpcTimeout?: number;
   defaultExchangeType?: string;
   defaultRpcErrorBehavior?: MessageHandlerErrorBehavior;
   defaultSubscribeErrorBehavior?: MessageHandlerErrorBehavior;
-  connectionManagerOptions?: amqpConnectionManager.AmqpConnectionManagerOptions;
+  connectionManager?: amqpConnectionManager.AmqpConnectionManagerOptions;
 }
 
 export type RabbitHandlerType = 'rpc' | 'subscribe';
