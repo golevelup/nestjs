@@ -22,8 +22,6 @@ export class RabbitMQModule
           ): Promise<AmqpConnection> => {
             const connection = new AmqpConnection(config);
             await connection.init();
-            const logger = new Logger(RabbitMQModule.name);
-            logger.log('Successfully connected to RabbitMQ');
             return connection;
           },
           inject: [RABBIT_CONFIG_TOKEN]
@@ -56,8 +54,6 @@ export class RabbitMQModule
           useFactory: async (): Promise<AmqpConnection> => {
             const connection = new AmqpConnection(config);
             await connection.init();
-            const logger = new Logger(RabbitMQModule.name);
-            logger.log('Successfully connected to RabbitMQ');
             return connection;
           }
         }
