@@ -52,7 +52,7 @@ export class AmqpConnection {
 
   public async init() {
     this._connection = amqpcon.connect(
-      [this.config.uri],
+      Array.isArray(this.config.uri) ? this.config.uri : [this.config.uri],
       this.config.connectionManagerOptions
     );
 
