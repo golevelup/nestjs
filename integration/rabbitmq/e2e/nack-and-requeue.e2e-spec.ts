@@ -85,7 +85,7 @@ describe('Nack and Requeue', () => {
   });
 
   it('should nack the message when handler returns a Nack object', async () => {
-    const spy = jest.spyOn(amqpConnection.channel, 'nack');
+    const spy = jest.spyOn(amqpConnection.rawChannel, 'nack');
 
     amqpConnection.publish(exchange, nackRoutingKey, { msg: 'nack' });
 
@@ -97,7 +97,7 @@ describe('Nack and Requeue', () => {
   });
 
   it('should nack and requeue 3 times', async () => {
-    const spy = jest.spyOn(amqpConnection.channel, 'nack');
+    const spy = jest.spyOn(amqpConnection.rawChannel, 'nack');
 
     amqpConnection.publish(exchange, nackAndRequeueRoutingKey, {
       msg: 'nackAndRequeue',

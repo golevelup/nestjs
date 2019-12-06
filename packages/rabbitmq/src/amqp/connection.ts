@@ -26,7 +26,7 @@ const defaultConfig = {
   defaultSubscribeErrorBehavior: MessageHandlerErrorBehavior.REQUEUE,
   exchanges: [],
   defaultRpcTimeout: 10000,
-  connectionManagerOptions: {}
+  connectionManager: {}
 };
 
 export class AmqpConnection {
@@ -46,41 +46,54 @@ export class AmqpConnection {
     return this._channel;
   }
 
+  get rawChannel() {
+    return this._rawChannel;
+  }
+
   get connection() {
     return this._connection;
   }
 
-  public async init() {
-    this._connection = amqpcon.connect(
-      Array.isArray(this.config.uri) ? this.config.uri : [this.config.uri],
-      this.config.connectionManagerOptions
-    );
-
-    this._connection.on('connect', ({ connection, url }) =>
-      this.logger.log(`Successfully connected to RabbitMQ broker ${url}`)
-    );
-
-    this._channel = this._connection.createChannel({
-      name: AmqpConnection.name
-    });
-
-    this._channel.on('connect', () =>
-      this.logger.log('A channel has successfully connected')
-    );
-    this._channel.on('error', (err, { name }) => {
-      this._rawChannel = undefined;
-      this.logger.log(
-        `A channel setup has failed, name: ${name} / error: ${err.message} ${
-          err.stack
-        }`
+  public async init(timeout = 3000): Promise<boolean> {
+    const connectAsync = new Promise<boolean>(async res => {
+      this._connection = amqpcon.connect(
+        Array.isArray(this.config.uri) ? this.config.uri : [this.config.uri],
+        this.config.connectionManager
       );
-    });
-    this._channel.on('close', () => {
-      this._rawChannel = undefined;
-      this.logger.log('A channel has successfully closed');
+
+      this.logger.log('Trying to connect to a RabbitMQ broker');
+      this._connection.on('connect', () => {
+        this.logger.log('Successfully connected to a RabbitMQ broker');
+      });
+
+      this._channel = this._connection.createChannel({
+        name: AmqpConnection.name
+      });
+
+      this._channel.on('connect', () => {
+        res(true);
+        this.logger.log('Successfully connected a RabbitMQ channel');
+      });
+      this._channel.on('error', (err, { name }) => {
+        this._rawChannel = undefined;
+        this.logger.log(
+          `Failed to setup a RabbitMQ channel - name: ${name} / error: ${
+            err.message
+          } ${err.stack}`
+        );
+      });
+      this._channel.on('close', () => {
+        this._rawChannel = undefined;
+        this.logger.log('Successfully closed a RabbitMQ channel');
+      });
+
+      await this._channel.addSetup(this.setupInitChannel.bind(this));
     });
 
-    await this._channel.addSetup(this.setupInitChannel.bind(this));
+    const timeoutAsync = new Promise<boolean>(res =>
+      setTimeout(() => res(false), timeout)
+    );
+    return Promise.race<boolean>([connectAsync, timeoutAsync]);
   }
 
   private async setupInitChannel(
@@ -310,6 +323,7 @@ export class AmqpConnection {
     message: any,
     options?: amqplib.Options.Publish
   ) {
+    // raw amqplib channel is used to follow behavior of throwing connection errors in this case
     if (!this.connection.isConnected || !this._rawChannel) {
       throw new Error('AMQP connection is not available');
     }
