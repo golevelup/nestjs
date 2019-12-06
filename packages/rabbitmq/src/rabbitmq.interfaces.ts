@@ -47,7 +47,7 @@ export interface MessageHandlerOptions {
 }
 
 export interface RabbitMQConfig {
-  uri: string;
+  uri: string | string[];
   prefetchCount?: number;
   exchanges?: RabbitMQExchangeConfig[];
   defaultRpcTimeout?: number;
