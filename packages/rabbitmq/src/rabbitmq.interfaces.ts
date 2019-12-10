@@ -46,6 +46,12 @@ export interface MessageHandlerOptions {
   errorBehavior?: MessageHandlerErrorBehavior;
 }
 
+export interface ConnectionInitOptions {
+  wait?: boolean;
+  timeout?: number;
+  reject?: boolean;
+}
+
 export interface RabbitMQConfig {
   uri: string | string[];
   prefetchCount?: number;
@@ -54,6 +60,7 @@ export interface RabbitMQConfig {
   defaultExchangeType?: string;
   defaultRpcErrorBehavior?: MessageHandlerErrorBehavior;
   defaultSubscribeErrorBehavior?: MessageHandlerErrorBehavior;
+  connectionInit?: ConnectionInitOptions;
   connectionManager?: amqpConnectionManager.AmqpConnectionManagerOptions;
 }
 

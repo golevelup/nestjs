@@ -66,6 +66,7 @@ describe('Nack and Requeue', () => {
               },
             ],
             uri,
+            connectionInit: { wait: true, reject: true },
           }),
         }),
       ],
