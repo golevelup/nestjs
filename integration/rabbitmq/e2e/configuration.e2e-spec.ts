@@ -10,6 +10,8 @@ class RabbitConfig {
   createModuleConfig(): RabbitMQConfig {
     return {
       uri,
+      connectionManager: { heartbeatIntervalInSeconds: 5 },
+      connectionInit: { wait: true, reject: true },
     };
   }
 }

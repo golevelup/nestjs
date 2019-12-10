@@ -1,7 +1,7 @@
-import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
+import { AmqpConnection, RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
-import { AppModule } from '../src/app.module';
+import { RpcService } from '../src/rpc/rpc.service';
 
 describe('Rabbit RPC', () => {
   let app: INestApplication;
@@ -16,8 +16,24 @@ describe('Rabbit RPC', () => {
   });
 
   beforeAll(async () => {
+    const exchange = 'testRpcExhange';
+    const rabbitHost = process.env.NODE_ENV === 'ci' ? 'rabbit' : 'localhost';
+    const uri = `amqp://rabbitmq:rabbitmq@${rabbitHost}:5672`;
+
     const moduleFixture = await Test.createTestingModule({
-      imports: [AppModule],
+      providers: [RpcService],
+      imports: [
+        RabbitMQModule.forRoot(RabbitMQModule, {
+          exchanges: [
+            {
+              name: exchange,
+              type: 'topic',
+            },
+          ],
+          uri,
+          connectionInit: { wait: true, reject: true },
+        }),
+      ],
     }).compile();
 
     app = moduleFixture.createNestApplication();

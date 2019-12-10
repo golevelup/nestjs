@@ -18,13 +18,12 @@ NestJS offers an out of the box microservices experience with support for a vari
 
 Some of the most notable missing functionality includes common messaging patterns like publish/subscribe and competing consumers.
 
-## (Re)Connection
+## Connection Management
 
-This module leverages [`amqp-connection-manager`](https://github.com/benbria/node-amqp-connection-manager) package to persist related operations.
+This module leverages [`amqp-connection-manager`](https://github.com/benbria/node-amqp-connection-manager) package to maintain connection resiliency.
 
 Unavailability of a RabbitMQ broker still allows your application to bootstrap correctly and relevant channel setups take place whenever a connection can be established.
-
-The same purpose applies when a connection is lost. In such cases, the module tries to reconnect and setup everything again once it is reconnected.
+The same principle applies when a connection is lost. In such cases, the module tries to reconnect and set up everything again once it is reconnected.
 
 ## Usage
 
