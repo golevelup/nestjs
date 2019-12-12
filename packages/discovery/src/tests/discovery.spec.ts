@@ -34,6 +34,9 @@ class ExampleService {
 
 @Controller('example')
 class ExampleController {
+  constructor(public readonly exampleService: ExampleService) {}
+  public hello = 'world';
+
   @Get('route')
   @ExampleMethodDecorator('example controller method meta')
   public get() {
@@ -129,6 +132,10 @@ describe('Discovery', () => {
       const [controller] = controllers;
       expect(controller.injectType).toBe(ExampleController);
       expect(controller.instance).toBeInstanceOf(ExampleController);
+
+      const exampleController = controller.instance as ExampleController;
+      expect(exampleController.exampleService).toBeInstanceOf(ExampleService);
+      expect(exampleController.hello).toBe('world');
     });
 
     it('should discover controller method handler meta based on a metadata key', async () => {

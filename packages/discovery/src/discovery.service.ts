@@ -54,39 +54,22 @@ export const withMetaAtKey: (
 
 @Injectable()
 export class DiscoveryService {
-  private readonly discoveredControllers: Promise<DiscoveredClass[]>;
-  private readonly discoveredProviders: Promise<DiscoveredClass[]>;
+  private discoveredControllers?: Promise<DiscoveredClass[]>;
+  private discoveredProviders?: Promise<DiscoveredClass[]>;
 
   constructor(
     private readonly modulesContainer: ModulesContainer,
     private readonly metadataScanner: MetadataScanner
-  ) {
-    const modulesMap = [...this.modulesContainer.entries()];
-
-    this.discoveredControllers = Promise.all(
-      flatMap(modulesMap, ([key, nestModule]) => {
-        const components = [...nestModule.routes.values()];
-        return components
-          .filter(component => component.scope !== Scope.REQUEST)
-          .map(component => this.toDiscoveredClass(nestModule, component));
-      })
-    );
-
-    this.discoveredProviders = Promise.all(
-      flatMap(modulesMap, ([key, nestModule]) => {
-        const components = [...nestModule.components.values()];
-        return components
-          .filter(component => component.scope !== Scope.REQUEST)
-          .map(component => this.toDiscoveredClass(nestModule, component));
-      })
-    );
-  }
+  ) {}
 
   /**
    * Discovers all providers in a Nest App that match a filter
    * @param providerFilter
    */
   async providers(filter: Filter<DiscoveredClass>): Promise<DiscoveredClass[]> {
+    if (!this.discoveredProviders) {
+      this.discoveredProviders = this.discover('providers');
+    }
     return (await this.discoveredProviders).filter(x => filter(x));
   }
 
@@ -146,6 +129,9 @@ export class DiscoveryService {
   async controllers(
     filter: Filter<DiscoveredClass>
   ): Promise<DiscoveredClass[]> {
+    if (!this.discoveredControllers) {
+      this.discoveredControllers = this.discover('controllers');
+    }
     return (await this.discoveredControllers).filter(x => filter(x));
   }
 
@@ -264,5 +250,17 @@ export class DiscoveryService {
         parentClass: discoveredClass
       }
     };
+  }
+
+  private async discover(component: 'providers' | 'controllers') {
+    const modulesMap = [...this.modulesContainer.entries()];
+    return Promise.all(
+      flatMap(modulesMap, ([key, nestModule]) => {
+        const components = [...nestModule[component].values()];
+        return components
+          .filter(component => component.scope !== Scope.REQUEST)
+          .map(component => this.toDiscoveredClass(nestModule, component));
+      })
+    );
   }
 }
