@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# 0.2.0 (2019-12-14)
+
+### Bug Fixes
+
+- **mocks:** usage as nestjs providers ([ded433d](https://github.com/golevelup/nestjs/commit/ded433d)), closes [#18](https://github.com/golevelup/nestjs/issues/18)
+
+### Features
+
+- **testing:** new module for testing utilities ([88a7452](https://github.com/golevelup/nestjs/commit/88a7452)), closes [AB#20](https://github.com/AB/issues/20)
+
 ## [0.1.2](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-testing@0.1.1...@golevelup/nestjs-testing@0.1.2) (2019-11-13)
 
 ### Bug Fixes
