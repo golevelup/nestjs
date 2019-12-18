@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.7.2](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@1.7.1...@golevelup/nestjs-rabbitmq@1.7.2) (2019-12-18)
+
+### Bug Fixes
+
+- **rabbitmq:** fix incorrect TS typings ([602cd2d](https://github.com/golevelup/nestjs/commit/602cd2d)), closes [#77](https://github.com/golevelup/nestjs/issues/77)
+
 ## [1.7.1](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@1.7.0...@golevelup/nestjs-rabbitmq@1.7.1) (2019-12-14)
 
 **Note:** Version bump only for package @golevelup/nestjs-rabbitmq
