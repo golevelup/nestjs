@@ -1,6 +1,13 @@
 import * as amqplib from 'amqplib';
 import { interval, race, Subject, throwError, empty } from 'rxjs';
-import { filter, first, map, take, timeout, catchError } from 'rxjs/operators';
+import {
+  filter,
+  first,
+  map,
+  take,
+  timeoutWith,
+  catchError
+} from 'rxjs/operators';
 import * as uuid from 'uuid';
 import * as amqpcon from 'amqp-connection-manager';
 import {
@@ -20,12 +27,6 @@ export interface CorrelationMessage {
   message: {};
 }
 
-const defaultConnectionInitOptions = {
-  wait: true,
-  timeout: 10000,
-  reject: true
-};
-
 const defaultConfig = {
   prefetchCount: 10,
   defaultExchangeType: 'topic',
@@ -33,7 +34,11 @@ const defaultConfig = {
   defaultSubscribeErrorBehavior: MessageHandlerErrorBehavior.REQUEUE,
   exchanges: [],
   defaultRpcTimeout: 10000,
-  connectionInitOptions: defaultConnectionInitOptions,
+  connectionInitOptions: {
+    wait: true,
+    timeout: 5000,
+    reject: true
+  },
   connectionManagerOptions: {}
 };
 
@@ -72,7 +77,7 @@ export class AmqpConnection {
 
   public async init(): Promise<void> {
     const options: Required<ConnectionInitOptions> = {
-      ...defaultConnectionInitOptions,
+      ...defaultConfig.connectionInitOptions,
       ...this.config.connectionInitOptions
     };
     const { wait, timeout: timeoutInterval, reject } = options;
@@ -82,8 +87,15 @@ export class AmqpConnection {
 
     const initialized$ = this.initialized.pipe(
       take(1),
-      timeout(timeoutInterval),
-      catchError(er => (reject ? throwError(er) : empty()))
+      timeoutWith(
+        timeoutInterval,
+        throwError(
+          new Error(
+            `Failed to connect to a RabbitMQ broker within a timeout of ${timeoutInterval}ms`
+          )
+        )
+      ),
+      catchError(err => (reject ? throwError(err) : empty()))
     );
 
     return initialized$.toPromise<any>();
