@@ -15,26 +15,9 @@ A collection of Badass modules and utilities to help you level up your NestJS ap
 
 </span>
 
-## Packages
-
-The various packages are managed using Yarn Workspaces and Lerna and published under the `@golevelup` organization on NPM.
-
-#### [Common - @golevelup/nestjs-common](packages/common/README.md)
-
-- Mixin Utilities
-
-#### [Discovery - @golevelup/nestjs-discovery](packages/discovery/README.md)
-
-- `DiscoveryModule` for finding providers, controllers and method handlers from your NestJS app that have certain metadata
-
-#### [RabbitMQ - @golevelup/nestjs-rabbitmq](packages/rabbitmq/README.md)
-
-- A NestJS native module for RabbitMQ that supports both RPC and Publish/Subscribe messaging patterns
-
-#### [Modules - @golevelup/nestjs-modules](packages/modules/README.md)
-
-- A NestJS Dynamic Module helper. Useful for configuring once and importing anywhere else.
-
-#### [Typescript & Jest Testing - @golevelup/ts-jest](packages/testing/README.md)
-
-- Testing utilities that bring additional productivity and type saftey to Jest and Typescript.
+| Project                                               | Description                                                                                                              | Version                                                                                                                               | Changelog                                      |
+| ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
+| [`@golevelup/nestjs-common`](./packages/common)       | Common types, mixins                                                                                                     | [![version](https://img.shields.io/npm/v/@golevelup/nestjs-common.svg)](https://www.npmjs.com/package/@golevelup/nestjs-common)       | [changelog](./packages/common/CHANGELOG.md)    |
+| [`@golevelup/nestjs-discovery`](./packages/discovery) | `DiscoveryModule` for finding providers, controllers and method handlers from your NestJS app that have certain metadata | [![version](https://img.shields.io/npm/v/@golevelup/nestjs-discovery.svg)](https://www.npmjs.com/package/@golevelup/nestjs-discovery) | [changelog](./packages/discovery/CHANGELOG.md) |
+| [`@golevelup/nestjs-rabbitmq`](./packages/rabbitmq)   | A NestJS native module for RabbitMQ that supports both RPC and Publish/Subscribe messaging patterns                      | [![version](https://img.shields.io/npm/v/@golevelup/nestjs-rabbitmq.svg)](https://www.npmjs.com/package/@golevelup/nestjs-rabbitmq)   | [changelog](./packages/rabbitmq/CHANGELOG.md)  |
+| [`@golevelup/nestjs-modules`](./packages/modules)     | A Dynamic Module helper. Useful for configuring once and importing anywhere else                                         | [![version](https://img.shields.io/npm/v/@golevelup/nestjs-modules.svg)](https://www.npmjs.com/package/@golevelup/nestjs-modules)     | [changelog](./packages/modules/CHANGELOG.md)   |
