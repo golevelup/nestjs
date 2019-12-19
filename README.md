@@ -1,5 +1,5 @@
 <p align="center">
-    <image src="nestpluslogo.svg">
+    <image src="golevelup-nest-logo.svg">
 </p>
 
 <p align="center">
