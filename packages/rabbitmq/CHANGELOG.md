@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.7.3](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@1.7.2...@golevelup/nestjs-rabbitmq@1.7.3) (2019-12-19)
+
+### Bug Fixes
+
+- **rabbitmq:** add missing queue options ([0f37fb6](https://github.com/golevelup/nestjs/commit/0f37fb6))
+
 ## [1.7.2](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@1.7.1...@golevelup/nestjs-rabbitmq@1.7.2) (2019-12-18)
 
 ### Bug Fixes
