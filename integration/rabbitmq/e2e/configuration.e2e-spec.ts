@@ -14,7 +14,11 @@ const configFactory = () => ({
 
 class RabbitConfig {
   createModuleConfig(): RabbitMQConfig {
-    return configFactory();
+    return {
+      uri,
+      connectionManagerOptions: { heartbeatIntervalInSeconds: 5 },
+      connectionInitOptions: { wait: true, reject: true, timeout: 3000 },
+    };
   }
 }
 
@@ -31,6 +35,7 @@ describe('Module Configuration', () => {
         imports: [
           RabbitMQModule.forRoot(RabbitMQModule, {
             uri,
+            connectionInitOptions: { wait: true, reject: true, timeout: 3000 },
           }),
         ],
       }).compile();
@@ -49,7 +54,16 @@ describe('Module Configuration', () => {
       app = await Test.createTestingModule({
         imports: [
           RabbitMQModule.forRootAsync(RabbitMQModule, {
-            useFactory: configFactory,
+            useFactory: async () => {
+              return {
+                uri,
+                connectionInitOptions: {
+                  wait: true,
+                  reject: true,
+                  timeout: 3000,
+                },
+              };
+            },
           }),
         ],
       }).compile();

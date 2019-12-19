@@ -43,7 +43,7 @@ describe('Rabbit Subscribe', () => {
             },
           ],
           uri,
-          connectionInit: { wait: true, reject: true },
+          connectionInitOptions: { wait: true, reject: true, timeout: 3000 },
         }),
       ],
     }).compile();
