@@ -10,8 +10,8 @@ class RabbitConfig {
   createModuleConfig(): RabbitMQConfig {
     return {
       uri,
-      connectionManager: { heartbeatIntervalInSeconds: 5 },
-      connectionInit: { wait: true, reject: true },
+      connectionManagerOptions: { heartbeatIntervalInSeconds: 5 },
+      connectionInitOptions: { wait: true, reject: true, timeout: 3000 },
     };
   }
 }
@@ -29,6 +29,7 @@ describe('Module Configuration', () => {
         imports: [
           RabbitMQModule.forRoot(RabbitMQModule, {
             uri,
+            connectionInitOptions: { wait: true, reject: true, timeout: 3000 },
           }),
         ],
       }).compile();
@@ -48,6 +49,11 @@ describe('Module Configuration', () => {
             useFactory: async () => {
               return {
                 uri,
+                connectionInitOptions: {
+                  wait: true,
+                  reject: true,
+                  timeout: 3000,
+                },
               };
             },
           }),
