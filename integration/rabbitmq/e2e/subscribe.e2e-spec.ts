@@ -9,7 +9,8 @@ import { Test } from '@nestjs/testing';
 const testHandler = jest.fn();
 
 const exchange = 'testSubscribeExhange';
-const routingKey = 'testSubscribeRoute';
+const routingKey1 = 'testSubscribeRoute1';
+const routingKey2 = 'testSubscribeRoute2';
 const testMessage = {
   messageProp: 42,
 };
@@ -18,7 +19,7 @@ const testMessage = {
 class SubscribeService {
   @RabbitSubscribe({
     exchange,
-    routingKey,
+    routingKey: [routingKey1, routingKey2],
     queue: 'subscribeQueue',
   })
   handleSubscribe(message: object) {
@@ -55,11 +56,14 @@ describe('Rabbit Subscribe', () => {
   });
 
   it('should receive subscribe messages and handle them', async done => {
-    amqpConnection.publish(exchange, routingKey, testMessage);
+    [routingKey1, routingKey2].forEach((x, i) =>
+      amqpConnection.publish(exchange, x, `testMessage-${i}`),
+    );
 
     setTimeout(() => {
-      expect(testHandler).toHaveBeenCalledTimes(1);
-      expect(testHandler).toHaveBeenCalledWith(testMessage);
+      expect(testHandler).toHaveBeenCalledTimes(2);
+      expect(testHandler).toHaveBeenCalledWith(`testMessage-0`);
+      expect(testHandler).toHaveBeenCalledWith(`testMessage-1`);
       done();
     }, 50);
   });

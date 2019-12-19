@@ -39,7 +39,7 @@ export enum MessageHandlerErrorBehavior {
 
 export interface MessageHandlerOptions {
   exchange: string;
-  routingKey: string;
+  routingKey: string | string[];
   queue?: string;
   queueOptions?: QueueOptions;
   errorBehavior?: MessageHandlerErrorBehavior;
