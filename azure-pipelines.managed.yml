@@ -10,6 +10,8 @@ pr:
       - ./*.yml
       - ./aws/*.ts
 
+trigger: none
+
 variables:
   YARN_CACHE_FOLDER: $(Pipeline.Workspace)/.yarn
 
