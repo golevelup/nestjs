@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.8.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@1.7.3...@golevelup/nestjs-rabbitmq@1.8.0) (2019-12-19)
+
+### Features
+
+- **rabbitmq:** add ability to bind handlers to multiple exchange keys ([dd131fe](https://github.com/golevelup/nestjs/commit/dd131fe)), closes [#79](https://github.com/golevelup/nestjs/issues/79)
+
 ## [1.7.3](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@1.7.2...@golevelup/nestjs-rabbitmq@1.7.3) (2019-12-19)
 
 ### Bug Fixes
