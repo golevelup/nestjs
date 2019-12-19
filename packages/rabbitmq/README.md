@@ -20,10 +20,37 @@ Some of the most notable missing functionality includes common messaging pattern
 
 ## Connection Management
 
-This module leverages [`amqp-connection-manager`](https://github.com/benbria/node-amqp-connection-manager) package to maintain connection resiliency.
+In previous versions, this package did not support advanced connection management and if you tried to launch the app when a connection could not be established, an error was thrown and caused the app to crash.
 
-Unavailability of a RabbitMQ broker still allows your application to bootstrap correctly and relevant channel setups take place whenever a connection can be established.
-The same principle applies when a connection is lost. In such cases, the module tries to reconnect and set up everything again once it is reconnected.
+Now, this package leverages [`amqp-connection-manager`](https://github.com/benbria/node-amqp-connection-manager) package to support connection resiliency.
+
+**NOTE**: to maintain the same pervious behavior and not introduce a major version update, the previous behavior is still the default.
+
+If you want to transition to the new behavior and enable connection resiliency, you can configure `connectionInitOptions` to not wait for a connection to be availble, for example:
+
+```typescript
+import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
+
+@Module({
+  imports: [
+    RabbitMQModule.forRoot({
+      exchanges: [
+        {
+          name: 'exchange1',
+          type: 'topic'
+        }
+      ],
+      uri: 'amqp://rabbitmq:rabbitmq@localhost:5672',
+      connectionInitOptions: { wait: false }
+    })
+  ]
+})
+export class RabbitExampleModule {}
+```
+
+With the new behavior in place, unavailability of a RabbitMQ broker still allows your application to bootstrap correctly and relevant channel setups take place whenever a connection can be established.
+
+The same principle applies to when a connection is lost. In such cases, the module tries to reconnect and set up everything again once it is reconnected.
 
 ## Usage
 
