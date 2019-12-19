@@ -223,7 +223,11 @@ export class AmqpConnection {
       msgOptions.queueOptions || undefined
     );
 
-    await channel.bindQueue(queue, exchange, routingKey);
+    const routingKeys = Array.isArray(routingKey) ? routingKey : [routingKey];
+
+    await Promise.all(
+      routingKeys.map(x => this.channel.bindQueue(queue, exchange, x))
+    );
 
     await channel.consume(queue, async msg => {
       try {
@@ -296,7 +300,11 @@ export class AmqpConnection {
       rpcOptions.queueOptions || undefined
     );
 
-    await channel.bindQueue(queue, exchange, routingKey);
+    const routingKeys = Array.isArray(routingKey) ? routingKey : [routingKey];
+
+    await Promise.all(
+      routingKeys.map(x => this.channel.bindQueue(queue, exchange, x))
+    );
 
     await channel.consume(queue, async msg => {
       try {

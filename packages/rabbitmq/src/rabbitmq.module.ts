@@ -1,11 +1,19 @@
 import { DiscoveryModule, DiscoveryService } from '@golevelup/nestjs-discovery';
-import { createConfigurableDynamicRootModule } from '@golevelup/nestjs-modules';
+import {
+  createConfigurableDynamicRootModule,
+  IConfigurableDynamicRootModule
+} from '@golevelup/nestjs-modules';
 import { DynamicModule, Logger, Module, OnModuleInit } from '@nestjs/common';
 import { ExternalContextCreator } from '@nestjs/core/helpers/external-context-creator';
 import { groupBy } from 'lodash';
 import { AmqpConnection } from './amqp/connection';
 import { RABBIT_CONFIG_TOKEN, RABBIT_HANDLER } from './rabbitmq.constants';
 import { RabbitHandlerConfig, RabbitMQConfig } from './rabbitmq.interfaces';
+
+declare var placeholder: IConfigurableDynamicRootModule<
+  RabbitMQModule,
+  RabbitMQConfig
+>;
 
 @Module({
   imports: [DiscoveryModule]

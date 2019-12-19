@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.2.1](https://github.com/WonderPanda/nestjs-plus/compare/@golevelup/nestjs-discovery@2.2.0...@golevelup/nestjs-discovery@2.2.1) (2019-12-14)
+
+### Bug Fixes
+
+- **discovery:** discovery of components/providers in lazy way ([8a6fa7f](https://github.com/WonderPanda/nestjs-plus/commit/8a6fa7f))
+
 # 2.2.0 (2019-11-09)
 
 ### Bug Fixes
