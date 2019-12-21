@@ -85,20 +85,20 @@ export class AmqpConnection {
     const p = this.initCore();
     if (!wait) return p;
 
-    const initialized$ = this.initialized.pipe(
-      take(1),
-      timeoutWith(
-        timeoutInterval,
-        throwError(
-          new Error(
-            `Failed to connect to a RabbitMQ broker within a timeout of ${timeoutInterval}ms`
+    return this.initialized
+      .pipe(
+        take(1),
+        timeoutWith(
+          timeoutInterval,
+          throwError(
+            new Error(
+              `Failed to connect to a RabbitMQ broker within a timeout of ${timeoutInterval}ms`
+            )
           )
-        )
-      ),
-      catchError(err => (reject ? throwError(err) : empty()))
-    );
-
-    return initialized$.toPromise<any>();
+        ),
+        catchError(err => (reject ? throwError(err) : empty()))
+      )
+      .toPromise<any>();
   }
 
   private async initCore(): Promise<void> {
@@ -121,18 +121,14 @@ export class AmqpConnection {
     this._managedChannel.on('connect', () =>
       this.logger.log('Successfully connected a RabbitMQ channel')
     );
-    this._managedChannel.on('error', (err, { name }) => {
-      this._channel = undefined;
+    this._managedChannel.on('error', (err, { name }) =>
       this.logger.log(
-        `Failed to setup a RabbitMQ channel - name: ${name} / error: ${
-          err.message
-        } ${err.stack}`
-      );
-    });
-    this._managedChannel.on('close', () => {
-      this._channel = undefined;
-      this.logger.log('Successfully closed a RabbitMQ channel');
-    });
+        `Failed to setup a RabbitMQ channel - name: ${name} / error: ${err.message} ${err.stack}`
+      )
+    );
+    this._managedChannel.on('close', () =>
+      this.logger.log('Successfully closed a RabbitMQ channel')
+    );
 
     await this._managedChannel.addSetup(c => this.setupInitChannel(c));
   }
@@ -142,7 +138,7 @@ export class AmqpConnection {
   ): Promise<void> {
     this._channel = channel;
 
-    this.config.exchanges.map(async x =>
+    this.config.exchanges.forEach(async x =>
       channel.assertExchange(
         x.name,
         x.type || this.config.defaultExchangeType,
@@ -366,8 +362,8 @@ export class AmqpConnection {
     message: any,
     options?: amqplib.Options.Publish
   ) {
-    // raw amqplib channel is used to follow behavior of throwing connection errors in this case
-    if (!this.managedConnection.isConnected || !this._channel) {
+    // source amqplib channel is used directly to keep the behavior of throwing connection related errors
+    if (!this.managedConnection.isConnected() || !this._channel) {
       throw new Error('AMQP connection is not available');
     }
 

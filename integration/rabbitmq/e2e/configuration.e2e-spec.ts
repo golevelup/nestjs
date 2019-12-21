@@ -6,12 +6,6 @@ const rabbitHost = process.env.NODE_ENV === 'ci' ? 'rabbit' : 'localhost';
 const uri = `amqp://rabbitmq:rabbitmq@${rabbitHost}:5672`;
 const amqplibUri = `${uri}?heartbeat=5`;
 
-const configFactory = () => ({
-    uri,
-    connectionManager: { heartbeatIntervalInSeconds: 5 },
-    connectionInit: { wait: true, reject: true }
-});
-
 class RabbitConfig {
   createModuleConfig(): RabbitMQConfig {
     return {
