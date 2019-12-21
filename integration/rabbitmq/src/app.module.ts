@@ -16,6 +16,7 @@ const rabbitHost = process.env.NODE_ENV === 'ci' ? 'rabbit' : 'localhost';
           },
         ],
         uri: `amqp://rabbitmq:rabbitmq@${rabbitHost}:5672`,
+        connectionInitOptions: { wait: true, reject: true, timeout: 3000 },
       }),
     }),
   ],
