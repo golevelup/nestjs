@@ -8,7 +8,7 @@
     "modules"
   ],
   "author": "Jesse Carter <jesse.r.carter@gmail.com>",
-  "homepage": "https://github.com/WonderPanda/nestjs-plus#readme",
+  "homepage": "https://github.com/golevelup/nestjs/blob/master/packages/discovery/README.md",
   "license": "MIT",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -24,15 +24,18 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/WonderPanda/nestjs-plus.git"
+    "url": "git+https://github.com/golevelup/nestjs.git"
   },
   "scripts": {
     "build": "tsc --build tsconfig.build.json",
     "build:watch": "tsc --build tsconfig.build.json --watch",
     "test": "jest"
   },
+  "dependencies": {
+    "lodash": "^4.17.15"
+  },
   "bugs": {
-    "url": "https://github.com/WonderPanda/nestjs-plus/issues"
+    "url": "https://github.com/golevelup/nestjs/issues"
   },
   "jest": {
     "moduleFileExtensions": [
