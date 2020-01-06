@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.8.1](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@1.8.0...@golevelup/nestjs-rabbitmq@1.8.1) (2020-01-06)
+
+**Note:** Version bump only for package @golevelup/nestjs-rabbitmq
+
 # [1.8.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@1.7.3...@golevelup/nestjs-rabbitmq@1.8.0) (2019-12-19)
 
 ### Features

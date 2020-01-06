@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.2.2](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-discovery@2.2.1...@golevelup/nestjs-discovery@2.2.2) (2020-01-06)
+
+### Bug Fixes
+
+- **discovery:** add lodash as dependency ([b1baad6](https://github.com/golevelup/nestjs/commit/b1baad6))
+
 ## [2.2.1](https://github.com/WonderPanda/nestjs-plus/compare/@golevelup/nestjs-discovery@2.2.0...@golevelup/nestjs-discovery@2.2.1) (2019-12-14)
 
 ### Bug Fixes
