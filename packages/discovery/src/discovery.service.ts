@@ -81,7 +81,7 @@ export class DiscoveryService {
    */
   async methodsAndControllerMethodsWithMetaAtKey<T>(
     metaKey: MetaKey,
-    metaFilter: Filter<T> = meta => true
+    metaFilter: Filter<T> = () => true
   ): Promise<DiscoveredMethodWithMeta<T>[]> {
     const controllersWithMeta = (await this.controllersWithMetaAtKey<T>(
       metaKey
@@ -181,7 +181,7 @@ export class DiscoveryService {
    */
   async providerMethodsWithMetaAtKey<T>(
     metaKey: MetaKey,
-    providerFilter: Filter<DiscoveredClass> = x => true
+    providerFilter: Filter<DiscoveredClass> = () => true
   ): Promise<DiscoveredMethodWithMeta<T>[]> {
     const providers = await this.providers(providerFilter);
 
@@ -197,7 +197,7 @@ export class DiscoveryService {
    */
   async controllerMethodsWithMetaAtKey<T>(
     metaKey: MetaKey,
-    controllerFilter: Filter<DiscoveredClass> = x => true
+    controllerFilter: Filter<DiscoveredClass> = () => true
   ): Promise<DiscoveredMethodWithMeta<T>[]> {
     const controllers = await this.controllers(controllerFilter);
 
@@ -255,6 +255,7 @@ export class DiscoveryService {
   private async discover(component: 'providers' | 'controllers') {
     const modulesMap = [...this.modulesContainer.entries()];
     return Promise.all(
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       flatMap(modulesMap, ([key, nestModule]) => {
         const components = [...nestModule[component].values()];
         return components

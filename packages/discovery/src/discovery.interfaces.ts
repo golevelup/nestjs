@@ -27,6 +27,6 @@ export interface DiscoveredClassWithMeta<T> {
   meta: T;
 }
 
-export type MetaKey = string | number | Symbol;
+export type MetaKey = string | number | symbol;
 
 export type Filter<T> = (item: T) => boolean;

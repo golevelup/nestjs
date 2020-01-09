@@ -38,8 +38,7 @@ export function createModuleConfigProvider<T>(
   const optionsProvider = {
     provide,
     useFactory: async (moduleConfigFactory: ModuleConfigFactory<T>) => {
-      const options = await moduleConfigFactory.createModuleConfig();
-      return options;
+      return moduleConfigFactory.createModuleConfig();
     },
     inject: [
       options.useClass ||
@@ -157,7 +156,7 @@ export function createConfigurableDynamicRootModule<T, U>(
     ): Promise<DynamicModule> {
       const timeout$ = interval(wait).pipe(
         first(),
-        map(x => {
+        map(() => {
           throw new Error(
             `Expected ${
               moduleCtor.name

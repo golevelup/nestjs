@@ -1,8 +1,12 @@
-import { Injectable, Module, SetMetadata, Scope } from '@nestjs/common';
+import { Injectable, Module, SetMetadata } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { DiscoveryModule, DiscoveryService, withMetaAtKey } from '..';
 
 const TestDecorator = (config: any) => SetMetadata('test', config);
+
+const providerMetadata = 'should discover providers based on a metadata key';
+const providerMethodMetadata =
+  'should discover providers based on a metadata key';
 
 @Injectable()
 @TestDecorator('dynamicProvider')
@@ -13,13 +17,21 @@ class DynamicProvider {
   }
 }
 
+async function providerMetadataTest(discover: DiscoveryService) {
+  const providers = await discover.providers(withMetaAtKey('test'));
+
+  expect(providers).toHaveLength(1);
+  const [provider] = providers;
+  expect(provider.instance).toBeInstanceOf(DynamicProvider);
+}
+
 @Module({
   providers: [
     {
       provide: DynamicProvider,
       useFactory: async (): Promise<DynamicProvider> => {
         const dynamic = new DynamicProvider();
-        return new Promise((resolve, reject) => {
+        return new Promise(resolve => {
           setTimeout(() => resolve(dynamic), 50);
         });
       }
@@ -49,15 +61,11 @@ describe('Provider Types', () => {
       discover = app.get<DiscoveryService>(DiscoveryService);
     });
 
-    it('should discover providers based on a metadata key', async () => {
-      const providers = await discover.providers(withMetaAtKey('test'));
-
-      expect(providers).toHaveLength(1);
-      const [provider] = providers;
-      expect(provider.instance).toBeInstanceOf(DynamicProvider);
+    it(providerMetadata, async () => {
+      providerMetadataTest(discover);
     });
 
-    it('should discover provider method handler meta based on a metadata key', async () => {
+    it(providerMethodMetadata, async () => {
       const providerMethodMeta = await discover.providerMethodsWithMetaAtKey(
         'test'
       );
@@ -102,15 +110,11 @@ describe('Provider Types', () => {
       discover = app.get<DiscoveryService>(DiscoveryService);
     });
 
-    it('should discover providers based on a metadata key', async () => {
-      const providers = await discover.providers(withMetaAtKey('test'));
-
-      expect(providers).toHaveLength(1);
-      const [provider] = providers;
-      expect(provider.instance).toBeInstanceOf(DynamicProvider);
+    it(providerMetadata, async () => {
+      providerMetadataTest(discover);
     });
 
-    it('should discover provider method handler meta based on a metadata key', async () => {
+    it(providerMethodMetadata, async () => {
       const providerMethodMeta = await discover.providerMethodsWithMetaAtKey(
         'test'
       );
@@ -149,15 +153,11 @@ describe('Provider Types', () => {
       discover = app.get<DiscoveryService>(DiscoveryService);
     });
 
-    it('should discover providers based on a metadata key', async () => {
-      const providers = await discover.providers(withMetaAtKey('test'));
-
-      expect(providers).toHaveLength(1);
-      const [provider] = providers;
-      expect(provider.instance).toBeInstanceOf(DynamicProvider);
+    it(providerMetadata, async () => {
+      providerMetadataTest(discover);
     });
 
-    it('should discover provider method handler meta based on a metadata key', async () => {
+    it(providerMethodMetadata, async () => {
       const providerMethodMeta = await discover.providerMethodsWithMetaAtKey(
         'test'
       );

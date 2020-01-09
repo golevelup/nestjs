@@ -71,5 +71,5 @@ export const createMock = <T>(
     }
   });
 
-  return <DeepMocked<T>>(proxy as any);
+  return proxy as DeepMocked<T>;
 };

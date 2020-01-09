@@ -10,7 +10,7 @@ import { AmqpConnection } from './amqp/connection';
 import { RABBIT_CONFIG_TOKEN, RABBIT_HANDLER } from './rabbitmq.constants';
 import { RabbitHandlerConfig, RabbitMQConfig } from './rabbitmq.interfaces';
 
-declare var placeholder: IConfigurableDynamicRootModule<
+declare const placeholder: IConfigurableDynamicRootModule<
   RabbitMQModule,
   RabbitMQConfig
 >;
@@ -28,11 +28,7 @@ export class RabbitMQModule
           useFactory: async (
             config: RabbitMQConfig
           ): Promise<AmqpConnection> => {
-            const connection = new AmqpConnection(config);
-            await connection.init();
-            const logger = new Logger(RabbitMQModule.name);
-            logger.log('Successfully connected to RabbitMQ');
-            return connection;
+            return RabbitMQModule.AmqpConnectionFactory(config);
           },
           inject: [RABBIT_CONFIG_TOKEN]
         }
@@ -51,6 +47,14 @@ export class RabbitMQModule
     super();
   }
 
+  static async AmqpConnectionFactory(config: RabbitMQConfig) {
+    const connection = new AmqpConnection(config);
+    await connection.init();
+    const logger = new Logger(RabbitMQModule.name);
+    logger.log('Successfully connected to RabbitMQ');
+    return connection;
+  }
+
   public static build(config: RabbitMQConfig): DynamicModule {
     const logger = new Logger(RabbitMQModule.name);
     logger.warn(
@@ -62,11 +66,7 @@ export class RabbitMQModule
         {
           provide: AmqpConnection,
           useFactory: async (): Promise<AmqpConnection> => {
-            const connection = new AmqpConnection(config);
-            await connection.init();
-            const logger = new Logger(RabbitMQModule.name);
-            logger.log('Successfully connected to RabbitMQ');
-            return connection;
+            return RabbitMQModule.AmqpConnectionFactory(config);
           }
         }
       ],
@@ -125,5 +125,6 @@ export class RabbitMQModule
         })
       );
     }
+    32;
   }
 }

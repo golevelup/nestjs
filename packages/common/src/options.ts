@@ -32,8 +32,7 @@ export function createAsyncOptionsProvider<T>(
   return {
     provide,
     useFactory: async (optionsFactory: OptionsFactory<T>) => {
-      const options = await optionsFactory.createOptions();
-      return options;
+      return optionsFactory.createOptions();
     },
     inject: [
       options.useClass ||

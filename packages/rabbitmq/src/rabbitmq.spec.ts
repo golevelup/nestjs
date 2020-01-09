@@ -8,7 +8,7 @@ import { RabbitMQConfig } from './rabbitmq.interfaces';
 import { RabbitMQModule } from './rabbitmq.module';
 
 jest.mock('./amqp/connection');
-let MockedAmqpConnection = AmqpConnection as jest.Mock<AmqpConnection>;
+const MockedAmqpConnection = AmqpConnection as jest.Mock<AmqpConnection>;
 
 // let MockedAmqpConnection = (AmqpConnection as unknown) as jest.Mocked<
 //   AmqpConnection
@@ -20,19 +20,34 @@ class ExampleService {
     routingKey: 'rpc',
     exchange: 'exchange1'
   })
-  rpcMethod() {}
+  rpcMethod() {
+    return;
+  }
 
   @RabbitSubscribe({
     routingKey: 'subscribe',
     exchange: 'exchange2'
   })
-  subscribeMethod() {}
+  subscribeMethod() {
+    return;
+  }
 }
 
 @Module({
   providers: [ExampleService]
 })
 class ExampleModule {}
+
+function correctAmqpConnection(config: RabbitMQConfig) {
+  expect(AmqpConnection).toBeCalledTimes(1);
+  expect(AmqpConnection).toBeCalledWith(config);
+
+  const amqpConnection = MockedAmqpConnection.mock.instances[0] as jest.Mocked<
+    AmqpConnection
+  >;
+
+  expect(amqpConnection.init).toBeCalledTimes(1);
+}
 
 describe('RabbitMQ', () => {
   afterEach(() => {
@@ -61,13 +76,7 @@ describe('RabbitMQ', () => {
       });
 
       it('correctly configures the AmqpConnection', () => {
-        expect(AmqpConnection).toBeCalledTimes(1);
-        expect(AmqpConnection).toBeCalledWith(config);
-
-        const amqpConnection = MockedAmqpConnection.mock
-          .instances[0] as jest.Mocked<AmqpConnection>;
-
-        expect(amqpConnection.init).toBeCalledTimes(1);
+        correctAmqpConnection(config);
       });
     });
 
@@ -84,7 +93,7 @@ describe('RabbitMQ', () => {
               useFactory: () => {
                 return interval(100)
                   .pipe(
-                    map(x => config),
+                    map(() => config),
                     first()
                   )
                   .toPromise();
@@ -97,13 +106,7 @@ describe('RabbitMQ', () => {
       });
 
       it('correctly configures the AmqpConnection', () => {
-        expect(AmqpConnection).toBeCalledTimes(1);
-        expect(AmqpConnection).toBeCalledWith(config);
-
-        const amqpConnection = MockedAmqpConnection.mock
-          .instances[0] as jest.Mocked<AmqpConnection>;
-
-        expect(amqpConnection.init).toBeCalledTimes(1);
+        correctAmqpConnection(config);
 
         // console.log(MockedAmqpConnection);
         // expect(MockedAmqpConnection.init.mock).toBeCalledTimes(1);

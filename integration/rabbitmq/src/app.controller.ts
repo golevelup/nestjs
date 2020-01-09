@@ -12,11 +12,9 @@ export class AppController {
 
   @Get('rpc')
   async getRpc() {
-    const response = await this.amqpConnection.request({
+    return this.amqpConnection.request({
       exchange: 'exchange1',
       routingKey: 'rpc',
     });
-
-    return response;
   }
 }

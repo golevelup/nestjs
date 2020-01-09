@@ -11,9 +11,6 @@ const testHandler = jest.fn();
 const exchange = 'testSubscribeExhange';
 const routingKey1 = 'testSubscribeRoute1';
 const routingKey2 = 'testSubscribeRoute2';
-const testMessage = {
-  messageProp: 42,
-};
 
 @Injectable()
 class SubscribeService {

@@ -45,7 +45,8 @@
     "test:ci:integration": "NODE_ENV=ci jest --config ./jest-e2e.json",
     "travis": "yarn install && yarn build",
     "build:ci": "yarn install && yarn build",
-    "test:ci": "jest --coverage --reporters=jest-junit --coverageReporters=cobertura --coverageReporters=html"
+    "test:ci": "jest --coverage --reporters=jest-junit --coverageReporters=cobertura --coverageReporters=html",
+    "lint": "eslint --ext ts ."
   },
   "husky": {
     "hooks": {

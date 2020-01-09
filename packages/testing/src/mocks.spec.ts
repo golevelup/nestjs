@@ -45,7 +45,7 @@ describe('Mocks', () => {
     it('should work with properties and functions', () => {
       const mock = createMock<TestInterface>({
         someNum: 42,
-        func: (arg1, arg2) => false
+        func: () => false
       });
 
       const num = mock.someNum;
@@ -107,6 +107,7 @@ describe('Mocks', () => {
       const request1 = mock.switchToHttp().getRequest();
       const request2 = mock.switchToHttp().getRequest();
       expect(request1).toBe(request);
+      expect(request2).toBe(request);
 
       expect(mock.switchToHttp).toBeCalledTimes(3);
       expect(mock.switchToHttp().getRequest).toBeCalledTimes(2);

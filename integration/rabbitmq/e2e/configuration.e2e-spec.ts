@@ -5,11 +5,15 @@ import * as amqplib from 'amqplib';
 const rabbitHost = process.env.NODE_ENV === 'ci' ? 'rabbit' : 'localhost';
 const uri = `amqp://rabbitmq:rabbitmq@${rabbitHost}:5672`;
 
+function returnUrl() {
+  return {
+    uri,
+  };
+}
+
 class RabbitConfig {
   createModuleConfig(): RabbitMQConfig {
-    return {
-      uri,
-    };
+    return returnUrl();
   }
 }
 
@@ -30,6 +34,8 @@ describe('Module Configuration', () => {
         ],
       }).compile();
 
+      expect(app).toBeDefined();
+
       expect(spy).toHaveBeenCalledTimes(1);
       expect(spy).toHaveBeenCalledWith(uri);
     });
@@ -42,14 +48,12 @@ describe('Module Configuration', () => {
       app = await Test.createTestingModule({
         imports: [
           RabbitMQModule.forRootAsync(RabbitMQModule, {
-            useFactory: async () => {
-              return {
-                uri,
-              };
-            },
+            useFactory: returnUrl,
           }),
         ],
       }).compile();
+
+      expect(app).toBeDefined();
 
       expect(spy).toHaveBeenCalledTimes(1);
       expect(spy).toHaveBeenCalledWith(uri);
@@ -65,6 +69,8 @@ describe('Module Configuration', () => {
           }),
         ],
       }).compile();
+
+      expect(app).toBeDefined();
 
       expect(spy).toHaveBeenCalledTimes(1);
       expect(spy).toHaveBeenCalledWith(uri);
@@ -86,6 +92,8 @@ describe('Module Configuration', () => {
         ],
       }).compile();
 
+      expect(app).toBeDefined();
+
       expect(spy).toHaveBeenCalledTimes(1);
       expect(spy).toHaveBeenCalledWith(uri);
     });
@@ -104,6 +112,8 @@ describe('Module Configuration', () => {
           }),
         ],
       }).compile();
+
+      expect(app).toBeDefined();
 
       expect(spy).toHaveBeenCalledTimes(1);
       expect(spy).toHaveBeenCalledWith(uri);

@@ -82,7 +82,7 @@ export class AmqpConnection {
 
     const timeout$ = interval(timeout).pipe(
       first(),
-      map(x => {
+      map(() => {
         throw new Error(
           `Failed to receive response within timeout of ${timeout}ms`
         );
