@@ -158,9 +158,7 @@ export function createConfigurableDynamicRootModule<T, U>(
         first(),
         map(() => {
           throw new Error(
-            `Expected ${
-              moduleCtor.name
-            } to be configured by at last one Module but it was not configured within ${wait}ms`
+            `Expected ${moduleCtor.name} to be configured by at last one Module but it was not configured within ${wait}ms`
           );
         })
       );

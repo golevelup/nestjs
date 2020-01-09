@@ -125,6 +125,5 @@ export class RabbitMQModule
         })
       );
     }
-    32;
   }
 }

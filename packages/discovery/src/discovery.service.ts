@@ -83,9 +83,9 @@ export class DiscoveryService {
     metaKey: MetaKey,
     metaFilter: Filter<T> = () => true
   ): Promise<DiscoveredMethodWithMeta<T>[]> {
-    const controllersWithMeta = (await this.controllersWithMetaAtKey<T>(
-      metaKey
-    )).filter(x => metaFilter(x.meta));
+    const controllersWithMeta = (
+      await this.controllersWithMetaAtKey<T>(metaKey)
+    ).filter(x => metaFilter(x.meta));
 
     const methodsFromDecoratedControllers = flatMap(
       controllersWithMeta,
@@ -97,9 +97,9 @@ export class DiscoveryService {
       }
     );
 
-    const decoratedMethods = (await this.controllerMethodsWithMetaAtKey<T>(
-      metaKey
-    )).filter(x => metaFilter(x.meta));
+    const decoratedMethods = (
+      await this.controllerMethodsWithMetaAtKey<T>(metaKey)
+    ).filter(x => metaFilter(x.meta));
 
     return uniqBy(
       [...methodsFromDecoratedControllers, ...decoratedMethods],
