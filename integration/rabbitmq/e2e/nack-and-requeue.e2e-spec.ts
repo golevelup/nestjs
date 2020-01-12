@@ -66,6 +66,7 @@ describe('Nack and Requeue', () => {
               },
             ],
             uri,
+            connectionInitOptions: { wait: true, reject: true, timeout: 3000 },
           }),
         }),
       ],

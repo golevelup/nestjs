@@ -1,4 +1,5 @@
 import * as amqplib from 'amqplib';
+import * as amqpConnectionManager from 'amqp-connection-manager';
 
 export interface RabbitMQExchangeConfig {
   name: string;
@@ -45,14 +46,22 @@ export interface MessageHandlerOptions {
   errorBehavior?: MessageHandlerErrorBehavior;
 }
 
+export interface ConnectionInitOptions {
+  wait?: boolean;
+  timeout?: number;
+  reject?: boolean;
+}
+
 export interface RabbitMQConfig {
-  uri: string;
+  uri: string | string[];
   prefetchCount?: number;
   exchanges?: RabbitMQExchangeConfig[];
   defaultRpcTimeout?: number;
   defaultExchangeType?: string;
   defaultRpcErrorBehavior?: MessageHandlerErrorBehavior;
   defaultSubscribeErrorBehavior?: MessageHandlerErrorBehavior;
+  connectionInitOptions?: ConnectionInitOptions;
+  connectionManagerOptions?: amqpConnectionManager.AmqpConnectionManagerOptions;
 }
 
 export type RabbitHandlerType = 'rpc' | 'subscribe';

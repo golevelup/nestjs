@@ -4,16 +4,15 @@ import * as amqplib from 'amqplib';
 
 const rabbitHost = process.env.NODE_ENV === 'ci' ? 'rabbit' : 'localhost';
 const uri = `amqp://rabbitmq:rabbitmq@${rabbitHost}:5672`;
-
-function returnUrl() {
-  return {
-    uri,
-  };
-}
+const amqplibUri = `${uri}?heartbeat=5`;
 
 class RabbitConfig {
   createModuleConfig(): RabbitMQConfig {
-    return returnUrl();
+    return {
+      uri,
+      connectionManagerOptions: { heartbeatIntervalInSeconds: 5 },
+      connectionInitOptions: { wait: true, reject: true, timeout: 3000 },
+    };
   }
 }
 
@@ -30,6 +29,7 @@ describe('Module Configuration', () => {
         imports: [
           RabbitMQModule.forRoot(RabbitMQModule, {
             uri,
+            connectionInitOptions: { wait: true, reject: true, timeout: 3000 },
           }),
         ],
       }).compile();
@@ -37,7 +37,7 @@ describe('Module Configuration', () => {
       expect(app).toBeDefined();
 
       expect(spy).toHaveBeenCalledTimes(1);
-      expect(spy).toHaveBeenCalledWith(uri);
+      expect(spy).toHaveBeenCalledWith(amqplibUri, undefined);
     });
   });
 
@@ -48,7 +48,16 @@ describe('Module Configuration', () => {
       app = await Test.createTestingModule({
         imports: [
           RabbitMQModule.forRootAsync(RabbitMQModule, {
-            useFactory: returnUrl,
+            useFactory: async () => {
+              return {
+                uri,
+                connectionInitOptions: {
+                  wait: true,
+                  reject: true,
+                  timeout: 3000,
+                },
+              };
+            },
           }),
         ],
       }).compile();
@@ -56,7 +65,7 @@ describe('Module Configuration', () => {
       expect(app).toBeDefined();
 
       expect(spy).toHaveBeenCalledTimes(1);
-      expect(spy).toHaveBeenCalledWith(uri);
+      expect(spy).toHaveBeenCalledWith(amqplibUri, undefined);
     });
 
     it('should configure RabbitMQ with useClass', async () => {
@@ -73,7 +82,7 @@ describe('Module Configuration', () => {
       expect(app).toBeDefined();
 
       expect(spy).toHaveBeenCalledTimes(1);
-      expect(spy).toHaveBeenCalledWith(uri);
+      expect(spy).toHaveBeenCalledWith(amqplibUri, undefined);
     });
 
     it('should configure RabbitMQ with useExisting explicit provide', async () => {
@@ -95,7 +104,7 @@ describe('Module Configuration', () => {
       expect(app).toBeDefined();
 
       expect(spy).toHaveBeenCalledTimes(1);
-      expect(spy).toHaveBeenCalledWith(uri);
+      expect(spy).toHaveBeenCalledWith(amqplibUri, undefined);
     });
 
     it('should configure RabbitMQ with useExisting implicit provide', async () => {
@@ -116,7 +125,7 @@ describe('Module Configuration', () => {
       expect(app).toBeDefined();
 
       expect(spy).toHaveBeenCalledTimes(1);
-      expect(spy).toHaveBeenCalledWith(uri);
+      expect(spy).toHaveBeenCalledWith(amqplibUri, undefined);
     });
   });
 });
