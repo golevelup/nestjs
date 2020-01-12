@@ -6,16 +6,12 @@ import {
 } from '@golevelup/nestjs-rabbitmq';
 import { INestApplication, Injectable } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
-import * as amqplib from 'amqplib';
 
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 const exchange = 'testSubscribeExhange';
 const nackRoutingKey = 'nackRoutingKey';
 const nackAndRequeueRoutingKey = 'nackAndRequeueRoutingKey';
-const testMessage = {
-  messageProp: 42,
-};
 
 const nackHandler = jest.fn();
 const nackAndRequeueHandler = jest.fn();
@@ -29,7 +25,7 @@ class SubscribeService {
     routingKey: nackRoutingKey,
     queue: nackRoutingKey,
   })
-  shouldNack(message: object, raw: amqplib.ConsumeMessage) {
+  shouldNack() {
     nackHandler();
     return new Nack();
   }
@@ -39,10 +35,7 @@ class SubscribeService {
     routingKey: nackAndRequeueRoutingKey,
     queue: nackAndRequeueRoutingKey,
   })
-  async shouldNackAndRequeueTimes3(
-    message: object,
-    raw: amqplib.ConsumeMessage,
-  ) {
+  async shouldNackAndRequeueTimes3() {
     ++this.nackCount;
     nackAndRequeueHandler();
     // await sleep(15);

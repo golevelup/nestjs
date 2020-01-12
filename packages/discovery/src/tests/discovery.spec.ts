@@ -27,9 +27,13 @@ const ExampleMethodDecorator = (config: any) =>
 @ExampleClassDecorator('class')
 class ExampleService {
   @ExampleMethodDecorator('example provider method meta')
-  specialMethod() {}
+  specialMethod() {
+    return;
+  }
 
-  anotherMethod() {}
+  anotherMethod() {
+    return;
+  }
 }
 
 @Controller('example')
@@ -75,6 +79,8 @@ describe('Discovery', () => {
       const providers = await discoveryService.providers(
         withMetaAtKey(ExampleClassSymbol)
       );
+
+      expect(providers).toBeDefined();
 
       const nullProvider = app.get<{}>(NullProviderSymbol);
       expect(nullProvider).toBeNull();
@@ -124,9 +130,7 @@ describe('Discovery', () => {
 
   describe('Controllers', () => {
     it('should discover controllers', async () => {
-      const controllers = await discoveryService.controllers(
-        controller => true
-      );
+      const controllers = await discoveryService.controllers(() => true);
 
       expect(controllers).toHaveLength(1);
       const [controller] = controllers;
@@ -143,6 +147,7 @@ describe('Discovery', () => {
         string
       >(PATH_METADATA);
       const [first] = controllerMethodMeta;
+      expect(first).toBeDefined();
 
       expect(controllerMethodMeta.length).toBe(1);
 

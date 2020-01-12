@@ -21,7 +21,7 @@ export class RpcService {
     exchange: 'exchange1',
     queue: 'intercepted-rpc',
   })
-  interceptedRpc(message: {}) {
+  interceptedRpc() {
     return {
       message: 42,
     };

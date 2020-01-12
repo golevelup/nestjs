@@ -21,14 +21,20 @@
     "@types/jest": "^24.0.11",
     "@types/lodash": "^4.14.120",
     "@types/node": "^10.12.18",
+    "@typescript-eslint/eslint-plugin": "^2.15.0",
+    "@typescript-eslint/parser": "^2.15.0",
     "commitizen": "^3.0.7",
     "cz-conventional-changelog": "^2.1.0",
+    "eslint": "^6.8.0",
+    "eslint-config-prettier": "^6.9.0",
+    "eslint-plugin-prettier": "^3.1.2",
+    "eslint-plugin-sonarjs": "^0.5.0",
     "husky": "^1.3.1",
     "jest": "^24.5.0",
     "jest-junit": "^9.0.0",
     "lerna": "^3.13.1",
     "lint-staged": "^8.1.4",
-    "prettier": "^1.16.4",
+    "prettier": "^1.19.1",
     "rimraf": "^2.6.3",
     "ts-jest": "^24.0.0",
     "typescript": "^3.3.3333"
@@ -45,7 +51,8 @@
     "test:ci:integration": "NODE_ENV=ci jest --config ./jest-e2e.json",
     "travis": "yarn install && yarn build",
     "build:ci": "yarn install && yarn build",
-    "test:ci": "jest --coverage --reporters=jest-junit --coverageReporters=cobertura --coverageReporters=html"
+    "test:ci": "jest --coverage --reporters=jest-junit --coverageReporters=cobertura --coverageReporters=html",
+    "lint": "eslint --ext ts ."
   },
   "husky": {
     "hooks": {
@@ -56,6 +63,7 @@
   "lint-staged": {
     "*.ts": [
       "yarn run prettier --write",
+      "yarn lint",
       "git add"
     ],
     "*.md": [

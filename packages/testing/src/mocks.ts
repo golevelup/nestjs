@@ -1,14 +1,14 @@
 export type PartialFuncReturn<T> = {
   [K in keyof T]?: T[K] extends (...args: infer A) => infer U
     ? (...args: A) => PartialFuncReturn<U>
-    : T[K]
+    : T[K];
 };
 
 export type DeepMocked<T> = {
   [K in keyof T]: T[K] extends (...args: any[]) => infer U
     ? jest.MockInstance<ReturnType<T[K]>, jest.ArgsType<T[K]>> &
         ((...args: jest.ArgsType<T[K]>) => DeepMocked<U>)
-    : T[K]
+    : T[K];
 } &
   T;
 
@@ -71,5 +71,5 @@ export const createMock = <T>(
     }
   });
 
-  return <DeepMocked<T>>(proxy as any);
+  return proxy as DeepMocked<T>;
 };
