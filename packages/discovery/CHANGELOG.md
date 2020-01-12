@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.2.3](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-discovery@2.2.2...@golevelup/nestjs-discovery@2.2.3) (2020-01-12)
+
+### Bug Fixes
+
+- **eslint:** add missing eslint dev deps ([7bfcc2c](https://github.com/golevelup/nestjs/commit/7bfcc2c))
+- **eslint:** fix sonarcloud diplicate code error ([1868fab](https://github.com/golevelup/nestjs/commit/1868fab))
+
 ## [2.2.2](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-discovery@2.2.1...@golevelup/nestjs-discovery@2.2.2) (2020-01-06)
 
 ### Bug Fixes

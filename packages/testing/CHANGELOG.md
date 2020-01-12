@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.2.1](https://github.com/golevelup/nestjs/compare/@golevelup/ts-jest@0.2.0...@golevelup/ts-jest@0.2.1) (2020-01-12)
+
+### Bug Fixes
+
+- **eslint:** fix sonarcloud diplicate code error ([1868fab](https://github.com/golevelup/nestjs/commit/1868fab))
+
 # 0.2.0 (2019-12-14)
 
 ### Bug Fixes

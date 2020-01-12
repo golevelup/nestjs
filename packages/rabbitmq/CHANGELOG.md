@@ -3,6 +3,26 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.9.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@1.8.1...@golevelup/nestjs-rabbitmq@1.9.0) (2020-01-12)
+
+### Bug Fixes
+
+- **eslint:** add missing eslint dev deps ([7bfcc2c](https://github.com/golevelup/nestjs/commit/7bfcc2c))
+- **eslint:** fix sonarcloud diplicate code error ([1868fab](https://github.com/golevelup/nestjs/commit/1868fab))
+
+### Features
+
+- **con-mgmt:** init options,wiki,tests ([8ca3260](https://github.com/golevelup/nestjs/commit/8ca3260))
+- **con-mgr:** refactor and fix isConnected usage ([4cafa8a](https://github.com/golevelup/nestjs/commit/4cafa8a))
+- **conn-mgr:** add amqp-connection-manager ([0bf5e94](https://github.com/golevelup/nestjs/commit/0bf5e94))
+- **conn-mgr:** align tests ([ce79db6](https://github.com/golevelup/nestjs/commit/ce79db6))
+- **conn-mgr:** config, events, publish fail ([ad28e86](https://github.com/golevelup/nestjs/commit/ad28e86))
+- **conn-mgr:** refactor ([a33b465](https://github.com/golevelup/nestjs/commit/a33b465))
+- **conn-mgr:** review fixes, backward compatible ([757e8b3](https://github.com/golevelup/nestjs/commit/757e8b3))
+- **conn-mgr:** types + wiki ([82eef04](https://github.com/golevelup/nestjs/commit/82eef04))
+- **conn-mgr:** update wiki ([3a9bbd4](https://github.com/golevelup/nestjs/commit/3a9bbd4))
+- **conn-mgr:** use connection manager ([9049058](https://github.com/golevelup/nestjs/commit/9049058))
+
 ## [1.8.1](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@1.8.0...@golevelup/nestjs-rabbitmq@1.8.1) (2020-01-06)
 
 **Note:** Version bump only for package @golevelup/nestjs-rabbitmq
