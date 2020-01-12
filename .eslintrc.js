@@ -20,6 +20,7 @@ module.exports = {
     '@typescript-eslint/no-explicit-any': 'off',
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/interface-name-prefix': 'off',
+    "sonarjs/cognitive-complexity": ["error", 20]
   },
   ignorePatterns: ['*.d.ts']
 };

@@ -10,10 +10,6 @@ import { RabbitMQModule } from './rabbitmq.module';
 jest.mock('./amqp/connection');
 const MockedAmqpConnection = AmqpConnection as jest.Mock<AmqpConnection>;
 
-// let MockedAmqpConnection = (AmqpConnection as unknown) as jest.Mocked<
-//   AmqpConnection
-// >;
-
 @Injectable()
 class ExampleService {
   @RabbitRPC({
@@ -38,7 +34,7 @@ class ExampleService {
 })
 class ExampleModule {}
 
-function correctAmqpConnection(config: RabbitMQConfig) {
+const expectAmqpCorrectUsage = (config: RabbitMQConfig) => {
   expect(AmqpConnection).toBeCalledTimes(1);
   expect(AmqpConnection).toBeCalledWith(config);
 
@@ -47,7 +43,7 @@ function correctAmqpConnection(config: RabbitMQConfig) {
   >;
 
   expect(amqpConnection.init).toBeCalledTimes(1);
-}
+};
 
 describe('RabbitMQ', () => {
   afterEach(() => {
@@ -76,7 +72,7 @@ describe('RabbitMQ', () => {
       });
 
       it('correctly configures the AmqpConnection', () => {
-        correctAmqpConnection(config);
+        expectAmqpCorrectUsage(config);
       });
     });
 
@@ -106,10 +102,7 @@ describe('RabbitMQ', () => {
       });
 
       it('correctly configures the AmqpConnection', () => {
-        correctAmqpConnection(config);
-
-        // console.log(MockedAmqpConnection);
-        // expect(MockedAmqpConnection.init.mock).toBeCalledTimes(1);
+        expectAmqpCorrectUsage(config);
       });
     });
   });
