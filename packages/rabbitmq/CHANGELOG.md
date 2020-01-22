@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.10.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@1.9.0...@golevelup/nestjs-rabbitmq@1.10.0) (2020-01-22)
+
+### Features
+
+- **rabbitmq:** enable conditional rpc/subscribe handler registration ([34c5965](https://github.com/golevelup/nestjs/commit/34c5965)), closes [#98](https://github.com/golevelup/nestjs/issues/98)
+
 # [1.9.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@1.8.1...@golevelup/nestjs-rabbitmq@1.9.0) (2020-01-12)
 
 ### Bug Fixes
