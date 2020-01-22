@@ -62,6 +62,7 @@ export interface RabbitMQConfig {
   defaultSubscribeErrorBehavior?: MessageHandlerErrorBehavior;
   connectionInitOptions?: ConnectionInitOptions;
   connectionManagerOptions?: amqpConnectionManager.AmqpConnectionManagerOptions;
+  registerHandlers?: boolean;
 }
 
 export type RabbitHandlerType = 'rpc' | 'subscribe';

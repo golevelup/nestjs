@@ -39,7 +39,8 @@ const defaultConfig = {
     timeout: 5000,
     reject: true
   },
-  connectionManagerOptions: {}
+  connectionManagerOptions: {},
+  registerHandlers: true
 };
 
 export class AmqpConnection {
@@ -73,6 +74,10 @@ export class AmqpConnection {
 
   get managedConnection(): amqpcon.AmqpConnectionManager {
     return this._managedConnection;
+  }
+
+  get configuration() {
+    return this.config;
   }
 
   public async init(): Promise<void> {

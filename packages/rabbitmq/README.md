@@ -33,7 +33,7 @@ import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
 
 @Module({
   imports: [
-    RabbitMQModule.forRoot({
+    RabbitMQModule.forRoot(RabbitMQModule, {
       exchanges: [
         {
           name: 'exchange1',
@@ -76,7 +76,7 @@ import { MessagingService } from './messaging/messaging.service';
 
 @Module({
   imports: [
-    RabbitMQModule.forRoot({
+    RabbitMQModule.forRoot(RabbitMQModule, {
       exchanges: [
         {
           name: 'exchange1',
@@ -92,6 +92,12 @@ import { MessagingService } from './messaging/messaging.service';
 })
 export class RabbitExampleModule {}
 ```
+
+### Conditional Handler Registration
+
+In some scenarios, it may not be desirable for all running instances of a NestJS application to register RabbitMQ message handlers. For example, if leveraging the same application code base to expose API instances and worker roles separately it may be desirable to have only the worker instances attach handlers to manage queue subscriptions or RPC requests.
+
+The default behavior is that handlers will be attached, but to opt out simply set the `registerHandlers` configuration option to `false` when registering the RabbitMQModule.
 
 ### Exposing RPC Handlers
 

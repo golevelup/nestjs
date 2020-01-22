@@ -88,6 +88,14 @@ export class RabbitMQModule
   }
 
   public async onModuleInit() {
+    if (!this.amqpConnection.configuration.registerHandlers) {
+      this.logger.log(
+        'Skipping RabbitMQ Handlers due to configuration. This application instance will not receive messages over RabbitMQ'
+      );
+
+      return;
+    }
+
     this.logger.log('Initializing RabbitMQ Handlers');
 
     const rabbitMeta = await this.discover.providerMethodsWithMetaAtKey<

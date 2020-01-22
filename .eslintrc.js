@@ -22,5 +22,5 @@ module.exports = {
     '@typescript-eslint/interface-name-prefix': 'off',
     "sonarjs/cognitive-complexity": ["error", 20]
   },
-  ignorePatterns: ['*.d.ts']
+  ignorePatterns: ['*.d.ts', 'node_modules/']
 };
