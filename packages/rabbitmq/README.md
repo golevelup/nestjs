@@ -6,6 +6,30 @@
 <img alt="license" src="https://img.shields.io/npm/l/@golevelup/nestjs-rabbitmq.svg">
 </p>
 
+Table of Contents
+=================
+
+  * [Description](#description)
+  * [Motivation](#motivation)
+  * [Connection Management](#connection-management)
+  * [Usage](#usage)
+      * [Install](#install)
+      * [Module Initialization](#module-initialization)
+  * [Receiving Messages](#receiving-messages)
+      * [Exposing RPC Handlers](#exposing-rpc-handlers)
+      * [Exposing Pub/Sub Handlers](#exposing-pubsub-handlers)
+      * [Message Handling](#message-handling)
+      * [Conditional Handler Registration](#conditional-handler-registration)
+  * [Sending Messages](#sending-messages)
+      * [Inject the AmqpConnection](#inject-the-amqpconnection)
+      * [Publising Messages (Fire and Forget)](#publising-messages-fire-and-forget)
+      * [Requesting Data from an RPC](#requesting-data-from-an-rpc)
+        * [Type Inference](#type-inference)
+        * [Interop with other RPC Servers](#interop-with-other-rpc-servers)
+  * [Advanced Patterns](#advanced-patterns)
+      * [Competing Consumers](#competing-consumers)
+  * [TODO](#todo)
+
 ## Description
 
 This module features an opinionated set of decorators for common RabbitMQ patterns including Publish/Subscribe and RPC using Rabbit's [Direct Reply-To Queue](https://www.rabbitmq.com/direct-reply-to.html) for optimal performance.
@@ -93,11 +117,7 @@ import { MessagingService } from './messaging/messaging.service';
 export class RabbitExampleModule {}
 ```
 
-### Conditional Handler Registration
-
-In some scenarios, it may not be desirable for all running instances of a NestJS application to register RabbitMQ message handlers. For example, if leveraging the same application code base to expose API instances and worker roles separately it may be desirable to have only the worker instances attach handlers to manage queue subscriptions or RPC requests.
-
-The default behavior is that handlers will be attached, but to opt out simply set the `registerHandlers` configuration option to `false` when registering the RabbitMQModule.
+## Receiving Messages
 
 ### Exposing RPC Handlers
 
@@ -174,8 +194,75 @@ export class MessagingService {
   }
 }
 ```
+### Conditional Handler Registration
 
-## Competing Consumers
+In some scenarios, it may not be desirable for all running instances of a NestJS application to register RabbitMQ message handlers. For example, if leveraging the same application code base to expose API instances and worker roles separately it may be desirable to have only the worker instances attach handlers to manage queue subscriptions or RPC requests.
+
+The default behavior is that handlers will be attached, but to opt out simply set the `registerHandlers` configuration option to `false` when registering the RabbitMQModule.
+
+## Sending Messages
+
+### Inject the AmqpConnection
+
+All RabbitMQ interactions go through the `AmqpConnection` object. Assuming you installed and configured the `RabbitMQModule`, the object can be obtained through Nest's dependency injection system. Simply require it as a constructor parameter in a Nest Controller or Service.
+
+```typescript
+@Controller()
+export class AppController {
+  constructor(private readonly amqpConnection: AmqpConnection) {}
+
+  ...
+}
+```
+
+### Publising Messages (Fire and Forget)
+
+If you just want to publish a message onto a RabbitMQ exchange, use the `publsh` method of the `AmqpConnection` which has the following signature:
+
+```typescript
+public publish(
+  exchange: string,
+  routingKey: string,
+  message: any,
+  options?: amqplib.Options.Publish
+)
+```
+
+For example:
+
+```typescript
+amqpConnection.publish('some-exchange', 'routing-key', { msg: 'hello world' });
+```
+
+### Requesting Data from an RPC
+
+If you'd like to request data from another RPC handler that's been set up using this library, you can use the `request<T>` method of the `AmqpConnection`.
+
+For example:
+
+```typescript
+const response = await amqpConnection.request<ExpectedReturnType>({
+  exchange: 'exchange1',
+  routingKey: 'rpc',
+  payload: {
+    request: 'val'
+  },
+  timeout = 10000 // optional timeout for how long the request
+  // should wait before failing if no response is received
+});
+```
+
+#### Type Inference
+
+The generic parameter used with the `request` method lets you specify the _expected_ return type of the RPC response. This is useful for getting intellisense in your editor but no object validation of the actual received object is done on your behalf. This means that you are required to provide your own object validation logic if you need to make runtime guarantees about message structure
+
+#### Interop with other RPC Servers
+
+The RPC functionality included in `@golevelup/nestjs-rabbitmq` is based on the [Direct Reply-To Queue](https://www.rabbitmq.com/direct-reply-to.html) functionality of RabbitMQ. It is possible that because of this, the client library (`AmqpConnection.request`) could be used to interact with an RPC server implemented using a different language or framework. However, this functionality has not been verified.
+
+## Advanced Patterns
+
+### Competing Consumers
 
 The competing consumer pattern is useful when building decoupled applications especially when it comes to things like RPC or [Work Queues](https://www.rabbitmq.com/tutorials/tutorial-two-javascript.html). In these scenarios, it often desirable to ensure that only one handler processes a given message especially if your app is horizontally scaled.
 
@@ -210,7 +297,7 @@ export class MessagingService {
 }
 ```
 
-#### TODO
+## TODO
 
 - Possible validation pipeline using class-validator and class-transformer to ensure messages are well formatted
 - Integrate hooks for things like logging, metrics, or custom error handling
