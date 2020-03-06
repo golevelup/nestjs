@@ -5,11 +5,7 @@ export interface RabbitMQExchangeConfig {
   name: string;
   type?: string;
   options?: amqplib.Options.AssertExchange;
-}
-
-export interface MessageOptions {
-  exchange: string;
-  routingKey: string;
+  messageSerializer?: PayloadSerializer;
 }
 
 export interface RequestOptions {
@@ -18,6 +14,7 @@ export interface RequestOptions {
   correlationId?: string;
   timeout?: number;
   payload?: any;
+  payloadParser?: PayloadParser;
 }
 
 export interface QueueOptions {
@@ -45,6 +42,7 @@ export interface MessageHandlerOptions {
   queue?: string;
   queueOptions?: QueueOptions;
   errorBehavior?: MessageHandlerErrorBehavior;
+  messageParser?: PayloadParser;
 }
 
 export interface ConnectionInitOptions {
@@ -72,3 +70,6 @@ export type RabbitHandlerType = 'rpc' | 'subscribe';
 export interface RabbitHandlerConfig extends MessageHandlerOptions {
   type: RabbitHandlerType;
 }
+
+export type PayloadSerializer<T = any> = (message: T) => string;
+export type PayloadParser<T = any> = (message: string) => T;

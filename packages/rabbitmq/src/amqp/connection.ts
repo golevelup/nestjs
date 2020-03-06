@@ -16,7 +16,9 @@ import {
   MessageHandlerErrorBehavior,
   MessageHandlerOptions,
   RabbitMQConfig,
-  RequestOptions
+  RequestOptions,
+  PayloadParser,
+  PayloadSerializer
 } from '../rabbitmq.interfaces';
 import { Nack, RpcResponse, SubscribeResponse } from './handlerResponses';
 
@@ -24,7 +26,7 @@ const DIRECT_REPLY_QUEUE = 'amq.rabbitmq.reply-to';
 
 export interface CorrelationMessage {
   correlationId: string;
-  message: {};
+  message: amqplib.ConsumeMessage;
 }
 
 const defaultConfig = {
@@ -43,6 +45,17 @@ const defaultConfig = {
   registerHandlers: true,
   enableDirectReplyTo: true
 };
+
+const defaultPayloadParser: PayloadParser = <T>(message: string): T =>
+  JSON.parse(message);
+const defaultPayloadSerializer: PayloadSerializer = <T>(message: T): string =>
+  JSON.stringify(message);
+
+class AmpqConnectionException extends Error {
+  constructor(readonly message: string, readonly cause?: Error) {
+    super(message);
+  }
+}
 
 export class AmqpConnection {
   private readonly messageSubject = new Subject<CorrelationMessage>();
@@ -144,11 +157,13 @@ export class AmqpConnection {
   ): Promise<void> {
     this._channel = channel;
 
-    this.config.exchanges.forEach(async x =>
-      channel.assertExchange(
-        x.name,
-        x.type || this.config.defaultExchangeType,
-        x.options
+    await Promise.all(
+      this.config.exchanges.map(x =>
+        channel.assertExchange(
+          x.name,
+          x.type || this.config.defaultExchangeType,
+          x.options
+        )
       )
     );
 
@@ -172,7 +187,7 @@ export class AmqpConnection {
 
         const correlationMessage: CorrelationMessage = {
           correlationId: msg.properties.correlationId.toString(),
-          message: JSON.parse(msg.content.toString())
+          message: msg
         };
 
         this.messageSubject.next(correlationMessage);
@@ -189,10 +204,11 @@ export class AmqpConnection {
     const correlationId = requestOptions.correlationId || uuid.v4();
     const timeout = requestOptions.timeout || this.config.defaultRpcTimeout;
     const payload = requestOptions.payload || {};
+    const payloadParser = requestOptions.payloadParser || defaultPayloadParser;
 
     const response$ = this.messageSubject.pipe(
       filter(x => x.correlationId === correlationId),
-      map(x => x.message as T),
+      map(x => payloadParser(x.message.content.toString()) as T),
       first()
     );
 
@@ -233,58 +249,58 @@ export class AmqpConnection {
     msgOptions: MessageHandlerOptions,
     channel: amqplib.ConfirmChannel
   ): Promise<void> {
-    const { exchange, routingKey } = msgOptions;
-
-    const { queue } = await channel.assertQueue(
-      msgOptions.queue || '',
-      msgOptions.queueOptions || undefined
-    );
-
+    const {
+      exchange,
+      routingKey,
+      messageParser = defaultPayloadParser,
+      queue: queueName = '',
+      queueOptions,
+      errorBehavior = this.config.defaultSubscribeErrorBehavior
+    } = msgOptions;
     const routingKeys = Array.isArray(routingKey) ? routingKey : [routingKey];
 
+    const { queue } = await channel.assertQueue(queueName, queueOptions);
     await Promise.all(
       routingKeys.map(x => channel.bindQueue(queue, exchange, x))
     );
 
     await channel.consume(queue, async msg => {
       try {
-        if (msg == null) {
-          throw new Error('Received null message');
+        if (msg === null) {
+          throw new AmpqConnectionException('Received null message');
         }
 
-        const message = JSON.parse(msg.content.toString()) as T;
+        const message = messageParser(msg.content.toString());
         const response = await handler(message, msg);
+
         if (response instanceof Nack) {
           channel.nack(msg, false, response.requeue);
           return;
         }
 
         if (response) {
-          throw new Error(
+          throw new AmpqConnectionException(
             'Received response from subscribe handler. Subscribe handlers should only return void'
           );
         }
 
         channel.ack(msg);
       } catch (e) {
-        if (msg == null) {
-          return;
-        } else {
-          const errorBehavior =
-            msgOptions.errorBehavior ||
-            this.config.defaultSubscribeErrorBehavior;
-          switch (errorBehavior) {
-            case MessageHandlerErrorBehavior.ACK: {
-              channel.ack(msg);
-              break;
-            }
-            case MessageHandlerErrorBehavior.REQUEUE: {
-              channel.nack(msg, false, true);
-              break;
-            }
-            default:
-              channel.nack(msg, false, false);
+        if (e instanceof AmpqConnectionException || msg === null) {
+          throw e;
+        }
+
+        switch (errorBehavior) {
+          case MessageHandlerErrorBehavior.ACK: {
+            channel.ack(msg);
+            break;
           }
+          case MessageHandlerErrorBehavior.REQUEUE: {
+            channel.nack(msg, false, true);
+            break;
+          }
+          default:
+            channel.nack(msg, false, false);
         }
       }
     });
@@ -310,15 +326,17 @@ export class AmqpConnection {
     rpcOptions: MessageHandlerOptions,
     channel: amqplib.ConfirmChannel
   ) {
-    const { exchange, routingKey } = rpcOptions;
-
-    const { queue } = await channel.assertQueue(
-      rpcOptions.queue || '',
-      rpcOptions.queueOptions || undefined
-    );
-
+    const {
+      exchange,
+      routingKey,
+      messageParser = defaultPayloadParser,
+      queue: queueName = '',
+      queueOptions,
+      errorBehavior = this.config.defaultRpcErrorBehavior
+    } = rpcOptions;
     const routingKeys = Array.isArray(routingKey) ? routingKey : [routingKey];
 
+    const { queue } = await channel.assertQueue(queueName, queueOptions);
     await Promise.all(
       routingKeys.map(x => channel.bindQueue(queue, exchange, x))
     );
@@ -326,10 +344,10 @@ export class AmqpConnection {
     await channel.consume(queue, async msg => {
       try {
         if (msg == null) {
-          throw new Error('Received null message');
+          throw new AmpqConnectionException('Received null message');
         }
 
-        const message = JSON.parse(msg.content.toString()) as T;
+        const message = messageParser(msg.content.toString());
         const response = await handler(message, msg);
 
         if (response instanceof Nack) {
@@ -343,23 +361,21 @@ export class AmqpConnection {
         }
         channel.ack(msg);
       } catch (e) {
-        if (msg == null) {
-          return;
-        } else {
-          const errorBehavior =
-            rpcOptions.errorBehavior || this.config.defaultRpcErrorBehavior;
-          switch (errorBehavior) {
-            case MessageHandlerErrorBehavior.ACK: {
-              channel.ack(msg);
-              break;
-            }
-            case MessageHandlerErrorBehavior.REQUEUE: {
-              channel.nack(msg, false, true);
-              break;
-            }
-            default:
-              channel.nack(msg, false, false);
+        if (e instanceof AmpqConnectionException || msg === null) {
+          throw e;
+        }
+
+        switch (errorBehavior) {
+          case MessageHandlerErrorBehavior.ACK: {
+            channel.ack(msg);
+            break;
           }
+          case MessageHandlerErrorBehavior.REQUEUE: {
+            channel.nack(msg, false, true);
+            break;
+          }
+          default:
+            channel.nack(msg, false, false);
         }
       }
     });
@@ -373,13 +389,20 @@ export class AmqpConnection {
   ) {
     // source amqplib channel is used directly to keep the behavior of throwing connection related errors
     if (!this.managedConnection.isConnected() || !this._channel) {
-      throw new Error('AMQP connection is not available');
+      throw new AmpqConnectionException('AMQP connection is not available');
     }
+
+    const exchangeOptions = this.config.exchanges.find(
+      e => e.name === exchange
+    );
+    const messageSerializer =
+      (exchangeOptions && exchangeOptions.messageSerializer) ||
+      defaultPayloadSerializer;
 
     this._channel.publish(
       exchange,
       routingKey,
-      Buffer.from(JSON.stringify(message)),
+      Buffer.from(messageSerializer(message)),
       options
     );
   }
