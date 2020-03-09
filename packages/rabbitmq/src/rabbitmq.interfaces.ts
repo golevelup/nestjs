@@ -15,6 +15,7 @@ export interface MessageOptions {
 export interface RequestOptions {
   exchange: string;
   routingKey: string;
+  correlationId?: string;
   timeout?: number;
   payload?: any;
 }
