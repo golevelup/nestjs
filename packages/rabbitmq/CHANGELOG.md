@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.11.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@1.10.0...@golevelup/nestjs-rabbitmq@1.11.0) (2020-03-26)
+
+### Features
+
+- **rabbitmq:** add correlationId to request ([81cd0ac](https://github.com/golevelup/nestjs/commit/81cd0ac))
+
 # [1.10.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@1.9.0...@golevelup/nestjs-rabbitmq@1.10.0) (2020-01-22)
 
 ### Features
