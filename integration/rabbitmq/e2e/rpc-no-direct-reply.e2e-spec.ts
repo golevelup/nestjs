@@ -1,30 +1,31 @@
 import {
   AmqpConnection,
   RabbitMQModule,
-  RabbitSubscribe,
+  RabbitRPC,
 } from '@golevelup/nestjs-rabbitmq';
 import { INestApplication, Injectable } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 
 const testHandler = jest.fn();
 
-const exchange = 'testSubscribeNoHandlerExhange';
-const routingKey1 = 'testSubscribeNoHandlerRoute1';
-const routingKey2 = 'testSubscribeNoHandlerRoute2';
+const prefix = 'testRpcNoDirectReply';
+const exchange = prefix;
+const routingKey = `${prefix}Route`;
 
 @Injectable()
-class SubscribeService {
-  @RabbitSubscribe({
+class RpcService {
+  @RabbitRPC({
     exchange,
-    routingKey: [routingKey1, routingKey2],
-    queue: 'subscribeNoHandlerQueue',
+    routingKey: [routingKey],
+    queue: `${prefix}Queue`,
   })
   handleSubscribe(message: object) {
     testHandler(message);
+    return 'pong';
   }
 }
 
-describe('Rabbit Subscribe Without Register Handlers', () => {
+describe('Rabbit Direct Reply To', () => {
   let app: INestApplication;
   let amqpConnection: AmqpConnection;
 
@@ -33,7 +34,7 @@ describe('Rabbit Subscribe Without Register Handlers', () => {
 
   beforeEach(async () => {
     const moduleFixture = await Test.createTestingModule({
-      providers: [SubscribeService],
+      providers: [RpcService],
       imports: [
         RabbitMQModule.forRoot(RabbitMQModule, {
           exchanges: [
@@ -44,7 +45,7 @@ describe('Rabbit Subscribe Without Register Handlers', () => {
           ],
           uri,
           connectionInitOptions: { wait: true, reject: true, timeout: 3000 },
-          registerHandlers: false,
+          enableDirectReplyTo: false,
         }),
       ],
     }).compile();
@@ -55,9 +56,14 @@ describe('Rabbit Subscribe Without Register Handlers', () => {
   });
 
   it('should not receive subscribe messages because register handlers is disabled', async done => {
-    [routingKey1, routingKey2].forEach((x, i) =>
-      amqpConnection.publish(exchange, x, `testMessage-${i}`),
-    );
+    await expect(
+      amqpConnection.request({
+        exchange,
+        routingKey,
+        payload: 'ping',
+        timeout: 2000,
+      }),
+    ).rejects.toThrow();
 
     setTimeout(() => {
       expect(testHandler).not.toHaveBeenCalled();

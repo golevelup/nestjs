@@ -1,5 +1,5 @@
-import * as amqplib from 'amqplib';
 import * as amqpConnectionManager from 'amqp-connection-manager';
+import * as amqplib from 'amqplib';
 
 export interface RabbitMQExchangeConfig {
   name: string;
@@ -64,6 +64,7 @@ export interface RabbitMQConfig {
   connectionInitOptions?: ConnectionInitOptions;
   connectionManagerOptions?: amqpConnectionManager.AmqpConnectionManagerOptions;
   registerHandlers?: boolean;
+  enableDirectReplyTo?: boolean;
 }
 
 export type RabbitHandlerType = 'rpc' | 'subscribe';
