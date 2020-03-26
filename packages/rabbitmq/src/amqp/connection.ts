@@ -1,24 +1,24 @@
+import { Logger } from '@nestjs/common';
+import * as amqpcon from 'amqp-connection-manager';
 import * as amqplib from 'amqplib';
-import { interval, race, Subject, throwError, empty } from 'rxjs';
+import { empty, interval, race, Subject, throwError } from 'rxjs';
 import {
+  catchError,
   filter,
   first,
   map,
   take,
-  timeoutWith,
-  catchError
+  timeoutWith
 } from 'rxjs/operators';
 import * as uuid from 'uuid';
-import * as amqpcon from 'amqp-connection-manager';
 import {
+  ConnectionInitOptions,
   MessageHandlerErrorBehavior,
   MessageHandlerOptions,
   RabbitMQConfig,
-  RequestOptions,
-  ConnectionInitOptions
+  RequestOptions
 } from '../rabbitmq.interfaces';
 import { Nack, RpcResponse, SubscribeResponse } from './handlerResponses';
-import { Logger } from '@nestjs/common';
 
 const DIRECT_REPLY_QUEUE = 'amq.rabbitmq.reply-to';
 
@@ -40,7 +40,8 @@ const defaultConfig = {
     reject: true
   },
   connectionManagerOptions: {},
-  registerHandlers: true
+  registerHandlers: true,
+  enableDirectReplyTo: true
 };
 
 export class AmqpConnection {
@@ -152,7 +153,10 @@ export class AmqpConnection {
     );
 
     await channel.prefetch(this.config.prefetchCount);
-    await this.initDirectReplyQueue(channel);
+
+    if (this.config.enableDirectReplyTo) {
+      await this.initDirectReplyQueue(channel);
+    }
 
     this.initialized.next();
   }

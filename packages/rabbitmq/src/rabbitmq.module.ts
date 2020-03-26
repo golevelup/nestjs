@@ -120,12 +120,22 @@ export class RabbitMQModule
 
           const { exchange, routingKey, queue } = config;
 
-          this.logger.log(
-            `${discoveredMethod.parentClass.name}.${
-              discoveredMethod.methodName
-            } {${config.type}} -> ${exchange}::${routingKey}::${queue ||
-              'amqpgen'}`
-          );
+          const handlerDisplayName = `${discoveredMethod.parentClass.name}.${
+            discoveredMethod.methodName
+          } {${config.type}} -> ${exchange}::${routingKey}::${queue ||
+            'amqpgen'}`;
+
+          if (
+            config.type === 'rpc' &&
+            !this.amqpConnection.configuration.enableDirectReplyTo
+          ) {
+            this.logger.warn(
+              `Direct Reply-To Functionality is disabled. RPC handler ${handlerDisplayName} will not be registered`
+            );
+            return;
+          }
+
+          this.logger.log(handlerDisplayName);
 
           return config.type === 'rpc'
             ? this.amqpConnection.createRpc(handler, config)
