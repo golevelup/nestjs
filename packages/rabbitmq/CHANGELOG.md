@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.12.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@1.11.0...@golevelup/nestjs-rabbitmq@1.12.0) (2020-03-26)
+
+### Features
+
+- **rabbitmq:** optional direct reply-to ([3b7625c](https://github.com/golevelup/nestjs/commit/3b7625c)), closes [#109](https://github.com/golevelup/nestjs/issues/109)
+
 # [1.11.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@1.10.0...@golevelup/nestjs-rabbitmq@1.11.0) (2020-03-26)
 
 ### Features
