@@ -30,8 +30,8 @@ export function createModuleConfigProvider<T>(
       {
         provide,
         useFactory: options.useFactory,
-        inject: options.inject || []
-      }
+        inject: options.inject || [],
+      },
     ];
   }
 
@@ -46,8 +46,8 @@ export function createModuleConfigProvider<T>(
           options,
           'useExisting.provide',
           (options.useExisting as any).value.constructor.name
-        )
-    ]
+        ),
+    ],
   };
 
   if (options.useClass) {
@@ -55,8 +55,8 @@ export function createModuleConfigProvider<T>(
       optionsProvider,
       {
         provide: options.useClass,
-        useClass: options.useClass
-      }
+        useClass: options.useClass,
+      },
     ];
   }
 
@@ -67,8 +67,8 @@ export function createModuleConfigProvider<T>(
         provide:
           options.useExisting.provide ||
           options.useExisting.value.constructor.name,
-        useValue: options.useExisting.value
-      }
+        useValue: options.useExisting.value,
+      },
     ];
   }
 
@@ -96,11 +96,11 @@ export interface IConfigurableDynamicRootModule<T, U> {
 export function createConfigurableDynamicRootModule<T, U>(
   moduleConfigToken: InjectionToken,
   moduleProperties: Partial<
-    Pick<ModuleMetadata, 'imports' | 'exports' | 'providers'>
+    Pick<ModuleMetadata, 'imports' | 'exports' | 'providers' | 'controllers'>
   > = {
     imports: [],
     exports: [],
-    providers: []
+    providers: [],
   }
 ) {
   abstract class DynamicRootModule {
@@ -114,16 +114,16 @@ export function createConfigurableDynamicRootModule<T, U>(
         module: moduleCtor,
         imports: [
           ...(asyncModuleConfig.imports || []),
-          ...(moduleProperties.imports || [])
+          ...(moduleProperties.imports || []),
         ],
         exports: [
           ...(asyncModuleConfig.exports || []),
-          ...(moduleProperties.exports || [])
+          ...(moduleProperties.exports || []),
         ],
         providers: [
           ...createModuleConfigProvider(moduleConfigToken, asyncModuleConfig),
-          ...(moduleProperties.providers || [])
-        ]
+          ...(moduleProperties.providers || []),
+        ],
       };
 
       DynamicRootModule.moduleSubject.next(dynamicModule);
@@ -132,17 +132,18 @@ export function createConfigurableDynamicRootModule<T, U>(
     }
 
     static forRoot(moduleCtor: Type<T>, moduleConfig: U): DynamicModule {
-      const dynamicModule = {
+      const dynamicModule: DynamicModule = {
         module: moduleCtor,
         imports: [...(moduleProperties.imports || [])],
         exports: [...(moduleProperties.exports || [])],
+        controllers: [...(moduleProperties.controllers || [])],
         providers: [
           {
             provide: moduleConfigToken,
-            useValue: moduleConfig
+            useValue: moduleConfig,
           },
-          ...(moduleProperties.providers || [])
-        ]
+          ...(moduleProperties.providers || []),
+        ],
       };
 
       DynamicRootModule.moduleSubject.next(dynamicModule);

@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.12.1-rc.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@1.12.0...@golevelup/nestjs-rabbitmq@1.12.1-rc.0) (2020-03-27)
+
+### Features
+
+- **hasura:** event handling service ([a98ab7f](https://github.com/golevelup/nestjs/commit/a98ab7f)), closes [#116](https://github.com/golevelup/nestjs/issues/116)
+
 # [1.12.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@1.11.0...@golevelup/nestjs-rabbitmq@1.12.0) (2020-03-26)
 
 ### Features
