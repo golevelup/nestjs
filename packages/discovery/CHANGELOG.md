@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.2.4-rc.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-discovery@2.2.3...@golevelup/nestjs-discovery@2.2.4-rc.0) (2020-03-27)
+
+### Features
+
+- **hasura:** event handling service ([a98ab7f](https://github.com/golevelup/nestjs/commit/a98ab7f)), closes [#116](https://github.com/golevelup/nestjs/issues/116)
+
 ## [2.2.3](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-discovery@2.2.2...@golevelup/nestjs-discovery@2.2.3) (2020-01-12)
 
 ### Bug Fixes
