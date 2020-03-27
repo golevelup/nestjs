@@ -18,6 +18,7 @@ import {
   HasuraEventHandlerConfig,
   HasuraModuleConfig,
 } from './hasura.interfaces';
+
 @Module({
   imports: [DiscoveryModule],
 })
