@@ -1,7 +1,7 @@
 import { DiscoveryModule, DiscoveryService } from '@golevelup/nestjs-discovery';
 import {
   createConfigurableDynamicRootModule,
-  IConfigurableDynamicRootModule
+  IConfigurableDynamicRootModule,
 } from '@golevelup/nestjs-modules';
 import { DynamicModule, Logger, Module, OnModuleInit } from '@nestjs/common';
 import { ExternalContextCreator } from '@nestjs/core/helpers/external-context-creator';
@@ -16,7 +16,7 @@ declare const placeholder: IConfigurableDynamicRootModule<
 >;
 
 @Module({
-  imports: [DiscoveryModule]
+  imports: [DiscoveryModule],
 })
 export class RabbitMQModule
   extends createConfigurableDynamicRootModule<RabbitMQModule, RabbitMQConfig>(
@@ -30,10 +30,10 @@ export class RabbitMQModule
           ): Promise<AmqpConnection> => {
             return RabbitMQModule.AmqpConnectionFactory(config);
           },
-          inject: [RABBIT_CONFIG_TOKEN]
-        }
+          inject: [RABBIT_CONFIG_TOKEN],
+        },
       ],
-      exports: [AmqpConnection]
+      exports: [AmqpConnection],
     }
   )
   implements OnModuleInit {
@@ -67,10 +67,10 @@ export class RabbitMQModule
           provide: AmqpConnection,
           useFactory: async (): Promise<AmqpConnection> => {
             return RabbitMQModule.AmqpConnectionFactory(config);
-          }
-        }
+          },
+        },
       ],
-      exports: [AmqpConnection]
+      exports: [AmqpConnection],
     };
   }
 
@@ -80,10 +80,10 @@ export class RabbitMQModule
       providers: [
         {
           provide: AmqpConnection,
-          useValue: connection
-        }
+          useValue: connection,
+        },
       ],
-      exports: [AmqpConnection]
+      exports: [AmqpConnection],
     };
   }
 
@@ -104,10 +104,11 @@ export class RabbitMQModule
 
     const grouped = groupBy(
       rabbitMeta,
-      x => x.discoveredMethod.parentClass.name
+      (x) => x.discoveredMethod.parentClass.name
     );
 
     const providerKeys = Object.keys(grouped);
+
     for (const key of providerKeys) {
       this.logger.log(`Registering rabbitmq handlers from ${key}`);
       await Promise.all(
@@ -122,8 +123,9 @@ export class RabbitMQModule
 
           const handlerDisplayName = `${discoveredMethod.parentClass.name}.${
             discoveredMethod.methodName
-          } {${config.type}} -> ${exchange}::${routingKey}::${queue ||
-            'amqpgen'}`;
+          } {${config.type}} -> ${exchange}::${routingKey}::${
+            queue || 'amqpgen'
+          }`;
 
           if (
             config.type === 'rpc' &&

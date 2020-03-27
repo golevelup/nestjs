@@ -1,3 +1,4 @@
+import { HasuraModule } from '@golevelup/nestjs-hasura';
 import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
@@ -19,6 +20,7 @@ const rabbitHost = process.env.NODE_ENV === 'ci' ? 'rabbit' : 'localhost';
         connectionInitOptions: { wait: true, reject: true, timeout: 3000 },
       }),
     }),
+    HasuraModule.forRoot(HasuraModule, { prop: 'something' }),
   ],
   controllers: [AppController],
   providers: [RpcService],
