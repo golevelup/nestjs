@@ -1,6 +1,6 @@
 {
   "name": "@golevelup/nestjs-hasura",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Badass utilities for integrating Hasura and NestJS",
   "author": "Jesse Carter <jesse.r.carter@gmail.com>",
   "homepage": "https://github.com/golevelup/nestjs#readme",
@@ -36,7 +36,7 @@
     "access": "public"
   },
   "dependencies": {
-    "@golevelup/nestjs-common": "^1.3.1",
+    "@golevelup/nestjs-common": "^1.4.0",
     "@golevelup/nestjs-discovery": "^2.3.0",
     "@golevelup/nestjs-modules": "^0.4.0"
   },

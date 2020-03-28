@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.14.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@1.13.0...@golevelup/nestjs-rabbitmq@1.14.0) (2020-03-28)
+
+### Features
+
+- **common:** injectable decorator factory ([42b2f34](https://github.com/golevelup/nestjs/commit/42b2f34)), closes [#120](https://github.com/golevelup/nestjs/issues/120)
+
 # [1.13.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@1.12.0...@golevelup/nestjs-rabbitmq@1.13.0) (2020-03-27)
 
 ### Features
