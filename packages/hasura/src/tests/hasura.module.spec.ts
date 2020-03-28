@@ -85,6 +85,6 @@ describe('Hasura Module (e2e)', () => {
       .set(secretHeader, secret)
       .send(eventPayload)
       .expect(202)
-      .then((x) => expect(eventHandlerFn).toHaveBeenCalledTimes(1));
+      .then(() => expect(eventHandlerFn).toHaveBeenCalledTimes(1));
   });
 });
