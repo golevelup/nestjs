@@ -38,6 +38,7 @@
     "access": "public"
   },
   "dependencies": {
+    "@golevelup/nestjs-common": "^1.4.0",
     "@golevelup/nestjs-discovery": "^2.3.0",
     "@golevelup/nestjs-modules": "^0.4.0",
     "graphql-request": "^1.8.2"
