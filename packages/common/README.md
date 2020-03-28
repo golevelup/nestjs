@@ -8,6 +8,13 @@
 
 Utility functions and low level reusable modules that provide building blocks for the @levelup-nestjs and @nestjs ecosystem.
 
+## Inject Decorator Factory (makeInjectableDecorator)
+
+Creates a decorator that can be used as a convenience to inject a specific token
+
+Instead of using `@Inject(SOME_THING_TOKEN)` this can be used to create a new named Decorator such as `@InjectSomeThing()` which will hide the token details from users making APIs easier
+to consume
+
 ## Mixins
 
 The mixin pattern is particularly useful with NestJS components like `Interceptors` as a mechanism to provide both configuration while still allowing the component to participate with Nest's `Dependency Injection`.

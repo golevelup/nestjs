@@ -1,5 +1,6 @@
+import { makeInjectableDecorator } from '@golevelup/nestjs-common';
 import { SetMetadata } from '@nestjs/common';
-import { RABBIT_HANDLER } from './rabbitmq.constants';
+import { RABBIT_CONFIG_TOKEN, RABBIT_HANDLER } from './rabbitmq.constants';
 import { RabbitHandlerConfig } from './rabbitmq.interfaces';
 
 export const makeRabbitDecorator = <T extends Partial<RabbitHandlerConfig>>(
@@ -18,3 +19,7 @@ export const RabbitHandler = (config: RabbitHandlerConfig) => (
 export const RabbitSubscribe = makeRabbitDecorator({ type: 'subscribe' });
 
 export const RabbitRPC = makeRabbitDecorator({ type: 'rpc' });
+
+export const InjectRabbitMQConfig = makeInjectableDecorator(
+  RABBIT_CONFIG_TOKEN
+);

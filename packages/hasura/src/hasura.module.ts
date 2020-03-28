@@ -2,7 +2,6 @@ import { DiscoveryModule, DiscoveryService } from '@golevelup/nestjs-discovery';
 import { createConfigurableDynamicRootModule } from '@golevelup/nestjs-modules';
 import {
   BadRequestException,
-  Inject,
   Logger,
   Module,
   OnModuleInit,
@@ -10,6 +9,7 @@ import {
 import { ExternalContextCreator } from '@nestjs/core/helpers/external-context-creator';
 import { flatten, groupBy } from 'lodash';
 import { HASURA_EVENT_HANDLER, HASURA_MODULE_CONFIG } from './hasura.constants';
+import { InjectHasuraConfig } from './hasura.decorators';
 import { EventHandlerController } from './hasura.event-handler.controller';
 import { HasuraEventHandlerHeaderGuard } from './hasura.event-handler.guard';
 import { EventHandlerService } from './hasura.event-handler.service';
@@ -36,7 +36,7 @@ export class HasuraModule
   constructor(
     private readonly discover: DiscoveryService,
     private readonly externalContextCreator: ExternalContextCreator,
-    @Inject(HASURA_MODULE_CONFIG)
+    @InjectHasuraConfig()
     private readonly hasuraModuleConfig: HasuraModuleConfig
   ) {
     super();
