@@ -10,5 +10,4 @@ import { Inject } from '@nestjs/common';
  */
 export const makeInjectableDecorator = (
   token: string | symbol
-): (() => ParameterDecorator) => () => (target, key, descriptor) =>
-  Inject(token)(target, key, descriptor);
+): (() => ParameterDecorator) => () => Inject(token);
