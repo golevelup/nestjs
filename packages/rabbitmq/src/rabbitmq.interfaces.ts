@@ -36,7 +36,13 @@ export interface QueueOptions {
 export enum MessageHandlerErrorBehavior {
   ACK,
   NACK,
-  REQUEUE
+  REQUEUE,
+  /**
+   * If an exception occurs while handling the message, the error will be serialized and published on the `replyTo` queue.
+   * If `replyTo` is not provided, the message will be NACKed without requeueing.
+   * If publish fails, message will be NACKed and requeued.
+   */
+  REPLYERRORANDACK,
 }
 
 export interface MessageHandlerOptions {

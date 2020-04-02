@@ -8,7 +8,7 @@ import {
   first,
   map,
   take,
-  timeoutWith
+  timeoutWith,
 } from 'rxjs/operators';
 import * as uuid from 'uuid';
 import {
@@ -16,7 +16,7 @@ import {
   MessageHandlerErrorBehavior,
   MessageHandlerOptions,
   RabbitMQConfig,
-  RequestOptions
+  RequestOptions,
 } from '../rabbitmq.interfaces';
 import { Nack, RpcResponse, SubscribeResponse } from './handlerResponses';
 
@@ -37,11 +37,11 @@ const defaultConfig = {
   connectionInitOptions: {
     wait: true,
     timeout: 5000,
-    reject: true
+    reject: true,
   },
   connectionManagerOptions: {},
   registerHandlers: true,
-  enableDirectReplyTo: true
+  enableDirectReplyTo: true,
 };
 
 export class AmqpConnection {
@@ -84,7 +84,7 @@ export class AmqpConnection {
   public async init(): Promise<void> {
     const options: Required<ConnectionInitOptions> = {
       ...defaultConfig.connectionInitOptions,
-      ...this.config.connectionInitOptions
+      ...this.config.connectionInitOptions,
     };
     const { wait, timeout: timeoutInterval, reject } = options;
 
@@ -102,7 +102,7 @@ export class AmqpConnection {
             )
           )
         ),
-        catchError(err => (reject ? throwError(err) : empty()))
+        catchError((err) => (reject ? throwError(err) : empty()))
       )
       .toPromise<any>();
   }
@@ -121,7 +121,7 @@ export class AmqpConnection {
     });
 
     this._managedChannel = this._managedConnection.createChannel({
-      name: AmqpConnection.name
+      name: AmqpConnection.name,
     });
 
     this._managedChannel.on('connect', () =>
@@ -136,7 +136,7 @@ export class AmqpConnection {
       this.logger.log('Successfully closed a RabbitMQ channel')
     );
 
-    await this._managedChannel.addSetup(c => this.setupInitChannel(c));
+    await this._managedChannel.addSetup((c) => this.setupInitChannel(c));
   }
 
   private async setupInitChannel(
@@ -144,7 +144,7 @@ export class AmqpConnection {
   ): Promise<void> {
     this._channel = channel;
 
-    this.config.exchanges.forEach(async x =>
+    this.config.exchanges.forEach(async (x) =>
       channel.assertExchange(
         x.name,
         x.type || this.config.defaultExchangeType,
@@ -165,20 +165,20 @@ export class AmqpConnection {
     // Set up a consumer on the Direct Reply-To queue to facilitate RPC functionality
     await channel.consume(
       DIRECT_REPLY_QUEUE,
-      async msg => {
+      async (msg) => {
         if (msg == null) {
           return;
         }
 
         const correlationMessage: CorrelationMessage = {
           correlationId: msg.properties.correlationId.toString(),
-          message: JSON.parse(msg.content.toString())
+          message: JSON.parse(msg.content.toString()),
         };
 
         this.messageSubject.next(correlationMessage);
       },
       {
-        noAck: true
+        noAck: true,
       }
     );
   }
@@ -191,14 +191,14 @@ export class AmqpConnection {
     const payload = requestOptions.payload || {};
 
     const response$ = this.messageSubject.pipe(
-      filter(x => x.correlationId === correlationId),
-      map(x => x.message as T),
+      filter((x) => x.correlationId === correlationId),
+      map((x) => x.message as T),
       first()
     );
 
     this.publish(requestOptions.exchange, requestOptions.routingKey, payload, {
       replyTo: DIRECT_REPLY_QUEUE,
-      correlationId
+      correlationId,
     });
 
     const timeout$ = interval(timeout).pipe(
@@ -215,19 +215,19 @@ export class AmqpConnection {
 
   public async createSubscriber<T>(
     handler: (
-      msg: T,
+      msg: T | undefined,
       rawMessage?: amqplib.ConsumeMessage
     ) => Promise<SubscribeResponse>,
     msgOptions: MessageHandlerOptions
   ) {
-    return this._managedChannel.addSetup(channel =>
+    return this._managedChannel.addSetup((channel) =>
       this.setupSubscriberChannel<T>(handler, msgOptions, channel)
     );
   }
 
   private async setupSubscriberChannel<T>(
     handler: (
-      msg: T,
+      msg: T | undefined,
       rawMessage?: amqplib.ConsumeMessage
     ) => Promise<SubscribeResponse>,
     msgOptions: MessageHandlerOptions,
@@ -243,17 +243,16 @@ export class AmqpConnection {
     const routingKeys = Array.isArray(routingKey) ? routingKey : [routingKey];
 
     await Promise.all(
-      routingKeys.map(x => channel.bindQueue(queue, exchange, x))
+      routingKeys.map((x) => channel.bindQueue(queue, exchange, x))
     );
 
-    await channel.consume(queue, async msg => {
+    await channel.consume(queue, async (msg) => {
       try {
         if (msg == null) {
           throw new Error('Received null message');
         }
 
-        const message = JSON.parse(msg.content.toString()) as T;
-        const response = await handler(message, msg);
+        const response = await this.handleMessage(handler, msg);
         if (response instanceof Nack) {
           channel.nack(msg, false, response.requeue);
           return;
@@ -282,6 +281,10 @@ export class AmqpConnection {
               channel.nack(msg, false, true);
               break;
             }
+            case MessageHandlerErrorBehavior.REPLYERRORANDACK: {
+              this.handleReplyAndAckError(channel, msg, e);
+              break;
+            }
             default:
               channel.nack(msg, false, false);
           }
@@ -292,19 +295,19 @@ export class AmqpConnection {
 
   public async createRpc<T, U>(
     handler: (
-      msg: T,
+      msg: T | undefined,
       rawMessage?: amqplib.ConsumeMessage
     ) => Promise<RpcResponse<U>>,
     rpcOptions: MessageHandlerOptions
   ) {
-    return this._managedChannel.addSetup(channel =>
+    return this._managedChannel.addSetup((channel) =>
       this.setupRpcChannel<T, U>(handler, rpcOptions, channel)
     );
   }
 
   public async setupRpcChannel<T, U>(
     handler: (
-      msg: T,
+      msg: T | undefined,
       rawMessage?: amqplib.ConsumeMessage
     ) => Promise<RpcResponse<U>>,
     rpcOptions: MessageHandlerOptions,
@@ -320,18 +323,16 @@ export class AmqpConnection {
     const routingKeys = Array.isArray(routingKey) ? routingKey : [routingKey];
 
     await Promise.all(
-      routingKeys.map(x => channel.bindQueue(queue, exchange, x))
+      routingKeys.map((x) => channel.bindQueue(queue, exchange, x))
     );
 
-    await channel.consume(queue, async msg => {
+    await channel.consume(queue, async (msg) => {
       try {
         if (msg == null) {
           throw new Error('Received null message');
         }
 
-        const message = JSON.parse(msg.content.toString()) as T;
-        const response = await handler(message, msg);
-
+        const response = await this.handleMessage(handler, msg);
         if (response instanceof Nack) {
           channel.nack(msg, false, response.requeue);
           return;
@@ -355,6 +356,10 @@ export class AmqpConnection {
             }
             case MessageHandlerErrorBehavior.REQUEUE: {
               channel.nack(msg, false, true);
+              break;
+            }
+            case MessageHandlerErrorBehavior.REPLYERRORANDACK: {
+              this.handleReplyAndAckError(channel, msg, e);
               break;
             }
             default:
@@ -382,5 +387,59 @@ export class AmqpConnection {
       Buffer.from(JSON.stringify(message)),
       options
     );
+  }
+
+  private handleReplyAndAckError(
+    channel: amqplib.Channel,
+    msg: amqplib.ConsumeMessage,
+    error: any
+  ) {
+    try {
+      const { replyTo, correlationId } = msg.properties;
+      if (replyTo) {
+        this.publishError('', replyTo, error, { correlationId });
+      } else {
+        channel.nack(msg, false, false);
+      }
+    } catch {
+      channel.nack(msg, false, true);
+    }
+  }
+
+  private publishError(
+    exchange: string,
+    routingKey: string,
+    error: any,
+    options?: amqplib.Options.Publish
+  ) {
+    if (error instanceof Error) {
+      error = {
+        name: error.name,
+        message: error.message,
+        stack: error.stack,
+      };
+    }
+
+    this.publish(exchange, routingKey, error, options);
+  }
+
+  private handleMessage<T, U>(
+    handler: (
+      msg: T | undefined,
+      rawMessage?: amqplib.ConsumeMessage
+    ) => Promise<U>,
+    msg: amqplib.ConsumeMessage
+  ) {
+    let message: T | undefined = undefined;
+    if (msg.content) {
+      try {
+        message = JSON.parse(msg.content.toString()) as T;
+      } catch {
+        // Let handler handle parsing error, it has the raw message anyway
+        message = undefined;
+      }
+    }
+
+    return handler(message, msg);
   }
 }
