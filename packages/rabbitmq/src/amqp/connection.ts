@@ -233,7 +233,7 @@ export class AmqpConnection {
     msgOptions: MessageHandlerOptions,
     channel: amqplib.ConfirmChannel
   ): Promise<void> {
-    const { exchange, routingKey } = msgOptions;
+    const { exchange, routingKey, allowNonJsonMessages } = msgOptions;
 
     const { queue } = await channel.assertQueue(
       msgOptions.queue || '',
@@ -252,7 +252,12 @@ export class AmqpConnection {
           throw new Error('Received null message');
         }
 
-        const response = await this.handleMessage(handler, msg);
+        const response = await this.handleMessage(
+          handler,
+          msg,
+          allowNonJsonMessages
+        );
+
         if (response instanceof Nack) {
           channel.nack(msg, false, response.requeue);
           return;
@@ -279,10 +284,6 @@ export class AmqpConnection {
             }
             case MessageHandlerErrorBehavior.REQUEUE: {
               channel.nack(msg, false, true);
-              break;
-            }
-            case MessageHandlerErrorBehavior.REPLYERRORANDACK: {
-              this.handleReplyAndAckError(channel, msg, e);
               break;
             }
             default:
@@ -313,7 +314,7 @@ export class AmqpConnection {
     rpcOptions: MessageHandlerOptions,
     channel: amqplib.ConfirmChannel
   ) {
-    const { exchange, routingKey } = rpcOptions;
+    const { exchange, routingKey, allowNonJsonMessages } = rpcOptions;
 
     const { queue } = await channel.assertQueue(
       rpcOptions.queue || '',
@@ -332,7 +333,12 @@ export class AmqpConnection {
           throw new Error('Received null message');
         }
 
-        const response = await this.handleMessage(handler, msg);
+        const response = await this.handleMessage(
+          handler,
+          msg,
+          allowNonJsonMessages
+        );
+
         if (response instanceof Nack) {
           channel.nack(msg, false, response.requeue);
           return;
@@ -381,12 +387,18 @@ export class AmqpConnection {
       throw new Error('AMQP connection is not available');
     }
 
-    this._channel.publish(
-      exchange,
-      routingKey,
-      Buffer.from(JSON.stringify(message)),
-      options
-    );
+    let buffer: Buffer;
+    if (message instanceof Buffer) {
+      buffer = message;
+    } else if (message instanceof Uint8Array) {
+      buffer = Buffer.from(message);
+    } else if (message != null) {
+      buffer = Buffer.from(JSON.stringify(message));
+    } else {
+      buffer = Buffer.alloc(0);
+    }
+
+    this._channel.publish(exchange, routingKey, buffer, options);
   }
 
   private handleReplyAndAckError(
@@ -398,6 +410,7 @@ export class AmqpConnection {
       const { replyTo, correlationId } = msg.properties;
       if (replyTo) {
         this.publishError('', replyTo, error, { correlationId });
+        channel.ack(msg);
       } else {
         channel.nack(msg, false, false);
       }
@@ -413,14 +426,17 @@ export class AmqpConnection {
     options?: amqplib.Options.Publish
   ) {
     if (error instanceof Error) {
-      error = {
-        name: error.name,
-        message: error.message,
-        stack: error.stack,
-      };
+      error = error.message;
+    } else if (typeof error !== 'string') {
+      error = JSON.stringify(error);
     }
 
-    this.publish(exchange, routingKey, error, options);
+    this.publish(
+      exchange,
+      routingKey,
+      { status: 'error', message: error },
+      options
+    );
   }
 
   private handleMessage<T, U>(
@@ -428,15 +444,20 @@ export class AmqpConnection {
       msg: T | undefined,
       rawMessage?: amqplib.ConsumeMessage
     ) => Promise<U>,
-    msg: amqplib.ConsumeMessage
+    msg: amqplib.ConsumeMessage,
+    allowNonJsonMessages?: boolean
   ) {
     let message: T | undefined = undefined;
     if (msg.content) {
-      try {
+      if (allowNonJsonMessages) {
+        try {
+          message = JSON.parse(msg.content.toString()) as T;
+        } catch {
+          // Let handler handle parsing error, it has the raw message anyway
+          message = undefined;
+        }
+      } else {
         message = JSON.parse(msg.content.toString()) as T;
-      } catch {
-        // Let handler handle parsing error, it has the raw message anyway
-        message = undefined;
       }
     }
 

@@ -11,6 +11,7 @@ const testHandler = jest.fn();
 const exchange = 'testSubscribeExhange';
 const routingKey1 = 'testSubscribeRoute1';
 const routingKey2 = 'testSubscribeRoute2';
+const nonJsonRoutingKey = 'nonJsonSubscribeRoute';
 
 @Injectable()
 class SubscribeService {
@@ -20,6 +21,16 @@ class SubscribeService {
     queue: 'subscribeQueue',
   })
   handleSubscribe(message: object) {
+    testHandler(message);
+  }
+
+  @RabbitSubscribe({
+    exchange,
+    routingKey: [nonJsonRoutingKey],
+    queue: 'subscribeQueue',
+    allowNonJsonMessages: true,
+  })
+  nonJsonHandleSubscribe(message: any) {
     testHandler(message);
   }
 }
@@ -48,21 +59,56 @@ describe('Rabbit Subscribe', () => {
       ],
     }).compile();
 
+    jest.resetAllMocks();
+
     app = moduleFixture.createNestApplication();
     amqpConnection = app.get<AmqpConnection>(AmqpConnection);
     await app.init();
   });
 
-  it('should receive subscribe messages and handle them', async done => {
-    [routingKey1, routingKey2].forEach((x, i) =>
+  it('should receive subscribe messages and handle them', async (done) => {
+    [routingKey1, routingKey2, nonJsonRoutingKey].forEach((x, i) =>
       amqpConnection.publish(exchange, x, `testMessage-${i}`),
     );
 
     setTimeout(() => {
-      expect(testHandler).toHaveBeenCalledTimes(2);
+      expect(testHandler).toHaveBeenCalledTimes(3);
       expect(testHandler).toHaveBeenCalledWith(`testMessage-0`);
       expect(testHandler).toHaveBeenCalledWith(`testMessage-1`);
+      expect(testHandler).toHaveBeenCalledWith(`testMessage-2`);
       done();
     }, 50);
   });
+
+  it('should receive undefined argument when subscriber allows non-json messages and message is invalid', async (done) => {
+    amqpConnection.publish(exchange, nonJsonRoutingKey, undefined);
+    amqpConnection.publish(exchange, nonJsonRoutingKey, Buffer.alloc(0));
+    amqpConnection.publish(exchange, nonJsonRoutingKey, Buffer.from('{a:'));
+
+    setTimeout(() => {
+      expect(testHandler).toHaveBeenCalledTimes(3);
+      expect(testHandler).toHaveBeenNthCalledWith(1, undefined);
+      expect(testHandler).toHaveBeenNthCalledWith(2, undefined);
+      expect(testHandler).toHaveBeenNthCalledWith(3, undefined);
+      done();
+    }, 50);
+  });
+
+  // it('should receive undefined argument when subscriber allows non-json messages and message is empty', async (done) => {
+
+  //   setTimeout(() => {
+  //     expect(testHandler).toHaveBeenCalledTimes(1);
+  //     expect(testHandler).toHaveBeenCalledWith(undefined);
+  //     done();
+  //   }, 50);
+  // });
+
+  // it('should receive undefined argument when subscriber allows non-json messages and message is unparseable by JSON', async (done) => {
+
+  //   setTimeout(() => {
+  //     expect(testHandler).toHaveBeenCalledTimes(1);
+  //     expect(testHandler).toHaveBeenCalledWith(undefined);
+  //     done();
+  //   }, 50);
+  // });
 });
