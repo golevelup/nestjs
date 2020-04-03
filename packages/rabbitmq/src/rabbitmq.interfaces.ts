@@ -51,6 +51,7 @@ export interface MessageHandlerOptions {
   queue?: string;
   queueOptions?: QueueOptions;
   errorBehavior?: MessageHandlerErrorBehavior;
+  allowNonJsonMessages?: boolean;
 }
 
 export interface ConnectionInitOptions {
