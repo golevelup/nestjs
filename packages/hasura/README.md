@@ -1,21 +1,22 @@
 # @golevelup/nestjs-hasura
 
+Leverage NestJS to make incorporating business logic and event processing easier with Hasura. 🚀
+
 <p align="center">
 <a href="https://www.npmjs.com/package/@golevelup/nestjs-hasura"><img src="https://img.shields.io/npm/v/@golevelup/nestjs-hasura.svg?style=flat" alt="version" /></a>
 <a href="https://www.npmjs.com/package/@golevelup/nestjs-hasura"><img alt="downloads" src="https://img.shields.io/npm/dt/@golevelup/nestjs-hasura.svg?style=flat"></a>
 <img alt="license" src="https://img.shields.io/npm/l/@golevelup/nestjs-hasura.svg">
 </p>
 
-## Motivation
-
-Leverage NestJS to make incorporating business logic and event processing easier with Hasura. 🚀
-
 ## Features
 
-- ✅ 🎉 Exposes an API endpoint from your NestJS application at to be used for event processing from Hasura. Defaults to `/hasura/events/` but can be easily configured
-- ✅ 🔒 Automatically validates that the event payload was actually sent from Hasura using configurable secrets
-- ✅ 🕵️ Discovers providers from your application decorated with `HasuraEventHandler` and routes incoming events to them
-- ✅ 🧭 Leverage the table and schema name of the event to route to the appropriate handler
+- 🎉 Exposes an API endpoint from your NestJS application at to be used for event processing from Hasura. Defaults to `/hasura/events/` but can be easily configured
+
+- 🔒 Automatically validates that the event payload was actually sent from Hasura using configurable secrets
+
+- 🕵️ Discovers providers from your application decorated with `HasuraEventHandler` and routes incoming events to them
+
+- 🧭 Leverage the table and schema name of the event to route to the appropriate handler
 
 ## Usage
 
@@ -50,7 +51,7 @@ export class AppModule {
 
 ### Configuration
 
-The Hasura Module supports both the `forRoot` and `forRootAsync` patterns for configuration, so you can easily retrieve the the necessary config values from a `ConfigService` or other provider.
+The Hasura Module supports both the `forRoot` and `forRootAsync` patterns for configuration, so you can easily retrieve the necessary config values from a `ConfigService` or other provider.
 
 ### Registering Event Handlers
 

@@ -1,0 +1,61 @@
+{
+  "name": "@golevelup/nestjs-stripe",
+  "version": "0.0.0",
+  "description": "Badass utilities for integrating stripe and NestJS",
+  "author": "Jesse Carter <jesse.r.carter@gmail.com>",
+  "homepage": "https://github.com/golevelup/nestjs#readme",
+  "license": "MIT",
+  "keywords": [
+    "NestJS",
+    "typescript",
+    "webhook",
+    "stripe"
+  ],
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/golevelup/nestjs.git"
+  },
+  "scripts": {
+    "build": "tsc --build tsconfig.build.json",
+    "build:watch": "tsc --build tsconfig.build.json --watch",
+    "test": "jest"
+  },
+  "bugs": {
+    "url": "https://github.com/golevelup/nestjs/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@golevelup/nestjs-common": "^1.4.1",
+    "@golevelup/nestjs-discovery": "^2.3.0",
+    "@golevelup/nestjs-modules": "^0.4.0"
+  },
+  "peerDependencies": {
+    "stripe": "^8.39.0"
+  },
+  "jest": {
+    "moduleFileExtensions": [
+      "js",
+      "json",
+      "ts"
+    ],
+    "rootDir": "src",
+    "testRegex": ".spec.ts$",
+    "transform": {
+      "^.+\\.ts$": "ts-jest"
+    },
+    "coverageDirectory": "../coverage",
+    "testEnvironment": "node"
+  },
+  "gitHead": "6f97aab8ce9d65dc074750a3ee467ec5ff3b9908"
+}
