@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.4.1](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-common@1.4.0...@golevelup/nestjs-common@1.4.1) (2020-04-04)
+
+**Note:** Version bump only for package @golevelup/nestjs-common
+
 # [1.4.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-common@1.3.1...@golevelup/nestjs-common@1.4.0) (2020-03-28)
 
 ### Features
