@@ -6,6 +6,7 @@ import {
   Module,
   OnModuleInit,
 } from '@nestjs/common';
+import { PATH_METADATA } from '@nestjs/common/constants';
 import { ExternalContextCreator } from '@nestjs/core/helpers/external-context-creator';
 import { flatten, groupBy } from 'lodash';
 import { HASURA_EVENT_HANDLER, HASURA_MODULE_CONFIG } from './hasura.constants';
@@ -26,7 +27,23 @@ export class HasuraModule
   extends createConfigurableDynamicRootModule<HasuraModule, HasuraModuleConfig>(
     HASURA_MODULE_CONFIG,
     {
-      providers: [EventHandlerService, HasuraEventHandlerHeaderGuard],
+      providers: [
+        {
+          provide: Symbol('CONTROLLER_HACK'),
+          useFactory: (config: HasuraModuleConfig) => {
+            const controllerPrefix = config.controllerPrefix || 'hasura';
+
+            Reflect.defineMetadata(
+              PATH_METADATA,
+              controllerPrefix,
+              EventHandlerController
+            );
+          },
+          inject: [HASURA_MODULE_CONFIG],
+        },
+        EventHandlerService,
+        HasuraEventHandlerHeaderGuard,
+      ],
       controllers: [EventHandlerController],
     }
   )
@@ -82,7 +99,7 @@ export class HasuraModule
       // TODO: this should use a map for faster lookups
       const handler = eventHandlers.find((x) => x.key === key);
 
-      if (this.hasuraModuleConfig.enableLogs) {
+      if (this.hasuraModuleConfig.enableEventLogs) {
         this.logger.log(`Received event for: ${key}-${evt?.event?.op}`);
       }
 
