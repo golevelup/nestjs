@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.3.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-hasura@0.2.1...@golevelup/nestjs-hasura@0.3.0) (2020-04-05)
+
+### Features
+
+- **hasura:** configurable controller prefix ([15c085c](https://github.com/golevelup/nestjs/commit/15c085c)), closes [#129](https://github.com/golevelup/nestjs/issues/129)
+
 ## [0.2.1](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-hasura@0.2.0...@golevelup/nestjs-hasura@0.2.1) (2020-04-04)
 
 **Note:** Version bump only for package @golevelup/nestjs-hasura
