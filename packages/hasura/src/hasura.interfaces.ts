@@ -38,5 +38,6 @@ export interface HasuraEventHandlerConfig {
 export interface HasuraModuleConfig {
   secretHeader: string;
   secretFactory: (() => string) | string;
-  enableLogs?: boolean;
+  enableEventLogs?: boolean;
+  controllerPrefix?: string;
 }

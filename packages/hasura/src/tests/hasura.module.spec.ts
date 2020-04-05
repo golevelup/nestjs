@@ -5,7 +5,7 @@ import { HasuraEventHandler } from '../hasura.decorators';
 import { HasuraModule } from '../hasura.module';
 
 const eventHandlerFn = jest.fn();
-const hasuraEndpoint = '/hasura/events';
+const defaultHasuraEndpoint = '/hasura/events';
 
 @Injectable()
 class UserEventService {
@@ -38,53 +38,66 @@ const eventPayloadMissingTable = {
   table: { schema: 'public', name: 'userz' },
 };
 
-describe('Hasura Module (e2e)', () => {
-  let app;
+describe.each([undefined, 'customEndpoint'])(
+  'Hasura Module (e2e)',
+  (controllerPrefix) => {
+    let app;
+    const hasuraEndpoint = controllerPrefix
+      ? `/${controllerPrefix}/events`
+      : defaultHasuraEndpoint;
 
-  beforeEach(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [
-        HasuraModule.forRoot(HasuraModule, {
-          secretFactory: secret,
-          secretHeader: secretHeader,
-        }),
-      ],
-      providers: [UserEventService],
-    }).compile();
+    console.log(`HASURA ENDPOINT: ${hasuraEndpoint}`);
 
-    app = moduleFixture.createNestApplication();
-    await app.init();
-  });
+    beforeEach(async () => {
+      const moduleFixture: TestingModule = await Test.createTestingModule({
+        imports: [
+          HasuraModule.forRoot(HasuraModule, {
+            secretFactory: secret,
+            secretHeader: secretHeader,
+            controllerPrefix,
+          }),
+        ],
+        providers: [UserEventService],
+      }).compile();
 
-  it('should return forbidden if the secret api header is missing', () => {
-    return request(app.getHttpServer())
-      .post(hasuraEndpoint)
-      .send(eventPayload)
-      .expect(403);
-  });
+      app = moduleFixture.createNestApplication();
+      await app.init();
+    });
 
-  it('should return forbidden if the secret api header value does not match', () => {
-    return request(app.getHttpServer())
-      .post(hasuraEndpoint)
-      .set(secretHeader, 'wrong Value')
-      .send(eventPayload)
-      .expect(403);
-  });
+    afterEach(() => {
+      eventHandlerFn.mockReset();
+    });
 
-  it('should return bad request if there is no event handler for the event', () => {
-    return request(app.getHttpServer())
-      .post(hasuraEndpoint)
-      .set(secretHeader, secret)
-      .send(eventPayloadMissingTable)
-      .expect(400);
-  });
+    it('should return forbidden if the secret api header is missing', () => {
+      return request(app.getHttpServer())
+        .post(hasuraEndpoint)
+        .send(eventPayload)
+        .expect(403);
+    });
 
-  it('should pass the event to the correct handler', () => {
-    return request(app.getHttpServer())
-      .post(hasuraEndpoint)
-      .set(secretHeader, secret)
-      .send(eventPayload)
-      .expect(202)
-      .then(() => expect(eventHandlerFn).toHaveBeenCalledTimes(1));
-  });
-});
+    it('should return forbidden if the secret api header value does not match', () => {
+      return request(app.getHttpServer())
+        .post(hasuraEndpoint)
+        .set(secretHeader, 'wrong Value')
+        .send(eventPayload)
+        .expect(403);
+    });
+
+    it('should return bad request if there is no event handler for the event', () => {
+      return request(app.getHttpServer())
+        .post(hasuraEndpoint)
+        .set(secretHeader, secret)
+        .send(eventPayloadMissingTable)
+        .expect(400);
+    });
+
+    it('should pass the event to the correct handler', () => {
+      return request(app.getHttpServer())
+        .post(hasuraEndpoint)
+        .set(secretHeader, secret)
+        .send(eventPayload)
+        .expect(202)
+        .then(() => expect(eventHandlerFn).toHaveBeenCalledTimes(1));
+    });
+  }
+);

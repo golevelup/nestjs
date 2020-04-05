@@ -6,13 +6,16 @@
 <img alt="license" src="https://img.shields.io/npm/l/@golevelup/nestjs-hasura.svg">
 </p>
 
-## Description
-
-Exposes an api endpoint from your NestJS application at `/hasura/events/` to be used for event processing from Hasura. Provider methods decorated with `HasuraEventHandler` will be automatically wired up to handle incoming events received at the endpoint
-
 ## Motivation
 
-Leverage NestJS to make incorporating business logic and event processing easier with Hasura.
+Leverage NestJS to make incorporating business logic and event processing easier with Hasura. 🚀
+
+## Features
+
+- ✅ 🎉 Exposes an API endpoint from your NestJS application at to be used for event processing from Hasura. Defaults to `/hasura/events/` but can be easily configured
+- ✅ 🔒 Automatically validates that the event payload was actually sent from Hasura using configurable secrets
+- ✅ 🕵️ Discovers providers from your application decorated with `HasuraEventHandler` and routes incoming events to them
+- ✅ 🧭 Leverage the table and schema name of the event to route to the appropriate handler
 
 ## Usage
 
@@ -36,6 +39,7 @@ import { HasuraModule } from '@golevelup/nestjs-hasura';
     HasuraModule.forRoot(HasuraModule, {
       secretFactory: secret,
       secretHeader: secretHeader,
+      controllerPrefix: 'something', // this is optional. defaults to hasura
     }),
   ],
 })
@@ -83,7 +87,7 @@ https://hasura.io/event-triggers
 
 #### Integrating with your NestJS app
 
-The `HasuraModule` makes it easy to reuse the same events API endpoint for all events that you create in Hasura. The internal routing mechanism on the NestJS side ensures that the all events coming in through the endpoint will be sent to the correct handler. The endpoint provided is `/hasura/events`.
+The `HasuraModule` makes it easy to reuse the same events API endpoint for all events that you create in Hasura. The internal routing mechanism on the NestJS side ensures that the all events coming in through the endpoint will be sent to the correct handler. The endpoint provided defaults to `/hasura/events`. This can be overriden with the module by specifying an alternative `controllerPrefix` so for example you could set this to `webhooks` and the resulting endpoint would be available at `/webhooks/events`.
 
 #### Important!
 
