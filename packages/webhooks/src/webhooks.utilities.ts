@@ -18,6 +18,18 @@ export const applyRawBodyWebhookMiddleware = (
     .forRoutes(...jsonBodyRoutes);
 };
 
+export const applyRawBodyOnlyTo = (
+  consumer: MiddlewareConsumer,
+  ...rawBodyRoutes: (string | RouteInfo)[]
+) => {
+  consumer
+    .apply(RawBodyMiddleware)
+    .forRoutes(...rawBodyRoutes)
+    .apply(JsonBodyMiddleware)
+    .exclude(...rawBodyRoutes)
+    .forRoutes('*');
+};
+
 /**
  * Applies raw body middleware to routes that saves the raw body on the request object based on
  * the WebhooksModule configuration. Also adds JSON body parsing to supplied routes

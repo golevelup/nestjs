@@ -53,7 +53,7 @@ class TestAppModule implements NestModule {
   }
 }
 
-describe('Webhooks Module (e2e)', () => {
+describe('Webhooks Configurable Raw Body Module (e2e)', () => {
   let app;
   describe('configurable webhook middleware', () => {
     beforeEach(async () => {
