@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.2.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-webhooks@0.1.0...@golevelup/nestjs-webhooks@0.2.0) (2020-04-07)
+
+### Features
+
+- **webhooks:** simple raw body setup ([6382c05](https://github.com/golevelup/nestjs/commit/6382c05)), closes [#131](https://github.com/golevelup/nestjs/issues/131)
+
 # 0.1.0 (2020-04-04)
 
 ### Features
