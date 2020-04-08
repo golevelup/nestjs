@@ -88,7 +88,20 @@ This module will automatically add a new API endpoint to your NestJS application
 
 If you would like your NestJS application to be able to process incoming webhooks, it is essential that Stripe has access to the raw request payload.
 
-By default, NestJS is configured to use JSON body parsing middleware which will transform the request before it can be validated by the Stripe library. The easiest solution is to also include the `@golevelup/nestjs-webhooks` package and [follow the steps for setting up simple body parsing](https://github.com/golevelup/nestjs/tree/master/packages/webhooks#simple-raw-body-parsing). Simply provide either `stripe/webhook` or the API route you chose when configuring the module
+By default, NestJS is configured to use JSON body parsing middleware which will transform the request before it can be validated by the Stripe library. The easiest solution is to also include the `@golevelup/nestjs-webhooks` package and [follow the steps for setting up simple body parsing](https://github.com/golevelup/nestjs/tree/master/packages/webhooks#simple-raw-body-parsing).
+
+Simply provide either `stripe/webhook` or the API route you chose when configuring the module. For example:
+
+```typescript
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    applyRawBodyOnlyTo(consumer, {
+      method: RequestMethod.ALL,
+      path: 'stripe/webhook',
+    });
+  }
+}
+```
 
 Failure to give Stripe access to the raw body will result in nasty runtime errors when events are sent to your endpoint
 

@@ -37,7 +37,7 @@ The most basic use case is keeping JSON parsing on all routes except for the one
 In your bootstrap function (normally in `main.ts`), disable body parsing. Don't worry! We'll bring it back to the other routes later.
 
 ```typescript
-const app = await NestFactory.create(AppModule, undefined, {
+const app = await NestFactory.create(AppModule, {
   bodyParser: false,
 });
 ```
