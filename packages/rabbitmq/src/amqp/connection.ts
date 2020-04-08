@@ -277,18 +277,8 @@ export class AmqpConnection {
           const errorBehavior =
             msgOptions.errorBehavior ||
             this.config.defaultSubscribeErrorBehavior;
-          switch (errorBehavior) {
-            case MessageHandlerErrorBehavior.ACK: {
-              channel.ack(msg);
-              break;
-            }
-            case MessageHandlerErrorBehavior.REQUEUE: {
-              channel.nack(msg, false, true);
-              break;
-            }
-            default:
-              channel.nack(msg, false, false);
-          }
+
+          await this.handleError(channel, msgOptions, errorBehavior, msg, e);
         }
       }
     });
@@ -355,22 +345,8 @@ export class AmqpConnection {
         } else {
           const errorBehavior =
             rpcOptions.errorBehavior || this.config.defaultRpcErrorBehavior;
-          switch (errorBehavior) {
-            case MessageHandlerErrorBehavior.ACK: {
-              channel.ack(msg);
-              break;
-            }
-            case MessageHandlerErrorBehavior.REQUEUE: {
-              channel.nack(msg, false, true);
-              break;
-            }
-            case MessageHandlerErrorBehavior.REPLYERRORANDACK: {
-              this.handleReplyAndAckError(channel, msg, e);
-              break;
-            }
-            default:
-              channel.nack(msg, false, false);
-          }
+
+          await this.handleError(channel, rpcOptions, errorBehavior, msg, e);
         }
       }
     });
@@ -401,44 +377,6 @@ export class AmqpConnection {
     this._channel.publish(exchange, routingKey, buffer, options);
   }
 
-  private handleReplyAndAckError(
-    channel: amqplib.Channel,
-    msg: amqplib.ConsumeMessage,
-    error: any
-  ) {
-    try {
-      const { replyTo, correlationId } = msg.properties;
-      if (replyTo) {
-        this.publishError('', replyTo, error, { correlationId });
-        channel.ack(msg);
-      } else {
-        channel.nack(msg, false, false);
-      }
-    } catch {
-      channel.nack(msg, false, true);
-    }
-  }
-
-  private publishError(
-    exchange: string,
-    routingKey: string,
-    error: any,
-    options?: amqplib.Options.Publish
-  ) {
-    if (error instanceof Error) {
-      error = error.message;
-    } else if (typeof error !== 'string') {
-      error = JSON.stringify(error);
-    }
-
-    this.publish(
-      exchange,
-      routingKey,
-      { status: 'error', message: error },
-      options
-    );
-  }
-
   private handleMessage<T, U>(
     handler: (
       msg: T | undefined,
@@ -462,5 +400,38 @@ export class AmqpConnection {
     }
 
     return handler(message, msg);
+  }
+
+  private async handleError(
+    channel: amqplib.Channel,
+    msgOptions: MessageHandlerOptions,
+    errorBehavior: MessageHandlerErrorBehavior,
+    msg: amqplib.Message,
+    error: any
+  ) {
+    if (msg == null) {
+      return;
+    } else {
+      try {
+        if (msgOptions.errorCallbacks) {
+          for (const callback of msgOptions.errorCallbacks) {
+            await callback(channel, msg, error);
+          }
+        }
+      } finally {
+        switch (errorBehavior) {
+          case MessageHandlerErrorBehavior.ACK: {
+            channel.ack(msg);
+            break;
+          }
+          case MessageHandlerErrorBehavior.REQUEUE: {
+            channel.nack(msg, false, true);
+            break;
+          }
+          default:
+            channel.nack(msg, false, false);
+        }
+      }
+    }
   }
 }

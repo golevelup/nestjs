@@ -37,12 +37,6 @@ export enum MessageHandlerErrorBehavior {
   ACK,
   NACK,
   REQUEUE,
-  /**
-   * If an exception occurs while handling the message, the error will be serialized and published on the `replyTo` queue.
-   * If `replyTo` is not provided, the message will be NACKed without requeueing.
-   * If publish fails, message will be NACKed and requeued.
-   */
-  REPLYERRORANDACK,
 }
 
 export interface MessageHandlerOptions {
@@ -51,8 +45,15 @@ export interface MessageHandlerOptions {
   queue?: string;
   queueOptions?: QueueOptions;
   errorBehavior?: MessageHandlerErrorBehavior;
+  errorCallbacks?: IMessageErrorCallback[];
   allowNonJsonMessages?: boolean;
 }
+
+export type IMessageErrorCallback = (
+  channel: amqplib.Channel,
+  msg: amqplib.ConsumeMessage,
+  error: any
+) => Promise<any> | any;
 
 export interface ConnectionInitOptions {
   wait?: boolean;
