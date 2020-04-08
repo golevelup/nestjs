@@ -5,6 +5,7 @@ import {
 import { Injectable, UseInterceptors } from '@nestjs/common';
 import { TransformInterceptor } from '../transform.interceptor';
 import { RpcException } from '@nestjs/microservices';
+import { ReplyErrorCallback } from './reply.error.callback';
 
 @Injectable()
 export class RpcService {
@@ -35,7 +36,8 @@ export class RpcService {
     routingKey: 'error-reply-rpc',
     exchange: 'exchange1',
     queue: 'error-reply-rpc',
-    errorBehavior: MessageHandlerErrorBehavior.REPLYERRORANDACK,
+    errorBehavior: MessageHandlerErrorBehavior.ACK,
+    errorCallbacks: [ReplyErrorCallback],
   })
   errorReplyRpc(message: object) {
     throw new RpcException(message);
