@@ -46,8 +46,6 @@ describe.each([undefined, 'customEndpoint'])(
       ? `/${controllerPrefix}/events`
       : defaultHasuraEndpoint;
 
-    console.log(`HASURA ENDPOINT: ${hasuraEndpoint}`);
-
     beforeEach(async () => {
       const moduleFixture: TestingModule = await Test.createTestingModule({
         imports: [

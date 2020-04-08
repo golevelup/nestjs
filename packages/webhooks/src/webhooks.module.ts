@@ -15,7 +15,8 @@ const defaultModuleOptions = {
 
 /**
  * Module that allows for configuration of the ConfigurableRawBodyMiddleware. Use the
- * module to specify which property on the request object that the raw body will be available on
+ * module to specify which property on the request object that the raw body will be available on.
+ * If not set, the property will default to "rawBody"
  */
 @Module({})
 export class WebhooksModule extends createConfigurableDynamicRootModule<
