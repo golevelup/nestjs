@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.3.1-rc.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-hasura@0.3.0...@golevelup/nestjs-hasura@0.3.1-rc.0) (2020-04-08)
+
+### Features
+
+- **stripe:** new stripe package ([ffbcc86](https://github.com/golevelup/nestjs/commit/ffbcc86))
+
 # [0.3.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-hasura@0.2.1...@golevelup/nestjs-hasura@0.3.0) (2020-04-05)
 
 ### Features
