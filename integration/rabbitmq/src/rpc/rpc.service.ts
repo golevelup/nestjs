@@ -1,10 +1,10 @@
 import {
-  RabbitRPC,
   MessageHandlerErrorBehavior,
+  RabbitRPC,
 } from '@golevelup/nestjs-rabbitmq';
 import { Injectable, UseInterceptors } from '@nestjs/common';
-import { TransformInterceptor } from '../transform.interceptor';
 import { RpcException } from '@nestjs/microservices';
+import { TransformInterceptor } from '../transform.interceptor';
 import { ReplyErrorCallback } from './reply.error.callback';
 
 @Injectable()
@@ -37,7 +37,7 @@ export class RpcService {
     exchange: 'exchange1',
     queue: 'error-reply-rpc',
     errorBehavior: MessageHandlerErrorBehavior.ACK,
-    errorCallbacks: [ReplyErrorCallback],
+    errorHandler: ReplyErrorCallback,
   })
   errorReplyRpc(message: object) {
     throw new RpcException(message);

@@ -1,5 +1,9 @@
 import * as amqpConnectionManager from 'amqp-connection-manager';
 import * as amqplib from 'amqplib';
+import {
+  MessageErrorHandler,
+  MessageHandlerErrorBehavior,
+} from './amqp/errorBehaviors';
 
 export interface RabbitMQExchangeConfig {
   name: string;
@@ -33,27 +37,22 @@ export interface QueueOptions {
   maxPriority?: number;
 }
 
-export enum MessageHandlerErrorBehavior {
-  ACK,
-  NACK,
-  REQUEUE,
-}
-
 export interface MessageHandlerOptions {
   exchange: string;
   routingKey: string | string[];
   queue?: string;
   queueOptions?: QueueOptions;
+  /**
+   * @deprecated()
+   * Legacy error handling behaviors. This will be overridden if the errorHandler property is set
+   */
   errorBehavior?: MessageHandlerErrorBehavior;
-  errorCallbacks?: IMessageErrorCallback[];
+  /**
+   * A function that will be called if an error is thrown during processing of an incoming message
+   */
+  errorHandler?: MessageErrorHandler;
   allowNonJsonMessages?: boolean;
 }
-
-export type IMessageErrorCallback = (
-  channel: amqplib.Channel,
-  msg: amqplib.ConsumeMessage,
-  error: any
-) => Promise<any> | any;
 
 export interface ConnectionInitOptions {
   wait?: boolean;

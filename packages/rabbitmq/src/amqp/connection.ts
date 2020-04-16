@@ -13,11 +13,14 @@ import {
 import * as uuid from 'uuid';
 import {
   ConnectionInitOptions,
-  MessageHandlerErrorBehavior,
   MessageHandlerOptions,
   RabbitMQConfig,
   RequestOptions,
 } from '../rabbitmq.interfaces';
+import {
+  getHandlerForLegacyBehavior,
+  MessageHandlerErrorBehavior,
+} from './errorBehaviors';
 import { Nack, RpcResponse, SubscribeResponse } from './handlerResponses';
 
 const DIRECT_REPLY_QUEUE = 'amq.rabbitmq.reply-to';
@@ -274,11 +277,14 @@ export class AmqpConnection {
         if (msg == null) {
           return;
         } else {
-          const errorBehavior =
-            msgOptions.errorBehavior ||
-            this.config.defaultSubscribeErrorBehavior;
+          const errorHandler =
+            msgOptions.errorHandler ||
+            getHandlerForLegacyBehavior(
+              msgOptions.errorBehavior ||
+                this.config.defaultSubscribeErrorBehavior
+            );
 
-          await this.handleError(channel, msgOptions, errorBehavior, msg, e);
+          await errorHandler(channel, msg, e);
         }
       }
     });
@@ -343,10 +349,14 @@ export class AmqpConnection {
         if (msg == null) {
           return;
         } else {
-          const errorBehavior =
-            rpcOptions.errorBehavior || this.config.defaultRpcErrorBehavior;
+          const errorHandler =
+            rpcOptions.errorHandler ||
+            getHandlerForLegacyBehavior(
+              rpcOptions.errorBehavior ||
+                this.config.defaultSubscribeErrorBehavior
+            );
 
-          await this.handleError(channel, rpcOptions, errorBehavior, msg, e);
+          await errorHandler(channel, msg, e);
         }
       }
     });
@@ -400,38 +410,5 @@ export class AmqpConnection {
     }
 
     return handler(message, msg);
-  }
-
-  private async handleError(
-    channel: amqplib.Channel,
-    msgOptions: MessageHandlerOptions,
-    errorBehavior: MessageHandlerErrorBehavior,
-    msg: amqplib.Message,
-    error: any
-  ) {
-    if (msg == null) {
-      return;
-    } else {
-      try {
-        if (msgOptions.errorCallbacks) {
-          for (const callback of msgOptions.errorCallbacks) {
-            await callback(channel, msg, error);
-          }
-        }
-      } finally {
-        switch (errorBehavior) {
-          case MessageHandlerErrorBehavior.ACK: {
-            channel.ack(msg);
-            break;
-          }
-          case MessageHandlerErrorBehavior.REQUEUE: {
-            channel.nack(msg, false, true);
-            break;
-          }
-          default:
-            channel.nack(msg, false, false);
-        }
-      }
-    }
   }
 }

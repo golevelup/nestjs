@@ -6,29 +6,28 @@
 <img alt="license" src="https://img.shields.io/npm/l/@golevelup/nestjs-rabbitmq.svg">
 </p>
 
-Table of Contents
-=================
+# Table of Contents
 
-  * [Description](#description)
-  * [Motivation](#motivation)
-  * [Connection Management](#connection-management)
-  * [Usage](#usage)
-      * [Install](#install)
-      * [Module Initialization](#module-initialization)
-  * [Receiving Messages](#receiving-messages)
-      * [Exposing RPC Handlers](#exposing-rpc-handlers)
-      * [Exposing Pub/Sub Handlers](#exposing-pubsub-handlers)
-      * [Message Handling](#message-handling)
-      * [Conditional Handler Registration](#conditional-handler-registration)
-  * [Sending Messages](#sending-messages)
-      * [Inject the AmqpConnection](#inject-the-amqpconnection)
-      * [Publising Messages (Fire and Forget)](#publising-messages-fire-and-forget)
-      * [Requesting Data from an RPC](#requesting-data-from-an-rpc)
-        * [Type Inference](#type-inference)
-        * [Interop with other RPC Servers](#interop-with-other-rpc-servers)
-  * [Advanced Patterns](#advanced-patterns)
-      * [Competing Consumers](#competing-consumers)
-  * [TODO](#todo)
+- [Description](#description)
+- [Motivation](#motivation)
+- [Connection Management](#connection-management)
+- [Usage](#usage)
+  - [Install](#install)
+  - [Module Initialization](#module-initialization)
+- [Receiving Messages](#receiving-messages)
+  - [Exposing RPC Handlers](#exposing-rpc-handlers)
+  - [Exposing Pub/Sub Handlers](#exposing-pubsub-handlers)
+  - [Message Handling](#message-handling)
+  - [Conditional Handler Registration](#conditional-handler-registration)
+- [Sending Messages](#sending-messages)
+  - [Inject the AmqpConnection](#inject-the-amqpconnection)
+  - [Publising Messages (Fire and Forget)](#publising-messages-fire-and-forget)
+  - [Requesting Data from an RPC](#requesting-data-from-an-rpc)
+    - [Type Inference](#type-inference)
+    - [Interop with other RPC Servers](#interop-with-other-rpc-servers)
+- [Advanced Patterns](#advanced-patterns)
+  - [Competing Consumers](#competing-consumers)
+- [TODO](#todo)
 
 ## Description
 
@@ -61,13 +60,13 @@ import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
       exchanges: [
         {
           name: 'exchange1',
-          type: 'topic'
-        }
+          type: 'topic',
+        },
       ],
       uri: 'amqp://rabbitmq:rabbitmq@localhost:5672',
-      connectionInitOptions: { wait: false }
-    })
-  ]
+      connectionInitOptions: { wait: false },
+    }),
+  ],
 })
 export class RabbitExampleModule {}
 ```
@@ -104,15 +103,15 @@ import { MessagingService } from './messaging/messaging.service';
       exchanges: [
         {
           name: 'exchange1',
-          type: 'topic'
-        }
+          type: 'topic',
+        },
       ],
-      uri: 'amqp://rabbitmq:rabbitmq@localhost:5672'
+      uri: 'amqp://rabbitmq:rabbitmq@localhost:5672',
     }),
-    RabbitExampleModule
+    RabbitExampleModule,
   ],
   providers: [MessagingService],
-  controllers: [MessagingController]
+  controllers: [MessagingController],
 })
 export class RabbitExampleModule {}
 ```
@@ -132,11 +131,11 @@ export class MessagingService {
   @RabbitRPC({
     exchange: 'exchange1',
     routingKey: 'rpc-route',
-    queue: 'rpc-queue'
+    queue: 'rpc-queue',
   })
   public async rpcHandler(msg: {}) {
     return {
-      response: 42
+      response: 42,
     };
   }
 }
@@ -155,7 +154,7 @@ export class MessagingService {
   @RabbitSubscribe({
     exchange: 'exchange1',
     routingKey: 'subscribe-route',
-    queue: 'subscribe-queue'
+    queue: 'subscribe-queue',
   })
   public async pubSubHandler(msg: {}) {
     console.log(`Received message: ${JSON.stringify(msg)}`);
@@ -194,6 +193,7 @@ export class MessagingService {
   }
 }
 ```
+
 ### Conditional Handler Registration
 
 In some scenarios, it may not be desirable for all running instances of a NestJS application to register RabbitMQ message handlers. For example, if leveraging the same application code base to expose API instances and worker roles separately it may be desirable to have only the worker instances attach handlers to manage queue subscriptions or RPC requests.
@@ -245,9 +245,9 @@ const response = await amqpConnection.request<ExpectedReturnType>({
   exchange: 'exchange1',
   routingKey: 'rpc',
   payload: {
-    request: 'val'
+    request: 'val',
   },
-  timeout = 10000 // optional timeout for how long the request
+  timeout = 10000, // optional timeout for how long the request
   // should wait before failing if no response is received
 });
 ```
@@ -281,7 +281,7 @@ export class MessagingService {
   @RabbitSubscribe({
     exchange: 'exchange1',
     routingKey: 'subscribe-route1',
-    queue: 'subscribe-queue'
+    queue: 'subscribe-queue',
   })
   public async competingPubSubHandler(msg: {}) {
     console.log(`Received message: ${JSON.stringify(msg)}`);
@@ -289,15 +289,10 @@ export class MessagingService {
 
   @RabbitSubscribe({
     exchange: 'exchange1',
-    routingKey: 'subscribe-route2'
+    routingKey: 'subscribe-route2',
   })
   public async messagePerInstanceHandler(msg: {}) {
     console.log(`Received message: ${JSON.stringify(msg)}`);
   }
 }
 ```
-
-## TODO
-
-- Possible validation pipeline using class-validator and class-transformer to ensure messages are well formatted
-- Integrate hooks for things like logging, metrics, or custom error handling

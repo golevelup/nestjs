@@ -16,5 +16,6 @@ export function ReplyErrorCallback(
     error = Buffer.from(JSON.stringify({ status: 'error', message: error }));
 
     channel.publish('', replyTo, error, { correlationId });
+    channel.ack(msg);
   }
 }

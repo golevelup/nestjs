@@ -93,22 +93,4 @@ describe('Rabbit Subscribe', () => {
       done();
     }, 50);
   });
-
-  // it('should receive undefined argument when subscriber allows non-json messages and message is empty', async (done) => {
-
-  //   setTimeout(() => {
-  //     expect(testHandler).toHaveBeenCalledTimes(1);
-  //     expect(testHandler).toHaveBeenCalledWith(undefined);
-  //     done();
-  //   }, 50);
-  // });
-
-  // it('should receive undefined argument when subscriber allows non-json messages and message is unparseable by JSON', async (done) => {
-
-  //   setTimeout(() => {
-  //     expect(testHandler).toHaveBeenCalledTimes(1);
-  //     expect(testHandler).toHaveBeenCalledWith(undefined);
-  //     done();
-  //   }, 50);
-  // });
 });
