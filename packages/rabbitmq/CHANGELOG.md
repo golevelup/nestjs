@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.15.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@1.14.1...@golevelup/nestjs-rabbitmq@1.15.0) (2020-04-16)
+
+### Features
+
+- **rabbitmq:** added error callbacks in favor of error behaviors ([85b1b67](https://github.com/golevelup/nestjs/commit/85b1b67))
+- **rabbitmq:** cleanup for error handlers ([ddd4707](https://github.com/golevelup/nestjs/commit/ddd4707))
+- **rabbitmq:** error behaviour for replying error ([e438a2a](https://github.com/golevelup/nestjs/commit/e438a2a))
+- **rabbitmq:** integration tests, added option for non-json messages ([bc71ffa](https://github.com/golevelup/nestjs/commit/bc71ffa))
+
 ## [1.14.1](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@1.14.0...@golevelup/nestjs-rabbitmq@1.14.1) (2020-04-04)
 
 **Note:** Version bump only for package @golevelup/nestjs-rabbitmq
