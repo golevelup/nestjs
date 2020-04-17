@@ -14,8 +14,6 @@ import * as uuid from 'uuid';
 import {
   ConnectionInitOptions,
   MessageHandlerOptions,
-  PayloadParser,
-  PayloadSerializer,
   RabbitMQConfig,
   RequestOptions,
 } from '../rabbitmq.interfaces';
@@ -24,6 +22,10 @@ import {
   MessageHandlerErrorBehavior,
 } from './errorBehaviors';
 import { Nack, RpcResponse, SubscribeResponse } from './handlerResponses';
+import {
+  defaultMessageSerializer,
+  jsonMessageDeserializer,
+} from './serialization';
 
 const DIRECT_REPLY_QUEUE = 'amq.rabbitmq.reply-to';
 
@@ -48,11 +50,6 @@ const defaultConfig = {
   registerHandlers: true,
   enableDirectReplyTo: true,
 };
-
-const defaultPayloadParser: PayloadParser = <T>(message: string): T =>
-  JSON.parse(message);
-const defaultPayloadSerializer: PayloadSerializer = <T>(message: T): string =>
-  JSON.stringify(message);
 
 class AmpqConnectionException extends Error {
   constructor(readonly message: string, readonly cause?: Error) {
@@ -207,11 +204,12 @@ export class AmqpConnection {
     const correlationId = requestOptions.correlationId || uuid.v4();
     const timeout = requestOptions.timeout || this.config.defaultRpcTimeout;
     const payload = requestOptions.payload || {};
-    const payloadParser = requestOptions.payloadParser || defaultPayloadParser;
+    const messageDeserializer =
+      requestOptions.messageDeserializer || defaultMessageSerializer;
 
     const response$ = this.messageSubject.pipe(
       filter((x) => x.correlationId === correlationId),
-      map((x) => payloadParser(x.message.content.toString()) as T),
+      map((x) => messageDeserializer(x.message.content) as T),
       first()
     );
 
@@ -255,7 +253,8 @@ export class AmqpConnection {
     const {
       exchange,
       routingKey,
-      messageParser = defaultPayloadParser,
+      // TODO: This needs to be revisited
+      messageDeserializer = jsonMessageDeserializer,
       queue: queueName = '',
       queueOptions,
       allowNonJsonMessages,
@@ -279,7 +278,7 @@ export class AmqpConnection {
         //   allowNonJsonMessages
         // );
 
-        const message = messageParser(msg.content.toString());
+        const message = messageDeserializer(msg.content);
         const response = await handler(message, msg);
 
         if (response instanceof Nack) {
@@ -334,7 +333,8 @@ export class AmqpConnection {
     const {
       exchange,
       routingKey,
-      messageParser = defaultPayloadParser,
+      // TODO: This needs to be revisited
+      messageDeserializer = jsonMessageDeserializer,
       queue: queueName = '',
       queueOptions,
       allowNonJsonMessages,
@@ -358,7 +358,7 @@ export class AmqpConnection {
         //   allowNonJsonMessages
         // );
 
-        const message = messageParser(msg.content.toString());
+        const message = messageDeserializer(msg.content);
         const response = await handler(message, msg);
 
         if (response instanceof Nack) {
