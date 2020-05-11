@@ -84,21 +84,23 @@ describe('Mocked Execution Context', () => {
   it('should have a fully mocked Execution Context', () => {
     const mockExecutionContext = createMock<ExecutionContext>({
       switchToHttp: () => ({
-        getRequest: () =({
+        getRequest: () => ({
           headers: {
-            authorization: 'auth'
-          }
-        })
-      })
+            authorization: 'auth',
+          },
+        }),
+      }),
     });
-    mockExecutionContext.switchToHttp().getResponse.mockReturnValue({data: 'res return data'});
+    mockExecutionContext
+      .switchToHttp()
+      .getResponse.mockReturnValue({ data: 'res return data' });
     expect(mockExecutionContext.switchToHttp().getRequest()).toEqual({
       headers: {
-        authorization: 'auth'
-      }
+        authorization: 'auth',
+      },
     });
     expect(mockExecutionContext.switchToHttp().getResponse()).toEqual({
-      data: 'res return data'
+      data: 'res return data',
     });
     expect(mockExecutionContext.switchToHttp).toBeCalledTimes(3);
     expect(mockExecutionContext.switchToRPC().getContext()).toBeDefined();
