@@ -8,26 +8,29 @@
 
 # Table of Contents
 
-- [Description](#description)
-- [Motivation](#motivation)
-- [Connection Management](#connection-management)
-- [Usage](#usage)
-  - [Install](#install)
-  - [Module Initialization](#module-initialization)
-- [Receiving Messages](#receiving-messages)
-  - [Exposing RPC Handlers](#exposing-rpc-handlers)
-  - [Exposing Pub/Sub Handlers](#exposing-pubsub-handlers)
-  - [Message Handling](#message-handling)
-  - [Conditional Handler Registration](#conditional-handler-registration)
-- [Sending Messages](#sending-messages)
-  - [Inject the AmqpConnection](#inject-the-amqpconnection)
-  - [Publising Messages (Fire and Forget)](#publising-messages-fire-and-forget)
-  - [Requesting Data from an RPC](#requesting-data-from-an-rpc)
-    - [Type Inference](#type-inference)
-    - [Interop with other RPC Servers](#interop-with-other-rpc-servers)
-- [Advanced Patterns](#advanced-patterns)
-  - [Competing Consumers](#competing-consumers)
-- [TODO](#todo)
+- [@golevelup/nestjs-rabbitmq](#golevelupnestjs-rabbitmq)
+- [Table of Contents](#table-of-contents)
+  - [Description](#description)
+  - [Motivation](#motivation)
+  - [Connection Management](#connection-management)
+  - [Usage](#usage)
+    - [Install](#install)
+    - [Module Initialization](#module-initialization)
+  - [Receiving Messages](#receiving-messages)
+    - [Exposing RPC Handlers](#exposing-rpc-handlers)
+    - [Exposing Pub/Sub Handlers](#exposing-pubsub-handlers)
+    - [Message Handling](#message-handling)
+    - [Conditional Handler Registration](#conditional-handler-registration)
+  - [Sending Messages](#sending-messages)
+    - [Inject the AmqpConnection](#inject-the-amqpconnection)
+    - [Publising Messages (Fire and Forget)](#publising-messages-fire-and-forget)
+    - [Requesting Data from an RPC](#requesting-data-from-an-rpc)
+      - [Type Inference](#type-inference)
+      - [Interop with other RPC Servers](#interop-with-other-rpc-servers)
+  - [Advanced Patterns](#advanced-patterns)
+    - [Competing Consumers](#competing-consumers)
+  - [Contribute](#contribute)
+  - [License](#license)
 
 ## Description
 
@@ -296,3 +299,11 @@ export class MessagingService {
   }
 }
 ```
+
+## Contribute
+
+Contributions welcome! Read the [contribution guidelines](../../CONTRIBUTING.md) first.
+
+## License
+
+[MIT License](../../LICENSE)
