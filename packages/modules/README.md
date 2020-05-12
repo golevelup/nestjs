@@ -51,7 +51,7 @@ import { ConfigModule } from './config.service'; // the service to be provided t
 
 @Module({
   providers: [ConfigService],
-  exports: [ConfigService]
+  exports: [ConfigService],
 })
 export class ConfigModule extends createConfigurableDynamicRootModule<
   ConfigModule,
@@ -63,7 +63,7 @@ And just like that, you've created a Dynamic module. Now in your root module you
 
 ```ts
 @Module({
-  imports: [ConfigModule.forRoot(ConfigModule, synchronousConfigModuleOptions)]
+  imports: [ConfigModule.forRoot(ConfigModule, synchronousConfigModuleOptions)],
 })
 export class AppModule {}
 ```
@@ -72,7 +72,7 @@ or asynchronously
 
 ```ts
 @Module({
-  imports: [ConfigModule.forRootAsync(ConfigModule, asyncConfigModuleOptions)]
+  imports: [ConfigModule.forRootAsync(ConfigModule, asyncConfigModuleOptions)],
 })
 export class AppModule {}
 ```
@@ -85,7 +85,7 @@ For re-using the configured dynamic modules, the module provides a static method
 
 ```ts
 @Module({
-  imports: [ConfigModule.externallyConfigured(ConfigModule, 0)]
+  imports: [ConfigModule.externallyConfigured(ConfigModule, 0)],
 })
 export class ConfigModuleDependentModule {}
 ```
@@ -103,7 +103,7 @@ import { ConfigModule } from './config.service'; // the service to be provided t
 
 @Module({
   providers: [ConfigService],
-  exports: [ConfigService]
+  exports: [ConfigService],
 })
 export class ConfigModule extends createConfigurableDynamicRootModule<
   ConfigModule,
@@ -117,7 +117,15 @@ Now it can be used in another module like this:
 
 ```ts
 @Module({
-  imports: [ConfigModule.Deferred]
+  imports: [ConfigModule.Deferred],
 })
 export class ConfigModuleDependentModule {}
 ```
+
+## Contribute
+
+Contributions welcome! Read the [contribution guidelines](../../CONTRIBUTING.md) first.
+
+## License
+
+[MIT License](../../LICENSE)

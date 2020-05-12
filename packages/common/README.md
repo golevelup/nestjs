@@ -18,3 +18,11 @@ to consume
 ## Mixins
 
 The mixin pattern is particularly useful with NestJS components like `Interceptors` as a mechanism to provide both configuration while still allowing the component to participate with Nest's `Dependency Injection`.
+
+## Contribute
+
+Contributions welcome! Read the [contribution guidelines](../../CONTRIBUTING.md) first.
+
+## License
+
+[MIT License](../../LICENSE)

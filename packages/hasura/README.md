@@ -93,3 +93,11 @@ The `HasuraModule` makes it easy to reuse the same events API endpoint for all e
 #### Important!
 
 when creating the event in Hasura, ensure that the Header Name and Value match the configuration provided to the `HasuraModule` configuration in your NestJS application. This ensures that only Hasura can trigger events in your system.
+
+## Contribute
+
+Contributions welcome! Read the [contribution guidelines](../../CONTRIBUTING.md) first.
+
+## License
+
+[MIT License](../../LICENSE)

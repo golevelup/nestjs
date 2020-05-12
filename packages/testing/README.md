@@ -114,3 +114,11 @@ describe('Mocked Execution Context', () => {
 The above case shows how well the `createMock` utility can take in user provided values as well as returning **type safe** mocks that can easily be chained and modified as needed.
 
 For a few more examples on what can be done [the mock.spec](src/mocks.spec.ts) file has some really cool examples that show pretty well just what is doable with this utility.
+
+## Contribute
+
+Contributions welcome! Read the [contribution guidelines](../../CONTRIBUTING.md) first.
+
+## License
+
+[MIT License](../../LICENSE)
