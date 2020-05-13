@@ -22,6 +22,7 @@ import {
 
 @Module({
   imports: [DiscoveryModule],
+  controllers: [EventHandlerController],
 })
 export class HasuraModule
   extends createConfigurableDynamicRootModule<HasuraModule, HasuraModuleConfig>(
@@ -44,7 +45,6 @@ export class HasuraModule
         EventHandlerService,
         HasuraEventHandlerHeaderGuard,
       ],
-      controllers: [EventHandlerController],
     }
   )
   implements OnModuleInit {

@@ -20,74 +20,89 @@ class PaymentCreatedService {
   }
 }
 
-const baseScenario: StripeModuleConfig['webhookConfig'] = {
-  stripeWebhookSecret: '123',
-  loggingConfiguration: {
-    logMatchingEventHandlers: true,
-  },
-};
-
-const scenarios: StripeModuleConfig['webhookConfig'][] = [
-  baseScenario,
-  { ...baseScenario, controllerPrefix: 'stripez' },
+type ModuleType = 'forRoot' | 'forRootAsync';
+const cases: [ModuleType, string | undefined][] = [
+  ['forRoot', undefined],
+  ['forRoot', 'stripez'],
+  ['forRootAsync', undefined],
+  ['forRootAsync', 'stripez'],
 ];
 
-describe.each(scenarios)('Stripe Module (e2e)', (scenario) => {
-  let app: INestApplication;
-  let hydratePayloadFn: jest.Mock<
-    {
-      type: string;
-    },
-    [string, Buffer]
-  >;
+describe.each(cases)(
+  'Stripe Module %p with controller prefix %p (e2e)',
+  (moduleType, controllerPrefix) => {
+    let app: INestApplication;
+    let hydratePayloadFn: jest.Mock<
+      {
+        type: string;
+      },
+      [string, Buffer]
+    >;
 
-  const stripeWebhookEndpoint = scenario?.controllerPrefix
-    ? `/${scenario?.controllerPrefix}/webhook`
-    : defaultStripeWebhookEndpoint;
+    const stripeWebhookEndpoint = controllerPrefix
+      ? `/${controllerPrefix}/webhook`
+      : defaultStripeWebhookEndpoint;
 
-  beforeEach(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [
-        StripeModule.forRoot(StripeModule, {
-          apiKey: '123',
-          webhookConfig: scenario,
-        }),
-      ],
-      providers: [PaymentCreatedService],
-    }).compile();
+    const moduleConfig: StripeModuleConfig = {
+      apiKey: '123',
+      webhookConfig: {
+        stripeWebhookSecret: '123',
+        loggingConfiguration: {
+          logMatchingEventHandlers: true,
+        },
+        controllerPrefix,
+      },
+    };
 
-    app = moduleFixture.createNestApplication();
-    await app.init();
+    beforeEach(async () => {
+      const moduleImport =
+        moduleType === 'forRoot'
+          ? StripeModule.forRoot(StripeModule, moduleConfig)
+          : StripeModule.forRootAsync(StripeModule, {
+              useFactory: () => moduleConfig,
+            });
 
-    const stripePayloadService = app.get<StripePayloadService>(
-      StripePayloadService
-    );
+      const moduleFixture: TestingModule = await Test.createTestingModule({
+        imports: [moduleImport],
+        providers: [PaymentCreatedService],
+      }).compile();
 
-    hydratePayloadFn = jest
-      .spyOn(stripePayloadService, 'tryHydratePayload')
-      .mockImplementationOnce((sig, buff) => buff as any);
-  });
+      app = moduleFixture.createNestApplication();
+      await app.init();
 
-  afterEach(() => jest.resetAllMocks());
+      const stripePayloadService = app.get<StripePayloadService>(
+        StripePayloadService
+      );
 
-  it('returns an error if the stripe signature is missing', () => {
-    return request(app.getHttpServer())
-      .post(stripeWebhookEndpoint)
-      .send(expectedEvent)
-      .expect(500);
-  });
+      hydratePayloadFn = jest
+        .spyOn(stripePayloadService, 'tryHydratePayload')
+        .mockImplementationOnce((sig, buff) => buff as any);
+    });
 
-  it('routes incoming events to their handlers based on event type', () => {
-    return request(app.getHttpServer())
-      .post(stripeWebhookEndpoint)
-      .send(expectedEvent)
-      .set('stripe-signature', stripeSig)
-      .expect(201)
-      .then(() => {
-        expect(testReceiveStripeFn).toHaveBeenCalledTimes(1);
-        expect(hydratePayloadFn).toHaveBeenCalledTimes(1);
-        expect(hydratePayloadFn).toHaveBeenCalledWith(stripeSig, expectedEvent);
-        expect(testReceiveStripeFn).toHaveBeenCalledWith(expectedEvent);
-      });
-  });
-});
+    it('returns an error if the stripe signature is missing', () => {
+      return request(app.getHttpServer())
+        .post(stripeWebhookEndpoint)
+        .send(expectedEvent)
+        .expect(500);
+    });
+
+    it('routes incoming events to their handlers based on event type', () => {
+      return request(app.getHttpServer())
+        .post(stripeWebhookEndpoint)
+        .send(expectedEvent)
+        .set('stripe-signature', stripeSig)
+        .expect(201)
+        .then(() => {
+          expect(testReceiveStripeFn).toHaveBeenCalledTimes(1);
+          expect(hydratePayloadFn).toHaveBeenCalledTimes(1);
+          expect(hydratePayloadFn).toHaveBeenCalledWith(
+            stripeSig,
+            expectedEvent
+          );
+          expect(testReceiveStripeFn).toHaveBeenCalledWith(expectedEvent);
+        });
+    });
+
+    afterEach(() => jest.resetAllMocks());
+  }
+);

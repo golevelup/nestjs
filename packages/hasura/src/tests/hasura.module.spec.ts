@@ -38,23 +38,38 @@ const eventPayloadMissingTable = {
   table: { schema: 'public', name: 'userz' },
 };
 
-describe.each([undefined, 'customEndpoint'])(
-  'Hasura Module (e2e)',
-  (controllerPrefix) => {
+type ModuleType = 'forRoot' | 'forRootAsync';
+const cases: [ModuleType, string | undefined][] = [
+  ['forRoot', undefined],
+  ['forRoot', 'customEndpoint'],
+  ['forRootAsync', undefined],
+  ['forRootAsync', 'customEndpoint'],
+];
+
+describe.each(cases)(
+  'Hasura Module %p with controller prefix %p (e2e)',
+  (moduleType, controllerPrefix) => {
     let app;
     const hasuraEndpoint = controllerPrefix
       ? `/${controllerPrefix}/events`
       : defaultHasuraEndpoint;
 
+    const moduleConfig = {
+      secretFactory: secret,
+      secretHeader: secretHeader,
+      controllerPrefix,
+    };
+
     beforeEach(async () => {
+      const moduleImport =
+        moduleType === 'forRootAsync'
+          ? HasuraModule.forRootAsync(HasuraModule, {
+              useFactory: () => moduleConfig,
+            })
+          : HasuraModule.forRoot(HasuraModule, moduleConfig);
+
       const moduleFixture: TestingModule = await Test.createTestingModule({
-        imports: [
-          HasuraModule.forRoot(HasuraModule, {
-            secretFactory: secret,
-            secretHeader: secretHeader,
-            controllerPrefix,
-          }),
-        ],
+        imports: [moduleImport],
         providers: [UserEventService],
       }).compile();
 
