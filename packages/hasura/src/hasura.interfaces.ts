@@ -14,7 +14,7 @@ const exampleEvent = {
 type EventOperation = 'INSERT' | 'UPDATE' | 'DELETE' | 'MANUAL';
 
 type EventPayload = {
-  sessionVariables: Record<string, string>;
+  session_variables: Record<string, string>;
   op: EventOperation;
   data: { old: unknown; new: unknown | unknown[] };
 };
