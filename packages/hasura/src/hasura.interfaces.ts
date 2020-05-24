@@ -32,7 +32,16 @@ export type TypedHasuraEvent<T> = Omit<HasuraEvent, 'event'> & {
 };
 
 export interface HasuraEventHandlerConfig {
-  table: { schema?: string; name: string };
+  /**
+   * @deprecated Table information for the event trigger which will will be used to route the event.
+   * It is recommended to use `triggerName` instead as multiple events can use the same table which
+   * makes routing to the correct handler more difficult
+   */
+  table?: { schema?: string; name: string };
+  /**
+   * The name of the Hasura Trigger which created this event
+   */
+  triggerName?: string;
 }
 
 export interface HasuraModuleConfig {
