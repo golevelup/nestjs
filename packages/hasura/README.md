@@ -55,7 +55,29 @@ The Hasura Module supports both the `forRoot` and `forRootAsync` patterns for co
 
 ### Registering Event Handlers
 
-Decorate methods in your NestJS providers in order to have them be automatically attached as event handlers for incoming Hasura events. The event payload will be analyzed and routed to your provider methods based on the table and schema name provided in the decorator.
+Decorate methods in your NestJS providers in order to have them be automatically attached as event handlers for incoming Hasura events. The event payload will be analyzed and routed to your provider methods based on the configuration provided in the decorator.
+
+#### Route based on Hasura Trigger Name
+
+The recommended method of routing to the correct event handler is to specify the Hasura Trigger Name in the decorator. This will ensure that you have the flexibility to have multiple events targeting the same table with different operation types and column sets.
+
+```typescript
+import { HasuraEventHandler, HasuraEvent } from '@golevelup/nestjs-hasura';
+
+@Injectable()
+class UsersService {
+  @HasuraEventHandler({
+    triggerName: 'user_created',
+  })
+  handleUserCreated(evt: HasuraEvent) {
+    // handle the event payload. Typing the method parameter with `HasurEvent` will provide intellisense
+  }
+}
+```
+
+#### Route Based on Schema and Table Name (Deprecated)
+
+It is possible to configure routing to the event handler based on the schema and table name of the source event. This is deprecated and not recommended as it is a less flexible way to route events and will be removed in a future release.
 
 The schema name is optional and if not provided will default to `public`.
 

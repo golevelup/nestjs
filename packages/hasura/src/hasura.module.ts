@@ -75,16 +75,40 @@ export class HasuraModule
       Object.keys(grouped).map((x) => {
         this.logger.log(`Registering hasura event handlers from ${x}`);
 
-        return grouped[x].map(({ discoveredMethod, meta: config }) => ({
-          key: `${config.table.schema ? config.table.schema : 'public'}-${
-            config.table.name
-          }`,
-          handler: this.externalContextCreator.create(
-            discoveredMethod.parentClass.instance,
-            discoveredMethod.handler,
-            discoveredMethod.methodName
-          ),
-        }));
+        return grouped[x].map(({ discoveredMethod, meta: config }) => {
+          if (!config.table && !config.triggerName) {
+            throw new Error(
+              'Hasura Event Handler is invalid. Specify either trigger name or table mapping'
+            );
+          }
+
+          if (config.table) {
+            this.logger.warn(
+              `Event binding based on schema and table is deprecated and will be removed in a future release. Consider replacing the binding on ${discoveredMethod.methodName} with triggerName`
+            );
+          }
+
+          if (config.table && config.triggerName) {
+            this.logger.warn(
+              `Both table and trigger bindings are set for ${discoveredMethod.methodName}. This is not recommended and will cause duplicate message processing`
+            );
+          }
+
+          const key =
+            config.triggerName ||
+            `${config.table?.schema ? config.table?.schema : 'public'}-${
+              config.table?.name
+            }`;
+
+          return {
+            key,
+            handler: this.externalContextCreator.create(
+              discoveredMethod.parentClass.instance,
+              discoveredMethod.handler,
+              discoveredMethod.methodName
+            ),
+          };
+        });
       })
     );
 
@@ -95,18 +119,21 @@ export class HasuraModule
     const eventHandlerService = eventHandlerServiceInstance as EventHandlerService;
 
     const handleEvent = (evt: Partial<HasuraEvent>) => {
-      const key = `${evt?.table?.schema}-${evt?.table?.name}`;
+      const keys = [
+        evt.trigger?.name,
+        `${evt?.table?.schema}-${evt?.table?.name}`,
+      ];
       // TODO: this should use a map for faster lookups
-      const handler = eventHandlers.find((x) => x.key === key);
+      const handlers = eventHandlers.filter((x) => keys.includes(x.key));
 
       if (this.hasuraModuleConfig.enableEventLogs) {
-        this.logger.log(`Received event for: ${key}-${evt?.event?.op}`);
+        this.logger.log(`Received event for: ${keys}`);
       }
 
-      if (handler) {
-        return handler.handler(evt);
+      if (handlers && handlers.length) {
+        return Promise.all(handlers.map((x) => x.handler(evt)));
       } else {
-        const errorMessage = `Handler not found for ${key}`;
+        const errorMessage = `Handler not found for ${keys}`;
         this.logger.error(errorMessage);
         throw new BadRequestException(errorMessage);
       }

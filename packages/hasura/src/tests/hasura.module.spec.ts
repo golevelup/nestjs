@@ -1,10 +1,13 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as request from 'supertest';
 import { HasuraEventHandler } from '../hasura.decorators';
 import { HasuraModule } from '../hasura.module';
+import { HasuraModuleConfig } from '../hasura.interfaces';
 
-const eventHandlerFn = jest.fn();
+const tableBoundEventHandler = jest.fn();
+const triggerBoundEventHandler = jest.fn();
+const triggerName = 'user_created';
 const defaultHasuraEndpoint = '/hasura/events';
 
 @Injectable()
@@ -12,8 +15,15 @@ class UserEventService {
   @HasuraEventHandler({
     table: { name: 'user' },
   })
-  handleUserCreated() {
-    eventHandlerFn();
+  handleUserTableEvent(evt) {
+    tableBoundEventHandler(evt);
+  }
+
+  @HasuraEventHandler({
+    triggerName,
+  })
+  handleUserCreatedTrigger(evt) {
+    triggerBoundEventHandler(evt);
   }
 }
 
@@ -23,7 +33,7 @@ const secret = 'secret';
 const eventPayload = {
   id: 'ecd5fe4a-7113-4243-bb0e-6177c78a0033',
   table: { schema: 'public', name: 'user' },
-  trigger: { name: 'user_created' },
+  trigger: { name: triggerName },
   event: {
     session_variables: { 'x-hasura-role': 'admin' },
     op: 'INSERT',
@@ -33,9 +43,10 @@ const eventPayload = {
   created_at: '2020-02-20T01:12:12.789983Z',
 };
 
-const eventPayloadMissingTable = {
+const eventPayloadMissingTableAndTrigger = {
   ...eventPayload,
   table: { schema: 'public', name: 'userz' },
+  trigger: { name: 'unbound_trigger' },
 };
 
 type ModuleType = 'forRoot' | 'forRootAsync';
@@ -49,15 +60,16 @@ const cases: [ModuleType, string | undefined][] = [
 describe.each(cases)(
   'Hasura Module %p with controller prefix %p (e2e)',
   (moduleType, controllerPrefix) => {
-    let app;
+    let app: INestApplication;
     const hasuraEndpoint = controllerPrefix
       ? `/${controllerPrefix}/events`
       : defaultHasuraEndpoint;
 
-    const moduleConfig = {
+    const moduleConfig: HasuraModuleConfig = {
       secretFactory: secret,
       secretHeader: secretHeader,
       controllerPrefix,
+      enableEventLogs: true,
     };
 
     beforeEach(async () => {
@@ -78,7 +90,8 @@ describe.each(cases)(
     });
 
     afterEach(() => {
-      eventHandlerFn.mockReset();
+      tableBoundEventHandler.mockReset();
+      triggerBoundEventHandler.mockReset();
     });
 
     it('should return forbidden if the secret api header is missing', () => {
@@ -100,17 +113,21 @@ describe.each(cases)(
       return request(app.getHttpServer())
         .post(hasuraEndpoint)
         .set(secretHeader, secret)
-        .send(eventPayloadMissingTable)
+        .send(eventPayloadMissingTableAndTrigger)
         .expect(400);
     });
 
-    it('should pass the event to the correct handler', () => {
-      return request(app.getHttpServer())
+    it('should pass the event to the correct handler', async () => {
+      const response = await request(app.getHttpServer())
         .post(hasuraEndpoint)
         .set(secretHeader, secret)
-        .send(eventPayload)
-        .expect(202)
-        .then(() => expect(eventHandlerFn).toHaveBeenCalledTimes(1));
+        .send(eventPayload);
+
+      expect(response.status).toEqual(202);
+      expect(tableBoundEventHandler).toHaveBeenCalledTimes(1);
+      expect(tableBoundEventHandler).toHaveBeenCalledWith(eventPayload);
+      expect(triggerBoundEventHandler).toHaveBeenCalledTimes(1);
+      expect(triggerBoundEventHandler).toHaveBeenCalledWith(eventPayload);
     });
   }
 );
