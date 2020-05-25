@@ -11,7 +11,7 @@ const exampleEvent = {
   created_at: '2020-02-20T01:12:12.789983Z',
 };
 
-type EventOperation = 'INSERT' | 'UPDATE' | 'DELETE' | 'MANUAL';
+export type EventOperation = 'INSERT' | 'UPDATE' | 'DELETE' | 'MANUAL';
 
 type EventPayload = {
   session_variables: Record<string, string>;
@@ -50,3 +50,11 @@ export interface HasuraModuleConfig {
   enableEventLogs?: boolean;
   controllerPrefix?: string;
 }
+
+export type HasuraAction<T = Record<string, string>> = {
+  action: {
+    name: string;
+  };
+  session_variables: Record<string, string>;
+  input: T;
+};
