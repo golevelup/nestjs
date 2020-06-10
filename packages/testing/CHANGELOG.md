@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.3.0](https://github.com/golevelup/nestjs/compare/@golevelup/ts-jest@0.2.3...@golevelup/ts-jest@0.3.0) (2020-06-10)
+
+### Features
+
+- **ts-jest:** improve support for partials and promises ([82ddac4](https://github.com/golevelup/nestjs/commit/82ddac4))
+
 ## [0.2.3](https://github.com/golevelup/nestjs/compare/@golevelup/ts-jest@0.2.2...@golevelup/ts-jest@0.2.3) (2020-05-13)
 
 **Note:** Version bump only for package @golevelup/ts-jest

@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.5.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-hasura@0.4.0...@golevelup/nestjs-hasura@0.5.0) (2020-06-10)
+
+### Features
+
+- **hasura:** add HasuraAction type ([0b51c46](https://github.com/golevelup/nestjs/commit/0b51c46))
+
 # [0.4.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-hasura@0.3.3...@golevelup/nestjs-hasura@0.4.0) (2020-05-24)
 
 ### Bug Fixes
