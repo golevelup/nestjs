@@ -19,21 +19,21 @@ class TestClass {
 describe('Mocks', () => {
   const request = {
     headers: {
-      authorization: 'auth'
-    }
+      authorization: 'auth',
+    },
   };
 
   describe('user provided', () => {
     it('should convert user provided test object to mocks', () => {
       const request = {
         headers: {
-          authorization: 'auth'
-        }
+          authorization: 'auth',
+        },
       };
       const mock = createMock<ExecutionContext>({
         switchToHttp: () => ({
-          getRequest: () => request
-        })
+          getRequest: () => request,
+        }),
       });
 
       const result = mock.switchToHttp().getRequest();
@@ -45,7 +45,7 @@ describe('Mocks', () => {
     it('should work with properties and functions', () => {
       const mock = createMock<TestInterface>({
         someNum: 42,
-        func: () => false
+        func: () => false,
       });
 
       const num = mock.someNum;
@@ -58,12 +58,40 @@ describe('Mocks', () => {
     });
 
     it('should work with classes', () => {
-      const mock = createMock<TestClass>();
+      const mock = createMock<TestClass>(undefined, { name: 'TestClass' });
 
       mock.someMethod.mockReturnValueOnce(42);
 
       const result = mock.someMethod();
       expect(result).toBe(42);
+    });
+
+    it('should work with partial objects and potentially undefined methods', () => {
+      type TypeWithOptionalProps = {
+        maybe?: () => number;
+        another: () => boolean;
+      };
+
+      const mock = createMock<TypeWithOptionalProps>();
+      mock.maybe?.mockImplementationOnce(() => 42);
+
+      const result = mock.maybe!();
+
+      expect(result).toBe(42);
+    });
+
+    it('should work with promises', async () => {
+      type TypeWithPromiseReturningFunctions = {
+        doSomethingAsync: () => Promise<number>;
+      };
+
+      const mock = createMock<TypeWithPromiseReturningFunctions>({
+        doSomethingAsync: async () => 42,
+      });
+
+      const result = await mock.doSomethingAsync();
+      expect(result).toBe(42);
+      expect(mock.doSomethingAsync).toBeCalledTimes(1);
     });
   });
 
@@ -71,8 +99,8 @@ describe('Mocks', () => {
     it('should auto mock functions that are not provided by user', () => {
       const mock = createMock<ExecutionContext>({
         switchToHttp: () => ({
-          getRequest: () => request
-        })
+          getRequest: () => request,
+        }),
       });
 
       const first = mock.switchToRpc();
@@ -89,7 +117,7 @@ describe('Mocks', () => {
     it('should allow for mock implementation on automocked properties', () => {
       const executionContextMock = createMock<ExecutionContext>();
       const httpArgsHost = createMock<HttpArgumentsHost>({
-        getRequest: () => request
+        getRequest: () => request,
       });
 
       executionContextMock.switchToHttp.mockImplementation(() => httpArgsHost);
@@ -97,6 +125,18 @@ describe('Mocks', () => {
       const result = executionContextMock.switchToHttp().getRequest();
       expect(result).toBe(request);
       expect(httpArgsHost.getRequest).toBeCalledTimes(1);
+    });
+
+    it('should automock promises so that they are awaitable', async () => {
+      type TypeWithPromiseReturningFunctions = {
+        doSomethingAsync: () => Promise<number>;
+      };
+
+      const mock = createMock<TypeWithPromiseReturningFunctions>();
+
+      const result = await mock.doSomethingAsync();
+      expect(result).toBeDefined();
+      expect(mock.doSomethingAsync).toBeCalledTimes(1);
     });
 
     it('should automock objects returned from automocks', () => {
@@ -128,15 +168,9 @@ describe('Mocks', () => {
 
       const mock = createMock<Three>();
 
-      mock
-        .getTwo()
-        .getOne()
-        .getNumber.mockReturnValueOnce(42);
+      mock.getTwo().getOne().getNumber.mockReturnValueOnce(42);
 
-      const result = mock
-        .getTwo()
-        .getOne()
-        .getNumber();
+      const result = mock.getTwo().getOne().getNumber();
 
       expect(result).toBe(42);
     });
@@ -155,17 +189,17 @@ describe('Mocks', () => {
           {
             provide: diToken,
             useValue: createMock<ExecutionContext>({
-              getType: () => 'something'
-            })
+              getType: () => 'something',
+            }),
           },
           {
             inject: [diToken],
             provide: dependentToken,
             useFactory: (dep: DeepMocked<ExecutionContext>) => ({
-              dependent: dep.getType
-            })
-          }
-        ]
+              dependent: dep.getType,
+            }),
+          },
+        ],
       }).compile();
 
       mockedProvider = module.get<DeepMocked<ExecutionContext>>(diToken);
@@ -176,12 +210,12 @@ describe('Mocks', () => {
 
     it('should correctly resolve mocked providers', async () => {
       const request = {
-        key: 'val'
+        key: 'val',
       };
 
       mockedProvider.switchToHttp.mockReturnValueOnce(
         createMock<HttpArgumentsHost>({
-          getRequest: () => request
+          getRequest: () => request,
         })
       );
 
