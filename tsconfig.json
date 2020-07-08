@@ -14,6 +14,7 @@
     "sourceMap": true,
     "lib": ["es7"],
     "baseUrl": "./src",
+    "skipLibCheck": true,
     "paths": {
       "@golevelup/*": ["./*/src"]
     }

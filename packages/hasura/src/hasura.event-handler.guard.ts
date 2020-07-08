@@ -2,7 +2,7 @@ import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Request } from 'express';
 import { Observable } from 'rxjs';
 import { InjectHasuraConfig } from './hasura.decorators';
-import { HasuraModuleConfig } from './hasura.interfaces';
+import { HasuraModuleConfig } from './hasura.events.interfaces';
 
 @Injectable()
 export class HasuraEventHandlerHeaderGuard implements CanActivate {

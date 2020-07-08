@@ -49,12 +49,5 @@ export interface HasuraModuleConfig {
   secretFactory: (() => string) | string;
   enableEventLogs?: boolean;
   controllerPrefix?: string;
+  endpoint: string;
 }
-
-export type HasuraAction<T = Record<string, string>> = {
-  action: {
-    name: string;
-  };
-  session_variables: Record<string, string>;
-  input: T;
-};

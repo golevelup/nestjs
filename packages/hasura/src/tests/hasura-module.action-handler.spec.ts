@@ -1,52 +1,39 @@
+import { HasuraAction } from './../hasura.actions.interfaces';
 import { Injectable, INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as request from 'supertest';
-import { HasuraEventHandler } from '../hasura.decorators';
+import { HasuraActionHandler } from '../hasura.decorators';
 import { HasuraModule } from '../hasura.module';
-import { HasuraModuleConfig } from '../hasura.interfaces';
+import { HasuraModuleConfig } from '../hasura.events.interfaces';
 
-const tableBoundEventHandler = jest.fn();
-const triggerBoundEventHandler = jest.fn();
-const triggerName = 'user_created';
-const defaultHasuraEndpoint = '/hasura/events';
-
-@Injectable()
-class UserEventService {
-  @HasuraEventHandler({
-    table: { name: 'user' },
-  })
-  handleUserTableEvent(evt) {
-    tableBoundEventHandler(evt);
-  }
-
-  @HasuraEventHandler({
-    triggerName,
-  })
-  handleUserCreatedTrigger(evt) {
-    triggerBoundEventHandler(evt);
-  }
-}
+const innerActionHandler = jest.fn();
+const defaultHasuraEndpoint = '/hasura/actions';
 
 const secretHeader = 'api-secret-header';
 const secret = 'secret';
+const actionName = 'test-action';
 
-const eventPayload = {
-  id: 'ecd5fe4a-7113-4243-bb0e-6177c78a0033',
-  table: { schema: 'public', name: 'user' },
-  trigger: { name: triggerName },
-  event: {
-    session_variables: { 'x-hasura-role': 'admin' },
-    op: 'INSERT',
-    data: { old: null, new: [{}] },
+@Injectable()
+class TestActionHandlerService {
+  @HasuraActionHandler(actionName)
+  handleTestAction(actionInput) {
+    innerActionHandler(actionInput);
+  }
+}
+
+const actionPayload: HasuraAction = {
+  action: {
+    name: actionName,
   },
-  delivery_info: { current_retry: 0, max_retries: 0 },
-  created_at: '2020-02-20T01:12:12.789983Z',
+  session_variables: { 'x-hasura-role': 'admin' },
+  input: {
+    val: 42,
+  },
 };
 
-const eventPayloadMissingTableAndTrigger = {
-  ...eventPayload,
-  table: { schema: 'public', name: 'userz' },
-  trigger: { name: 'unbound_trigger' },
+const actionPayloadWithNoAssociatedHandler = {
+  ...actionPayload,
+  action: { name: 'no-handler' },
 };
 
 type ModuleType = 'forRoot' | 'forRootAsync';
@@ -58,11 +45,11 @@ const cases: [ModuleType, string | undefined][] = [
 ];
 
 describe.each(cases)(
-  'Hasura Module %p with controller prefix %p (e2e)',
+  'Hasura Action Event Handler %p with controller prefix %p (e2e)',
   (moduleType, controllerPrefix) => {
     let app: INestApplication;
     const hasuraEndpoint = controllerPrefix
-      ? `/${controllerPrefix}/events`
+      ? `/${controllerPrefix}/actions`
       : defaultHasuraEndpoint;
 
     const moduleConfig: HasuraModuleConfig = {
@@ -82,7 +69,7 @@ describe.each(cases)(
 
       const moduleFixture: TestingModule = await Test.createTestingModule({
         imports: [moduleImport],
-        providers: [UserEventService],
+        providers: [TestActionHandlerService],
       }).compile();
 
       app = moduleFixture.createNestApplication();
@@ -90,14 +77,13 @@ describe.each(cases)(
     });
 
     afterEach(() => {
-      tableBoundEventHandler.mockReset();
-      triggerBoundEventHandler.mockReset();
+      innerActionHandler.mockReset();
     });
 
     it('should return forbidden if the secret api header is missing', () => {
       return request(app.getHttpServer())
         .post(hasuraEndpoint)
-        .send(eventPayload)
+        .send(actionPayload)
         .expect(403);
     });
 
@@ -105,29 +91,27 @@ describe.each(cases)(
       return request(app.getHttpServer())
         .post(hasuraEndpoint)
         .set(secretHeader, 'wrong Value')
-        .send(eventPayload)
+        .send(actionPayload)
         .expect(403);
     });
 
-    it('should return bad request if there is no event handler for the event', () => {
+    it('should return bad request if there is no action handler for the event', () => {
       return request(app.getHttpServer())
         .post(hasuraEndpoint)
         .set(secretHeader, secret)
-        .send(eventPayloadMissingTableAndTrigger)
+        .send(actionPayloadWithNoAssociatedHandler)
         .expect(400);
     });
 
-    it('should pass the event to the correct handler', async () => {
+    it('should pass the action input to the correct handler', async () => {
       const response = await request(app.getHttpServer())
         .post(hasuraEndpoint)
         .set(secretHeader, secret)
-        .send(eventPayload);
+        .send(actionPayload);
 
-      expect(response.status).toEqual(202);
-      expect(tableBoundEventHandler).toHaveBeenCalledTimes(1);
-      expect(tableBoundEventHandler).toHaveBeenCalledWith(eventPayload);
-      expect(triggerBoundEventHandler).toHaveBeenCalledTimes(1);
-      expect(triggerBoundEventHandler).toHaveBeenCalledWith(eventPayload);
+      expect(response.status).toEqual(200);
+      expect(innerActionHandler).toHaveBeenCalledTimes(1);
+      expect(innerActionHandler).toHaveBeenCalledWith(actionPayload.input);
     });
   }
 );
