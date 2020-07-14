@@ -4,8 +4,13 @@ import {
   HASURA_EVENT_HANDLER,
   HASURA_ACTION_HANDLER,
   HASURA_MODULE_CONFIG,
+  HASURA_ACTION_INPUT_SDL,
 } from './hasura.constants';
-import { HasuraEventHandlerConfig } from './hasura.events.interfaces';
+import {
+  HasuraEventHandlerConfig,
+  HasuraActionSdl,
+  HasuraActionHandlerConfig,
+} from './hasura.events.interfaces';
 
 /**
  * Method decorator that enables Hasura Events with a matching trigger name
@@ -23,11 +28,13 @@ export const HasuraEventHandler = (config: HasuraEventHandlerConfig) => (
  * to be automatically wired up to handle those actions
  * @param actionName The name of the matching action
  */
-export const HasuraActionHandler = (actionName: string) => (
-  target,
-  key,
-  descriptor
-) => SetMetadata(HASURA_ACTION_HANDLER, actionName)(target, key, descriptor);
+export const HasuraActionHandler = (
+  actionConfig: HasuraActionHandlerConfig = {}
+) => (target, key, descriptor) =>
+  SetMetadata(HASURA_ACTION_HANDLER, actionConfig)(target, key, descriptor);
+
+export const HasuraActionInputSDL = (definition: HasuraActionSdl) =>
+  SetMetadata(HASURA_ACTION_INPUT_SDL, definition);
 
 /**
  * Method Parameter decorator that can be used to inject the Hasura Module configuration

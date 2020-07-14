@@ -44,10 +44,85 @@ export interface HasuraEventHandlerConfig {
   triggerName?: string;
 }
 
+export interface HasuraActionHandlerConfig {
+  actionName?: string;
+  description?: string;
+}
+
 export interface HasuraModuleConfig {
   secretHeader: string;
   secretFactory: (() => string) | string;
   enableEventLogs?: boolean;
   controllerPrefix?: string;
   endpoint: string;
+  actions?: {
+    validateActions?: boolean;
+    forwardClientHeaders: boolean;
+    handler: string;
+  };
+}
+
+interface MetaField {
+  name: string;
+  type: string;
+}
+
+interface TypeMeta {
+  name: string;
+  fields: MetaField[];
+}
+
+interface Relationship {
+  remote_table: {
+    schema: string;
+    name: string;
+  };
+  name: string;
+  type: string;
+  field_mapping: Record<string, string>;
+}
+
+// TODO: These will be replaced once the strongly typed API SDKs are available
+export interface HasuraCustomTypesMeta {
+  input_objects: {
+    name: string;
+    fields: MetaField[];
+  }[];
+  objects: {
+    name: string;
+    fields: MetaField[];
+    relationships?: Relationship[];
+  }[];
+}
+
+export interface HasuraActionMeta {
+  name: string;
+  definition: {
+    handler: string;
+    output_type: 'string';
+    forward_client_headers: boolean;
+    headers: {
+      name: string;
+      value_from_env: string;
+    }[];
+    arguments: MetaField[];
+    type: 'mutation' | 'query';
+    kind: 'synchronous' | 'asynchronous';
+    permissions: {
+      role: string;
+    }[];
+  };
+}
+
+export interface HasuraMetaData {
+  actions: HasuraActionMeta[];
+  custom_types: HasuraCustomTypesMeta;
+}
+
+export interface HasuraActionSdl {
+  args: MetaField[];
+  customTypes: {
+    inputTypes: TypeMeta[];
+    outputType: TypeMeta;
+  };
 }

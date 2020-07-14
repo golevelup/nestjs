@@ -61,6 +61,7 @@
   "devDependencies": {
     "@types/node-fetch": "^2.5.7",
     "class-transformer": "^0.2.3",
-    "class-validator": "^0.12.2"
+    "class-validator": "^0.12.2",
+    "typescript": "^3.9.6"
   }
 }

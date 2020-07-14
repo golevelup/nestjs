@@ -8,11 +8,12 @@ import {
 } from '@nestjs/common';
 import { PATH_METADATA } from '@nestjs/common/constants';
 import { ExternalContextCreator } from '@nestjs/core/helpers/external-context-creator';
-import { flatten, groupBy } from 'lodash';
+import { flatten, groupBy, map } from 'lodash';
 import {
   HASURA_EVENT_HANDLER,
   HASURA_MODULE_CONFIG,
   HASURA_ACTION_HANDLER,
+  HASURA_ACTION_INPUT_SDL,
 } from './hasura.constants';
 import { InjectHasuraConfig } from './hasura.decorators';
 import { HasuraRouterController } from './hasura.router.controller';
@@ -22,6 +23,10 @@ import {
   HasuraEvent,
   HasuraEventHandlerConfig,
   HasuraModuleConfig,
+  HasuraActionSdl,
+  HasuraMetaData,
+  HasuraCustomTypesMeta,
+  HasuraActionHandlerConfig,
 } from './hasura.events.interfaces';
 import { ActionHandlerService } from './hasura.action-handler.service';
 import { HasuraAction } from './hasura.actions.interfaces';
@@ -86,7 +91,7 @@ export class HasuraModule
     }
 
     const actionHandlerNames = await this.discover.providerMethodsWithMetaAtKey<
-      string
+      HasuraActionHandlerConfig
     >(HASURA_ACTION_HANDLER);
 
     const grouped = groupBy(
@@ -94,28 +99,57 @@ export class HasuraModule
       (x) => x.discoveredMethod.parentClass.name
     );
 
-    const actionHandlers = flatten(
+    const handlerConfigs = flatten(
       Object.keys(grouped).map((x) => {
         this.logger.log(`Registering hasura action handlers from ${x}`);
 
-        return grouped[x].map(({ discoveredMethod, meta: actionName }) => {
-          this.logger.log(
-            `Action '${actionName}' -> ${x}.${discoveredMethod.methodName}`
-          );
-          return [
-            actionName,
-            this.externalContextCreator.create(
-              discoveredMethod.parentClass.instance,
-              discoveredMethod.handler,
-              discoveredMethod.methodName
-            ),
-          ] as const;
-        });
+        return grouped[x].map(
+          ({
+            discoveredMethod: { parentClass, handler, methodName },
+            meta: { actionName, description },
+          }) => {
+            actionName = actionName || methodName;
+
+            this.logger.log(`Action '${actionName}' -> ${x}.${methodName}`);
+
+            const inputSdl = Reflect.getMetadata(
+              HASURA_ACTION_INPUT_SDL,
+              handler
+            ) as HasuraActionSdl;
+
+            return {
+              actionName,
+              definition: inputSdl,
+              description,
+              handler: this.externalContextCreator.create(
+                parentClass.instance,
+                handler,
+                methodName
+              ),
+            };
+          }
+        );
       })
     );
 
     // TODO: Do we want to validate that there are duplicate action handlers here? What should we do if we find them?
-    const actionHandlerMap = new Map(actionHandlers);
+    const actionHandlerMap = new Map(
+      handlerConfigs.map(({ actionName, handler }) => [actionName, handler])
+    );
+
+    await this.diffAndApplyActionsMeta(
+      handlerConfigs.map(
+        ({ actionName: name, description, definition: config }) => ({
+          name,
+          description,
+          config,
+        })
+      )
+    );
+
+    // const mismatchedActionNames = actionHandlerMap.keys.filter(key => !hasuraActionNames.includes())
+
+    // console.log(hasuraMetaData);
 
     const handleAction = async (
       action: HasuraAction,
@@ -132,6 +166,104 @@ export class HasuraModule
     };
 
     actionHandlerService.handleAction = handleAction;
+  }
+
+  private async diffAndApplyActionsMeta(
+    actionsConfig: {
+      name: string;
+      description?: string;
+      config: HasuraActionSdl;
+    }[]
+  ) {
+    const hasuraMetaDataResponse = await fetch(
+      `http://localhost:48080/v1/query`,
+      {
+        method: 'POST',
+        headers: {
+          ['x-hasura-admin-secret']: 'secret',
+        },
+        body: JSON.stringify({
+          type: 'export_metadata',
+          args: {},
+        }),
+      }
+    );
+
+    const existingMeta: HasuraMetaData = await hasuraMetaDataResponse.json();
+
+    // find input object types that don't exist
+    const inputTypesToCreate = flatten(
+      actionsConfig.map((x) => x.config.customTypes?.inputTypes)
+    )
+      .filter(Boolean)
+      .filter(
+        (x) =>
+          !existingMeta.custom_types.input_objects.some(
+            (y) => y.name === x!.name
+          )
+      );
+
+    const objectTypesToCreate = actionsConfig
+      .map((x) => x.config.customTypes?.outputType)
+      .filter(Boolean)
+      .filter(
+        (x) =>
+          !existingMeta.custom_types.objects.some((y) => y.name === x!.name)
+      );
+
+    const newCustomTypesMeta: HasuraCustomTypesMeta = {
+      input_objects: [
+        ...existingMeta.custom_types.input_objects,
+        ...inputTypesToCreate,
+      ],
+      objects: [...existingMeta.custom_types.objects, ...objectTypesToCreate],
+    };
+
+    const x = await fetch(`http://localhost:48080/v1/query`, {
+      method: 'POST',
+      headers: {
+        ['x-hasura-admin-secret']: 'secret',
+      },
+      body: JSON.stringify({
+        type: 'set_custom_types',
+        args: newCustomTypesMeta,
+      }),
+    });
+
+    const customTypesResponse = await x.json();
+    console.log(JSON.stringify(customTypesResponse));
+
+    // let's just start by applying actions that don't exist
+    const actionsToCreate = actionsConfig.filter(({ name }) => {
+      return !existingMeta.actions.some((x) => x.name === name);
+    });
+
+    for (const { name, description, config } of actionsToCreate) {
+      const result = await fetch(`http://localhost:48080/v1/query`, {
+        method: 'POST',
+        headers: {
+          ['x-hasura-admin-secret']: 'secret',
+        },
+        body: JSON.stringify({
+          type: 'create_action',
+          args: {
+            name,
+            definition: {
+              kind: 'synchronous',
+              arguments: config.args,
+              output_type: config.customTypes.outputType.name,
+              handler: this.hasuraModuleConfig.actions?.handler || '',
+              forward_client_headers:
+                this.hasuraModuleConfig.actions?.forwardClientHeaders || false,
+            },
+            comment: description,
+          },
+        }),
+      });
+
+      const resultJson = await result.json();
+      console.log(resultJson);
+    }
   }
 
   private async configureHasuraEventHandlers() {

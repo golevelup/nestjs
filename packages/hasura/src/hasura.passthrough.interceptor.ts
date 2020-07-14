@@ -64,7 +64,6 @@ export const ForwardOperationToHasuraInterceptor = (
 
       return next.handle().pipe(
         flatMap((variables) => from(client.request(queryText, variables))),
-        tap((x) => console.log(JSON.stringify(x))),
         map((x) => Object.entries(x as any)[0][1])
       );
     }
