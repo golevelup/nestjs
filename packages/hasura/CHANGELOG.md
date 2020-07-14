@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.5.1-rc.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-hasura@0.5.0...@golevelup/nestjs-hasura@0.5.1-rc.0) (2020-07-14)
+
+### Features
+
+- **hasura-actions:** initial glue and interceptor ([8481325](https://github.com/golevelup/nestjs/commit/8481325))
+
 # [0.5.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-hasura@0.4.0...@golevelup/nestjs-hasura@0.5.0) (2020-06-10)
 
 ### Features
