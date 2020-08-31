@@ -22,10 +22,30 @@ import {
   HasuraEvent,
   HasuraEventHandlerConfig,
   HasuraModuleConfig,
+  HasuraScheduledEventPayload,
 } from './hasura.events.interfaces';
 import { ActionHandlerService } from './hasura.action-handler.service';
 import { HasuraAction } from './hasura.actions.interfaces';
 import fetch from 'node-fetch';
+
+function isHasuraEvent(value: any): value is HasuraEvent {
+  return (
+    value.id &&
+    typeof value.table == 'object' &&
+    typeof value.trigger == 'object'
+  )
+}
+
+function isHasuraScheduledEventPayload(
+  value: any,
+): value is HasuraScheduledEventPayload {
+  return (
+    value.id &&
+    value.name &&
+    value.scheduled_time &&
+    typeof value.payload == 'object'
+  )
+}
 
 @Module({
   imports: [DiscoveryModule],
@@ -195,11 +215,14 @@ export class HasuraModule
       })
     );
 
-    const handleEvent = (evt: Partial<HasuraEvent>) => {
-      const keys = [
-        evt.trigger?.name,
-        `${evt?.table?.schema}-${evt?.table?.name}`,
-      ];
+    const handleEvent = (evt: Partial<HasuraEvent> | HasuraScheduledEventPayload) => {
+      const keys = isHasuraEvent(evt)
+        ? [evt.trigger?.name, `${evt?.table?.schema}-${evt?.table?.name}`]
+        : isHasuraScheduledEventPayload(evt)
+        ? [evt.name]
+        : null
+      if (!keys) throw new Error('Not a Hasura Event')
+
       // TODO: this should use a map for faster lookups
       const handlers = eventHandlers.filter((x) => keys.includes(x.key));
 
