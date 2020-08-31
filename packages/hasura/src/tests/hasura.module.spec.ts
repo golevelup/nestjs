@@ -3,11 +3,17 @@ import { Test, TestingModule } from '@nestjs/testing';
 import * as request from 'supertest';
 import { HasuraEventHandler } from '../hasura.decorators';
 import { HasuraModule } from '../hasura.module';
-import { HasuraModuleConfig } from '../hasura.interfaces';
+import {
+  HasuraModuleConfig,
+  HasuraScheduledEventPayload,
+} from '../hasura.interfaces';
+import { pick } from 'lodash';
 
 const tableBoundEventHandler = jest.fn();
 const triggerBoundEventHandler = jest.fn();
+const scheduledEventHandler = jest.fn();
 const triggerName = 'user_created';
+const scheduled_trigger = 'scheduled_trigger';
 const defaultHasuraEndpoint = '/hasura/events';
 
 @Injectable()
@@ -24,6 +30,13 @@ class UserEventService {
   })
   handleUserCreatedTrigger(evt) {
     triggerBoundEventHandler(evt);
+  }
+
+  @HasuraEventHandler({
+    triggerName: scheduled_trigger,
+  })
+  handleScheduledEvent(evt) {
+    scheduledEventHandler(evt);
   }
 }
 
@@ -47,6 +60,14 @@ const eventPayloadMissingTableAndTrigger = {
   ...eventPayload,
   table: { schema: 'public', name: 'userz' },
   trigger: { name: 'unbound_trigger' },
+};
+
+const scheduledEventPayload: HasuraScheduledEventPayload = {
+  name: scheduled_trigger,
+  created_at: new Date(),
+  id: 'id',
+  scheduled_time: new Date(),
+  payload: {},
 };
 
 type ModuleType = 'forRoot' | 'forRootAsync';
@@ -92,6 +113,7 @@ describe.each(cases)(
     afterEach(() => {
       tableBoundEventHandler.mockReset();
       triggerBoundEventHandler.mockReset();
+      scheduledEventHandler.mockReset();
     });
 
     it('should return forbidden if the secret api header is missing', () => {
@@ -128,6 +150,21 @@ describe.each(cases)(
       expect(tableBoundEventHandler).toHaveBeenCalledWith(eventPayload);
       expect(triggerBoundEventHandler).toHaveBeenCalledTimes(1);
       expect(triggerBoundEventHandler).toHaveBeenCalledWith(eventPayload);
+    });
+
+    it('should pass the scheduled event payload to the correct handler', async () => {
+      const response = await request(app.getHttpServer())
+        .post(hasuraEndpoint)
+        .set(secretHeader, secret)
+        .send(scheduledEventPayload);
+
+      expect(response.status).toEqual(202);
+      expect(scheduledEventHandler).toHaveBeenCalledTimes(1);
+      expect(scheduledEventHandler).toHaveBeenCalledWith(
+        expect.objectContaining(
+          pick(scheduledEventPayload, ['name', 'payload'])
+        )
+      );
     });
   }
 );
