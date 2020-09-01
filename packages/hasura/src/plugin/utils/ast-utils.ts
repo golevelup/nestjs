@@ -45,6 +45,13 @@ export function isInterface(type: Type) {
   return hasObjectFlag(type, ObjectFlags.Interface);
 }
 
+export function isObjectLike(type: Type) {
+  return (
+    hasObjectFlag(type, ObjectFlags.Interface) ||
+    hasFlag(type, TypeFlags.Object)
+  );
+}
+
 export function isEnum(type: Type) {
   const hasEnumFlag = hasFlag(type, TypeFlags.Enum);
   if (hasEnumFlag) {

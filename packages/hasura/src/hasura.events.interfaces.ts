@@ -55,6 +55,7 @@ export interface HasuraModuleConfig {
   enableEventLogs?: boolean;
   controllerPrefix?: string;
   endpoint: string;
+  adminSecret: string;
   actions?: {
     validateActions?: boolean;
     forwardClientHeaders: boolean;
@@ -62,12 +63,12 @@ export interface HasuraModuleConfig {
   };
 }
 
-interface MetaField {
+export interface MetaField {
   name: string;
   type: string;
 }
 
-interface TypeMeta {
+export interface TypeMeta {
   name: string;
   fields: MetaField[];
 }

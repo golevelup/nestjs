@@ -31,6 +31,7 @@ import {
 import { ActionHandlerService } from './hasura.action-handler.service';
 import { HasuraAction } from './hasura.actions.interfaces';
 import fetch from 'node-fetch';
+import { HasuraClient } from './hasura.client';
 
 @Module({
   imports: [DiscoveryModule],
@@ -63,6 +64,7 @@ export class HasuraModule
   )
   implements OnModuleInit {
   private readonly logger = new Logger(HasuraModule.name);
+  private readonly hasuraClient: HasuraClient;
 
   constructor(
     private readonly discover: DiscoveryService,
@@ -71,6 +73,11 @@ export class HasuraModule
     private readonly hasuraModuleConfig: HasuraModuleConfig
   ) {
     super();
+
+    this.hasuraClient = new HasuraClient(
+      this.hasuraModuleConfig.endpoint,
+      this.hasuraModuleConfig.adminSecret
+    );
   }
 
   public async onModuleInit() {
@@ -87,7 +94,7 @@ export class HasuraModule
     ).map((x) => x.instance);
 
     if (!(actionHandlerService instanceof ActionHandlerService)) {
-      throw new Error(`Could not find Hasura Event Handler Service.`);
+      throw new Error(`Could not find Hasura Action Handler Service.`);
     }
 
     const actionHandlerNames = await this.discover.providerMethodsWithMetaAtKey<
@@ -137,8 +144,11 @@ export class HasuraModule
       handlerConfigs.map(({ actionName, handler }) => [actionName, handler])
     );
 
+    // TODO: Do something if we find Action Handlers that don't have the corresponding metadata needed
+    const handlerConfigsWithMeta = handlerConfigs.filter((x) => x.definition);
+
     await this.diffAndApplyActionsMeta(
-      handlerConfigs.map(
+      handlerConfigsWithMeta.map(
         ({ actionName: name, description, definition: config }) => ({
           name,
           description,
@@ -175,21 +185,7 @@ export class HasuraModule
       config: HasuraActionSdl;
     }[]
   ) {
-    const hasuraMetaDataResponse = await fetch(
-      `http://localhost:48080/v1/query`,
-      {
-        method: 'POST',
-        headers: {
-          ['x-hasura-admin-secret']: 'secret',
-        },
-        body: JSON.stringify({
-          type: 'export_metadata',
-          args: {},
-        }),
-      }
-    );
-
-    const existingMeta: HasuraMetaData = await hasuraMetaDataResponse.json();
+    const existingMeta = await this.hasuraClient.exportMetadata();
 
     // find input object types that don't exist
     const inputTypesToCreate = flatten(
@@ -219,19 +215,7 @@ export class HasuraModule
       objects: [...existingMeta.custom_types.objects, ...objectTypesToCreate],
     };
 
-    const x = await fetch(`http://localhost:48080/v1/query`, {
-      method: 'POST',
-      headers: {
-        ['x-hasura-admin-secret']: 'secret',
-      },
-      body: JSON.stringify({
-        type: 'set_custom_types',
-        args: newCustomTypesMeta,
-      }),
-    });
-
-    const customTypesResponse = await x.json();
-    console.log(JSON.stringify(customTypesResponse));
+    await this.hasuraClient.setCustomTypes(newCustomTypesMeta);
 
     // let's just start by applying actions that don't exist
     const actionsToCreate = actionsConfig.filter(({ name }) => {

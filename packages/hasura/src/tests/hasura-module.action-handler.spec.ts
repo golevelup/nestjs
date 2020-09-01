@@ -15,7 +15,9 @@ const actionName = 'test-action';
 
 @Injectable()
 class TestActionHandlerService {
-  @HasuraActionHandler(actionName)
+  @HasuraActionHandler({
+    actionName,
+  })
   handleTestAction(actionInput) {
     innerActionHandler(actionInput);
   }
@@ -57,6 +59,7 @@ describe.each(cases)(
       secretHeader: secretHeader,
       controllerPrefix,
       enableEventLogs: true,
+      endpoint: '',
     };
 
     beforeEach(async () => {

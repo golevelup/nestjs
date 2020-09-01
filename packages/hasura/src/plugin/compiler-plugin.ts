@@ -1,5 +1,5 @@
 import * as ts from 'typescript';
-import { getDecoratorName } from './utils/ast-utils';
+import { getDecoratorName, isObjectLike } from './utils/ast-utils';
 import { compact, head } from 'lodash';
 import {
   getDecoratorOrUndefinedByNames,
@@ -7,32 +7,56 @@ import {
   getTypeReferenceAsString,
   replaceImportPath,
 } from './utils/plugin-utils';
+import { MetaField } from '../hasura.events.interfaces';
+
+type DecoratorInput = {
+  args: MetaField[];
+};
+
+const defaultTypesMapping = [
+  [ts.SyntaxKind.NumberKeyword, 'Int'],
+  [ts.SyntaxKind.StringKeyword, 'String'],
+];
 
 const isFilenameMatched = (patterns: string[], filename: string) =>
   patterns.some((path) => filename.includes(path));
 
-function createArgsPropertyAssignment() {
+function serializeSymbol(checker: ts.TypeChecker, symbol: ts.Symbol) {
+  return {
+    name: symbol.getName(),
+    documentation: ts.displayPartsToString(
+      symbol.getDocumentationComment(checker)
+    ),
+    type: checker.typeToString(
+      checker.getTypeOfSymbolAtLocation(symbol, symbol.valueDeclaration!)
+    ),
+  };
+}
+
+function createArgsPropertyAssignment(input: DecoratorInput) {
   return ts.createPropertyAssignment(
     'args',
-    ts.createArrayLiteral([
-      ts.createObjectLiteral([
-        ts.createPropertyAssignment('name', ts.createStringLiteral('id')),
-        ts.createPropertyAssignment('type', ts.createStringLiteral('uuid')),
-      ]),
-      ts.createObjectLiteral([
-        ts.createPropertyAssignment('name', ts.createStringLiteral('userDto')),
-        ts.createPropertyAssignment(
-          'type',
-          ts.createStringLiteral('UpdateUserProfileActionDto')
-        ),
-      ]),
-    ])
+    ts.createArrayLiteral(
+      input.args.map((field) =>
+        ts.createObjectLiteral([
+          ts.createPropertyAssignment(
+            'name',
+            ts.createStringLiteral(field.name)
+          ),
+          ts.createPropertyAssignment(
+            'type',
+            ts.createStringLiteral(field.type)
+          ),
+        ])
+      )
+    )
   );
 }
 
 function createDecoratorObjectLiteralExpr(
   node: ts.MethodDeclaration,
   typeChecker: ts.TypeChecker,
+  input: DecoratorInput,
   existingProperties: ts.NodeArray<
     ts.PropertyAssignment
   > = ts.createNodeArray(),
@@ -40,7 +64,7 @@ function createDecoratorObjectLiteralExpr(
 ): ts.ObjectLiteralExpression {
   const properties = [
     ...existingProperties,
-    createArgsPropertyAssignment(),
+    createArgsPropertyAssignment(input),
     // createTypePropertyAssignment(
     //   node,
     //   typeChecker,
@@ -82,7 +106,8 @@ function createDecoratorObjectLiteralExpr(
 function addDecoratorToNode(
   compilerNode: ts.MethodDeclaration,
   typeChecker: ts.TypeChecker,
-  hostFilename: string
+  hostFilename: string,
+  input: DecoratorInput
 ): ts.MethodDeclaration {
   const node = ts.getMutableClone(compilerNode);
 
@@ -97,6 +122,7 @@ function addDecoratorToNode(
           createDecoratorObjectLiteralExpr(
             node,
             typeChecker,
+            input,
             ts.createNodeArray(),
             hostFilename
           ),
@@ -129,39 +155,51 @@ export const before = (options?: Record<string, any>, program?: ts.Program) => {
           ) {
             // We found a method that's designated as a Hasura action handler!
 
-            // We want to find out it's method arguments in the first position in order to build the Action input SDL
-            console.log(node.parameters[0].type!.getText());
-
             const inputParam = node.parameters[0];
             if (!inputParam || !inputParam.type) {
               throw new Error('Action handler requires a parameter for input');
             }
 
-            // const something = inputParam
-            //   .type!.getChildren()
-            //   .map((x) => x.getText());
-
-            // const something = inputParam!.type.getChildren()[0] as ts.Identifier;
-            const something = inputParam!.type;
-
-            const typeThing = typeChecker.getTypeAtLocation(inputParam.type);
-
-            console.log(
-              typeChecker.getPropertiesOfType(typeThing).map((x) => ({
-                name: x.getName(),
-                type: x.valueDeclaration.forEachChild((y) =>
-                  console.log(y.kind)
-                ),
-              }))
+            // We want to find out it's method arguments in the first position in order to build the Action input SDL
+            const actionInputParamType = typeChecker.getTypeAtLocation(
+              inputParam.type
             );
 
-            // inputParam.type.forEachChild((x) => console.log(x.kind));
+            // console.log(isObjectLike(actionInputParamType));
 
-            // console.log(something);
+            if (isObjectLike(actionInputParamType)) {
+              // const wishfulThinking = typeChecker
+              //   .getPropertiesOfType(actionInputParamType)
+              //   .map((x) => {
+              //     console.log(serializeSymbol(typeChecker, x));
 
-            // ts.visitEachChild(inputParam.type, () => )
+              //     const valueDeclaration = x.valueDeclaration;
+              //     if (ts.isPropertySignature(valueDeclaration)) {
+              //       return (<ts.PropertySignature>valueDeclaration).type!.kind;
+              //     }
+              //   });
 
-            return addDecoratorToNode(node, typeChecker, sf.fileName);
+              // console.log(wishfulThinking);
+
+              return addDecoratorToNode(node, typeChecker, sf.fileName, {
+                args: typeChecker
+                  .getPropertiesOfType(actionInputParamType)
+                  .map((x) => {
+                    const propSig = <ts.PropertySignature>x.valueDeclaration;
+
+                    return {
+                      name: x.getName(),
+                      type: `${propSig.type!.getText()}${
+                        propSig.questionToken ? '' : '!'
+                      }`,
+                    };
+                  }),
+              });
+            } else {
+              throw new Error(
+                `Cannot process action input of type '${inputParam.type!.getText()}'`
+              );
+            }
           }
 
           return ts.visitEachChild(node, visitNode, ctx);
