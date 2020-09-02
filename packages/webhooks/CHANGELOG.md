@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.2.6](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-webhooks@0.2.5...@golevelup/nestjs-webhooks@0.2.6) (2020-09-02)
+
+### Bug Fixes
+
+- **webhooks:** add missing peer-dependency on body-parser ([25ad00e](https://github.com/golevelup/nestjs/commit/25ad00e)), closes [#175](https://github.com/golevelup/nestjs/issues/175)
+
 ## [0.2.5](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-webhooks@0.2.4...@golevelup/nestjs-webhooks@0.2.5) (2020-05-13)
 
 **Note:** Version bump only for package @golevelup/nestjs-webhooks

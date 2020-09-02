@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.6.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-hasura@0.5.0...@golevelup/nestjs-hasura@0.6.0) (2020-09-02)
+
+### Features
+
+- **hasura:** scheduled event support ([d677854](https://github.com/golevelup/nestjs/commit/d677854)), closes [#175](https://github.com/golevelup/nestjs/issues/175)
+
 # [0.5.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-hasura@0.4.0...@golevelup/nestjs-hasura@0.5.0) (2020-06-10)
 
 ### Features
