@@ -44,6 +44,14 @@ export interface HasuraEventHandlerConfig {
   triggerName?: string;
 }
 
+export interface HasuraScheduledEventPayload<T = Record<string, any>> {
+  scheduled_time: Date;
+  payload: T;
+  name: string;
+  created_at: Date;
+  id: string;
+}
+
 export interface HasuraModuleConfig {
   secretHeader: string;
   secretFactory: (() => string) | string;

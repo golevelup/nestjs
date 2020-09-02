@@ -18,7 +18,18 @@ import {
   HasuraEvent,
   HasuraEventHandlerConfig,
   HasuraModuleConfig,
+  HasuraScheduledEventPayload,
 } from './hasura.interfaces';
+
+function isHasuraEvent(value: any): value is HasuraEvent {
+  return ['trigger', 'table', 'event'].every((it) => it in value);
+}
+
+function isHasuraScheduledEventPayload(
+  value: any
+): value is HasuraScheduledEventPayload {
+  return ['name', 'scheduled_time', 'payload'].every((it) => it in value);
+}
 
 @Module({
   imports: [DiscoveryModule],
@@ -118,11 +129,16 @@ export class HasuraModule
 
     const eventHandlerService = eventHandlerServiceInstance as EventHandlerService;
 
-    const handleEvent = (evt: Partial<HasuraEvent>) => {
-      const keys = [
-        evt.trigger?.name,
-        `${evt?.table?.schema}-${evt?.table?.name}`,
-      ];
+    const handleEvent = (
+      evt: Partial<HasuraEvent> | HasuraScheduledEventPayload
+    ) => {
+      const keys = isHasuraEvent(evt)
+        ? [evt.trigger?.name, `${evt?.table?.schema}-${evt?.table?.name}`]
+        : isHasuraScheduledEventPayload(evt)
+        ? [evt.name]
+        : null;
+      if (!keys) throw new Error('Not a Hasura Event');
+
       // TODO: this should use a map for faster lookups
       const handlers = eventHandlers.filter((x) => keys.includes(x.key));
 
