@@ -41,6 +41,9 @@
     "@golevelup/nestjs-common": "^1.4.2",
     "@golevelup/nestjs-modules": "^0.4.1"
   },
+  "peerDependencies": {
+    "body-parser": "^1.19.0"
+  },
   "jest": {
     "moduleFileExtensions": [
       "js",
