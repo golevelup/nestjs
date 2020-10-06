@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.15.2](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@1.15.1...@golevelup/nestjs-rabbitmq@1.15.2) (2020-10-06)
+
+### Bug Fixes
+
+- **rabbitmq:** error behavior enum ([6b5bc1f](https://github.com/golevelup/nestjs/commit/6b5bc1f)), closes [#187](https://github.com/golevelup/nestjs/issues/187)
+
 ## [1.15.1](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@1.15.0...@golevelup/nestjs-rabbitmq@1.15.1) (2020-05-13)
 
 **Note:** Version bump only for package @golevelup/nestjs-rabbitmq
