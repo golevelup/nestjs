@@ -1,0 +1,29 @@
+rabbitmq:
+  - packages/rabbitmq/**/*
+
+stripe:
+  - packages/stripe/**/*
+
+hasura:
+  - packages/hasura/**/*
+
+modules:
+  - packages/modules/**/*
+
+discovery:
+  - packages/discovery/**/*
+
+graphql-request:
+  - packages/graphql-request/**/*
+
+testing:
+  - packages/testing/**/*
+
+webhooks:
+  - packages/webhooks/**/*
+
+common:
+  - packages/common/**/*
+
+docs:
+  - "**/*.md"
