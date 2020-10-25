@@ -1,0 +1,48 @@
+name: publish
+on:
+  push:
+      branches:
+          - feature/ci-publishing
+
+jobs:
+    publish:
+      name: Publish
+      runs-on: ubuntu-latest
+      steps:
+      
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: "0"
+      
+      - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
+      
+      - name: Setup Node ${{ matrix.node_version }}
+        uses: actions/setup-node@v1
+        with:
+          node_version: 12
+          registry-url: 'https://npm.pkg.github.com'
+      
+      - name: Git Identity
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/$GITHUB_REPOSITORY
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - uses: actions/cache@v2
+        with:
+          path: '**/node_modules'
+          key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
+      
+      - name: Install
+        run: yarn install
+      
+      - name: Build
+        run: yarn build
+      
+      - name: Publish
+        run: yarn lerna publish --canary --preid beta
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
