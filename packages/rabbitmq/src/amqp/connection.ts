@@ -1,7 +1,7 @@
 import { Logger } from '@nestjs/common';
 import * as amqpcon from 'amqp-connection-manager';
 import * as amqplib from 'amqplib';
-import { empty, interval, race, Subject, throwError } from 'rxjs';
+import { EMPTY, interval, race, Subject, throwError } from 'rxjs';
 import {
   catchError,
   filter,
@@ -68,7 +68,7 @@ export class AmqpConnection {
   }
 
   get connection(): amqplib.Connection {
-    if (!this._connection) throw new Error('channel is not available');
+    if (!this._connection) throw new Error('connection is not available');
     return this._connection;
   }
 
@@ -89,6 +89,7 @@ export class AmqpConnection {
       ...defaultConfig.connectionInitOptions,
       ...this.config.connectionInitOptions,
     };
+
     const { wait, timeout: timeoutInterval, reject } = options;
 
     const p = this.initCore();
@@ -105,7 +106,7 @@ export class AmqpConnection {
             )
           )
         ),
-        catchError((err) => (reject ? throwError(err) : empty()))
+        catchError((err) => (reject ? throwError(err) : EMPTY))
       )
       .toPromise<any>();
   }
@@ -130,11 +131,13 @@ export class AmqpConnection {
     this._managedChannel.on('connect', () =>
       this.logger.log('Successfully connected a RabbitMQ channel')
     );
+
     this._managedChannel.on('error', (err, { name }) =>
       this.logger.log(
         `Failed to setup a RabbitMQ channel - name: ${name} / error: ${err.message} ${err.stack}`
       )
     );
+
     this._managedChannel.on('close', () =>
       this.logger.log('Successfully closed a RabbitMQ channel')
     );
