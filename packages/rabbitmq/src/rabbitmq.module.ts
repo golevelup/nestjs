@@ -3,7 +3,14 @@ import {
   createConfigurableDynamicRootModule,
   IConfigurableDynamicRootModule,
 } from '@golevelup/nestjs-modules';
-import { DynamicModule, Logger, Module, OnModuleInit } from '@nestjs/common';
+import {
+  DynamicModule,
+  Logger,
+  Module,
+  OnApplicationShutdown,
+  OnModuleInit,
+  OnModuleDestroy,
+} from '@nestjs/common';
 import { ExternalContextCreator } from '@nestjs/core/helpers/external-context-creator';
 import { groupBy } from 'lodash';
 import { AmqpConnection } from './amqp/connection';
@@ -36,7 +43,7 @@ export class RabbitMQModule
       exports: [AmqpConnection],
     }
   )
-  implements OnModuleInit {
+  implements OnModuleDestroy, OnModuleInit {
   private readonly logger = new Logger(RabbitMQModule.name);
 
   constructor(
@@ -85,6 +92,11 @@ export class RabbitMQModule
       ],
       exports: [AmqpConnection],
     };
+  }
+
+  async onModuleDestroy() {
+    this.logger.verbose('Closing AMQP Connection');
+    await this.amqpConnection.managedConnection.close();
   }
 
   public async onModuleInit() {
