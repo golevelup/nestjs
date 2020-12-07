@@ -32,7 +32,7 @@ describe('Rabbit Direct Reply To', () => {
   const rabbitHost = process.env.NODE_ENV === 'ci' ? 'rabbit' : 'localhost';
   const uri = `amqp://rabbitmq:rabbitmq@${rabbitHost}:5672`;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const moduleFixture = await Test.createTestingModule({
       providers: [RpcService],
       imports: [
@@ -55,7 +55,11 @@ describe('Rabbit Direct Reply To', () => {
     await app.init();
   });
 
-  it('should not receive subscribe messages because register handlers is disabled', async done => {
+  afterAll(async () => {
+    await app.close();
+  });
+
+  it('should not receive subscribe messages because register handlers is disabled', async (done) => {
     await expect(
       amqpConnection.request({
         exchange,

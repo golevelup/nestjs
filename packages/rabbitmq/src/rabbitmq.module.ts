@@ -7,7 +7,6 @@ import {
   DynamicModule,
   Logger,
   Module,
-  OnApplicationShutdown,
   OnModuleInit,
   OnModuleDestroy,
 } from '@nestjs/common';
