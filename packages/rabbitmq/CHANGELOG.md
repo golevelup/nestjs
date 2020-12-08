@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.16.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@1.15.2...@golevelup/nestjs-rabbitmq@1.16.0) (2020-12-08)
+
+### Features
+
+- **rabbitmq:** execution context check utility ([4256a6b](https://github.com/golevelup/nestjs/commit/4256a6b)), closes [#204](https://github.com/golevelup/nestjs/issues/204)
+- **rabbitmq:** module shutdown logic ([562b99c](https://github.com/golevelup/nestjs/commit/562b99c)), closes [#193](https://github.com/golevelup/nestjs/issues/193)
+
 ## [1.15.2](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@1.15.1...@golevelup/nestjs-rabbitmq@1.15.2) (2020-10-06)
 
 ### Bug Fixes
