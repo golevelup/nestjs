@@ -16,6 +16,7 @@
   - [Usage](#usage)
     - [Install](#install)
     - [Module Initialization](#module-initialization)
+  - [Usage with Interceptors](#usage-with-interceptors)
   - [Receiving Messages](#receiving-messages)
     - [Exposing RPC Handlers](#exposing-rpc-handlers)
     - [Exposing Pub/Sub Handlers](#exposing-pubsub-handlers)
@@ -117,6 +118,27 @@ import { MessagingService } from './messaging/messaging.service';
   controllers: [MessagingController],
 })
 export class RabbitExampleModule {}
+```
+
+## Usage with Interceptors
+
+This library is built using an underlying NestJS concept called `External Contexts` which allows for methods to be included in the NestJS lifecycle. This means that Guards and Interceptors can be used in conjunction with RabbitMQ message handlers. However, this can have unwanted/unintended consequences if you are using Global intereceptors in your application as these will also apply to all RabbitMQ message handlers. As a workaround, there is a utiltity function available called `isRabbitContext` which you can use inside of Interceptors to do conditional logic.
+
+```typescript
+import { isRabbitContext } from '@golevelup/nestjs-rabbitmq';
+
+@Injectable()
+class ExampleInterceptor implements NestInterceptor {
+  intercept(context: ExecutionContext, next: CallHandler<any>) {
+    const shouldSkip = isRabbitContext(context);
+    if (shouldSkip) {
+      return next.handle();
+    }
+
+    // Execute custom interceptor logic for HTTP request/response
+    return next.handle();
+  }
+}
 ```
 
 ## Receiving Messages
