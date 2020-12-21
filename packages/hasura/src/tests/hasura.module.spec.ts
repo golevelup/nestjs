@@ -9,7 +9,6 @@ import {
 } from '../hasura.interfaces';
 import { pick } from 'lodash';
 
-const tableBoundEventHandler = jest.fn();
 const triggerBoundEventHandler = jest.fn();
 const scheduledEventHandler = jest.fn();
 const triggerName = 'user_created';
@@ -18,13 +17,6 @@ const defaultHasuraEndpoint = '/hasura/events';
 
 @Injectable()
 class UserEventService {
-  @HasuraEventHandler({
-    table: { name: 'user' },
-  })
-  handleUserTableEvent(evt) {
-    tableBoundEventHandler(evt);
-  }
-
   @HasuraEventHandler({
     triggerName,
   })
@@ -87,8 +79,10 @@ describe.each(cases)(
       : defaultHasuraEndpoint;
 
     const moduleConfig: HasuraModuleConfig = {
-      secretFactory: secret,
-      secretHeader: secretHeader,
+      webhookConfig: {
+        secretFactory: secret,
+        secretHeader: secretHeader,
+      },
       controllerPrefix,
       enableEventLogs: true,
     };
@@ -111,7 +105,6 @@ describe.each(cases)(
     });
 
     afterEach(() => {
-      tableBoundEventHandler.mockReset();
       triggerBoundEventHandler.mockReset();
       scheduledEventHandler.mockReset();
     });
@@ -146,8 +139,6 @@ describe.each(cases)(
         .send(eventPayload);
 
       expect(response.status).toEqual(202);
-      expect(tableBoundEventHandler).toHaveBeenCalledTimes(1);
-      expect(tableBoundEventHandler).toHaveBeenCalledWith(eventPayload);
       expect(triggerBoundEventHandler).toHaveBeenCalledTimes(1);
       expect(triggerBoundEventHandler).toHaveBeenCalledWith(eventPayload);
     });

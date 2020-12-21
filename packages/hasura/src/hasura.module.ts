@@ -9,7 +9,11 @@ import {
 import { PATH_METADATA } from '@nestjs/common/constants';
 import { ExternalContextCreator } from '@nestjs/core/helpers/external-context-creator';
 import { flatten, groupBy } from 'lodash';
-import { HASURA_EVENT_HANDLER, HASURA_MODULE_CONFIG } from './hasura.constants';
+import {
+  HASURA_EVENT_HANDLER,
+  HASURA_MODULE_CONFIG,
+  HASURA_SCHEDULED_EVENT_HANDLER,
+} from './hasura.constants';
 import { InjectHasuraConfig } from './hasura.decorators';
 import { EventHandlerController } from './hasura.event-handler.controller';
 import { HasuraEventHandlerHeaderGuard } from './hasura.event-handler.guard';
@@ -19,7 +23,14 @@ import {
   HasuraEventHandlerConfig,
   HasuraModuleConfig,
   HasuraScheduledEventPayload,
+  TrackedHasuraEventHandlerConfig,
+  TrackedHasuraScheduledEventHandlerConfig,
 } from './hasura.interfaces';
+import {
+  isTrackedHasuraEventHandlerConfig,
+  updateEventTriggerMeta,
+  updateScheduledEventTriggerMeta,
+} from './hasura.metadata';
 
 function isHasuraEvent(value: any): value is HasuraEvent {
   return ['trigger', 'table', 'event'].every((it) => it in value);
@@ -70,12 +81,50 @@ export class HasuraModule
     super();
   }
 
+  // eslint-disable-next-line sonarjs/cognitive-complexity
   public async onModuleInit() {
     this.logger.log('Initializing Hasura Module');
 
     const eventHandlerMeta = await this.discover.providerMethodsWithMetaAtKey<
       HasuraEventHandlerConfig
     >(HASURA_EVENT_HANDLER);
+
+    const trackedEventHandlerMeta = await this.discover.providerMethodsWithMetaAtKey<
+      HasuraEventHandlerConfig | TrackedHasuraEventHandlerConfig
+    >(HASURA_EVENT_HANDLER);
+
+    const trackedScheduledEventHandlerMeta = await this.discover.providerMethodsWithMetaAtKey<
+      TrackedHasuraScheduledEventHandlerConfig
+    >(HASURA_SCHEDULED_EVENT_HANDLER);
+
+    if (!eventHandlerMeta.length) {
+      this.logger.log('No Hasura event handlers were discovered');
+      return;
+    }
+
+    this.logger.log(
+      `Discovered ${eventHandlerMeta.length} hasura event handlers`
+    );
+
+    if (this.hasuraModuleConfig.managedMetaDataConfig) {
+      this.logger.log(
+        'Automatically syncing hasura metadata based on discovered event handlers. Remember to apply any changes to your Hasura instance using the CLI'
+      );
+
+      updateEventTriggerMeta(
+        this.hasuraModuleConfig,
+        trackedEventHandlerMeta
+          .filter((x) => isTrackedHasuraEventHandlerConfig(x.meta))
+          .map((x) => x.meta as TrackedHasuraEventHandlerConfig)
+      );
+
+      if (trackedScheduledEventHandlerMeta.length) {
+        updateScheduledEventTriggerMeta(
+          this.hasuraModuleConfig,
+          trackedScheduledEventHandlerMeta.map((x) => x.meta)
+        );
+      }
+    }
 
     const grouped = groupBy(
       eventHandlerMeta,
@@ -87,32 +136,8 @@ export class HasuraModule
         this.logger.log(`Registering hasura event handlers from ${x}`);
 
         return grouped[x].map(({ discoveredMethod, meta: config }) => {
-          if (!config.table && !config.triggerName) {
-            throw new Error(
-              'Hasura Event Handler is invalid. Specify either trigger name or table mapping'
-            );
-          }
-
-          if (config.table) {
-            this.logger.warn(
-              `Event binding based on schema and table is deprecated and will be removed in a future release. Consider replacing the binding on ${discoveredMethod.methodName} with triggerName`
-            );
-          }
-
-          if (config.table && config.triggerName) {
-            this.logger.warn(
-              `Both table and trigger bindings are set for ${discoveredMethod.methodName}. This is not recommended and will cause duplicate message processing`
-            );
-          }
-
-          const key =
-            config.triggerName ||
-            `${config.table?.schema ? config.table?.schema : 'public'}-${
-              config.table?.name
-            }`;
-
           return {
-            key,
+            key: config.triggerName,
             handler: this.externalContextCreator.create(
               discoveredMethod.parentClass.instance,
               discoveredMethod.handler,

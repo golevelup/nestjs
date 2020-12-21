@@ -38,7 +38,9 @@
   "dependencies": {
     "@golevelup/nestjs-common": "^1.4.2",
     "@golevelup/nestjs-discovery": "^2.3.1",
-    "@golevelup/nestjs-modules": "^0.4.1"
+    "@golevelup/nestjs-modules": "^0.4.1",
+    "@hasura/metadata": "^1.0.2",
+    "js-yaml": "^3.14.1"
   },
   "jest": {
     "moduleFileExtensions": [
@@ -54,5 +56,8 @@
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
   },
-  "gitHead": "6f97aab8ce9d65dc074750a3ee467ec5ff3b9908"
+  "gitHead": "6f97aab8ce9d65dc074750a3ee467ec5ff3b9908",
+  "devDependencies": {
+    "@types/js-yaml": "^3.12.5"
+  }
 }
