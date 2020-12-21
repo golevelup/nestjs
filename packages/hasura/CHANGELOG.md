@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-hasura@0.6.0...@golevelup/nestjs-hasura@1.0.0) (2020-12-21)
+
+### Features
+
+- **hasura:** managed event and cron triggers ([92b74fa](https://github.com/golevelup/nestjs/commit/92b74fa))
+
+### BREAKING CHANGES
+
+- **hasura:** new format for Hasura module configuration
+
 # [0.6.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-hasura@0.5.0...@golevelup/nestjs-hasura@0.6.0) (2020-09-02)
 
 ### Features
