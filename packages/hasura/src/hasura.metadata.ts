@@ -7,6 +7,7 @@ import {
 } from './hasura.interfaces';
 import { safeLoad, safeDump } from 'js-yaml';
 import { readFileSync, writeFileSync } from 'fs';
+import { orderBy } from 'lodash';
 import {
   TableEntry,
   EventTriggerDefinition,
@@ -76,7 +77,7 @@ export const updateEventTriggerMeta = (
   const tablesMeta = readFileSync(tablesYamlPath, utf8);
   const tableEntries = safeLoad(tablesMeta) as TableEntry[];
 
-  eventHandlerConfigs.forEach((config) => {
+  orderBy(eventHandlerConfigs, (x) => x.triggerName).forEach((config) => {
     const {
       schema = 'public',
       tableName,
@@ -103,6 +104,12 @@ export const updateEventTriggerMeta = (
       ...eventTriggers,
       {
         name: triggerName,
+        definition: convertEventTriggerDefinition(definition),
+        retry_conf: {
+          num_retries: numRetries,
+          interval_sec: intervalInSeconds,
+          timeout_sec: timeoutInSeconds,
+        },
         webhook_from_env: managedMetaDataConfig.nestEndpointEnvName,
         headers: [
           {
@@ -110,12 +117,6 @@ export const updateEventTriggerMeta = (
             value_from_env: managedMetaDataConfig.secretHeaderEnvName,
           },
         ],
-        retry_conf: {
-          interval_sec: intervalInSeconds,
-          num_retries: numRetries,
-          timeout_sec: timeoutInSeconds,
-        },
-        definition: convertEventTriggerDefinition(definition),
       },
     ];
   });
@@ -156,23 +157,23 @@ export const updateScheduledEventTriggerMeta = (
     }) => {
       return {
         name,
-        payload,
-        comment,
+        webhook: `{{${managedMetaDataConfig.nestEndpointEnvName}}}`,
         schedule: cronSchedule,
         include_in_metadata: true,
+        payload,
+        retry_conf: {
+          num_retries: retryConfig.numRetries,
+          timeout_seconds: retryConfig.timeoutInSeconds,
+          tolerance_seconds: retryConfig.toleranceSeconds,
+          retry_interval_seconds: retryConfig.intervalInSeconds,
+        },
         headers: [
           {
             name: moduleConfig.webhookConfig.secretHeader,
             value_from_env: managedMetaDataConfig.secretHeaderEnvName,
           },
         ],
-        webhook: `{{${managedMetaDataConfig.nestEndpointEnvName}}}`,
-        retry_conf: {
-          num_retries: retryConfig.numRetries,
-          retry_interval_seconds: retryConfig.intervalInSeconds,
-          timeout_seconds: retryConfig.timeoutInSeconds,
-          tolerance_seconds: retryConfig.toleranceSeconds,
-        },
+        comment,
       };
     }
   );
