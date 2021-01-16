@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.1.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-hasura@1.0.0...@golevelup/nestjs-hasura@1.1.0) (2021-01-16)
+
+### Features
+
+- **hasura:** metadata output property ordering ([9e15b1b](https://github.com/golevelup/nestjs/commit/9e15b1b)), closes [#219](https://github.com/golevelup/nestjs/issues/219)
+
 # [1.0.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-hasura@0.6.0...@golevelup/nestjs-hasura@1.0.0) (2020-12-21)
 
 ### Features
