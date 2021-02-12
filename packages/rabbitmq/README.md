@@ -225,6 +225,28 @@ In some scenarios, it may not be desirable for all running instances of a NestJS
 
 The default behavior is that handlers will be attached, but to opt out simply set the `registerHandlers` configuration option to `false` when registering the RabbitMQModule.
 
+### Dealing with the amqp original message
+
+In some scenarios, it wil be usefull the get the original amqp message (to retrieve the fields, properties...)
+
+```typescript
+import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
+import { Injectable } from '@nestjs/common';
+import { ConsumeMessage } from "amqplib";
+
+@Injectable()
+export class MessagingService {
+  @RabbitSubscribe({
+    exchange: 'exchange1',
+    routingKey: 'subscribe-route',
+    queue: 'subscribe-queue',
+  })
+  public async pubSubHandler(msg: {}, amqpMsg: ConsumeMessage) {
+    console.log(`Correlation id: ${amqpMsg.properties.correlationId}`);
+  }
+}
+```
+
 ## Sending Messages
 
 ### Inject the AmqpConnection
