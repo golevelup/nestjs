@@ -227,7 +227,11 @@ The default behavior is that handlers will be attached, but to opt out simply se
 
 ### Dealing with the amqp original message
 
-In some scenarios, it wil be usefull the get the original amqp message (to retrieve the fields, properties...)
+In some scenarios, it wil be usefull the get the original amqp message (to retrieve the fields, properties...).
+
+The raw message is passed to the consumer as a second argument.
+
+If the method signature of the consumer accepts amqplib.ConsumeMessage as a second argument, it enables to access all information that is available on the original message.
 
 ```typescript
 import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
