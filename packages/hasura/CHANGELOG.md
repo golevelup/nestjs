@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.2.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-hasura@1.1.0...@golevelup/nestjs-hasura@1.2.0) (2021-03-02)
+
+### Features
+
+- **hasura:** allow for custom decorators on controller ([32802e6](https://github.com/golevelup/nestjs/commit/32802e6))
+
 # [1.1.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-hasura@1.0.0...@golevelup/nestjs-hasura@1.1.0) (2021-01-16)
 
 ### Features

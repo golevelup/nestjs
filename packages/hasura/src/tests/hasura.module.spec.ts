@@ -2,6 +2,7 @@ import { Injectable, INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as request from 'supertest';
 import { HasuraEventHandler } from '../hasura.decorators';
+import { EventHandlerController } from '../hasura.event-handler.controller';
 import { HasuraModule } from '../hasura.module';
 import {
   HasuraModuleConfig,
@@ -60,6 +61,13 @@ const scheduledEventPayload: HasuraScheduledEventPayload = {
   id: 'id',
   scheduled_time: new Date(),
   payload: {},
+};
+
+const SetMetadata = () => {
+  return (target) => {
+    Reflect.defineMetadata('TEST:METADATA', 'metadata', target);
+    return target;
+  };
 };
 
 type ModuleType = 'forRoot' | 'forRootAsync';
@@ -159,3 +167,24 @@ describe.each(cases)(
     });
   }
 );
+
+describe('HasuraModule with Custom Decorator', () => {
+  it('should call the decorator and set metadata for the controller', async () => {
+    await Test.createTestingModule({
+      imports: [
+        HasuraModule.forRoot(HasuraModule, {
+          decorators: [SetMetadata()],
+          webhookConfig: {
+            secretHeader,
+            secretFactory: secret,
+          },
+        }),
+      ],
+    }).compile();
+    const controllerMeta = Reflect.getMetadata(
+      'TEST:METADATA',
+      EventHandlerController
+    );
+    expect(controllerMeta).toBe('metadata');
+  });
+});
