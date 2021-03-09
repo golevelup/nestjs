@@ -16,6 +16,7 @@
   - [Usage](#usage)
     - [Install](#install)
     - [Module Initialization](#module-initialization)
+  - [Usage with Interceptors](#usage-with-interceptors)
   - [Receiving Messages](#receiving-messages)
     - [Exposing RPC Handlers](#exposing-rpc-handlers)
     - [Exposing Pub/Sub Handlers](#exposing-pubsub-handlers)
@@ -119,6 +120,27 @@ import { MessagingService } from './messaging/messaging.service';
 export class RabbitExampleModule {}
 ```
 
+## Usage with Interceptors
+
+This library is built using an underlying NestJS concept called `External Contexts` which allows for methods to be included in the NestJS lifecycle. This means that Guards and Interceptors can be used in conjunction with RabbitMQ message handlers. However, this can have unwanted/unintended consequences if you are using Global intereceptors in your application as these will also apply to all RabbitMQ message handlers. As a workaround, there is a utiltity function available called `isRabbitContext` which you can use inside of Interceptors to do conditional logic.
+
+```typescript
+import { isRabbitContext } from '@golevelup/nestjs-rabbitmq';
+
+@Injectable()
+class ExampleInterceptor implements NestInterceptor {
+  intercept(context: ExecutionContext, next: CallHandler<any>) {
+    const shouldSkip = isRabbitContext(context);
+    if (shouldSkip) {
+      return next.handle();
+    }
+
+    // Execute custom interceptor logic for HTTP request/response
+    return next.handle();
+  }
+}
+```
+
 ## Receiving Messages
 
 ### Exposing RPC Handlers
@@ -202,6 +224,32 @@ export class MessagingService {
 In some scenarios, it may not be desirable for all running instances of a NestJS application to register RabbitMQ message handlers. For example, if leveraging the same application code base to expose API instances and worker roles separately it may be desirable to have only the worker instances attach handlers to manage queue subscriptions or RPC requests.
 
 The default behavior is that handlers will be attached, but to opt out simply set the `registerHandlers` configuration option to `false` when registering the RabbitMQModule.
+
+### Dealing with the amqp original message
+
+In some scenarios, it wil be usefull the get the original amqp message (to retrieve the fields, properties...).
+
+The raw message is passed to the consumer as a second argument.
+
+If the method signature of the consumer accepts amqplib.ConsumeMessage as a second argument, it enables to access all information that is available on the original message.
+
+```typescript
+import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
+import { Injectable } from '@nestjs/common';
+import { ConsumeMessage } from "amqplib";
+
+@Injectable()
+export class MessagingService {
+  @RabbitSubscribe({
+    exchange: 'exchange1',
+    routingKey: 'subscribe-route',
+    queue: 'subscribe-queue',
+  })
+  public async pubSubHandler(msg: {}, amqpMsg: ConsumeMessage) {
+    console.log(`Correlation id: ${amqpMsg.properties.correlationId}`);
+  }
+}
+```
 
 ## Sending Messages
 

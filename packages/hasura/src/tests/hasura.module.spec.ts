@@ -2,6 +2,7 @@ import { Injectable, INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as request from 'supertest';
 import { HasuraEventHandler } from '../hasura.decorators';
+import { EventHandlerController } from '../hasura.event-handler.controller';
 import { HasuraModule } from '../hasura.module';
 import {
   HasuraModuleConfig,
@@ -9,7 +10,6 @@ import {
 } from '../hasura.interfaces';
 import { pick } from 'lodash';
 
-const tableBoundEventHandler = jest.fn();
 const triggerBoundEventHandler = jest.fn();
 const scheduledEventHandler = jest.fn();
 const triggerName = 'user_created';
@@ -18,13 +18,6 @@ const defaultHasuraEndpoint = '/hasura/events';
 
 @Injectable()
 class UserEventService {
-  @HasuraEventHandler({
-    table: { name: 'user' },
-  })
-  handleUserTableEvent(evt) {
-    tableBoundEventHandler(evt);
-  }
-
   @HasuraEventHandler({
     triggerName,
   })
@@ -70,6 +63,13 @@ const scheduledEventPayload: HasuraScheduledEventPayload = {
   payload: {},
 };
 
+const SetMetadata = () => {
+  return (target) => {
+    Reflect.defineMetadata('TEST:METADATA', 'metadata', target);
+    return target;
+  };
+};
+
 type ModuleType = 'forRoot' | 'forRootAsync';
 const cases: [ModuleType, string | undefined][] = [
   ['forRoot', undefined],
@@ -87,8 +87,10 @@ describe.each(cases)(
       : defaultHasuraEndpoint;
 
     const moduleConfig: HasuraModuleConfig = {
-      secretFactory: secret,
-      secretHeader: secretHeader,
+      webhookConfig: {
+        secretFactory: secret,
+        secretHeader: secretHeader,
+      },
       controllerPrefix,
       enableEventLogs: true,
     };
@@ -111,7 +113,6 @@ describe.each(cases)(
     });
 
     afterEach(() => {
-      tableBoundEventHandler.mockReset();
       triggerBoundEventHandler.mockReset();
       scheduledEventHandler.mockReset();
     });
@@ -146,8 +147,6 @@ describe.each(cases)(
         .send(eventPayload);
 
       expect(response.status).toEqual(202);
-      expect(tableBoundEventHandler).toHaveBeenCalledTimes(1);
-      expect(tableBoundEventHandler).toHaveBeenCalledWith(eventPayload);
       expect(triggerBoundEventHandler).toHaveBeenCalledTimes(1);
       expect(triggerBoundEventHandler).toHaveBeenCalledWith(eventPayload);
     });
@@ -168,3 +167,24 @@ describe.each(cases)(
     });
   }
 );
+
+describe('HasuraModule with Custom Decorator', () => {
+  it('should call the decorator and set metadata for the controller', async () => {
+    await Test.createTestingModule({
+      imports: [
+        HasuraModule.forRoot(HasuraModule, {
+          decorators: [SetMetadata()],
+          webhookConfig: {
+            secretHeader,
+            secretFactory: secret,
+          },
+        }),
+      ],
+    }).compile();
+    const controllerMeta = Reflect.getMetadata(
+      'TEST:METADATA',
+      EventHandlerController
+    );
+    expect(controllerMeta).toBe('metadata');
+  });
+});

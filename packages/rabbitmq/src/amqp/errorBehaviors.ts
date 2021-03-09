@@ -1,9 +1,9 @@
 import * as amqplib from 'amqplib';
 
 export enum MessageHandlerErrorBehavior {
-  ACK,
-  NACK,
-  REQUEUE,
+  ACK = 'ACK',
+  NACK = 'NACK',
+  REQUEUE = 'REQUEUE',
 }
 
 export type MessageErrorHandler = (

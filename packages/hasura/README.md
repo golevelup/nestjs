@@ -8,15 +8,37 @@ Leverage NestJS to make incorporating business logic and event processing easier
 <img alt="license" src="https://img.shields.io/npm/l/@golevelup/nestjs-hasura.svg">
 </p>
 
+- [@golevelup/nestjs-hasura](#golevelupnestjs-hasura)
+  - [Features](#features)
+  - [Usage](#usage)
+    - [Install](#install)
+    - [Import](#import)
+    - [Configuration](#configuration)
+    - [Usage](#usage-1)
+      - [Integrating with your NestJS app](#integrating-with-your-nestjs-app)
+      - [Automatically Synchronize Hasura Metadata](#automatically-synchronize-hasura-metadata)
+      - [Opting Out](#opting-out)
+      - [Registering Table Event Handlers](#registering-table-event-handlers)
+      - [Registering Scheduled Event Handlers](#registering-scheduled-event-handlers)
+      - [Retry Configuration](#retry-configuration)
+      - [Configuring Hasura Environment Variables](#configuring-hasura-environment-variables)
+    - [Related Hasura Documentation](#related-hasura-documentation)
+      - [Concepts](#concepts)
+      - [Tutorials](#tutorials)
+  - [Contribute](#contribute)
+  - [License](#license)
+
 ## Features
 
 - 🎉 Exposes an API endpoint from your NestJS application at to be used for event processing from Hasura. Defaults to `/hasura/events/` but can be easily configured
 
 - 🔒 Automatically validates that the event payload was actually sent from Hasura using configurable secrets
 
-- 🕵️ Discovers providers from your application decorated with `HasuraEventHandler` and routes incoming events to them
+- 🕵️ Discovers methods from your application and automatically turns them into Hasura event handlers. Supports insert, update and delete events from your tables as well as scheduled events based on a CRON schedule
 
-- 🧭 Leverage the table and schema name of the event to route to the appropriate handler
+- 🧭 Routes incoming webhook payloads to the correct event handler based on configuration so you can maintain a single webhook endpoint for Hasura
+
+- 🔌 Optionally supports automatic management of your Hasura metadata files which means that your application code can be the source of truth for configuration of events. This reduces a ton of boilerplate and developer overhead
 
 ## Usage
 
@@ -32,15 +54,43 @@ or
 
 Import and add `HasuraModule` to the `imports` section of the consuming module (most likely `AppModule`). In order to ensure that your Hasura events webhook endpoint is secure, the module requires configuration for an HTTP header name and value that will be used to verify that the event actually came from Hasura.
 
+### Configuration
+
+The Hasura Module supports both the `forRoot` and `forRootAsync` patterns for configuration, so you can easily retrieve the necessary config values from a `ConfigService` or other provider.
+
+### Usage
+
+#### Integrating with your NestJS app
+
+The `HasuraModule` makes it easy to reuse the same events API endpoint for all events that you create in Hasura. The internal routing mechanism on the NestJS side ensures that the all events coming in through the endpoint will be sent to the correct handler. The endpoint provided defaults to `/hasura/events`. This can be overriden with the module by specifying an alternative `controllerPrefix` so for example you could set this to `webhooks` and the resulting endpoint would be available at `/webhooks/events`.
+
+#### Automatically Synchronize Hasura Metadata
+
+One of the more powerful features of this Module is the ability to automatically generate the necessary Hasura metadata for your event handlers instead of having to worry about configuring each handler individually. Under the hood, this uses the [`@hasura/metadata`](https://www.npmjs.com/package/@hasura/metadata) to generate and merge changes to your `tables.yaml` and `cron_triggers.yaml` files.
+
+If you decide to opt into this functionality, you should include the optional `managedMetaDataConfig` object when importing the HasuraModule into your application.
+
 ```typescript
 import { HasuraModule } from '@golevelup/nestjs-hasura';
 
 @Module({
   imports: [
     HasuraModule.forRoot(HasuraModule, {
-      secretFactory: secret,
-      secretHeader: secretHeader,
-      controllerPrefix: 'something', // this is optional. defaults to hasura
+      webhookConfig: {
+        secretFactory: secret,
+        secretHeader: secretHeader,
+      },
+      managedMetaDataConfig: {
+        dirPath: join(process.cwd(), 'hasura/metadata'),
+        secretHeaderEnvName: 'HASURA_NESTJS_WEBHOOK_SECRET_HEADER_VALUE',
+        nestEndpointEnvName: 'NESTJS_EVENT_WEBHOOK_ENDPOINT',
+        defaultEventRetryConfig: {
+          intervalInSeconds: 15,
+          numRetries: 3,
+          timeoutInSeconds: 100,
+          toleranceSeconds: 21600,
+        },
+      },
     }),
   ],
 })
@@ -49,55 +99,78 @@ export class AppModule {
 }
 ```
 
-### Configuration
+It is recommended that you conditionally add this configuration based on the Node Environment as this should only be used in development environments to track the necessary changes to your metadata yaml files so that they can be tracked in source control.
 
-The Hasura Module supports both the `forRoot` and `forRootAsync` patterns for configuration, so you can easily retrieve the necessary config values from a `ConfigService` or other provider.
+After generating changes to these files you should make sure they are applied against your Hasura instance using the CLI command:
 
-### Registering Event Handlers
+```
+hasura metadata apply
+```
+
+#### Opting Out
+
+If you decide to opt out of automatic metadata synchronization it is up to you to ensure that the secret header name and values match. When creating the event in the Hasura console, you should set these values such that they match the configuration provided to the `HasuraModule` configuration in your NestJS application. This ensures that only Hasura can trigger events in your system.
+
+#### Registering Table Event Handlers
 
 Decorate methods in your NestJS providers in order to have them be automatically attached as event handlers for incoming Hasura events. The event payload will be analyzed and routed to your provider methods based on the configuration provided in the decorator.
 
-#### Route based on Hasura Trigger Name
-
-The recommended method of routing to the correct event handler is to specify the Hasura Trigger Name in the decorator. This will ensure that you have the flexibility to have multiple events targeting the same table with different operation types and column sets.
-
 ```typescript
-import { HasuraEventHandler, HasuraEvent } from '@golevelup/nestjs-hasura';
+import {
+  TrackedHasuraEventHandler,
+  HasuraUpdateEvent,
+  HasuraInsertEvent,
+} from '@golevelup/nestjs-hasura';
 
 @Injectable()
 class UsersService {
-  @HasuraEventHandler({
-    triggerName: 'user_created',
+  @TrackedHasuraEventHandler({
+    triggerName: 'user-created',
+    tableName: 'user',
+    definition: { type: 'insert' },
   })
-  handleUserCreated(evt: HasuraEvent) {
-    // handle the event payload. Typing the method parameter with `HasurEvent` will provide intellisense
+  handleUserCreated(evt: HasuraInsertEvent<User>) {}
+
+  @TrackedHasuraEventHandler({
+    triggerName: 'user-updated',
+    tableName: 'user',
+    definition: { type: 'update', columns: ['avatarUrl'] },
+  })
+  handleUserUpdated(evt: HasuraUpdateEvent<User>) {}
+}
+```
+
+#### Registering Scheduled Event Handlers
+
+```typescript
+import { TrackedHasuraScheduledEventHandler } from '@golevelup/nestjs-hasura';
+
+@Injectable()
+class RecurringJobService {
+  @TrackedHasuraScheduledEventHandler({
+    cronSchedule: CommonCronSchedules.EveryMinute,
+    name: 'every-minute',
+    payload: {},
+    comment: 'this is my comment',
+  })
+  public async cronTask(evt: any) {
+    this.logger.log(evt);
   }
 }
 ```
 
-#### Route Based on Schema and Table Name (Deprecated)
+#### Retry Configuration
 
-It is possible to configure routing to the event handler based on the schema and table name of the source event. This is deprecated and not recommended as it is a less flexible way to route events and will be removed in a future release.
+Retry configuration for both Table Event handlers as well as Scheduled Event handlers can be configured on the individual decorator or you can provide a default retry configuration at the module level that will be used for any event handler that does not explicitly provide its own retry settings.
 
-The schema name is optional and if not provided will default to `public`.
+#### Configuring Hasura Environment Variables
 
-For example, to create an event handler for events coming from a `users` table in your database in the `public` schema a method handler could be decorated:
+You should provide ENV variables to your Hasura instance that map the webhook endpoint and secret header values for communication to your NestJS application.
 
-```typescript
-import { HasuraEventHandler, HasuraEvent } from '@golevelup/nestjs-hasura';
+In the examples above, `HASURA_NESTJS_WEBHOOK_SECRET_HEADER_VALUE` and `NESTJS_EVENT_WEBHOOK_ENDPOINT` were used. The webhook endpoint should point to the automatically scaffolded events endpoint eg:
+`https://my-nest-app.com/api/hasura/events`
 
-@Injectable()
-class UsersService {
-  @HasuraEventHandler({
-    table: { name: 'user' },
-  })
-  handleUserCreated(evt: HasuraEvent) {
-    // handle the event payload. Typing the method parameter with `HasurEvent` will provide intellisense
-  }
-}
-```
-
-### Creating Hasura Events
+### Related Hasura Documentation
 
 #### Concepts
 
@@ -107,14 +180,6 @@ https://hasura.io/docs/1.0/graphql/manual/event-triggers/index.html#event-trigge
 
 https://hasura.io/docs/1.0/graphql/manual/getting-started/first-event-trigger.html
 https://hasura.io/event-triggers
-
-#### Integrating with your NestJS app
-
-The `HasuraModule` makes it easy to reuse the same events API endpoint for all events that you create in Hasura. The internal routing mechanism on the NestJS side ensures that the all events coming in through the endpoint will be sent to the correct handler. The endpoint provided defaults to `/hasura/events`. This can be overriden with the module by specifying an alternative `controllerPrefix` so for example you could set this to `webhooks` and the resulting endpoint would be available at `/webhooks/events`.
-
-#### Important!
-
-when creating the event in Hasura, ensure that the Header Name and Value match the configuration provided to the `HasuraModule` configuration in your NestJS application. This ensures that only Hasura can trigger events in your system.
 
 ## Contribute
 
