@@ -61,6 +61,9 @@ export class HasuraModule
               controllerPrefix,
               EventHandlerController
             );
+            config.decorators?.forEach((deco) => {
+              deco(EventHandlerController);
+            });
           },
           inject: [HASURA_MODULE_CONFIG],
         },
