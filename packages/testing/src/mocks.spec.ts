@@ -5,6 +5,8 @@ import { createMock, DeepMocked } from './mocks';
 
 interface TestInterface {
   someNum: number;
+  someBool: boolean;
+  optional: string | undefined;
   func: (num: number, str: string) => boolean;
 }
 
@@ -40,6 +42,34 @@ describe('Mocks', () => {
 
       expect(result).toBe(request);
       expect(mock.switchToHttp).toBeCalledTimes(1);
+    });
+
+    it('should work with truthy values properties', () => {
+      const mock = createMock<TestInterface>({
+        someNum: 1,
+        someBool: true,
+      });
+
+      expect(mock.someNum).toBe(1);
+      expect(mock.someBool).toBe(true);
+    });
+
+    it('should work with falsy values properties', () => {
+      const mock = createMock<TestInterface>({
+        someNum: 0,
+        someBool: false,
+      });
+
+      expect(mock.someNum).toBe(0);
+      expect(mock.someBool).toBe(false);
+    });
+
+    it('should work with optional values explicitly returning undefined', () => {
+      const mock = createMock<TestInterface>({
+        optional: undefined,
+      });
+
+      expect(mock.optional).toBe(undefined);
     });
 
     it('should work with properties and functions', () => {

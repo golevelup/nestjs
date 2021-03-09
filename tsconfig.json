@@ -12,6 +12,7 @@
     "experimentalDecorators": true,
     "target": "es2017",
     "sourceMap": true,
+    "skipLibCheck": true,
     "lib": ["es7"],
     "baseUrl": "./src",
     "paths": {

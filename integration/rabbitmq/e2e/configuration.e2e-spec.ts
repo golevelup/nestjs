@@ -19,7 +19,10 @@ class RabbitConfig {
 describe('Module Configuration', () => {
   let app: TestingModule;
 
-  afterEach(() => jest.clearAllMocks());
+  afterEach(async () => {
+    jest.clearAllMocks();
+    await app.close();
+  });
 
   describe('forRoot', () => {
     it('should configure RabbitMQ', async () => {

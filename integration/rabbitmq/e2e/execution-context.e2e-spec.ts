@@ -1,31 +1,44 @@
 import {
   AmqpConnection,
+  isRabbitContext,
   RabbitMQModule,
-  RabbitRPC,
+  RabbitSubscribe,
 } from '@golevelup/nestjs-rabbitmq';
+import { CallHandler, ExecutionContext, NestInterceptor } from '@nestjs/common';
 import { INestApplication, Injectable } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 
-const testHandler = jest.fn();
+const interceptorHandler = jest.fn();
 
-const prefix = 'testRpcNoDirectReply';
-const exchange = prefix;
-const routingKey = `${prefix}Route`;
+const exchange = 'contextExchange';
+const queue = 'contextQueue';
 
 @Injectable()
-class RpcService {
-  @RabbitRPC({
-    exchange,
-    routingKey: [routingKey],
-    queue: `${prefix}Queue`,
-  })
-  handleSubscribe(message: object) {
-    testHandler(message);
-    return 'pong';
+class TestInterceptor implements NestInterceptor {
+  intercept(context: ExecutionContext, next: CallHandler<any>) {
+    const shouldSkip = isRabbitContext(context);
+    if (shouldSkip) {
+      return next.handle();
+    }
+
+    interceptorHandler('invoked');
+    return next.handle();
   }
 }
 
-describe('Rabbit Direct Reply To', () => {
+@Injectable()
+class SubscribeService {
+  @RabbitSubscribe({
+    exchange,
+    routingKey: '#',
+    queue,
+  })
+  handleSubscribe(message: object) {
+    console.log(`RECEIVED MESSAGE: ${message}`);
+  }
+}
+
+describe('Rabbit Subscribe Without Register Handlers', () => {
   let app: INestApplication;
   let amqpConnection: AmqpConnection;
 
@@ -34,7 +47,7 @@ describe('Rabbit Direct Reply To', () => {
 
   beforeAll(async () => {
     const moduleFixture = await Test.createTestingModule({
-      providers: [RpcService],
+      providers: [SubscribeService, TestInterceptor],
       imports: [
         RabbitMQModule.forRoot(RabbitMQModule, {
           exchanges: [
@@ -45,13 +58,13 @@ describe('Rabbit Direct Reply To', () => {
           ],
           uri,
           connectionInitOptions: { wait: true, reject: true, timeout: 3000 },
-          enableDirectReplyTo: false,
         }),
       ],
     }).compile();
 
     app = moduleFixture.createNestApplication();
     amqpConnection = app.get<AmqpConnection>(AmqpConnection);
+    app.useGlobalInterceptors(new TestInterceptor());
     await app.init();
   });
 
@@ -59,19 +72,13 @@ describe('Rabbit Direct Reply To', () => {
     await app.close();
   });
 
-  it('should not receive subscribe messages because register handlers is disabled', async (done) => {
-    await expect(
-      amqpConnection.request({
-        exchange,
-        routingKey,
-        payload: 'ping',
-        timeout: 2000,
-      }),
-    ).rejects.toThrow();
+  it('should recognize a rabbit handler execution context and allow for interceptors to be skipped', async (done) => {
+    await amqpConnection.publish(exchange, 'x', `test-message`);
+    expect.assertions(1);
 
     setTimeout(() => {
-      expect(testHandler).not.toHaveBeenCalled();
+      expect(interceptorHandler).not.toHaveBeenCalled();
       done();
-    }, 50);
+    }, 100);
   });
 });

@@ -12,9 +12,9 @@ export class HasuraEventHandlerHeaderGuard implements CanActivate {
     private readonly hasuraConfig: HasuraModuleConfig
   ) {
     this.apiSecret =
-      typeof hasuraConfig.secretFactory === 'function'
-        ? hasuraConfig.secretFactory()
-        : hasuraConfig.secretFactory;
+      typeof hasuraConfig.webhookConfig.secretFactory === 'function'
+        ? hasuraConfig.webhookConfig.secretFactory()
+        : hasuraConfig.webhookConfig.secretFactory;
   }
 
   canActivate(
@@ -22,7 +22,8 @@ export class HasuraEventHandlerHeaderGuard implements CanActivate {
   ): boolean | Promise<boolean> | Observable<boolean> {
     const request = context.switchToHttp().getRequest<Request>();
 
-    const secretRequestHeader = request.headers[this.hasuraConfig.secretHeader];
+    const secretRequestHeader =
+      request.headers[this.hasuraConfig.webhookConfig.secretHeader];
 
     return secretRequestHeader === this.apiSecret;
   }

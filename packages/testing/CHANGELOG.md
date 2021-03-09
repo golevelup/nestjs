@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.3.1](https://github.com/golevelup/nestjs/compare/@golevelup/ts-jest@0.3.0...@golevelup/ts-jest@0.3.1) (2020-12-13)
+
+### Bug Fixes
+
+- **ts-jest:** handling falsy values and undefined ([4152838](https://github.com/golevelup/nestjs/commit/4152838)), closes [#211](https://github.com/golevelup/nestjs/issues/211)
+
 # [0.3.0](https://github.com/golevelup/nestjs/compare/@golevelup/ts-jest@0.2.3...@golevelup/ts-jest@0.3.0) (2020-06-10)
 
 ### Features
