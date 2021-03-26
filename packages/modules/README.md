@@ -47,7 +47,7 @@ import { createConfigurableDynamicRootModule } from '@golevelup/nestjs-modules';
 import { Module } from '@nestjs/common';
 import { CONFIG_MODULE_OPTIONS } from './config.constants'; // the constant string/symbol/token
 import { ConfigModuleOptions } from './config.options'; // the options to provide to the service
-import { ConfigModule } from './config.service'; // the service to be provided to the rest of the server
+import { ConfigService } from './config.service'; // the service to be provided to the rest of the server
 
 @Module({
   providers: [ConfigService],
@@ -99,7 +99,7 @@ import { createConfigurableDynamicRootModule } from '@golevelup/nestjs-modules';
 import { Module } from '@nestjs/common';
 import { CONFIG_MODULE_OPTIONS } from './config.constants'; // the constant string/symbol/token
 import { ConfigModuleOptions } from './config.options'; // the options to provide to the service
-import { ConfigModule } from './config.service'; // the service to be provided to the rest of the server
+import { ConfigService } from './config.service'; // the service to be provided to the rest of the server
 
 @Module({
   providers: [ConfigService],
