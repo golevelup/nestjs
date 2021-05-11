@@ -22,6 +22,7 @@ import {
   MessageHandlerErrorBehavior,
 } from './errorBehaviors';
 import { Nack, RpcResponse, SubscribeResponse } from './handlerResponses';
+import e = require('express');
 
 const DIRECT_REPLY_QUEUE = 'amq.rabbitmq.reply-to';
 
@@ -201,11 +202,21 @@ export class AmqpConnection {
       map((x) => x.message as T),
       first()
     );
-
-    this.publish(requestOptions.exchange, requestOptions.routingKey, payload, {
-      replyTo: DIRECT_REPLY_QUEUE,
-      correlationId,
-    });
+    try {
+      await this.publish(
+        requestOptions.exchange,
+        requestOptions.routingKey,
+        payload,
+        {
+          replyTo: DIRECT_REPLY_QUEUE,
+          correlationId,
+        }
+      );
+    } catch (error) {
+      //Catching errors from the publish function to prevent UnhandledPromiseRejectionWarning
+      //Rethrow error so the caller of this function can catch the error.
+      throw e;
+    }
 
     const timeout$ = interval(timeout).pipe(
       first(),
