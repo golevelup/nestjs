@@ -214,7 +214,7 @@ export class AmqpConnection {
     } catch (error) {
       //Catching errors from the publish function to prevent UnhandledPromiseRejectionWarning
       //Rethrow error so the caller of this function can catch the error.
-      throw e;
+      throw new Error(error.message);
     }
 
     const timeout$ = interval(timeout).pipe(
