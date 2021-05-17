@@ -22,7 +22,6 @@ import {
   MessageHandlerErrorBehavior,
 } from './errorBehaviors';
 import { Nack, RpcResponse, SubscribeResponse } from './handlerResponses';
-import e = require('express');
 
 const DIRECT_REPLY_QUEUE = 'amq.rabbitmq.reply-to';
 
