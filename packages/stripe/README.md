@@ -107,7 +107,7 @@ Failure to give Stripe access to the raw body will result in nasty runtime error
 
 ### Decorate Methods For Processing Webhook Events
 
-Exposing provider/service methods to be used for processing Stripe events is easy! Simply use the provided decorator and indiciate the event type that the handler should receive.
+Exposing provider/service methods to be used for processing Stripe events is easy! Simply use the provided decorator and indicate the event type that the handler should receive.
 
 [Review the Stripe documentation](https://stripe.com/docs/api/events/types) for more information about the types of events available.
 
@@ -121,6 +121,20 @@ class PaymentCreatedService {
 }
 ```
 
+### Webhook Controller Decorators
+
+You can also pass any class decorator to the `decorators` property of the `webhookConfig` object as a part of the module configuration. This could be used in situations like when using the `@nestjs/throttler` package and needing to apply the `@ThrottlerSkip()` decorator, or when you have a global guard but need to skip routes with certain metadata.
+
+````typescript
+StripeModule.forRoot(StripeModule, {
+  apiKey: '123',
+  webhookConfig: {
+    stripeWebhookSecret: 'super-secret',
+    decorators: [ThrottlerSkip()],
+  },
+}),
+```
+
 ### Configure Webhooks in the Stripe Dashboard
 
 Follow the instructions from the [Stripe Documentation](https://stripe.com/docs/webhooks) for remaining integration steps such as testing your integration with the CLI before you go live and properly configuring the endpoint from the Stripe dashboard so that the correct events are sent to your NestJS app.
@@ -132,3 +146,4 @@ Contributions welcome! Read the [contribution guidelines](../../CONTRIBUTING.md)
 ## License
 
 [MIT License](../../LICENSE)
+````
