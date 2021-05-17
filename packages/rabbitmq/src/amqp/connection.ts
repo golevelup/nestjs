@@ -124,6 +124,10 @@ export class AmqpConnection {
       this.logger.log('Successfully connected to a RabbitMQ broker');
     });
 
+    this._managedConnection.on('disconnect', ({ err }) => {
+      this.logger.error('Disconnected from RabbitMQ broker', err?.stack);
+    });
+
     this._managedChannel = this._managedConnection.createChannel({
       name: AmqpConnection.name,
     });
