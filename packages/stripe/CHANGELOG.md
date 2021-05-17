@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.2.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-stripe@0.1.0...@golevelup/nestjs-stripe@0.2.0) (2021-05-17)
+
+### Features
+
+- **stripe:** add ability to use custom decorators on controller ([ebe8e72](https://github.com/golevelup/nestjs/commit/ebe8e72))
+
 # [0.1.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-stripe@0.0.5...@golevelup/nestjs-stripe@0.1.0) (2020-09-02)
 
 ### Features
