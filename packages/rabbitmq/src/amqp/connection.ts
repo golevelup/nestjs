@@ -206,10 +206,15 @@ export class AmqpConnection {
       first()
     );
 
-    this.publish(requestOptions.exchange, requestOptions.routingKey, payload, {
-      replyTo: DIRECT_REPLY_QUEUE,
-      correlationId,
-    });
+    await this.publish(
+      requestOptions.exchange,
+      requestOptions.routingKey,
+      payload,
+      {
+        replyTo: DIRECT_REPLY_QUEUE,
+        correlationId,
+      }
+    );
 
     const timeout$ = interval(timeout).pipe(
       first(),
