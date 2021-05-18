@@ -201,21 +201,16 @@ export class AmqpConnection {
       map((x) => x.message as T),
       first()
     );
-    try {
-      await this.publish(
-        requestOptions.exchange,
-        requestOptions.routingKey,
-        payload,
-        {
-          replyTo: DIRECT_REPLY_QUEUE,
-          correlationId,
-        }
-      );
-    } catch (error) {
-      //Catching errors from the publish function to prevent UnhandledPromiseRejectionWarning
-      //Rethrow error so the caller of this function can catch the error.
-      throw new Error(error.message);
-    }
+
+    await this.publish(
+      requestOptions.exchange,
+      requestOptions.routingKey,
+      payload,
+      {
+        replyTo: DIRECT_REPLY_QUEUE,
+        correlationId,
+      }
+    );
 
     const timeout$ = interval(timeout).pipe(
       first(),
