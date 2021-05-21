@@ -125,7 +125,7 @@ class PaymentCreatedService {
 
 You can also pass any class decorator to the `decorators` property of the `webhookConfig` object as a part of the module configuration. This could be used in situations like when using the `@nestjs/throttler` package and needing to apply the `@ThrottlerSkip()` decorator, or when you have a global guard but need to skip routes with certain metadata.
 
-````typescript
+```typescript
 StripeModule.forRoot(StripeModule, {
   apiKey: '123',
   webhookConfig: {
@@ -146,4 +146,3 @@ Contributions welcome! Read the [contribution guidelines](../../CONTRIBUTING.md)
 ## License
 
 [MIT License](../../LICENSE)
-````
