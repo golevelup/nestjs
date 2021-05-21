@@ -32,7 +32,6 @@ Interacting with the Stripe API or consuming Stripe webhooks in your NestJS appl
 #### YARN
 
 - Install the package using yarn with the stripe peer dependency
-
 `yarn add @golevelup/nestjs-stripe stripe`
 
 ### Import
