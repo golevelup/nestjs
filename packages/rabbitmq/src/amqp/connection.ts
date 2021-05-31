@@ -193,8 +193,8 @@ export class AmqpConnection {
     );
   }
 
-  public async request<T extends {}>(
-    requestOptions: RequestOptions
+  public async request<T extends {}, P extends {}>(
+    requestOptions: RequestOptions<P>
   ): Promise<T> {
     const correlationId = requestOptions.correlationId || uuid.v4();
     const timeout = requestOptions.timeout || this.config.defaultRpcTimeout;
