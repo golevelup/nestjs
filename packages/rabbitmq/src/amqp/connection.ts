@@ -354,7 +354,7 @@ export class AmqpConnection {
 
         const { replyTo, correlationId } = msg.properties;
         if (replyTo) {
-          this.publish('', replyTo, response, { correlationId });
+          await this.publish('', replyTo, response, { correlationId });
         }
         channel.ack(msg);
       } catch (e) {
