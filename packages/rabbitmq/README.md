@@ -268,7 +268,7 @@ export class AppController {
 
 ### Publising Messages (Fire and Forget)
 
-If you just want to publish a message onto a RabbitMQ exchange, use the `publsh` method of the `AmqpConnection` which has the following signature:
+If you just want to publish a message onto a RabbitMQ exchange, use the `publish` method of the `AmqpConnection` which has the following signature:
 
 ```typescript
 public publish(
