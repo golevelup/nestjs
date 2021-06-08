@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.17.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@1.16.2...@golevelup/nestjs-rabbitmq@1.17.0) (2021-06-08)
+
+### Bug Fixes
+
+- **rabbitmq:** add await to publish on reply-to ([59c57ca](https://github.com/golevelup/nestjs/commit/59c57ca))
+- **rabbitmq:** prevent unhandled promise rejection warning ([7000d4f](https://github.com/golevelup/nestjs/commit/7000d4f)), closes [#259](https://github.com/golevelup/nestjs/issues/259)
+
+### Features
+
+- **rabbitmq:** log the disconnect event from connection manager ([9fa5708](https://github.com/golevelup/nestjs/commit/9fa5708))
+
 ## [1.16.2](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@1.16.1...@golevelup/nestjs-rabbitmq@1.16.2) (2021-05-17)
 
 **Note:** Version bump only for package @golevelup/nestjs-rabbitmq
