@@ -298,7 +298,7 @@ const response = await amqpConnection.request<ExpectedReturnType>({
   payload: {
     request: 'val',
   },
-  timeout = 10000, // optional timeout for how long the request
+  timeout : 10000, // optional timeout for how long the request
   // should wait before failing if no response is received
 });
 ```
