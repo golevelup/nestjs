@@ -1,0 +1,17 @@
+table:
+  name: additional_table
+  schema: public
+event_triggers:
+  - name: additional_table_event_handler
+    definition:
+      enable_manual: false
+      delete:
+        columns: '*'
+    retry_conf:
+      num_retries: 3
+      interval_sec: 15
+      timeout_sec: 100
+    webhook_from_env: NESTJS_EVENT_WEBHOOK_ENDPOINT
+    headers:
+      - name: NESTJS_SECRET_HEADER
+        value_from_env: NESTJS_WEBHOOK_SECRET_HEADER_VALUE
