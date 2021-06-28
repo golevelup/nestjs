@@ -72,10 +72,22 @@ export const updateEventTriggerMeta = (
   const defaultRetryConfig =
     managedMetaDataConfig.defaultEventRetryConfig ?? defaultHasuraRetryConfig;
 
-  const tablesYamlPath = `${managedMetaDataConfig.dirPath}/tables.yaml`;
+  const tablesIndexYamlPath = `${managedMetaDataConfig.dirPath}/tables.yaml`;
 
-  const tablesMeta = readFileSync(tablesYamlPath, utf8);
-  const tableEntries = safeLoad(tablesMeta) as TableEntry[];
+  const tablesIndexFile = readFileSync(tablesIndexYamlPath, utf8);
+  const tableIncludes = safeLoad(tablesIndexFile) as string[];
+
+  // TODO is there a better way to handle includes?
+  const tableEntries = tableIncludes
+    .map((tableInclude) => tableInclude.replace('!include ', ''))
+    .map((tableIncludePath) => {
+      const path = `${managedMetaDataConfig.dirPath}/${tableIncludePath}`;
+      const tableFile = readFileSync(
+        `${managedMetaDataConfig.dirPath}/${tableIncludePath}`,
+        utf8
+      );
+      return { meta: safeLoad(tableFile) as TableEntry, path };
+    });
 
   orderBy(eventHandlerConfigs, (x) => x.triggerName).forEach((config) => {
     const {
@@ -86,7 +98,7 @@ export const updateEventTriggerMeta = (
       retryConfig = defaultRetryConfig,
     } = config;
     const matchingTable = tableEntries.find(
-      (x) => x.table.schema === schema && x.table.name === tableName
+      (x) => x.meta.table.schema === schema && x.meta.table.name === tableName
     );
 
     if (!matchingTable) {
@@ -96,11 +108,11 @@ export const updateEventTriggerMeta = (
     }
 
     const { intervalInSeconds, numRetries, timeoutInSeconds } = retryConfig;
-    const eventTriggers = (matchingTable.event_triggers ?? []).filter(
+    const eventTriggers = (matchingTable.meta.event_triggers ?? []).filter(
       (x) => x.name !== triggerName
     );
 
-    matchingTable.event_triggers = [
+    matchingTable.meta.event_triggers = [
       ...eventTriggers,
       {
         name: triggerName,
@@ -121,8 +133,10 @@ export const updateEventTriggerMeta = (
     ];
   });
 
-  const yamlString = safeDump(tableEntries);
-  writeFileSync(tablesYamlPath, yamlString, utf8);
+  tableEntries.forEach((tableEntry) => {
+    const yamlString = safeDump(tableEntry.meta);
+    writeFileSync(tableEntry.path, yamlString, utf8);
+  });
 };
 
 export const updateScheduledEventTriggerMeta = (
