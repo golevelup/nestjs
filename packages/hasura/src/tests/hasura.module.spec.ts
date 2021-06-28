@@ -1,7 +1,10 @@
 import { Injectable, INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as request from 'supertest';
-import { HasuraEventHandler } from '../hasura.decorators';
+import {
+  HasuraEventHandler,
+  TrackedHasuraEventHandler,
+} from '../hasura.decorators';
 import { EventHandlerController } from '../hasura.event-handler.controller';
 import { HasuraModule } from '../hasura.module';
 import {
@@ -9,6 +12,7 @@ import {
   HasuraScheduledEventPayload,
 } from '../hasura.interfaces';
 import { pick } from 'lodash';
+import * as path from 'path';
 
 const triggerBoundEventHandler = jest.fn();
 const scheduledEventHandler = jest.fn();
@@ -30,6 +34,15 @@ class UserEventService {
   })
   handleScheduledEvent(evt) {
     scheduledEventHandler(evt);
+  }
+
+  @TrackedHasuraEventHandler({
+    definition: { type: 'insert' },
+    tableName: 'user',
+    triggerName: 'user-created',
+  })
+  handleEventAndCreateMetadata() {
+    return true;
   }
 }
 
@@ -115,6 +128,36 @@ describe.each(cases)(
     afterEach(() => {
       triggerBoundEventHandler.mockReset();
       scheduledEventHandler.mockReset();
+    });
+
+    it('should create proper hasura metadata', async () => {
+      const moduleFixture: TestingModule = await Test.createTestingModule({
+        imports: [
+          HasuraModule.forRoot(HasuraModule, {
+            ...moduleConfig,
+            managedMetaDataConfig: {
+              dirPath: path.join(
+                __dirname,
+                '__fixtures__/hasura/metadata/databases/default/tables'
+              ),
+              secretHeaderEnvName: 'ACTORS_SECRET_HEADER_VALUE',
+              nestEndpointEnvName: 'ACTORS_ENDPOINT',
+              defaultEventRetryConfig: {
+                intervalInSeconds: 15,
+                numRetries: 3,
+                timeoutInSeconds: 100,
+                toleranceSeconds: 21600,
+              },
+            },
+          }),
+        ],
+        providers: [UserEventService],
+      }).compile();
+
+      app = moduleFixture.createNestApplication();
+      await app.init();
+
+      // TODO it should check if the hook metadata was created and cleanup afterwards.
     });
 
     it('should return forbidden if the secret api header is missing', () => {

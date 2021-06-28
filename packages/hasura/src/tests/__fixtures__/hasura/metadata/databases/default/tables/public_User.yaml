@@ -1,0 +1,17 @@
+table:
+  name: user
+  schema: public
+event_triggers:
+  - name: user-created
+    definition:
+      enable_manual: false
+      insert:
+        columns: '*'
+    retry_conf:
+      num_retries: 3
+      interval_sec: 15
+      timeout_sec: 100
+    webhook_from_env: ACTORS_ENDPOINT
+    headers:
+      - name: api-secret-header
+        value_from_env: ACTORS_SECRET_HEADER_VALUE
