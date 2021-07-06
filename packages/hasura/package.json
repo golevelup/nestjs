@@ -40,7 +40,8 @@
     "@golevelup/nestjs-discovery": "^2.3.1",
     "@golevelup/nestjs-modules": "^0.4.2",
     "@hasura/metadata": "^1.0.2",
-    "js-yaml": "^3.14.1"
+    "js-yaml": "^4.1.0",
+    "zod": "^3.3.4"
   },
   "jest": {
     "moduleFileExtensions": [
@@ -58,6 +59,7 @@
   },
   "gitHead": "6f97aab8ce9d65dc074750a3ee467ec5ff3b9908",
   "devDependencies": {
-    "@types/js-yaml": "^3.12.5"
+    "@types/js-yaml": "^3.12.5",
+    "ts-toolbelt": "^9.6.0"
   }
 }

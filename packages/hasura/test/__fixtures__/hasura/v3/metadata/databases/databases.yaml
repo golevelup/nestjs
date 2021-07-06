@@ -1,0 +1,18 @@
+- name: default
+  kind: postgres
+  configuration:
+    connection_info:
+      database_url:
+        from_env: HAUSRA_DB1_URL
+      isolation_level: read-committed
+      use_prepared_statements: false
+  tables: "!include default/tables/tables.yaml"
+- name: additional
+  kind: postgres
+  configuration:
+    connection_info:
+      database_url:
+        from_env: HAUSRA_DB2_URL
+      isolation_level: read-committed
+      use_prepared_statements: false
+  tables: "!include additional/tables/tables.yaml"
