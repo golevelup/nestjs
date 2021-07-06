@@ -2,26 +2,47 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { HasuraModule } from '../hasura.module';
 import * as path from 'path';
 import { INestApplication } from '@nestjs/common';
-import * as fs from 'fs';
 import {
   copyCleanTemplateYamlFile,
   getVersionedMetadataPathAndConfig,
   TestEventHandlerService,
   yamlFileToJson,
 } from './hasura.metadata.spec-utils';
-import { load } from 'js-yaml';
+
+const TABLES_YAML = 'tables.yaml';
+const CRON_TRIGGERS_YAML = 'cron_triggers.yaml';
 
 describe('Hasura Metadata', () => {
+  beforeAll(() => {
+    const [v2Path] = getVersionedMetadataPathAndConfig('v2');
+
+    const [v3Path] = getVersionedMetadataPathAndConfig('v3');
+
+    const tables = ['default', 'additional'];
+    const tablePaths = tables.map((x) =>
+      path.join(v3Path, `databases/${x}/tables/public_${x}_table.yaml`)
+    );
+
+    const testYamlFilePaths = [
+      path.join(v2Path, TABLES_YAML),
+      path.join(v2Path, CRON_TRIGGERS_YAML),
+      path.join(v3Path, CRON_TRIGGERS_YAML),
+      ...tablePaths,
+    ];
+
+    testYamlFilePaths.forEach((x) => {
+      copyCleanTemplateYamlFile(x);
+    });
+  });
+
   describe.each([['v2'], ['v3']])('cron triggers %s', (v) => {
     let app: INestApplication;
 
     const [metadataPath, moduleConfig] = getVersionedMetadataPathAndConfig(v);
 
-    const cronTriggersYamlPath = `${metadataPath}/cron_triggers.yaml`;
+    const cronTriggersYamlPath = `${metadataPath}/${CRON_TRIGGERS_YAML}`;
 
     beforeAll(async () => {
-      copyCleanTemplateYamlFile(cronTriggersYamlPath);
-
       const moduleFixture: TestingModule = await Test.createTestingModule({
         imports: [HasuraModule.forRoot(HasuraModule, moduleConfig)],
         providers: [TestEventHandlerService],
@@ -43,6 +64,9 @@ describe('Hasura Metadata', () => {
       'v2'
     );
 
+    const tablesFilePath = path.join(metadataPath, TABLES_YAML);
+    const expectedFilePath = `${tablesFilePath}.expected`;
+
     let app: INestApplication;
 
     // eslint-disable-next-line sonarjs/no-identical-functions
@@ -57,16 +81,11 @@ describe('Hasura Metadata', () => {
     });
 
     describe('tables', () => {
-      const tablesFilePath = path.join(metadataPath, 'tables.yaml');
-      const expectedFilePath = path.join(metadataPath, 'tables.yaml.expected');
       describe('event handlers', () => {
         test('generates the correct metadata', async () => {
-          const tablesFileContents = fs.readFileSync(tablesFilePath, 'utf-8');
-          const expectedFileContents = fs.readFileSync(
-            expectedFilePath,
-            'utf-8'
+          expect(yamlFileToJson(tablesFilePath)).toEqual(
+            yamlFileToJson(expectedFilePath)
           );
-          expect(tablesFileContents).toEqual(expectedFileContents);
         });
       });
     });
@@ -79,18 +98,8 @@ describe('Hasura Metadata', () => {
       'v3'
     );
 
+    // eslint-disable-next-line sonarjs/no-identical-functions
     beforeAll(async () => {
-      // Ensure that the filesystem is clean so that we can ensure proper metadata comparison
-      const tables = ['default', 'additional'];
-      tables.forEach((x) => {
-        const destinationPath = path.join(
-          metadataPath,
-          `databases/${x}/tables/public_${x}_table.yaml`
-        );
-
-        copyCleanTemplateYamlFile(destinationPath);
-      });
-
       const moduleFixture: TestingModule = await Test.createTestingModule({
         imports: [HasuraModule.forRoot(HasuraModule, moduleConfig)],
         providers: [TestEventHandlerService],
@@ -110,10 +119,9 @@ describe('Hasura Metadata', () => {
               `databases/${d}/tables/public_${d}_table.yaml`
             );
 
-            const actual = fs.readFileSync(tablePath, 'utf-8');
-            const expected = fs.readFileSync(`${tablePath}.expected`, 'utf-8');
-
-            expect(load(actual)).toEqual(load(expected));
+            expect(yamlFileToJson(tablePath)).toEqual(
+              yamlFileToJson(`${tablePath}.expected`)
+            );
           }
         );
       });

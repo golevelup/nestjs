@@ -11,7 +11,6 @@ import { z } from 'zod';
 import { load } from 'js-yaml';
 
 export const metadataVersion = z.enum(['v2', 'v3']);
-// type MetadataVersion = z.infer<typeof metadataVersion>;
 
 export const baseConfig = {
   webhookConfig: {
