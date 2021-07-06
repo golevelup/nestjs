@@ -180,9 +180,15 @@ export class AmqpConnection {
           return;
         }
 
+        // Check that the Buffer has content, before trying to parse it
+        const message =
+          msg.content.length > 0
+            ? JSON.parse(msg.content.toString())
+            : undefined;
+
         const correlationMessage: CorrelationMessage = {
           correlationId: msg.properties.correlationId.toString(),
-          message: JSON.parse(msg.content.toString()),
+          message: message,
         };
 
         this.messageSubject.next(correlationMessage);
