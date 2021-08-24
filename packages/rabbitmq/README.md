@@ -51,7 +51,7 @@ In previous versions, this package did not support advanced connection managemen
 
 Now, this package leverages [`amqp-connection-manager`](https://github.com/benbria/node-amqp-connection-manager) package to support connection resiliency.
 
-**NOTE**: to maintain the same pervious behavior and not introduce a major version update, the previous behavior is still the default.
+**NOTE**: to maintain the same previous behavior and not introduce a major version update, the previous behavior is still the default.
 
 If you want to transition to the new behavior and enable connection resiliency, you can configure `connectionInitOptions` to not wait for a connection to be availble, for example:
 
