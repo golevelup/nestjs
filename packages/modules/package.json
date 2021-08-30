@@ -33,10 +33,11 @@
     "access": "public"
   },
   "dependencies": {
-    "shortid": "^2.2.14"
+    "lodash": "^4.17.21"
   },
-  "devDependencies": {
-    "@types/shortid": "^0.0.29"
+  "peerDependencies": {
+    "@nestjs/common": "^7.x",
+    "rxjs": "^6.x"
   },
   "jest": {
     "moduleFileExtensions": [
