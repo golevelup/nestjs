@@ -54,7 +54,8 @@
     "test:integration": "jest --config ./jest-e2e.json",
     "test:ci:integration": "NODE_ENV=ci jest --config ./jest-e2e.json",
     "test:ci": "jest --coverage --reporters=jest-junit --coverageReporters=cobertura --coverageReporters=html",
-    "lint": "eslint --ext ts ."
+    "lint": "eslint --ext ts .",
+    "pgcli": "pgcli postgresql://postgres:password@localhost:33432"
   },
   "husky": {
     "hooks": {

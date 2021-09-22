@@ -7,7 +7,7 @@ import {
 import { INestApplication, Injectable } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 
-const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const exchange = 'testSubscribeExhange';
 const nackRoutingKey = 'nackRoutingKey';

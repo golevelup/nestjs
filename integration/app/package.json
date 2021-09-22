@@ -24,6 +24,7 @@
     "@nestjs/microservices": "6.10.12",
     "@nestjs/platform-express": "^6.10.12",
     "@nestjs/websockets": "6.10.12",
+    "graphile-worker": "^0.11.4",
     "reflect-metadata": "0.1.13",
     "rimraf": "2.6.3",
     "rxjs": "6.5.3"

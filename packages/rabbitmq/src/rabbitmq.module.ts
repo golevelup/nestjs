@@ -61,6 +61,9 @@ export class RabbitMQModule
     return connection;
   }
 
+  /**
+   * @deprecated
+   */
   public static build(config: RabbitMQConfig): DynamicModule {
     const logger = new Logger(RabbitMQModule.name);
     logger.warn(
@@ -127,7 +130,16 @@ export class RabbitMQModule
           const handler = this.externalContextCreator.create(
             discoveredMethod.parentClass.instance,
             discoveredMethod.handler,
-            discoveredMethod.methodName
+            discoveredMethod.methodName,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            {
+              guards: false,
+              filters: false,
+              interceptors: true,
+            }
           );
 
           const { exchange, routingKey, queue } = config;

@@ -1,14 +1,28 @@
-version: "3.5"
+version: '3.5'
 
 services:
   rabbit:
-    image: "rabbitmq:management"
+    image: 'rabbitmq:management'
     environment:
-      RABBITMQ_ERLANG_COOKIE: "SWQOKODSQALRPCLNMEQG"
-      RABBITMQ_DEFAULT_USER: "rabbitmq"
-      RABBITMQ_DEFAULT_PASS: "rabbitmq"
-      RABBITMQ_DEFAULT_VHOST: "/"
+      RABBITMQ_ERLANG_COOKIE: 'SWQOKODSQALRPCLNMEQG'
+      RABBITMQ_DEFAULT_USER: 'rabbitmq'
+      RABBITMQ_DEFAULT_PASS: 'rabbitmq'
+      RABBITMQ_DEFAULT_VHOST: '/'
     ports:
-      - "15672:15672"
-      - "5672:5672"
+      - '15672:15672'
+      - '5672:5672'
     tty: true
+
+  postgres:
+    image: postgres:12
+    ports:
+      - '33432:5432'
+    restart: 'no'
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+volumes:
+  db_data:

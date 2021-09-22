@@ -4,11 +4,15 @@ import {
   RabbitMQModule,
   RabbitSubscribe,
 } from '@golevelup/nestjs-rabbitmq';
+import { CanActivate } from '@nestjs/common';
+import { UseGuards } from '@nestjs/common';
 import { CallHandler, ExecutionContext, NestInterceptor } from '@nestjs/common';
 import { INestApplication, Injectable } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
+import { Observable } from 'rxjs';
 
 const interceptorHandler = jest.fn();
+const subscribeHandler = jest.fn();
 
 const exchange = 'contextExchange';
 const queue = 'contextQueue';
@@ -26,7 +30,16 @@ class TestInterceptor implements NestInterceptor {
   }
 }
 
+class TestGuard implements CanActivate {
+  canActivate(
+    context: ExecutionContext,
+  ): boolean | Promise<boolean> | Observable<boolean> {
+    return false;
+  }
+}
+
 @Injectable()
+@UseGuards(TestGuard)
 class SubscribeService {
   @RabbitSubscribe({
     exchange,
@@ -34,11 +47,11 @@ class SubscribeService {
     queue,
   })
   handleSubscribe(message: object) {
-    console.log(`RECEIVED MESSAGE: ${message}`);
+    subscribeHandler(message);
   }
 }
 
-describe('Rabbit Subscribe Without Register Handlers', () => {
+describe('Rabbit execution context', () => {
   let app: INestApplication;
   let amqpConnection: AmqpConnection;
 
@@ -73,12 +86,13 @@ describe('Rabbit Subscribe Without Register Handlers', () => {
     await app.close();
   });
 
-  it('should recognize a rabbit handler execution context and allow for interceptors to be skipped', async (done) => {
+  it('should recognize a rabbit handler execution context and allow for interceptors to be skipped while ignoring guards', async (done) => {
     await amqpConnection.publish(exchange, 'x', `test-message`);
-    expect.assertions(1);
+    expect.assertions(2);
 
     setTimeout(() => {
       expect(interceptorHandler).not.toHaveBeenCalled();
+      expect(subscribeHandler).toHaveBeenCalledTimes(1);
       done();
     }, 100);
   });

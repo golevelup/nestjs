@@ -21,6 +21,7 @@ module.exports = {
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/interface-name-prefix': 'off',
     'sonarjs/cognitive-complexity': ['error', 20],
+    'sonarjs/prefer-immediate-return': 'off',
     '@typescript-eslint/camelcase': 'off',
   },
   ignorePatterns: ['*.d.ts', 'node_modules/'],

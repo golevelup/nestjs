@@ -2,12 +2,12 @@ name: Continuous Integration
 
 on: pull_request
 
-concurrency: 
+concurrency:
   group: ${{ github.head_ref }}
   cancel-in-progress: true
 
 env:
-  LATEST_NODE_VERSION: 17
+  LATEST_NODE_VERSION: 16
 
 jobs:
   ci:
@@ -15,19 +15,8 @@ jobs:
 
     strategy:
       matrix:
-        node: [12, 14, 16, 17]
+        node: [12, 14, 16]
       fail-fast: false
-
-    services:
-      rabbitmq:
-        image: rabbitmq:management
-        env:
-          RABBITMQ_ERLANG_COOKIE: "SWQOKODSQALRPCLNMEQG"
-          RABBITMQ_DEFAULT_USER: "rabbitmq"
-          RABBITMQ_DEFAULT_PASS: "rabbitmq"
-          RABBITMQ_DEFAULT_VHOST: "/"
-        ports:
-          - 5672/tcp
 
     steps:
       - name: Checkout
@@ -54,9 +43,10 @@ jobs:
 
       - name: Run integration tests
         run: |
-          yarn --cwd ./integration/rabbitmq
+          docker-compose up -d
+          yarn --cwd ./integration/app
           yarn test:ci:integration
         env:
           NODE_ENV: ci
           RABBITMQ_HOST: localhost
-          RABBITMQ_PORT: ${{ job.services.rabbitmq.ports[5672] }}
+          RABBITMQ_PORT: 5672
