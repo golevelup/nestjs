@@ -38,8 +38,8 @@ export interface QueueOptions {
 }
 
 export interface MessageHandlerOptions {
-  exchange: string;
-  routingKey: string | string[];
+  exchange?: string;
+  routingKey?: string | string[];
   queue?: string;
   queueOptions?: QueueOptions;
   /**
