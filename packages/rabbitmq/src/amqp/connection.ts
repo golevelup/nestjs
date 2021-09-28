@@ -254,7 +254,7 @@ export class AmqpConnection {
     msgOptions: MessageHandlerOptions,
     channel: amqplib.ConfirmChannel
   ): Promise<void> {
-    const queue = await this.setupSubscription(msgOptions, channel);
+    const queue = await this.setupQueue(msgOptions, channel);
 
     await channel.consume(queue, async (msg) => {
       try {
@@ -317,7 +317,7 @@ export class AmqpConnection {
     rpcOptions: MessageHandlerOptions,
     channel: amqplib.ConfirmChannel
   ) {
-    const queue = await this.setupSubscription(rpcOptions, channel);
+    const queue = await this.setupQueue(rpcOptions, channel);
 
     await channel.consume(queue, async (msg) => {
       try {
@@ -408,15 +408,20 @@ export class AmqpConnection {
     return handler(message, msg);
   }
 
-  private async setupSubscription<T>(
+  private async setupQueue<T>(
     subscriptionOptions: MessageHandlerOptions,
     channel: amqplib.ConfirmChannel
   ) {
     const { exchange, routingKey } = subscriptionOptions;
-    const { queue } = await channel.assertQueue(
-      subscriptionOptions.queue || '',
-      subscriptionOptions.queueOptions || undefined
-    );
+    let queue;
+    if (subscriptionOptions.createQueueWhenNotExisting) {
+      queue = await channel.assertQueue(
+        subscriptionOptions.queue || '',
+        subscriptionOptions.queueOptions || undefined
+      );
+    } else {
+      queue = await channel.checkQueue(subscriptionOptions.queue || '');
+    }
     const routingKeys = Array.isArray(routingKey) ? routingKey : [routingKey];
     if (exchange && routingKeys) {
       await Promise.all(

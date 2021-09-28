@@ -52,6 +52,7 @@ export interface MessageHandlerOptions {
    */
   errorHandler?: MessageErrorHandler;
   allowNonJsonMessages?: boolean;
+  createQueueWhenNotExisting?: boolean;
 }
 
 export interface ConnectionInitOptions {
