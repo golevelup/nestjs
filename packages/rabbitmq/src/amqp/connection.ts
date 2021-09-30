@@ -408,12 +408,13 @@ export class AmqpConnection {
     return handler(message, msg);
   }
 
-  private async setupQueue<T>(
+  private async setupQueue(
     subscriptionOptions: MessageHandlerOptions,
     channel: amqplib.ConfirmChannel
-  ) {
+  ): Promise<string> {
     const { exchange, routingKey } = subscriptionOptions;
-    let queue;
+    let queue: unknown;
+
     if (subscriptionOptions.createQueueWhenNotExisting) {
       queue = await channel.assertQueue(
         subscriptionOptions.queue || '',
@@ -422,16 +423,19 @@ export class AmqpConnection {
     } else {
       queue = await channel.checkQueue(subscriptionOptions.queue || '');
     }
+
     const routingKeys = Array.isArray(routingKey) ? routingKey : [routingKey];
+
     if (exchange && routingKeys) {
       await Promise.all(
-        routingKeys.map((x) => {
-          if (x) {
-            channel.bindQueue(queue, exchange, x);
+        routingKeys.map((routingKey) => {
+          if (routingKey) {
+            channel.bindQueue(queue as string, exchange, routingKey);
           }
         })
       );
     }
-    return queue;
+
+    return queue as string;
   }
 }
