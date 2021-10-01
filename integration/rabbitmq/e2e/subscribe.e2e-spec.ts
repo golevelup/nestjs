@@ -9,6 +9,7 @@ import { flatten, times } from 'lodash';
 
 const testHandler = jest.fn();
 
+const amqDefaultExchange = '';
 const exchange = 'testSubscribeExhange';
 const routingKey1 = 'testSubscribeRoute1';
 const routingKey2 = 'testSubscribeRoute2';
@@ -17,6 +18,9 @@ const nonJsonRoutingKey = 'nonJsonSubscribeRoute';
 const createRoutingKey = 'test.create.object';
 const updateRoutingKey = 'test.update.object';
 const deleteRoutingKey = 'test.delete.object';
+
+const preExistingQueue = 'testing_queue_exists';
+const nonExistingQueue = 'testing_queue_does_no_exist';
 
 const createHandler = jest.fn();
 const updateHandler = jest.fn();
@@ -30,6 +34,22 @@ class SubscribeService {
     queue: 'subscribeQueue',
   })
   handleSubscribe(message: object) {
+    testHandler(message);
+  }
+
+  @RabbitSubscribe({
+    queue: preExistingQueue,
+    createQueueIfNotExists: false,
+  })
+  handleExistingQueueSubscribe(message: object) {
+    testHandler(message);
+  }
+
+  @RabbitSubscribe({
+    queue: nonExistingQueue,
+    createQueueIfNotExists: true,
+  })
+  handleNonExistingQueueSubscribe(message: object) {
     testHandler(message);
   }
 
@@ -100,6 +120,7 @@ describe('Rabbit Subscribe', () => {
 
     app = moduleFixture.createNestApplication();
     amqpConnection = app.get<AmqpConnection>(AmqpConnection);
+    await amqpConnection.channel.assertQueue(preExistingQueue);
     await app.init();
   });
 
@@ -161,6 +182,48 @@ describe('Rabbit Subscribe', () => {
       expect(testHandler).toHaveBeenNthCalledWith(1, undefined);
       expect(testHandler).toHaveBeenNthCalledWith(2, undefined);
       expect(testHandler).toHaveBeenNthCalledWith(3, undefined);
+      done();
+    }, 50);
+  });
+
+  it('should receive messages in existing queue without setting exchange and routing key on subscribe', async (done) => {
+    // publish to the default exchange, using the queue as routing key
+    amqpConnection.publish(
+      amqDefaultExchange,
+      preExistingQueue,
+      '{"key":"value 1"}',
+    );
+    amqpConnection.publish(
+      amqDefaultExchange,
+      preExistingQueue,
+      '{"key":"value 2"}',
+    );
+    amqpConnection.publish(
+      amqDefaultExchange,
+      preExistingQueue,
+      '{"key":"value 3"}',
+    );
+
+    // ASSERT
+    expect.assertions(1);
+    setTimeout(() => {
+      expect(testHandler).toHaveBeenCalledTimes(3);
+      done();
+    }, 50);
+  });
+
+  it('should receive messages in new queue without setting exchange routing key on subscribe', async (done) => {
+    // publish to the default exchange, using the queue as routing key
+    amqpConnection.publish(
+      amqDefaultExchange,
+      nonExistingQueue,
+      '{"key":"value"}',
+    );
+
+    // ASSERT
+    expect.assertions(1);
+    setTimeout(() => {
+      expect(testHandler).toHaveBeenCalledTimes(1);
       done();
     }, 50);
   });

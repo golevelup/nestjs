@@ -412,16 +412,24 @@ export class AmqpConnection {
     subscriptionOptions: MessageHandlerOptions,
     channel: amqplib.ConfirmChannel
   ): Promise<string> {
-    const { exchange, routingKey } = subscriptionOptions;
-    let queue: unknown;
+    const {
+      exchange,
+      routingKey,
+      createQueueIfNotExists = true,
+    } = subscriptionOptions;
+    let actualQueue: unknown;
 
-    if (subscriptionOptions.createQueueWhenNotExisting) {
-      queue = await channel.assertQueue(
+    if (createQueueIfNotExists) {
+      const { queue } = await channel.assertQueue(
         subscriptionOptions.queue || '',
         subscriptionOptions.queueOptions || undefined
       );
+      actualQueue = queue;
     } else {
-      queue = await channel.checkQueue(subscriptionOptions.queue || '');
+      const { queue } = await channel.checkQueue(
+        subscriptionOptions.queue || ''
+      );
+      actualQueue = queue;
     }
 
     const routingKeys = Array.isArray(routingKey) ? routingKey : [routingKey];
@@ -430,12 +438,12 @@ export class AmqpConnection {
       await Promise.all(
         routingKeys.map((routingKey) => {
           if (routingKey) {
-            channel.bindQueue(queue as string, exchange, routingKey);
+            channel.bindQueue(actualQueue as string, exchange, routingKey);
           }
         })
       );
     }
 
-    return queue as string;
+    return actualQueue as string;
   }
 }
