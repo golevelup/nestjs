@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.4.3](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-modules@0.4.2...@golevelup/nestjs-modules@0.4.3) (2021-10-06)
+
+### Bug Fixes
+
+- **modules:** specify correct dependencies ([46e6f93](https://github.com/golevelup/nestjs/commit/46e6f93)), closes [#300](https://github.com/golevelup/nestjs/issues/300)
+
 ## [0.4.2](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-modules@0.4.1...@golevelup/nestjs-modules@0.4.2) (2021-05-17)
 
 **Note:** Version bump only for package @golevelup/nestjs-modules
