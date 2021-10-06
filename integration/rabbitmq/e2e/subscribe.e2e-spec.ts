@@ -188,42 +188,35 @@ describe('Rabbit Subscribe', () => {
 
   it('should receive messages in existing queue without setting exchange and routing key on subscribe', async (done) => {
     // publish to the default exchange, using the queue as routing key
-    amqpConnection.publish(
-      amqDefaultExchange,
-      preExistingQueue,
-      '{"key":"value 1"}',
-    );
-    amqpConnection.publish(
-      amqDefaultExchange,
-      preExistingQueue,
-      '{"key":"value 2"}',
-    );
-    amqpConnection.publish(
-      amqDefaultExchange,
-      preExistingQueue,
-      '{"key":"value 3"}',
-    );
+    const message1 = '{"key":"value 1"}';
+    const message2 = '{"key":"value 2"}';
+    const message3 = '{"key":"value 3"}';
+
+    amqpConnection.publish(amqDefaultExchange, preExistingQueue, message1);
+    amqpConnection.publish(amqDefaultExchange, preExistingQueue, message2);
+    amqpConnection.publish(amqDefaultExchange, preExistingQueue, message3);
 
     // ASSERT
-    expect.assertions(1);
+    expect.assertions(4);
     setTimeout(() => {
       expect(testHandler).toHaveBeenCalledTimes(3);
+      expect(testHandler).toHaveBeenCalledWith(message1);
+      expect(testHandler).toHaveBeenCalledWith(message2);
+      expect(testHandler).toHaveBeenCalledWith(message3);
       done();
     }, 50);
   });
 
   it('should receive messages in new queue without setting exchange routing key on subscribe', async (done) => {
+    const message = '{"key":"value"}';
     // publish to the default exchange, using the queue as routing key
-    amqpConnection.publish(
-      amqDefaultExchange,
-      nonExistingQueue,
-      '{"key":"value"}',
-    );
+    amqpConnection.publish(amqDefaultExchange, nonExistingQueue, message);
 
     // ASSERT
-    expect.assertions(1);
+    expect.assertions(2);
     setTimeout(() => {
       expect(testHandler).toHaveBeenCalledTimes(1);
+      expect(testHandler).toHaveBeenCalledWith(message);
       done();
     }, 50);
   });

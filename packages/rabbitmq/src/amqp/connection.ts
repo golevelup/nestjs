@@ -417,7 +417,8 @@ export class AmqpConnection {
       routingKey,
       createQueueIfNotExists = true,
     } = subscriptionOptions;
-    let actualQueue: unknown;
+
+    let actualQueue: string;
 
     if (createQueueIfNotExists) {
       const { queue } = await channel.assertQueue(
@@ -444,6 +445,6 @@ export class AmqpConnection {
       );
     }
 
-    return actualQueue as string;
+    return actualQueue;
   }
 }
