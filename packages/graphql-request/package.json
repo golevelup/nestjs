@@ -41,7 +41,8 @@
     "@golevelup/nestjs-common": "^1.4.2",
     "@golevelup/nestjs-discovery": "^2.3.1",
     "@golevelup/nestjs-modules": "^0.4.3",
-    "graphql-request": "^1.8.2"
+    "graphql": "^15.6.1",
+    "graphql-request": "^3.5.0"
   },
   "jest": {
     "moduleFileExtensions": [
