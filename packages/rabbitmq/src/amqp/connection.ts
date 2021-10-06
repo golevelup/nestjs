@@ -254,18 +254,7 @@ export class AmqpConnection {
     msgOptions: MessageHandlerOptions,
     channel: amqplib.ConfirmChannel
   ): Promise<void> {
-    const { exchange, routingKey, allowNonJsonMessages } = msgOptions;
-
-    const { queue } = await channel.assertQueue(
-      msgOptions.queue || '',
-      msgOptions.queueOptions || undefined
-    );
-
-    const routingKeys = Array.isArray(routingKey) ? routingKey : [routingKey];
-
-    await Promise.all(
-      routingKeys.map((x) => channel.bindQueue(queue, exchange, x))
-    );
+    const queue = await this.setupQueue(msgOptions, channel);
 
     await channel.consume(queue, async (msg) => {
       try {
@@ -276,7 +265,7 @@ export class AmqpConnection {
         const response = await this.handleMessage(
           handler,
           msg,
-          allowNonJsonMessages
+          msgOptions.allowNonJsonMessages
         );
 
         if (response instanceof Nack) {
@@ -328,18 +317,7 @@ export class AmqpConnection {
     rpcOptions: MessageHandlerOptions,
     channel: amqplib.ConfirmChannel
   ) {
-    const { exchange, routingKey, allowNonJsonMessages } = rpcOptions;
-
-    const { queue } = await channel.assertQueue(
-      rpcOptions.queue || '',
-      rpcOptions.queueOptions || undefined
-    );
-
-    const routingKeys = Array.isArray(routingKey) ? routingKey : [routingKey];
-
-    await Promise.all(
-      routingKeys.map((x) => channel.bindQueue(queue, exchange, x))
-    );
+    const queue = await this.setupQueue(rpcOptions, channel);
 
     await channel.consume(queue, async (msg) => {
       try {
@@ -350,7 +328,7 @@ export class AmqpConnection {
         const response = await this.handleMessage(
           handler,
           msg,
-          allowNonJsonMessages
+          rpcOptions.allowNonJsonMessages
         );
 
         if (response instanceof Nack) {
@@ -428,5 +406,45 @@ export class AmqpConnection {
     }
 
     return handler(message, msg);
+  }
+
+  private async setupQueue(
+    subscriptionOptions: MessageHandlerOptions,
+    channel: amqplib.ConfirmChannel
+  ): Promise<string> {
+    const {
+      exchange,
+      routingKey,
+      createQueueIfNotExists = true,
+    } = subscriptionOptions;
+
+    let actualQueue: string;
+
+    if (createQueueIfNotExists) {
+      const { queue } = await channel.assertQueue(
+        subscriptionOptions.queue || '',
+        subscriptionOptions.queueOptions || undefined
+      );
+      actualQueue = queue;
+    } else {
+      const { queue } = await channel.checkQueue(
+        subscriptionOptions.queue || ''
+      );
+      actualQueue = queue;
+    }
+
+    const routingKeys = Array.isArray(routingKey) ? routingKey : [routingKey];
+
+    if (exchange && routingKeys) {
+      await Promise.all(
+        routingKeys.map((routingKey) => {
+          if (routingKey) {
+            channel.bindQueue(actualQueue as string, exchange, routingKey);
+          }
+        })
+      );
+    }
+
+    return actualQueue;
   }
 }

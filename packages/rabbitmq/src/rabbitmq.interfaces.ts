@@ -38,8 +38,8 @@ export interface QueueOptions {
 }
 
 export interface MessageHandlerOptions {
-  exchange: string;
-  routingKey: string | string[];
+  exchange?: string;
+  routingKey?: string | string[];
   queue?: string;
   queueOptions?: QueueOptions;
   /**
@@ -52,6 +52,7 @@ export interface MessageHandlerOptions {
    */
   errorHandler?: MessageErrorHandler;
   allowNonJsonMessages?: boolean;
+  createQueueIfNotExists?: boolean;
 }
 
 export interface ConnectionInitOptions {
