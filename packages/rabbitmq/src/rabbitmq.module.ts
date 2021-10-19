@@ -122,8 +122,9 @@ export class RabbitMQModule
 
     for (const key of providerKeys) {
       this.logger.log(`Registering rabbitmq handlers from ${key}`);
+
       await Promise.all(
-        grouped[key].map(async ({ discoveredMethod, meta: config }) => {
+        grouped[key].map(({ discoveredMethod, meta: config }) => {
           const handler = this.externalContextCreator.create(
             discoveredMethod.parentClass.instance,
             discoveredMethod.handler,
@@ -145,7 +146,8 @@ export class RabbitMQModule
             this.logger.warn(
               `Direct Reply-To Functionality is disabled. RPC handler ${handlerDisplayName} will not be registered`
             );
-            return;
+
+            return Promise.resolve();
           }
 
           this.logger.log(handlerDisplayName);
