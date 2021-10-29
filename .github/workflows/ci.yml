@@ -1,0 +1,62 @@
+name: Continuous Integration
+
+on: pull_request
+
+concurrency: 
+  group: ${{ github.head_ref }}
+  cancel-in-progress: true
+
+env:
+  LATEST_NODE_VERSION: 17
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node: [12, 14, 16, 17]
+      fail-fast: false
+
+    services:
+      rabbitmq:
+        image: rabbitmq:management
+        env:
+          RABBITMQ_ERLANG_COOKIE: "SWQOKODSQALRPCLNMEQG"
+          RABBITMQ_DEFAULT_USER: "rabbitmq"
+          RABBITMQ_DEFAULT_PASS: "rabbitmq"
+          RABBITMQ_DEFAULT_VHOST: "/"
+        ports:
+          - 5672/tcp
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup Node.js ${{ matrix.node }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node }}
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Build
+        run: yarn build
+
+      - name: Run unit tests
+        run: yarn test:ci
+
+      - name: Publish code coverage
+        if: matrix.node == env.LATEST_NODE_VERSION
+        run: echo Not Implemented Yet
+
+      - name: Run integration tests
+        run: |
+          yarn --cwd ./integration/rabbitmq
+          yarn test:ci:integration
+        env:
+          NODE_ENV: ci
+          RABBITMQ_HOST: localhost
+          RABBITMQ_PORT: ${{ job.services.rabbitmq.ports[5672] }}
