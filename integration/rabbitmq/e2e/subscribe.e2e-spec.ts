@@ -98,8 +98,9 @@ describe('Rabbit Subscribe', () => {
   let app: INestApplication;
   let amqpConnection: AmqpConnection;
 
-  const rabbitHost = process.env.NODE_ENV === 'ci' ? 'rabbit' : 'localhost';
-  const uri = `amqp://rabbitmq:rabbitmq@${rabbitHost}:5672`;
+  const rabbitHost = process.env.NODE_ENV === 'ci' ? process.env.RABBITMQ_HOST : 'localhost';
+  const rabbitPort = process.env.NODE_ENV === 'ci' ? process.env.RABBITMQ_PORT : '5672';
+  const uri = `amqp://rabbitmq:rabbitmq@${rabbitHost}:${rabbitPort}`;
 
   beforeAll(async () => {
     const moduleFixture = await Test.createTestingModule({
