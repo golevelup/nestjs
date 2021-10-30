@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.18.1](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@1.18.0...@golevelup/nestjs-rabbitmq@1.18.1) (2021-10-30)
+
+### Bug Fixes
+
+- **rabbitmq:** bind queue if routingKey is empty string ([fdac216](https://github.com/golevelup/nestjs/commit/fdac216)), closes [#328](https://github.com/golevelup/nestjs/issues/328)
+
 # [1.18.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@1.17.1...@golevelup/nestjs-rabbitmq@1.18.0) (2021-10-06)
 
 ### Features
