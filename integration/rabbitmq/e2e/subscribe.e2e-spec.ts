@@ -26,6 +26,9 @@ const createHandler = jest.fn();
 const updateHandler = jest.fn();
 const deleteHandler = jest.fn();
 
+const FANOUT = 'fanout';
+const fanoutHandler = jest.fn();
+
 @Injectable()
 class SubscribeService {
   @RabbitSubscribe({
@@ -92,14 +95,22 @@ class SubscribeService {
   delete(message: any) {
     deleteHandler(message);
   }
+
+  @RabbitSubscribe({ exchange: FANOUT, routingKey: '' })
+  emptyRoutingKey(message: any) {
+    console.log('received message from empty routing key');
+    fanoutHandler(message);
+  }
 }
 
 describe('Rabbit Subscribe', () => {
   let app: INestApplication;
   let amqpConnection: AmqpConnection;
 
-  const rabbitHost = process.env.NODE_ENV === 'ci' ? process.env.RABBITMQ_HOST : 'localhost';
-  const rabbitPort = process.env.NODE_ENV === 'ci' ? process.env.RABBITMQ_PORT : '5672';
+  const rabbitHost =
+    process.env.NODE_ENV === 'ci' ? process.env.RABBITMQ_HOST : 'localhost';
+  const rabbitPort =
+    process.env.NODE_ENV === 'ci' ? process.env.RABBITMQ_PORT : '5672';
   const uri = `amqp://rabbitmq:rabbitmq@${rabbitHost}:${rabbitPort}`;
 
   beforeAll(async () => {
@@ -111,6 +122,10 @@ describe('Rabbit Subscribe', () => {
             {
               name: exchange,
               type: 'topic',
+            },
+            {
+              name: FANOUT,
+              type: FANOUT,
             },
           ],
           uri,
@@ -218,6 +233,19 @@ describe('Rabbit Subscribe', () => {
     setTimeout(() => {
       expect(testHandler).toHaveBeenCalledTimes(1);
       expect(testHandler).toHaveBeenCalledWith(message);
+      done();
+    }, 50);
+  });
+
+  it('should route messages to fanout exchange handlers with no routing key', async (done) => {
+    const message = { message: 'message' };
+    amqpConnection.publish(FANOUT, '', message);
+
+    // ASSERT
+    expect.assertions(2);
+    setTimeout(() => {
+      expect(fanoutHandler).toHaveBeenCalledTimes(1);
+      expect(fanoutHandler).toHaveBeenCalledWith(message);
       done();
     }, 50);
   });
