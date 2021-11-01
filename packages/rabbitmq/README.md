@@ -227,7 +227,7 @@ The default behavior is that handlers will be attached, but to opt out simply se
 
 ### Dealing with the amqp original message
 
-In some scenarios, it wil be usefull the get the original amqp message (to retrieve the fields, properties...).
+In some scenarios, it wil be usefull to get the original amqp message (to retrieve the fields, properties...).
 
 The raw message is passed to the consumer as a second argument.
 
