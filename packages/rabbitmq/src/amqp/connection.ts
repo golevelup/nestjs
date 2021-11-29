@@ -439,7 +439,7 @@ export class AmqpConnection {
       await Promise.all(
         routingKeys.map((routingKey) => {
           if (routingKey != null) {
-            channel.bindQueue(actualQueue as string, exchange, routingKey);
+            channel.bindQueue(actualQueue as string, exchange, routingKey, subscriptionOptions.queueOptions?.arguments);
           }
         })
       );
