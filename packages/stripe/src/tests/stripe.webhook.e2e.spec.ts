@@ -32,12 +32,7 @@ describe.each(cases)(
   'Stripe Module %p with controller prefix %p (e2e)',
   (moduleType, controllerPrefix) => {
     let app: INestApplication;
-    let hydratePayloadFn: jest.Mock<
-      {
-        type: string;
-      },
-      [string, Buffer]
-    >;
+    let hydratePayloadFn: jest.SpyInstance;
 
     const stripeWebhookEndpoint = controllerPrefix
       ? `/${controllerPrefix}/webhook`
@@ -70,9 +65,8 @@ describe.each(cases)(
       app = moduleFixture.createNestApplication();
       await app.init();
 
-      const stripePayloadService = app.get<StripePayloadService>(
-        StripePayloadService
-      );
+      const stripePayloadService =
+        app.get<StripePayloadService>(StripePayloadService);
 
       hydratePayloadFn = jest
         .spyOn(stripePayloadService, 'tryHydratePayload')

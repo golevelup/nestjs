@@ -48,7 +48,7 @@ export class StripeModule
           useFactory: ({
             apiKey,
             typescript = true,
-            apiVersion = '2020-03-02',
+            apiVersion = '2020-08-27',
             webhookConfig,
             ...options
           }: StripeModuleConfig): Stripe => {
@@ -66,7 +66,8 @@ export class StripeModule
       exports: [STRIPE_MODULE_CONFIG_TOKEN, STRIPE_CLIENT_TOKEN],
     }
   )
-  implements OnModuleInit {
+  implements OnModuleInit
+{
   private readonly logger = new Logger(StripeModule.name);
 
   constructor(
@@ -110,9 +111,10 @@ export class StripeModule
       throw new Error('Could not find instance of Stripe Webhook Service');
     }
 
-    const eventHandlerMeta = await this.discover.providerMethodsWithMetaAtKey<
-      string
-    >(STRIPE_WEBHOOK_HANDLER);
+    const eventHandlerMeta =
+      await this.discover.providerMethodsWithMetaAtKey<string>(
+        STRIPE_WEBHOOK_HANDLER
+      );
 
     const grouped = groupBy(
       eventHandlerMeta,
