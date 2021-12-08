@@ -141,7 +141,7 @@ describe('Rabbit Subscribe', () => {
   });
 
   afterAll(async () => {
-    await app.close();
+    await app?.close();
   });
 
   beforeEach(() => {

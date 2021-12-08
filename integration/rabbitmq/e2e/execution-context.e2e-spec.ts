@@ -72,7 +72,7 @@ describe('Rabbit Subscribe Without Register Handlers', () => {
   });
 
   afterAll(async () => {
-    await app.close();
+    await app?.close();
   });
 
   it('should recognize a rabbit handler execution context and allow for interceptors to be skipped', async () => {

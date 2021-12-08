@@ -58,7 +58,7 @@ describe('Rabbit Subscribe Without Register Handlers', () => {
   });
 
   afterAll(async () => {
-    await app.close();
+    await app?.close();
   });
 
   it('should not receive subscribe messages because register handlers is disabled', async () => {
