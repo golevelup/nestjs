@@ -42,7 +42,8 @@ export class RabbitMQModule
       exports: [AmqpConnection],
     }
   )
-  implements OnModuleDestroy, OnModuleInit {
+  implements OnModuleDestroy, OnModuleInit
+{
   private readonly logger = new Logger(RabbitMQModule.name);
 
   constructor(
@@ -109,9 +110,10 @@ export class RabbitMQModule
 
     this.logger.log('Initializing RabbitMQ Handlers');
 
-    const rabbitMeta = await this.discover.providerMethodsWithMetaAtKey<
-      RabbitHandlerConfig
-    >(RABBIT_HANDLER);
+    const rabbitMeta =
+      await this.discover.providerMethodsWithMetaAtKey<RabbitHandlerConfig>(
+        RABBIT_HANDLER
+      );
 
     const grouped = groupBy(
       rabbitMeta,

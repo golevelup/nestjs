@@ -42,8 +42,10 @@ describe('Rabbit Subscribe Without Register Handlers', () => {
   let app: INestApplication;
   let amqpConnection: AmqpConnection;
 
-  const rabbitHost = process.env.NODE_ENV === 'ci' ? process.env.RABBITMQ_HOST : 'localhost';
-  const rabbitPort = process.env.NODE_ENV === 'ci' ? process.env.RABBITMQ_PORT : '5672';
+  const rabbitHost =
+    process.env.NODE_ENV === 'ci' ? process.env.RABBITMQ_HOST : 'localhost';
+  const rabbitPort =
+    process.env.NODE_ENV === 'ci' ? process.env.RABBITMQ_PORT : '5672';
   const uri = `amqp://rabbitmq:rabbitmq@${rabbitHost}:${rabbitPort}`;
 
   beforeAll(async () => {
@@ -73,13 +75,9 @@ describe('Rabbit Subscribe Without Register Handlers', () => {
     await app.close();
   });
 
-  it('should recognize a rabbit handler execution context and allow for interceptors to be skipped', async (done) => {
+  it('should recognize a rabbit handler execution context and allow for interceptors to be skipped', async () => {
     await amqpConnection.publish(exchange, 'x', `test-message`);
-    expect.assertions(1);
-
-    setTimeout(() => {
-      expect(interceptorHandler).not.toHaveBeenCalled();
-      done();
-    }, 100);
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    expect(interceptorHandler).not.toHaveBeenCalled();
   });
 });
