@@ -1,15 +1,15 @@
 import { Logger } from '@nestjs/common';
 import * as amqpcon from 'amqp-connection-manager';
 import * as amqplib from 'amqplib';
-import { EMPTY, interval, race, Subject, throwError } from 'rxjs';
 import {
-  catchError,
-  filter,
-  first,
-  map,
-  take,
-  timeoutWith,
-} from 'rxjs/operators';
+  EMPTY,
+  interval,
+  lastValueFrom,
+  race,
+  Subject,
+  throwError,
+} from 'rxjs';
+import { catchError, filter, first, map, take, timeout } from 'rxjs/operators';
 import * as uuid from 'uuid';
 import {
   ConnectionInitOptions,
@@ -51,7 +51,7 @@ export class AmqpConnection {
   private readonly messageSubject = new Subject<CorrelationMessage>();
   private readonly config: Required<RabbitMQConfig>;
   private readonly logger: Logger;
-  private readonly initialized = new Subject();
+  private readonly initialized = new Subject<void>();
   private _managedConnection!: amqpcon.AmqpConnectionManager;
   private _managedChannel!: amqpcon.ChannelWrapper;
   private _channel?: amqplib.Channel;
@@ -95,20 +95,22 @@ export class AmqpConnection {
     const p = this.initCore();
     if (!wait) return p;
 
-    return this.initialized
-      .pipe(
+    return lastValueFrom(
+      this.initialized.pipe(
         take(1),
-        timeoutWith(
-          timeoutInterval,
-          throwError(
-            new Error(
-              `Failed to connect to a RabbitMQ broker within a timeout of ${timeoutInterval}ms`
-            )
-          )
-        ),
-        catchError((err) => (reject ? throwError(err) : EMPTY))
+        timeout({
+          each: timeoutInterval,
+          with: () =>
+            throwError(
+              () =>
+                new Error(
+                  `Failed to connect to a RabbitMQ broker within a timeout of ${timeoutInterval}ms`
+                )
+            ),
+        }),
+        catchError((err) => (reject ? throwError(() => err) : EMPTY))
       )
-      .toPromise<any>();
+    );
   }
 
   private async initCore(): Promise<void> {
@@ -231,7 +233,7 @@ export class AmqpConnection {
       })
     );
 
-    return race(response$, timeout$).toPromise();
+    return lastValueFrom(race(response$, timeout$));
   }
 
   public async createSubscriber<T>(
