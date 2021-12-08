@@ -3,7 +3,7 @@ import {
   Get,
   Injectable,
   Module,
-  SetMetadata
+  SetMetadata,
 } from '@nestjs/common';
 import { PATH_METADATA } from '@nestjs/common/constants';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -53,10 +53,10 @@ class ExampleController {
     ExampleService,
     {
       provide: NullProviderSymbol,
-      useValue: null
-    }
+      useValue: null,
+    },
   ],
-  controllers: [ExampleController]
+  controllers: [ExampleController],
 })
 class ExampleModule {}
 
@@ -66,7 +66,7 @@ describe('Discovery', () => {
 
   beforeEach(async () => {
     app = await Test.createTestingModule({
-      imports: [DiscoveryModule, ExampleModule]
+      imports: [DiscoveryModule, ExampleModule],
     }).compile();
 
     await app.init();
@@ -82,7 +82,7 @@ describe('Discovery', () => {
 
       expect(providers).toBeDefined();
 
-      const nullProvider = app.get<{}>(NullProviderSymbol);
+      const nullProvider = app.get(NullProviderSymbol);
       expect(nullProvider).toBeNull();
     });
 
@@ -98,9 +98,10 @@ describe('Discovery', () => {
     });
 
     it('should discover provider method handler meta based on a metadata key', async () => {
-      const providerMethodMeta = await discoveryService.providerMethodsWithMetaAtKey(
-        ExampleMethodSymbol
-      );
+      const providerMethodMeta =
+        await discoveryService.providerMethodsWithMetaAtKey(
+          ExampleMethodSymbol
+        );
 
       expect(providerMethodMeta.length).toBe(1);
 
@@ -116,10 +117,10 @@ describe('Discovery', () => {
             parentModule: {
               name: 'ExampleModule',
               dependencyType: ExampleModule,
-              injectType: ExampleModule
-            }
-          }
-        }
+              injectType: ExampleModule,
+            },
+          },
+        },
       });
 
       expect(meta.discoveredMethod.parentClass.instance).toBeInstanceOf(
@@ -143,9 +144,10 @@ describe('Discovery', () => {
     });
 
     it('should discover controller method handler meta based on a metadata key', async () => {
-      const controllerMethodMeta = await discoveryService.controllerMethodsWithMetaAtKey<
-        string
-      >(PATH_METADATA);
+      const controllerMethodMeta =
+        await discoveryService.controllerMethodsWithMetaAtKey<string>(
+          PATH_METADATA
+        );
       const [first] = controllerMethodMeta;
       expect(first).toBeDefined();
 
@@ -163,10 +165,10 @@ describe('Discovery', () => {
             parentModule: {
               name: 'ExampleModule',
               dependencyType: ExampleModule,
-              injectType: ExampleModule
-            }
-          }
-        }
+              injectType: ExampleModule,
+            },
+          },
+        },
       });
 
       expect(meta.discoveredMethod.parentClass.instance).toBeInstanceOf(

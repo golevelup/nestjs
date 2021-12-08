@@ -27,7 +27,7 @@ const DIRECT_REPLY_QUEUE = 'amq.rabbitmq.reply-to';
 
 export interface CorrelationMessage {
   correlationId: string;
-  message: {};
+  message: Record<string, unknown>;
 }
 
 const defaultConfig = {
@@ -201,7 +201,7 @@ export class AmqpConnection {
     );
   }
 
-  public async request<T extends {}>(
+  public async request<T extends Record<string, unknown>>(
     requestOptions: RequestOptions
   ): Promise<T> {
     const correlationId = requestOptions.correlationId || uuid.v4();
