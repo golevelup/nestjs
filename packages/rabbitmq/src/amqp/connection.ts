@@ -433,13 +433,23 @@ export class AmqpConnection {
       actualQueue = queue;
     }
 
+    let bindQueueArguments: any;
+    if (subscriptionOptions.queueOptions) {
+      bindQueueArguments = subscriptionOptions.queueOptions.bindQueueArguments;
+    }
+
     const routingKeys = Array.isArray(routingKey) ? routingKey : [routingKey];
 
     if (exchange && routingKeys) {
       await Promise.all(
         routingKeys.map((routingKey) => {
           if (routingKey != null) {
-            channel.bindQueue(actualQueue as string, exchange, routingKey);
+            channel.bindQueue(
+              actualQueue as string,
+              exchange,
+              routingKey,
+              bindQueueArguments
+            );
           }
         })
       );
