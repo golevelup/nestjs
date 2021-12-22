@@ -69,17 +69,18 @@ export const defaultAssertQueueErrorHandler: AssertQueueErrorHandler = (
 /**
  * Tries to delete the queue and to redeclare it with the provided options
  */
-export const forceDeleteAssertQueueErrorHandler: AssertQueueErrorHandler = async (
-  channel: Channel,
-  queueName: string,
-  queueOptions: QueueOptions | undefined,
-  error: any
-) => {
-  if (error.code == 406) {
-    //406 == preconditions failed
-    await channel.deleteQueue(queueName);
-    const { queue } = await channel.assertQueue(queueName, queueOptions);
-    return queue;
-  }
-  throw error;
-};
+export const forceDeleteAssertQueueErrorHandler: AssertQueueErrorHandler =
+  async (
+    channel: Channel,
+    queueName: string,
+    queueOptions: QueueOptions | undefined,
+    error: any
+  ) => {
+    if (error.code == 406) {
+      //406 == preconditions failed
+      await channel.deleteQueue(queueName);
+      const { queue } = await channel.assertQueue(queueName, queueOptions);
+      return queue;
+    }
+    throw error;
+  };
