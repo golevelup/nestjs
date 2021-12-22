@@ -236,7 +236,7 @@ If the method signature of the consumer accepts `amqplib.ConsumeMessage` as a se
 ```typescript
 import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
 import { Injectable } from '@nestjs/common';
-import { ConsumeMessage } from "amqplib";
+import { ConsumeMessage } from 'amqplib';
 
 @Injectable()
 export class MessagingService {
@@ -298,7 +298,7 @@ const response = await amqpConnection.request<ExpectedReturnType>({
   payload: {
     request: 'val',
   },
-  timeout : 10000, // optional timeout for how long the request
+  timeout: 10000, // optional timeout for how long the request
   // should wait before failing if no response is received
 });
 ```
@@ -347,6 +347,50 @@ export class MessagingService {
   }
 }
 ```
+
+### Handling errors
+
+By default, the library tries to do its best to give you the control on errors if you want and to do something sensible by default.
+
+This is done with the `errorHandler` property that is availble both in RPC and RabbitSubscribe.
+
+```typescript
+  @RabbitSubscribe({
+    exchange: 'exchange1',
+    routingKey: 'subscribe-route1',
+    queue: 'subscribe-queue',
+    errorHandler: myErrorHandler
+  })
+```
+
+> it should be used with `rpcOptions` for RPC
+
+The default is `defaultNackErrorHandler` and it just nack the message without requeue (which is usually ok to avoid the message coming back in the queue again and again)
+
+However, you can do more fancy stuff like inspecting the message properties to decide to requeue or not. Be aware that you should not requeue indefinitely...
+
+Please note that nack will trigger the dead-letter mecanism of RabbitMQ (and so, you can use the deadLetterExchange in the queueOptions in order to send the message somewhere else).
+
+A complete error handling strategy for RabbitMQ is out of the scope of this library.
+
+### Handling errors during queue creation
+
+Similarly to message errors, the library provide an error handler for failures during a queue creation (more exactly, during the assertQueue operation which will create the queue if it does not exist).
+
+```typescript
+  @RabbitSubscribe({
+    exchange: 'exchange1',
+    routingKey: 'subscribe-route1',
+    queue: 'subscribe-queue',
+    assertQueueErrorHandler: myErrorHandler
+  })
+```
+
+The default is `defaultAssertQueueErrorHandler` which just rethrows the RabbitMq error (because there is no "one size fits all" for this situation).
+
+You have the option to use `forceDeleteAssertQueueErrorHandler` which will try to delete the queue and recreate it with the provided queueOptions (if any)
+
+Obviously, you can also provide your own function and do whatever is best for you, in this case the function must return the name of the created queue.
 
 ## Contribute
 
