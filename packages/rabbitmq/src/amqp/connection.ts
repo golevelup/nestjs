@@ -11,6 +11,7 @@ import {
   timeoutWith,
 } from 'rxjs/operators';
 import * as uuid from 'uuid';
+import { defaultAssertQueueErrorHandler } from '..';
 import {
   ConnectionInitOptions,
   MessageHandlerOptions,
@@ -416,16 +417,25 @@ export class AmqpConnection {
       exchange,
       routingKey,
       createQueueIfNotExists = true,
+      assertQueueErrorHandler = defaultAssertQueueErrorHandler,
     } = subscriptionOptions;
 
     let actualQueue: string;
 
     if (createQueueIfNotExists) {
-      const { queue } = await channel.assertQueue(
-        subscriptionOptions.queue || '',
-        subscriptionOptions.queueOptions || undefined
-      );
-      actualQueue = queue;
+      const queueName = subscriptionOptions.queue ?? '';
+      const queueOptions = subscriptionOptions.queueOptions;
+      try {
+        const { queue } = await channel.assertQueue(queueName, queueOptions);
+        actualQueue = queue;
+      } catch (error) {
+        actualQueue = await assertQueueErrorHandler(
+          channel,
+          queueName,
+          queueOptions,
+          error
+        );
+      }
     } else {
       const { queue } = await channel.checkQueue(
         subscriptionOptions.queue || ''
