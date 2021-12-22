@@ -1,6 +1,7 @@
 import * as amqpConnectionManager from 'amqp-connection-manager';
 import * as amqplib from 'amqplib';
 import {
+  AssertQueueErrorHandler,
   MessageErrorHandler,
   MessageHandlerErrorBehavior,
 } from './amqp/errorBehaviors';
@@ -52,6 +53,10 @@ export interface MessageHandlerOptions {
    * A function that will be called if an error is thrown during processing of an incoming message
    */
   errorHandler?: MessageErrorHandler;
+  /**
+   * A function that will be called if an error is thown during queue creation (i.e during channel.assertQueue)
+   */
+  assertQueueErrorHandler: AssertQueueErrorHandler;
   allowNonJsonMessages?: boolean;
   createQueueIfNotExists?: boolean;
 }
