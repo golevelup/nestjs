@@ -130,13 +130,13 @@ export class RabbitMQModule
             discoveredMethod.methodName
           );
 
-          const { exchange, routingKey, queue } = config;
+          const { exchange, routingKey, queue, queueOptions } = config;
 
           const handlerDisplayName = `${discoveredMethod.parentClass.name}.${
             discoveredMethod.methodName
-          } {${config.type}} -> ${exchange}::${routingKey}::${
-            queue || 'amqpgen'
-          }`;
+          } {${config.type}} -> ${
+            queueOptions?.channel ? `${queueOptions.channel}::` : ''
+          }${exchange}::${routingKey}::${queue || 'amqpgen'}`;
 
           if (
             config.type === 'rpc' &&
