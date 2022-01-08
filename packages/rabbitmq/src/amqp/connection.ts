@@ -17,6 +17,7 @@ import {
   MessageHandlerOptions,
   RabbitMQConfig,
   RequestOptions,
+  RabbitMQChannelConfig,
 } from '../rabbitmq.interfaces';
 import {
   getHandlerForLegacyBehavior,
@@ -46,6 +47,7 @@ const defaultConfig = {
   connectionManagerOptions: {},
   registerHandlers: true,
   enableDirectReplyTo: true,
+  channels: {},
 };
 
 export class AmqpConnection {
@@ -54,8 +56,16 @@ export class AmqpConnection {
   private readonly logger: Logger;
   private readonly initialized = new Subject();
   private _managedConnection!: amqpcon.AmqpConnectionManager;
+  /**
+   * Will now specify the default managed channel.
+   */
   private _managedChannel!: amqpcon.ChannelWrapper;
-  private _channel?: amqplib.Channel;
+  private _managedChannels: Record<string, amqpcon.ChannelWrapper> = {};
+  /**
+   * Will now specify the default channel.
+   */
+  private _channel!: amqplib.Channel;
+  private _channels: Record<string, amqplib.Channel> = {};
   private _connection?: amqplib.Connection;
 
   constructor(config: RabbitMQConfig) {
@@ -83,6 +93,14 @@ export class AmqpConnection {
 
   get configuration() {
     return this.config;
+  }
+
+  get channels() {
+    return this._channels;
+  }
+
+  get managedChannels() {
+    return this._managedChannels;
   }
 
   public async init(): Promise<void> {
@@ -129,47 +147,62 @@ export class AmqpConnection {
       this.logger.error('Disconnected from RabbitMQ broker', err?.stack);
     });
 
-    this._managedChannel = this._managedConnection.createChannel({
+    const defaultChannel: { name: string; config: RabbitMQChannelConfig } = {
       name: AmqpConnection.name,
-    });
+      config: {
+        prefetchCount: this.config.prefetchCount,
+        default: true,
+      },
+    };
 
-    this._managedChannel.on('connect', () =>
-      this.logger.log('Successfully connected a RabbitMQ channel')
-    );
+    await Promise.all([
+      Object.keys(this.config.channels).map(async (channelName) => {
+        const config = this.config.channels[channelName];
+        // Only takes the first channel specified as default so other ones get created.
+        if (defaultChannel.name === AmqpConnection.name && config.default) {
+          defaultChannel.name = channelName;
+          defaultChannel.config.prefetchCount =
+            config.prefetchCount || this.config.prefetchCount;
 
-    this._managedChannel.on('error', (err, { name }) =>
-      this.logger.log(
-        `Failed to setup a RabbitMQ channel - name: ${name} / error: ${err.message} ${err.stack}`
-      )
-    );
+          return;
+        }
 
-    this._managedChannel.on('close', () =>
-      this.logger.log('Successfully closed a RabbitMQ channel')
-    );
-
-    await this._managedChannel.addSetup((c) => this.setupInitChannel(c));
+        return this.setupManagedChannel(channelName, {
+          ...config,
+          default: false,
+        });
+      }),
+      this.setupManagedChannel(defaultChannel.name, defaultChannel.config),
+    ]);
   }
 
   private async setupInitChannel(
-    channel: amqplib.ConfirmChannel
+    channel: amqplib.ConfirmChannel,
+    name: string,
+    config: RabbitMQChannelConfig
   ): Promise<void> {
-    this._channel = channel;
+    this._channels[name] = channel;
 
-    this.config.exchanges.forEach(async (x) =>
-      channel.assertExchange(
-        x.name,
-        x.type || this.config.defaultExchangeType,
-        x.options
-      )
-    );
+    await channel.prefetch(config.prefetchCount || this.config.prefetchCount);
 
-    await channel.prefetch(this.config.prefetchCount);
+    if (config.default) {
+      this._channel = channel;
 
-    if (this.config.enableDirectReplyTo) {
-      await this.initDirectReplyQueue(channel);
+      // Always assert exchanges & rpc queue in default channel.
+      this.config.exchanges.forEach((x) =>
+        channel.assertExchange(
+          x.name,
+          x.type || this.config.defaultExchangeType,
+          x.options
+        )
+      );
+
+      if (this.config.enableDirectReplyTo) {
+        await this.initDirectReplyQueue(channel);
+      }
+
+      this.initialized.next();
     }
-
-    this.initialized.next();
   }
 
   private async initDirectReplyQueue(channel: amqplib.ConfirmChannel) {
@@ -242,7 +275,9 @@ export class AmqpConnection {
     ) => Promise<SubscribeResponse>,
     msgOptions: MessageHandlerOptions
   ) {
-    return this._managedChannel.addSetup((channel) =>
+    return this.selectManagedChannel(
+      msgOptions?.queueOptions?.channel
+    ).addSetup((channel) =>
       this.setupSubscriberChannel<T>(handler, msgOptions, channel)
     );
   }
@@ -305,7 +340,9 @@ export class AmqpConnection {
     ) => Promise<RpcResponse<U>>,
     rpcOptions: MessageHandlerOptions
   ) {
-    return this._managedChannel.addSetup((channel) =>
+    return this.selectManagedChannel(
+      rpcOptions?.queueOptions?.channel
+    ).addSetup((channel) =>
       this.setupRpcChannel<T, U>(handler, rpcOptions, channel)
     );
   }
@@ -466,5 +503,51 @@ export class AmqpConnection {
     }
 
     return actualQueue;
+  }
+
+  private setupManagedChannel(name: string, config: RabbitMQChannelConfig) {
+    const channel = this._managedConnection.createChannel({
+      name,
+    });
+
+    this._managedChannels[name] = channel;
+
+    if (config.default) {
+      this._managedChannel = channel;
+    }
+
+    channel.on('connect', () =>
+      this.logger.log(`Successfully connected a RabbitMQ channel "${name}"`)
+    );
+
+    channel.on('error', (err, { name }) =>
+      this.logger.log(
+        `Failed to setup a RabbitMQ channel - name: ${name} / error: ${err.message} ${err.stack}`
+      )
+    );
+
+    channel.on('close', () =>
+      this.logger.log(`Successfully closed a RabbitMQ channel "${name}"`)
+    );
+
+    return channel.addSetup((c) => this.setupInitChannel(c, name, config));
+  }
+
+  /**
+   * Selects managed channel based on name, if not found uses default.
+   * @param name name of the channel
+   * @returns channel wrapper
+   */
+  private selectManagedChannel(name?: string): amqpcon.ChannelWrapper {
+    if (!name) return this._managedChannel;
+    const channel = this._managedChannels[name];
+    if (!channel) {
+      this.logger.warn(
+        `Channel "${name}" does not exist, using default channel.`
+      );
+
+      return this._managedChannel;
+    }
+    return channel;
   }
 }
