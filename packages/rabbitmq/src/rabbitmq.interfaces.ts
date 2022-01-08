@@ -36,6 +36,7 @@ export interface QueueOptions {
   maxLength?: number;
   maxPriority?: number;
   bindQueueArguments?: any;
+  channel?: string;
 }
 
 export interface MessageHandlerOptions {
@@ -64,6 +65,9 @@ export interface ConnectionInitOptions {
 
 export interface RabbitMQConfig {
   uri: string | string[];
+  /**
+   * Now specifies the default prefetch count for all channels.
+   */
   prefetchCount?: number;
   exchanges?: RabbitMQExchangeConfig[];
   defaultRpcTimeout?: number;
@@ -74,10 +78,24 @@ export interface RabbitMQConfig {
   connectionManagerOptions?: amqpConnectionManager.AmqpConnectionManagerOptions;
   registerHandlers?: boolean;
   enableDirectReplyTo?: boolean;
+  channels?: Record<string, RabbitMQChannelConfig>;
 }
 
 export type RabbitHandlerType = 'rpc' | 'subscribe';
 
 export interface RabbitHandlerConfig extends MessageHandlerOptions {
   type: RabbitHandlerType;
+}
+
+export interface RabbitMQChannelConfig {
+  /**
+   * Specifies prefetch count for the channel. If not specified will use the default one.
+   */
+  prefetchCount?: number;
+  /**
+   * Makes this channel the default for all handlers.
+   *
+   * If no channel has been marked as default, new channel will be created.
+   */
+  default?: boolean;
 }
