@@ -59,10 +59,10 @@ export class AmqpConnection {
    * Will now specify the default managed channel.
    */
   private _managedChannel!: amqpcon.ChannelWrapper;
+  private _managedChannels: Record<string, amqpcon.ChannelWrapper> = {};
   /**
    * Will now specify the default channel.
    */
-  private _managedChannels: Record<string, amqpcon.ChannelWrapper> = {};
   private _channel!: amqplib.Channel;
   private _channels: Record<string, amqplib.Channel> = {};
   private _connection?: amqplib.Connection;
@@ -173,8 +173,6 @@ export class AmqpConnection {
       }),
       this.setupManagedChannel(defaultChannel.name, defaultChannel.config),
     ]);
-
-    this.initialized.next();
   }
 
   private async setupInitChannel(
@@ -183,6 +181,9 @@ export class AmqpConnection {
     config: RabbitMQChannelConfig
   ): Promise<void> {
     this._channels[name] = channel;
+
+    await channel.prefetch(config.prefetchCount || this.config.prefetchCount);
+
     if (config.default) {
       this._channel = channel;
 
@@ -198,9 +199,9 @@ export class AmqpConnection {
       if (this.config.enableDirectReplyTo) {
         await this.initDirectReplyQueue(channel);
       }
-    }
 
-    await channel.prefetch(config.prefetchCount || this.config.prefetchCount);
+      this.initialized.next();
+    }
   }
 
   private async initDirectReplyQueue(channel: amqplib.ConfirmChannel) {
