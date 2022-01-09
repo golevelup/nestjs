@@ -540,13 +540,4 @@ export class AmqpConnection {
     }
     return channel;
   }
-
-  private selectChannel(name?: string): amqplib.Channel {
-    if (!name) return this._channel;
-    const channel = this._channels[name];
-    if (!channel) {
-      return this._channel;
-    }
-    return channel;
-  }
 }
