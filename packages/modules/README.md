@@ -109,7 +109,7 @@ export class ConfigModule extends createConfigurableDynamicRootModule<
   ConfigModule,
   ConfigModuleOptions
 >(CONFIG_MODULE_OPTIONS) {
-  static Deferred = ConfigModule.externallyConfigured(ConfigModule, 0);
+  static deferred = () => ConfigModule.externallyConfigured(ConfigModule, 0);
 }
 ```
 
@@ -117,7 +117,7 @@ Now it can be used in another module like this:
 
 ```ts
 @Module({
-  imports: [ConfigModule.Deferred],
+  imports: [ConfigModule.deferred()],
 })
 export class ConfigModuleDependentModule {}
 ```
