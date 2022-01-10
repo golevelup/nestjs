@@ -6,6 +6,7 @@ import { GraphQLClientInject } from './../graphql-request.constants';
 
 describe('GraphQL Request Module', () => {
   let app: INestApplication;
+  let client: GraphQLClient;
 
   beforeEach(async () => {
     const moduleFixture = await Test.createTestingModule({
@@ -18,10 +19,11 @@ describe('GraphQL Request Module', () => {
 
     app = moduleFixture.createNestApplication();
     await app.init();
+
+    client = app.get<GraphQLClient>(GraphQLClientInject);
   });
 
   it('provides a graphql client', () => {
-    const client = app.get<GraphQLClient>(GraphQLClientInject);
     expect(client).toBeInstanceOf(GraphQLClient);
   });
 });

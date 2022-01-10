@@ -9,6 +9,7 @@ import { flatten, times } from 'lodash';
 
 const testHandler = jest.fn();
 
+const amqDefaultExchange = '';
 const exchange = 'testSubscribeExhange';
 const routingKey1 = 'testSubscribeRoute1';
 const routingKey2 = 'testSubscribeRoute2';
@@ -18,9 +19,15 @@ const createRoutingKey = 'test.create.object';
 const updateRoutingKey = 'test.update.object';
 const deleteRoutingKey = 'test.delete.object';
 
+const preExistingQueue = 'testing_queue_exists';
+const nonExistingQueue = 'testing_queue_does_no_exist';
+
 const createHandler = jest.fn();
 const updateHandler = jest.fn();
 const deleteHandler = jest.fn();
+
+const FANOUT = 'fanout';
+const fanoutHandler = jest.fn();
 
 @Injectable()
 class SubscribeService {
@@ -30,6 +37,22 @@ class SubscribeService {
     queue: 'subscribeQueue',
   })
   handleSubscribe(message: object) {
+    testHandler(message);
+  }
+
+  @RabbitSubscribe({
+    queue: preExistingQueue,
+    createQueueIfNotExists: false,
+  })
+  handleExistingQueueSubscribe(message: object) {
+    testHandler(message);
+  }
+
+  @RabbitSubscribe({
+    queue: nonExistingQueue,
+    createQueueIfNotExists: true,
+  })
+  handleNonExistingQueueSubscribe(message: object) {
     testHandler(message);
   }
 
@@ -72,14 +95,23 @@ class SubscribeService {
   delete(message: any) {
     deleteHandler(message);
   }
+
+  @RabbitSubscribe({ exchange: FANOUT, routingKey: '' })
+  emptyRoutingKey(message: any) {
+    console.log('received message from empty routing key');
+    fanoutHandler(message);
+  }
 }
 
 describe('Rabbit Subscribe', () => {
   let app: INestApplication;
   let amqpConnection: AmqpConnection;
 
-  const rabbitHost = process.env.NODE_ENV === 'ci' ? 'rabbit' : 'localhost';
-  const uri = `amqp://rabbitmq:rabbitmq@${rabbitHost}:5672`;
+  const rabbitHost =
+    process.env.NODE_ENV === 'ci' ? process.env.RABBITMQ_HOST : 'localhost';
+  const rabbitPort =
+    process.env.NODE_ENV === 'ci' ? process.env.RABBITMQ_PORT : '5672';
+  const uri = `amqp://rabbitmq:rabbitmq@${rabbitHost}:${rabbitPort}`;
 
   beforeAll(async () => {
     const moduleFixture = await Test.createTestingModule({
@@ -91,6 +123,10 @@ describe('Rabbit Subscribe', () => {
               name: exchange,
               type: 'topic',
             },
+            {
+              name: FANOUT,
+              type: FANOUT,
+            },
           ],
           uri,
           connectionInitOptions: { wait: true, reject: true, timeout: 3000 },
@@ -100,6 +136,7 @@ describe('Rabbit Subscribe', () => {
 
     app = moduleFixture.createNestApplication();
     amqpConnection = app.get<AmqpConnection>(AmqpConnection);
+    await amqpConnection.channel.assertQueue(preExistingQueue);
     await app.init();
   });
 
@@ -161,6 +198,54 @@ describe('Rabbit Subscribe', () => {
       expect(testHandler).toHaveBeenNthCalledWith(1, undefined);
       expect(testHandler).toHaveBeenNthCalledWith(2, undefined);
       expect(testHandler).toHaveBeenNthCalledWith(3, undefined);
+      done();
+    }, 50);
+  });
+
+  it('should receive messages in existing queue without setting exchange and routing key on subscribe', async (done) => {
+    // publish to the default exchange, using the queue as routing key
+    const message1 = '{"key":"value 1"}';
+    const message2 = '{"key":"value 2"}';
+    const message3 = '{"key":"value 3"}';
+
+    amqpConnection.publish(amqDefaultExchange, preExistingQueue, message1);
+    amqpConnection.publish(amqDefaultExchange, preExistingQueue, message2);
+    amqpConnection.publish(amqDefaultExchange, preExistingQueue, message3);
+
+    // ASSERT
+    expect.assertions(4);
+    setTimeout(() => {
+      expect(testHandler).toHaveBeenCalledTimes(3);
+      expect(testHandler).toHaveBeenCalledWith(message1);
+      expect(testHandler).toHaveBeenCalledWith(message2);
+      expect(testHandler).toHaveBeenCalledWith(message3);
+      done();
+    }, 50);
+  });
+
+  it('should receive messages in new queue without setting exchange routing key on subscribe', async (done) => {
+    const message = '{"key":"value"}';
+    // publish to the default exchange, using the queue as routing key
+    amqpConnection.publish(amqDefaultExchange, nonExistingQueue, message);
+
+    // ASSERT
+    expect.assertions(2);
+    setTimeout(() => {
+      expect(testHandler).toHaveBeenCalledTimes(1);
+      expect(testHandler).toHaveBeenCalledWith(message);
+      done();
+    }, 50);
+  });
+
+  it('should route messages to fanout exchange handlers with no routing key', async (done) => {
+    const message = { message: 'message' };
+    amqpConnection.publish(FANOUT, '', message);
+
+    // ASSERT
+    expect.assertions(2);
+    setTimeout(() => {
+      expect(fanoutHandler).toHaveBeenCalledTimes(1);
+      expect(fanoutHandler).toHaveBeenCalledWith(message);
       done();
     }, 50);
   });

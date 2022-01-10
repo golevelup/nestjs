@@ -51,7 +51,7 @@ In previous versions, this package did not support advanced connection managemen
 
 Now, this package leverages [`amqp-connection-manager`](https://github.com/benbria/node-amqp-connection-manager) package to support connection resiliency.
 
-**NOTE**: to maintain the same pervious behavior and not introduce a major version update, the previous behavior is still the default.
+**NOTE**: to maintain the same previous behavior and not introduce a major version update, the previous behavior is still the default.
 
 If you want to transition to the new behavior and enable connection resiliency, you can configure `connectionInitOptions` to not wait for a connection to be availble, for example:
 
@@ -227,11 +227,11 @@ The default behavior is that handlers will be attached, but to opt out simply se
 
 ### Dealing with the amqp original message
 
-In some scenarios, it wil be usefull the get the original amqp message (to retrieve the fields, properties...).
+In some scenarios, it wil be useful to get the original amqp message (to retrieve the fields, properties...).
 
 The raw message is passed to the consumer as a second argument.
 
-If the method signature of the consumer accepts amqplib.ConsumeMessage as a second argument, it enables to access all information that is available on the original message.
+If the method signature of the consumer accepts `amqplib.ConsumeMessage` as a second argument, it enables to access all information that is available on the original message.
 
 ```typescript
 import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
