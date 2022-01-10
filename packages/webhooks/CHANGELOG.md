@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.2.8](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-webhooks@0.2.7...@golevelup/nestjs-webhooks@0.2.8) (2021-10-06)
+
+**Note:** Version bump only for package @golevelup/nestjs-webhooks
+
+## [0.2.7](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-webhooks@0.2.6...@golevelup/nestjs-webhooks@0.2.7) (2021-05-17)
+
+**Note:** Version bump only for package @golevelup/nestjs-webhooks
+
 ## [0.2.6](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-webhooks@0.2.5...@golevelup/nestjs-webhooks@0.2.6) (2020-09-02)
 
 ### Bug Fixes
