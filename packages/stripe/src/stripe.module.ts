@@ -17,13 +17,14 @@ import { StripePayloadService } from './stripe.payload.service';
 import { StripeWebhookController } from './stripe.webhook.controller';
 import { StripeWebhookService } from './stripe.webhook.service';
 
-@Module({})
+@Module({
+  controllers: [StripeWebhookController],
+})
 export class StripeModule
   extends createConfigurableDynamicRootModule<StripeModule, StripeModuleConfig>(
     STRIPE_MODULE_CONFIG_TOKEN,
     {
       imports: [DiscoveryModule],
-      controllers: [StripeWebhookController],
       providers: [
         {
           provide: Symbol('CONTROLLER_HACK'),
@@ -36,6 +37,9 @@ export class StripeModule
               controllerPrefix,
               StripeWebhookController
             );
+            config.webhookConfig?.decorators?.forEach((deco) => {
+              deco(StripeWebhookController);
+            });
           },
           inject: [STRIPE_MODULE_CONFIG_TOKEN],
         },

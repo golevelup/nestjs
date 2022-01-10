@@ -23,6 +23,13 @@ export interface StripeModuleConfig extends Partial<Stripe.StripeConfig> {
     controllerPrefix?: string;
 
     /**
+     * Any metadata specific decorators you want to apply to the webhook handling controller.
+     *
+     * Note: these decorators must only set metadata that will be read at request time. Decorators like Nest's `@UsePipes()` or `@UseInterceptors()` wll not work, due to the time at which Nest reads the metadata for those, but something  that uses `SetMetadata` will be fine, because that metadata is read at request time.
+     */
+    decorators?: ClassDecorator[];
+
+    /**
      * Logging configuration
      */
     loggingConfiguration?: {

@@ -1,23 +1,26 @@
 import { Logger } from '@nestjs/common';
 import * as amqpcon from 'amqp-connection-manager';
 import * as amqplib from 'amqplib';
-import { empty, interval, race, Subject, throwError } from 'rxjs';
+import { EMPTY, interval, race, Subject, throwError } from 'rxjs';
 import {
   catchError,
   filter,
   first,
   map,
   take,
-  timeoutWith
+  timeoutWith,
 } from 'rxjs/operators';
 import * as uuid from 'uuid';
 import {
   ConnectionInitOptions,
-  MessageHandlerErrorBehavior,
   MessageHandlerOptions,
   RabbitMQConfig,
-  RequestOptions
+  RequestOptions,
 } from '../rabbitmq.interfaces';
+import {
+  getHandlerForLegacyBehavior,
+  MessageHandlerErrorBehavior,
+} from './errorBehaviors';
 import { Nack, RpcResponse, SubscribeResponse } from './handlerResponses';
 
 const DIRECT_REPLY_QUEUE = 'amq.rabbitmq.reply-to';
@@ -37,11 +40,11 @@ const defaultConfig = {
   connectionInitOptions: {
     wait: true,
     timeout: 5000,
-    reject: true
+    reject: true,
   },
   connectionManagerOptions: {},
   registerHandlers: true,
-  enableDirectReplyTo: true
+  enableDirectReplyTo: true,
 };
 
 export class AmqpConnection {
@@ -65,7 +68,7 @@ export class AmqpConnection {
   }
 
   get connection(): amqplib.Connection {
-    if (!this._connection) throw new Error('channel is not available');
+    if (!this._connection) throw new Error('connection is not available');
     return this._connection;
   }
 
@@ -84,8 +87,9 @@ export class AmqpConnection {
   public async init(): Promise<void> {
     const options: Required<ConnectionInitOptions> = {
       ...defaultConfig.connectionInitOptions,
-      ...this.config.connectionInitOptions
+      ...this.config.connectionInitOptions,
     };
+
     const { wait, timeout: timeoutInterval, reject } = options;
 
     const p = this.initCore();
@@ -102,7 +106,7 @@ export class AmqpConnection {
             )
           )
         ),
-        catchError(err => (reject ? throwError(err) : empty()))
+        catchError((err) => (reject ? throwError(err) : EMPTY))
       )
       .toPromise<any>();
   }
@@ -120,23 +124,29 @@ export class AmqpConnection {
       this.logger.log('Successfully connected to a RabbitMQ broker');
     });
 
+    this._managedConnection.on('disconnect', ({ err }) => {
+      this.logger.error('Disconnected from RabbitMQ broker', err?.stack);
+    });
+
     this._managedChannel = this._managedConnection.createChannel({
-      name: AmqpConnection.name
+      name: AmqpConnection.name,
     });
 
     this._managedChannel.on('connect', () =>
       this.logger.log('Successfully connected a RabbitMQ channel')
     );
+
     this._managedChannel.on('error', (err, { name }) =>
       this.logger.log(
         `Failed to setup a RabbitMQ channel - name: ${name} / error: ${err.message} ${err.stack}`
       )
     );
+
     this._managedChannel.on('close', () =>
       this.logger.log('Successfully closed a RabbitMQ channel')
     );
 
-    await this._managedChannel.addSetup(c => this.setupInitChannel(c));
+    await this._managedChannel.addSetup((c) => this.setupInitChannel(c));
   }
 
   private async setupInitChannel(
@@ -144,7 +154,7 @@ export class AmqpConnection {
   ): Promise<void> {
     this._channel = channel;
 
-    this.config.exchanges.forEach(async x =>
+    this.config.exchanges.forEach(async (x) =>
       channel.assertExchange(
         x.name,
         x.type || this.config.defaultExchangeType,
@@ -165,20 +175,26 @@ export class AmqpConnection {
     // Set up a consumer on the Direct Reply-To queue to facilitate RPC functionality
     await channel.consume(
       DIRECT_REPLY_QUEUE,
-      async msg => {
+      async (msg) => {
         if (msg == null) {
           return;
         }
 
+        // Check that the Buffer has content, before trying to parse it
+        const message =
+          msg.content.length > 0
+            ? JSON.parse(msg.content.toString())
+            : undefined;
+
         const correlationMessage: CorrelationMessage = {
           correlationId: msg.properties.correlationId.toString(),
-          message: JSON.parse(msg.content.toString())
+          message: message,
         };
 
         this.messageSubject.next(correlationMessage);
       },
       {
-        noAck: true
+        noAck: true,
       }
     );
   }
@@ -191,15 +207,20 @@ export class AmqpConnection {
     const payload = requestOptions.payload || {};
 
     const response$ = this.messageSubject.pipe(
-      filter(x => x.correlationId === correlationId),
-      map(x => x.message as T),
+      filter((x) => x.correlationId === correlationId),
+      map((x) => x.message as T),
       first()
     );
 
-    this.publish(requestOptions.exchange, requestOptions.routingKey, payload, {
-      replyTo: DIRECT_REPLY_QUEUE,
-      correlationId
-    });
+    await this.publish(
+      requestOptions.exchange,
+      requestOptions.routingKey,
+      payload,
+      {
+        replyTo: DIRECT_REPLY_QUEUE,
+        correlationId,
+      }
+    );
 
     const timeout$ = interval(timeout).pipe(
       first(),
@@ -215,45 +236,38 @@ export class AmqpConnection {
 
   public async createSubscriber<T>(
     handler: (
-      msg: T,
+      msg: T | undefined,
       rawMessage?: amqplib.ConsumeMessage
     ) => Promise<SubscribeResponse>,
     msgOptions: MessageHandlerOptions
   ) {
-    return this._managedChannel.addSetup(channel =>
+    return this._managedChannel.addSetup((channel) =>
       this.setupSubscriberChannel<T>(handler, msgOptions, channel)
     );
   }
 
   private async setupSubscriberChannel<T>(
     handler: (
-      msg: T,
+      msg: T | undefined,
       rawMessage?: amqplib.ConsumeMessage
     ) => Promise<SubscribeResponse>,
     msgOptions: MessageHandlerOptions,
     channel: amqplib.ConfirmChannel
   ): Promise<void> {
-    const { exchange, routingKey } = msgOptions;
+    const queue = await this.setupQueue(msgOptions, channel);
 
-    const { queue } = await channel.assertQueue(
-      msgOptions.queue || '',
-      msgOptions.queueOptions || undefined
-    );
-
-    const routingKeys = Array.isArray(routingKey) ? routingKey : [routingKey];
-
-    await Promise.all(
-      routingKeys.map(x => channel.bindQueue(queue, exchange, x))
-    );
-
-    await channel.consume(queue, async msg => {
+    await channel.consume(queue, async (msg) => {
       try {
         if (msg == null) {
           throw new Error('Received null message');
         }
 
-        const message = JSON.parse(msg.content.toString()) as T;
-        const response = await handler(message, msg);
+        const response = await this.handleMessage(
+          handler,
+          msg,
+          msgOptions.allowNonJsonMessages
+        );
+
         if (response instanceof Nack) {
           channel.nack(msg, false, response.requeue);
           return;
@@ -270,21 +284,14 @@ export class AmqpConnection {
         if (msg == null) {
           return;
         } else {
-          const errorBehavior =
-            msgOptions.errorBehavior ||
-            this.config.defaultSubscribeErrorBehavior;
-          switch (errorBehavior) {
-            case MessageHandlerErrorBehavior.ACK: {
-              channel.ack(msg);
-              break;
-            }
-            case MessageHandlerErrorBehavior.REQUEUE: {
-              channel.nack(msg, false, true);
-              break;
-            }
-            default:
-              channel.nack(msg, false, false);
-          }
+          const errorHandler =
+            msgOptions.errorHandler ||
+            getHandlerForLegacyBehavior(
+              msgOptions.errorBehavior ||
+                this.config.defaultSubscribeErrorBehavior
+            );
+
+          await errorHandler(channel, msg, e);
         }
       }
     });
@@ -292,45 +299,37 @@ export class AmqpConnection {
 
   public async createRpc<T, U>(
     handler: (
-      msg: T,
+      msg: T | undefined,
       rawMessage?: amqplib.ConsumeMessage
     ) => Promise<RpcResponse<U>>,
     rpcOptions: MessageHandlerOptions
   ) {
-    return this._managedChannel.addSetup(channel =>
+    return this._managedChannel.addSetup((channel) =>
       this.setupRpcChannel<T, U>(handler, rpcOptions, channel)
     );
   }
 
   public async setupRpcChannel<T, U>(
     handler: (
-      msg: T,
+      msg: T | undefined,
       rawMessage?: amqplib.ConsumeMessage
     ) => Promise<RpcResponse<U>>,
     rpcOptions: MessageHandlerOptions,
     channel: amqplib.ConfirmChannel
   ) {
-    const { exchange, routingKey } = rpcOptions;
+    const queue = await this.setupQueue(rpcOptions, channel);
 
-    const { queue } = await channel.assertQueue(
-      rpcOptions.queue || '',
-      rpcOptions.queueOptions || undefined
-    );
-
-    const routingKeys = Array.isArray(routingKey) ? routingKey : [routingKey];
-
-    await Promise.all(
-      routingKeys.map(x => channel.bindQueue(queue, exchange, x))
-    );
-
-    await channel.consume(queue, async msg => {
+    await channel.consume(queue, async (msg) => {
       try {
         if (msg == null) {
           throw new Error('Received null message');
         }
 
-        const message = JSON.parse(msg.content.toString()) as T;
-        const response = await handler(message, msg);
+        const response = await this.handleMessage(
+          handler,
+          msg,
+          rpcOptions.allowNonJsonMessages
+        );
 
         if (response instanceof Nack) {
           channel.nack(msg, false, response.requeue);
@@ -339,27 +338,21 @@ export class AmqpConnection {
 
         const { replyTo, correlationId } = msg.properties;
         if (replyTo) {
-          this.publish('', replyTo, response, { correlationId });
+          await this.publish('', replyTo, response, { correlationId });
         }
         channel.ack(msg);
       } catch (e) {
         if (msg == null) {
           return;
         } else {
-          const errorBehavior =
-            rpcOptions.errorBehavior || this.config.defaultRpcErrorBehavior;
-          switch (errorBehavior) {
-            case MessageHandlerErrorBehavior.ACK: {
-              channel.ack(msg);
-              break;
-            }
-            case MessageHandlerErrorBehavior.REQUEUE: {
-              channel.nack(msg, false, true);
-              break;
-            }
-            default:
-              channel.nack(msg, false, false);
-          }
+          const errorHandler =
+            rpcOptions.errorHandler ||
+            getHandlerForLegacyBehavior(
+              rpcOptions.errorBehavior ||
+                this.config.defaultSubscribeErrorBehavior
+            );
+
+          await errorHandler(channel, msg, e);
         }
       }
     });
@@ -376,11 +369,92 @@ export class AmqpConnection {
       throw new Error('AMQP connection is not available');
     }
 
-    this._channel.publish(
+    let buffer: Buffer;
+    if (message instanceof Buffer) {
+      buffer = message;
+    } else if (message instanceof Uint8Array) {
+      buffer = Buffer.from(message);
+    } else if (message != null) {
+      buffer = Buffer.from(JSON.stringify(message));
+    } else {
+      buffer = Buffer.alloc(0);
+    }
+
+    this._channel.publish(exchange, routingKey, buffer, options);
+  }
+
+  private handleMessage<T, U>(
+    handler: (
+      msg: T | undefined,
+      rawMessage?: amqplib.ConsumeMessage
+    ) => Promise<U>,
+    msg: amqplib.ConsumeMessage,
+    allowNonJsonMessages?: boolean
+  ) {
+    let message: T | undefined = undefined;
+    if (msg.content) {
+      if (allowNonJsonMessages) {
+        try {
+          message = JSON.parse(msg.content.toString()) as T;
+        } catch {
+          // Let handler handle parsing error, it has the raw message anyway
+          message = undefined;
+        }
+      } else {
+        message = JSON.parse(msg.content.toString()) as T;
+      }
+    }
+
+    return handler(message, msg);
+  }
+
+  private async setupQueue(
+    subscriptionOptions: MessageHandlerOptions,
+    channel: amqplib.ConfirmChannel
+  ): Promise<string> {
+    const {
       exchange,
       routingKey,
-      Buffer.from(JSON.stringify(message)),
-      options
-    );
+      createQueueIfNotExists = true,
+    } = subscriptionOptions;
+
+    let actualQueue: string;
+
+    if (createQueueIfNotExists) {
+      const { queue } = await channel.assertQueue(
+        subscriptionOptions.queue || '',
+        subscriptionOptions.queueOptions || undefined
+      );
+      actualQueue = queue;
+    } else {
+      const { queue } = await channel.checkQueue(
+        subscriptionOptions.queue || ''
+      );
+      actualQueue = queue;
+    }
+
+    let bindQueueArguments: any;
+    if (subscriptionOptions.queueOptions) {
+      bindQueueArguments = subscriptionOptions.queueOptions.bindQueueArguments;
+    }
+
+    const routingKeys = Array.isArray(routingKey) ? routingKey : [routingKey];
+
+    if (exchange && routingKeys) {
+      await Promise.all(
+        routingKeys.map((routingKey) => {
+          if (routingKey != null) {
+            channel.bindQueue(
+              actualQueue as string,
+              exchange,
+              routingKey,
+              bindQueueArguments
+            );
+          }
+        })
+      );
+    }
+
+    return actualQueue;
   }
 }

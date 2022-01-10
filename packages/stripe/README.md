@@ -24,19 +24,15 @@ Interacting with the Stripe API or consuming Stripe webhooks in your NestJS appl
 
 ### Install
 
-`npm install ---save @golevelup/nestjs-stripe`
+#### NPM
 
-or
+- Install the package along with the stripe peer dependency
+`npm install --save @golevelup/nestjs-stripe stripe`
 
-`yarn add @golevelup/nestjs-stripe`
+#### YARN
 
-Also include the stripe peer dependency
-
-`npm install ---save stripe`
-
-or
-
-`yarn add stripe`
+- Install the package using yarn with the stripe peer dependency
+`yarn add @golevelup/nestjs-stripe stripe`
 
 ### Import
 
@@ -88,13 +84,26 @@ This module will automatically add a new API endpoint to your NestJS application
 
 If you would like your NestJS application to be able to process incoming webhooks, it is essential that Stripe has access to the raw request payload.
 
-By default, NestJS is configured to use JSON body parsing middleware which will transform the request before it can be validated by the Stripe library. The easiest solution is to also include the `@golevelup/nestjs-webhooks` package and [follow the steps for setting up simple body parsing](https://github.com/golevelup/nestjs/tree/master/packages/webhooks#simple-raw-body-parsing). Simply provide either `stripe/webhook` or the API route you chose when configuring the module
+By default, NestJS is configured to use JSON body parsing middleware which will transform the request before it can be validated by the Stripe library. The easiest solution is to also include the `@golevelup/nestjs-webhooks` package and [follow the steps for setting up simple body parsing](https://github.com/golevelup/nestjs/tree/master/packages/webhooks#simple-raw-body-parsing).
+
+Simply provide either `stripe/webhook` or the API route you chose when configuring the module. For example:
+
+```typescript
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    applyRawBodyOnlyTo(consumer, {
+      method: RequestMethod.ALL,
+      path: 'stripe/webhook',
+    });
+  }
+}
+```
 
 Failure to give Stripe access to the raw body will result in nasty runtime errors when events are sent to your endpoint
 
 ### Decorate Methods For Processing Webhook Events
 
-Exposing provider/service methods to be used for processing Stripe events is easy! Simply use the provided decorator and indiciate the event type that the handler should receive.
+Exposing provider/service methods to be used for processing Stripe events is easy! Simply use the provided decorator and indicate the event type that the handler should receive.
 
 [Review the Stripe documentation](https://stripe.com/docs/api/events/types) for more information about the types of events available.
 
@@ -108,6 +117,28 @@ class PaymentCreatedService {
 }
 ```
 
+### Webhook Controller Decorators
+
+You can also pass any class decorator to the `decorators` property of the `webhookConfig` object as a part of the module configuration. This could be used in situations like when using the `@nestjs/throttler` package and needing to apply the `@ThrottlerSkip()` decorator, or when you have a global guard but need to skip routes with certain metadata.
+
+```typescript
+StripeModule.forRoot(StripeModule, {
+  apiKey: '123',
+  webhookConfig: {
+    stripeWebhookSecret: 'super-secret',
+    decorators: [ThrottlerSkip()],
+  },
+}),
+```
+
 ### Configure Webhooks in the Stripe Dashboard
 
 Follow the instructions from the [Stripe Documentation](https://stripe.com/docs/webhooks) for remaining integration steps such as testing your integration with the CLI before you go live and properly configuring the endpoint from the Stripe dashboard so that the correct events are sent to your NestJS app.
+
+## Contribute
+
+Contributions welcome! Read the [contribution guidelines](../../CONTRIBUTING.md) first.
+
+## License
+
+[MIT License](../../LICENSE)

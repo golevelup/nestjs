@@ -33,7 +33,7 @@ npm i @golevelup/ts-jest
 or
 
 ```sh
-yarn @golevelup/ts-jest
+yarn add @golevelup/ts-jest
 ```
 
 ### Creating Mocks
@@ -84,21 +84,23 @@ describe('Mocked Execution Context', () => {
   it('should have a fully mocked Execution Context', () => {
     const mockExecutionContext = createMock<ExecutionContext>({
       switchToHttp: () => ({
-        getRequest: () =({
+        getRequest: () => ({
           headers: {
-            authorization: 'auth'
-          }
-        })
-      })
+            authorization: 'auth',
+          },
+        }),
+      }),
     });
-    mockExecutionContext.switchToHttp().getResponse.mockReturnValue({data: 'res return data'});
+    mockExecutionContext
+      .switchToHttp()
+      .getResponse.mockReturnValue({ data: 'res return data' });
     expect(mockExecutionContext.switchToHttp().getRequest()).toEqual({
       headers: {
-        authorization: 'auth'
-      }
+        authorization: 'auth',
+      },
     });
     expect(mockExecutionContext.switchToHttp().getResponse()).toEqual({
-      data: 'res return data'
+      data: 'res return data',
     });
     expect(mockExecutionContext.switchToHttp).toBeCalledTimes(3);
     expect(mockExecutionContext.switchToRPC().getContext()).toBeDefined();
@@ -112,3 +114,11 @@ describe('Mocked Execution Context', () => {
 The above case shows how well the `createMock` utility can take in user provided values as well as returning **type safe** mocks that can easily be chained and modified as needed.
 
 For a few more examples on what can be done [the mock.spec](src/mocks.spec.ts) file has some really cool examples that show pretty well just what is doable with this utility.
+
+## Contribute
+
+Contributions welcome! Read the [contribution guidelines](../../CONTRIBUTING.md) first.
+
+## License
+
+[MIT License](../../LICENSE)

@@ -3,6 +3,30 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.2.8](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-webhooks@0.2.7...@golevelup/nestjs-webhooks@0.2.8) (2021-10-06)
+
+**Note:** Version bump only for package @golevelup/nestjs-webhooks
+
+## [0.2.7](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-webhooks@0.2.6...@golevelup/nestjs-webhooks@0.2.7) (2021-05-17)
+
+**Note:** Version bump only for package @golevelup/nestjs-webhooks
+
+## [0.2.6](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-webhooks@0.2.5...@golevelup/nestjs-webhooks@0.2.6) (2020-09-02)
+
+### Bug Fixes
+
+- **webhooks:** add missing peer-dependency on body-parser ([25ad00e](https://github.com/golevelup/nestjs/commit/25ad00e)), closes [#175](https://github.com/golevelup/nestjs/issues/175)
+
+## [0.2.5](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-webhooks@0.2.4...@golevelup/nestjs-webhooks@0.2.5) (2020-05-13)
+
+**Note:** Version bump only for package @golevelup/nestjs-webhooks
+
+## [0.2.1-rc.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-webhooks@0.2.0...@golevelup/nestjs-webhooks@0.2.1-rc.0) (2020-04-08)
+
+### Features
+
+- **stripe:** new stripe package ([ffbcc86](https://github.com/golevelup/nestjs/commit/ffbcc86))
+
 # [0.2.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-webhooks@0.1.0...@golevelup/nestjs-webhooks@0.2.0) (2020-04-07)
 
 ### Features

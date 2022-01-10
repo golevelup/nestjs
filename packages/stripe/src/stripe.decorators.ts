@@ -1,5 +1,6 @@
 import { makeInjectableDecorator } from '@golevelup/nestjs-common';
 import { SetMetadata } from '@nestjs/common';
+import Stripe from 'stripe';
 import {
   STRIPE_CLIENT_TOKEN,
   STRIPE_MODULE_CONFIG_TOKEN,
@@ -23,5 +24,6 @@ export const InjectStripeClient = makeInjectableDecorator(STRIPE_CLIENT_TOKEN);
  * Events will be automatically routed here based on their event type property
  * @param config The configuration for this handler
  */
-export const StripeWebhookHandler = (eventType: string) =>
-  SetMetadata(STRIPE_WEBHOOK_HANDLER, eventType);
+export const StripeWebhookHandler = (
+  eventType: Stripe.WebhookEndpointCreateParams.EnabledEvent
+) => SetMetadata(STRIPE_WEBHOOK_HANDLER, eventType);

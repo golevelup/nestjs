@@ -3,6 +3,30 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.3.2](https://github.com/golevelup/nestjs/compare/@golevelup/ts-jest@0.3.1...@golevelup/ts-jest@0.3.2) (2021-10-30)
+
+**Note:** Version bump only for package @golevelup/ts-jest
+
+## [0.3.1](https://github.com/golevelup/nestjs/compare/@golevelup/ts-jest@0.3.0...@golevelup/ts-jest@0.3.1) (2020-12-13)
+
+### Bug Fixes
+
+- **ts-jest:** handling falsy values and undefined ([4152838](https://github.com/golevelup/nestjs/commit/4152838)), closes [#211](https://github.com/golevelup/nestjs/issues/211)
+
+# [0.3.0](https://github.com/golevelup/nestjs/compare/@golevelup/ts-jest@0.2.3...@golevelup/ts-jest@0.3.0) (2020-06-10)
+
+### Features
+
+- **ts-jest:** improve support for partials and promises ([82ddac4](https://github.com/golevelup/nestjs/commit/82ddac4))
+
+## [0.2.3](https://github.com/golevelup/nestjs/compare/@golevelup/ts-jest@0.2.2...@golevelup/ts-jest@0.2.3) (2020-05-13)
+
+**Note:** Version bump only for package @golevelup/ts-jest
+
+## [0.2.2](https://github.com/golevelup/nestjs/compare/@golevelup/ts-jest@0.2.1...@golevelup/ts-jest@0.2.2) (2020-05-11)
+
+**Note:** Version bump only for package @golevelup/ts-jest
+
 ## [0.2.1](https://github.com/golevelup/nestjs/compare/@golevelup/ts-jest@0.2.0...@golevelup/ts-jest@0.2.1) (2020-01-12)
 
 ### Bug Fixes
