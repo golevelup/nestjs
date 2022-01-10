@@ -124,6 +124,10 @@ export class AmqpConnection {
       this.logger.log('Successfully connected to a RabbitMQ broker');
     });
 
+    this._managedConnection.on('disconnect', ({ err }) => {
+      this.logger.error('Disconnected from RabbitMQ broker', err?.stack);
+    });
+
     this._managedChannel = this._managedConnection.createChannel({
       name: AmqpConnection.name,
     });
@@ -176,9 +180,15 @@ export class AmqpConnection {
           return;
         }
 
+        // Check that the Buffer has content, before trying to parse it
+        const message =
+          msg.content.length > 0
+            ? JSON.parse(msg.content.toString())
+            : undefined;
+
         const correlationMessage: CorrelationMessage = {
           correlationId: msg.properties.correlationId.toString(),
-          message: JSON.parse(msg.content.toString()),
+          message: message,
         };
 
         this.messageSubject.next(correlationMessage);
@@ -202,10 +212,15 @@ export class AmqpConnection {
       first()
     );
 
-    this.publish(requestOptions.exchange, requestOptions.routingKey, payload, {
-      replyTo: DIRECT_REPLY_QUEUE,
-      correlationId,
-    });
+    await this.publish(
+      requestOptions.exchange,
+      requestOptions.routingKey,
+      payload,
+      {
+        replyTo: DIRECT_REPLY_QUEUE,
+        correlationId,
+      }
+    );
 
     const timeout$ = interval(timeout).pipe(
       first(),
@@ -239,18 +254,7 @@ export class AmqpConnection {
     msgOptions: MessageHandlerOptions,
     channel: amqplib.ConfirmChannel
   ): Promise<void> {
-    const { exchange, routingKey, allowNonJsonMessages } = msgOptions;
-
-    const { queue } = await channel.assertQueue(
-      msgOptions.queue || '',
-      msgOptions.queueOptions || undefined
-    );
-
-    const routingKeys = Array.isArray(routingKey) ? routingKey : [routingKey];
-
-    await Promise.all(
-      routingKeys.map((x) => channel.bindQueue(queue, exchange, x))
-    );
+    const queue = await this.setupQueue(msgOptions, channel);
 
     await channel.consume(queue, async (msg) => {
       try {
@@ -261,7 +265,7 @@ export class AmqpConnection {
         const response = await this.handleMessage(
           handler,
           msg,
-          allowNonJsonMessages
+          msgOptions.allowNonJsonMessages
         );
 
         if (response instanceof Nack) {
@@ -313,18 +317,7 @@ export class AmqpConnection {
     rpcOptions: MessageHandlerOptions,
     channel: amqplib.ConfirmChannel
   ) {
-    const { exchange, routingKey, allowNonJsonMessages } = rpcOptions;
-
-    const { queue } = await channel.assertQueue(
-      rpcOptions.queue || '',
-      rpcOptions.queueOptions || undefined
-    );
-
-    const routingKeys = Array.isArray(routingKey) ? routingKey : [routingKey];
-
-    await Promise.all(
-      routingKeys.map((x) => channel.bindQueue(queue, exchange, x))
-    );
+    const queue = await this.setupQueue(rpcOptions, channel);
 
     await channel.consume(queue, async (msg) => {
       try {
@@ -335,7 +328,7 @@ export class AmqpConnection {
         const response = await this.handleMessage(
           handler,
           msg,
-          allowNonJsonMessages
+          rpcOptions.allowNonJsonMessages
         );
 
         if (response instanceof Nack) {
@@ -345,7 +338,7 @@ export class AmqpConnection {
 
         const { replyTo, correlationId } = msg.properties;
         if (replyTo) {
-          this.publish('', replyTo, response, { correlationId });
+          await this.publish('', replyTo, response, { correlationId });
         }
         channel.ack(msg);
       } catch (e) {
@@ -413,5 +406,55 @@ export class AmqpConnection {
     }
 
     return handler(message, msg);
+  }
+
+  private async setupQueue(
+    subscriptionOptions: MessageHandlerOptions,
+    channel: amqplib.ConfirmChannel
+  ): Promise<string> {
+    const {
+      exchange,
+      routingKey,
+      createQueueIfNotExists = true,
+    } = subscriptionOptions;
+
+    let actualQueue: string;
+
+    if (createQueueIfNotExists) {
+      const { queue } = await channel.assertQueue(
+        subscriptionOptions.queue || '',
+        subscriptionOptions.queueOptions || undefined
+      );
+      actualQueue = queue;
+    } else {
+      const { queue } = await channel.checkQueue(
+        subscriptionOptions.queue || ''
+      );
+      actualQueue = queue;
+    }
+
+    let bindQueueArguments: any;
+    if (subscriptionOptions.queueOptions) {
+      bindQueueArguments = subscriptionOptions.queueOptions.bindQueueArguments;
+    }
+
+    const routingKeys = Array.isArray(routingKey) ? routingKey : [routingKey];
+
+    if (exchange && routingKeys) {
+      await Promise.all(
+        routingKeys.map((routingKey) => {
+          if (routingKey != null) {
+            channel.bindQueue(
+              actualQueue as string,
+              exchange,
+              routingKey,
+              bindQueueArguments
+            );
+          }
+        })
+      );
+    }
+
+    return actualQueue;
   }
 }
