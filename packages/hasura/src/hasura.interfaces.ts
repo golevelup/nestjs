@@ -77,6 +77,10 @@ export interface ScheduledEventRetryConfig extends EventRetryConfig {
 }
 
 export interface TrackedHasuraEventHandlerConfig {
+  /**
+   * Only necessary to provide this value if working with Metadata V3. Defaults to 'default'
+   */
+  databaseName?: string;
   schema?: string;
   tableName: string;
   triggerName: string;
@@ -134,6 +138,11 @@ export interface HasuraModuleConfig {
    * amount of boilerplate
    */
   managedMetaDataConfig?: {
+    /**
+     * The version of hasura metadata being targeted
+     */
+    metadataVersion?: 'v2' | 'v3';
+
     /**
      * The ENV key in which Hasura will store the secret header value used to validate event payloads
      */
