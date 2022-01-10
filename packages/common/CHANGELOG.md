@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.4.2](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-common@1.4.1...@golevelup/nestjs-common@1.4.2) (2020-05-13)
+
+**Note:** Version bump only for package @golevelup/nestjs-common
+
+## [1.4.1](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-common@1.4.0...@golevelup/nestjs-common@1.4.1) (2020-04-04)
+
+**Note:** Version bump only for package @golevelup/nestjs-common
+
+# [1.4.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-common@1.3.1...@golevelup/nestjs-common@1.4.0) (2020-03-28)
+
+### Features
+
+- **common:** injectable decorator factory ([42b2f34](https://github.com/golevelup/nestjs/commit/42b2f34)), closes [#120](https://github.com/golevelup/nestjs/issues/120)
+
 ## [1.3.1](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-common@1.3.0...@golevelup/nestjs-common@1.3.1) (2020-01-12)
 
 **Note:** Version bump only for package @golevelup/nestjs-common

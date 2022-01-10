@@ -35,7 +35,7 @@ import { DiscoveryModule } from '@golevelup/nestjs-discovery';
 import { Module } from '@nestjs/common';
 
 @Module({
-  imports: [DiscoveryModule]
+  imports: [DiscoveryModule],
 })
 export class ExampleModule implements OnModuleInit {
   constructor(private readonly discover: DiscoveryService) {}
@@ -114,3 +114,11 @@ const exampleMethodsMeta = await this.discover.controllerMethodsWithMetaAtKey<
   string
 >('exampleKey');
 ```
+
+## Contribute
+
+Contributions welcome! Read the [contribution guidelines](../../CONTRIBUTING.md) first.
+
+## License
+
+[MIT License](../../LICENSE)
