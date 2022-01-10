@@ -33,7 +33,7 @@ npm i @golevelup/ts-jest
 or
 
 ```sh
-yarn @golevelup/ts-jest
+yarn add @golevelup/ts-jest
 ```
 
 ### Creating Mocks

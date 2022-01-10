@@ -1,0 +1,14 @@
+- name: scheduled
+  webhook: '{{NESTJS_EVENT_WEBHOOK_ENDPOINT}}'
+  schedule: '* * * * *'
+  include_in_metadata: true
+  payload:
+    message: hello
+  retry_conf:
+    num_retries: 3
+    timeout_seconds: 100
+    tolerance_seconds: 21600
+    retry_interval_seconds: 15
+  headers:
+    - name: NESTJS_SECRET_HEADER
+      value_from_env: NESTJS_WEBHOOK_SECRET_HEADER_VALUE
