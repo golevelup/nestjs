@@ -1,0 +1,7 @@
+test/__fixtures__/hasura/v2/metadata/tables.yaml
+test/__fixtures__/hasura/v2/metadata/cron_triggers.yaml
+
+test/__fixtures__/hasura/v3/metadata/cron_triggers.yaml
+test/__fixtures__/hasura/v3/metadata/databases/additional/tables/public_additional_table.yaml
+test/__fixtures__/hasura/v3/metadata/databases/default/tables/public_default_table.yaml
+test/__fixtures__/hasura/v3/metadata/databases/additional/tables/public_additional_table.yaml
