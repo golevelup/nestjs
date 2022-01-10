@@ -51,7 +51,7 @@ In previous versions, this package did not support advanced connection managemen
 
 Now, this package leverages [`amqp-connection-manager`](https://github.com/benbria/node-amqp-connection-manager) package to support connection resiliency.
 
-**NOTE**: to maintain the same pervious behavior and not introduce a major version update, the previous behavior is still the default.
+**NOTE**: to maintain the same previous behavior and not introduce a major version update, the previous behavior is still the default.
 
 If you want to transition to the new behavior and enable connection resiliency, you can configure `connectionInitOptions` to not wait for a connection to be availble, for example:
 
@@ -227,11 +227,11 @@ The default behavior is that handlers will be attached, but to opt out simply se
 
 ### Dealing with the amqp original message
 
-In some scenarios, it wil be usefull the get the original amqp message (to retrieve the fields, properties...).
+In some scenarios, it wil be useful to get the original amqp message (to retrieve the fields, properties...).
 
 The raw message is passed to the consumer as a second argument.
 
-If the method signature of the consumer accepts amqplib.ConsumeMessage as a second argument, it enables to access all information that is available on the original message.
+If the method signature of the consumer accepts `amqplib.ConsumeMessage` as a second argument, it enables to access all information that is available on the original message.
 
 ```typescript
 import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
@@ -268,7 +268,7 @@ export class AppController {
 
 ### Publising Messages (Fire and Forget)
 
-If you just want to publish a message onto a RabbitMQ exchange, use the `publsh` method of the `AmqpConnection` which has the following signature:
+If you just want to publish a message onto a RabbitMQ exchange, use the `publish` method of the `AmqpConnection` which has the following signature:
 
 ```typescript
 public publish(
@@ -298,7 +298,7 @@ const response = await amqpConnection.request<ExpectedReturnType>({
   payload: {
     request: 'val',
   },
-  timeout = 10000, // optional timeout for how long the request
+  timeout : 10000, // optional timeout for how long the request
   // should wait before failing if no response is received
 });
 ```

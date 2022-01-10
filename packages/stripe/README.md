@@ -24,19 +24,15 @@ Interacting with the Stripe API or consuming Stripe webhooks in your NestJS appl
 
 ### Install
 
-`npm install ---save @golevelup/nestjs-stripe`
+#### NPM
 
-or
+- Install the package along with the stripe peer dependency
+`npm install --save @golevelup/nestjs-stripe stripe`
 
-`yarn add @golevelup/nestjs-stripe`
+#### YARN
 
-Also include the stripe peer dependency
-
-`npm install ---save stripe`
-
-or
-
-`yarn add stripe`
+- Install the package using yarn with the stripe peer dependency
+`yarn add @golevelup/nestjs-stripe stripe`
 
 ### Import
 
@@ -107,7 +103,7 @@ Failure to give Stripe access to the raw body will result in nasty runtime error
 
 ### Decorate Methods For Processing Webhook Events
 
-Exposing provider/service methods to be used for processing Stripe events is easy! Simply use the provided decorator and indiciate the event type that the handler should receive.
+Exposing provider/service methods to be used for processing Stripe events is easy! Simply use the provided decorator and indicate the event type that the handler should receive.
 
 [Review the Stripe documentation](https://stripe.com/docs/api/events/types) for more information about the types of events available.
 
@@ -119,6 +115,20 @@ class PaymentCreatedService {
     // execute your custom business logic
   }
 }
+```
+
+### Webhook Controller Decorators
+
+You can also pass any class decorator to the `decorators` property of the `webhookConfig` object as a part of the module configuration. This could be used in situations like when using the `@nestjs/throttler` package and needing to apply the `@ThrottlerSkip()` decorator, or when you have a global guard but need to skip routes with certain metadata.
+
+```typescript
+StripeModule.forRoot(StripeModule, {
+  apiKey: '123',
+  webhookConfig: {
+    stripeWebhookSecret: 'super-secret',
+    decorators: [ThrottlerSkip()],
+  },
+}),
 ```
 
 ### Configure Webhooks in the Stripe Dashboard

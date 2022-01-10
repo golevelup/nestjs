@@ -37,6 +37,9 @@ export class StripeModule
               controllerPrefix,
               StripeWebhookController
             );
+            config.webhookConfig?.decorators?.forEach((deco) => {
+              deco(StripeWebhookController);
+            });
           },
           inject: [STRIPE_MODULE_CONFIG_TOKEN],
         },
