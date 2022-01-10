@@ -35,6 +35,7 @@ export interface QueueOptions {
   deadLetterRoutingKey?: string;
   maxLength?: number;
   maxPriority?: number;
+  bindQueueArguments?: any;
 }
 
 export interface MessageHandlerOptions {
