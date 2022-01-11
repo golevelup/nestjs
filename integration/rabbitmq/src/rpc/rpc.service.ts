@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-ignore */
 import {
   MessageHandlerErrorBehavior,
   RabbitRPC,
@@ -9,6 +10,7 @@ import { ReplyErrorCallback } from './reply.error.callback';
 
 @Injectable()
 export class RpcService {
+  // @ts-ignore
   @RabbitRPC({
     routingKey: 'rpc',
     exchange: 'exchange1',
@@ -21,6 +23,7 @@ export class RpcService {
   }
 
   @UseInterceptors(TransformInterceptor)
+  // @ts-ignore
   @RabbitRPC({
     routingKey: 'intercepted-rpc',
     exchange: 'exchange1',
@@ -32,6 +35,7 @@ export class RpcService {
     };
   }
 
+  // @ts-ignore
   @RabbitRPC({
     routingKey: 'error-reply-rpc',
     exchange: 'exchange1',
@@ -43,6 +47,7 @@ export class RpcService {
     throw new RpcException(message);
   }
 
+  // @ts-ignore
   @RabbitRPC({
     routingKey: 'non-json-rpc',
     exchange: 'exchange1',
