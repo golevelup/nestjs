@@ -1,16 +1,26 @@
-import { INestApplication, Injectable } from '@nestjs/common';
+import { INestApplication, Injectable, Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as request from 'supertest';
 import { StripeWebhookHandler } from '../stripe.decorators';
 import { StripeModuleConfig } from '../stripe.interfaces';
 import { StripePayloadService } from '../stripe.payload.service';
-import { StripeModule } from './../stripe.module';
+import { StripeModule } from '../stripe.module';
 
 const testReceiveStripeFn = jest.fn();
 const defaultStripeWebhookEndpoint = '/stripe/webhook';
 const eventType = 'payment_intent.created';
 const expectedEvent = { type: eventType };
 const stripeSig = 'stripeSignatureValue';
+
+@Injectable()
+class SilentLogger extends Logger {
+  constructor() {
+    super();
+  }
+  error() {
+    // ignore
+  }
+}
 
 @Injectable()
 class PaymentCreatedService {
@@ -68,6 +78,9 @@ describe.each(cases)(
       }).compile();
 
       app = moduleFixture.createNestApplication();
+      // For debugging purposes, It's safe to remove silent logger but this prevents polluting the console
+      // with expected errors
+      app.useLogger(new SilentLogger());
       await app.init();
 
       const stripePayloadService = app.get<StripePayloadService>(
