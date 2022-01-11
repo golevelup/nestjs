@@ -19,11 +19,11 @@
     "test:e2e": "jest --config ../../jest-e2e.json"
   },
   "dependencies": {
-    "@nestjs/common": "6.10.12",
-    "@nestjs/core": "6.10.12",
-    "@nestjs/microservices": "6.10.12",
-    "@nestjs/platform-express": "^6.10.12",
-    "@nestjs/websockets": "6.10.12",
+    "@nestjs/common": "7.5.5",
+    "@nestjs/core": "7.5.5",
+    "@nestjs/microservices": "7.5.5",
+    "@nestjs/platform-express": "^7.5.5",
+    "@nestjs/websockets": "7.5.5",
     "reflect-metadata": "0.1.13",
     "rimraf": "2.6.3",
     "rxjs": "6.5.3"
