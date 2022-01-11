@@ -188,7 +188,7 @@ export class AmqpConnection {
       this._channel = channel;
 
       // Always assert exchanges & rpc queue in default channel.
-      this.config.exchanges.forEach(async (x) =>
+      this.config.exchanges.forEach((x) =>
         channel.assertExchange(
           x.name,
           x.type || this.config.defaultExchangeType,
