@@ -6,8 +6,8 @@
     "packages/*"
   ],
   "dependencies": {
-    "@nestjs/common": "^6.0.1",
-    "@nestjs/core": "^6.0.1",
+    "@nestjs/common": "^7.5.5",
+    "@nestjs/core": "^7.5.5",
     "@nestjs/platform-express": "^7.0.6",
     "lodash": "^4.17.11",
     "reflect-metadata": "^0.1.13",

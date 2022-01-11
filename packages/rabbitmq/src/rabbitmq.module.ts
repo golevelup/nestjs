@@ -127,7 +127,13 @@ export class RabbitMQModule
           const handler = this.externalContextCreator.create(
             discoveredMethod.parentClass.instance,
             discoveredMethod.handler,
-            discoveredMethod.methodName
+            discoveredMethod.methodName,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            'rmq'
           );
 
           const { exchange, routingKey, queue } = config;
