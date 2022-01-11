@@ -15,18 +15,14 @@ export type MessageErrorHandler = (
 /**
  * An error handler that will ack the message which caused an error during processing
  */
-export const ackErrorHandler: MessageErrorHandler = (channel, msg, error) => {
+export const ackErrorHandler: MessageErrorHandler = (channel, msg) => {
   channel.ack(msg);
 };
 
 /**
  * An error handler that will nack and requeue a message which created an error during processing
  */
-export const requeueErrorHandler: MessageErrorHandler = (
-  channel,
-  msg,
-  error
-) => {
+export const requeueErrorHandler: MessageErrorHandler = (channel, msg) => {
   channel.nack(msg, false, true);
 };
 

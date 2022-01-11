@@ -105,7 +105,7 @@ describe('Mocks', () => {
       const mock = createMock<TypeWithOptionalProps>();
       mock.maybe?.mockImplementationOnce(() => 42);
 
-      const result = mock.maybe!();
+      const result = mock.maybe?.();
 
       expect(result).toBe(42);
     });

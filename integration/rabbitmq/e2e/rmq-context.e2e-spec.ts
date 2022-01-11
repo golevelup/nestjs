@@ -1,6 +1,5 @@
 import {
   AmqpConnection,
-  isRabbitContext,
   RabbitMQModule,
   RabbitSubscribe,
 } from '@golevelup/nestjs-rabbitmq';
@@ -27,12 +26,15 @@ class TestInterceptor implements NestInterceptor {
 
 @Injectable()
 class SubscribeService {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+  // @ts-ignore
   @RabbitSubscribe({
     exchange,
     routingKey: '#',
     queue,
   })
   handleSubscribe(message: object) {
+    // tslint:disable-next-line:no-console
     console.log(`RECEIVED MESSAGE: ${message}`);
   }
 }

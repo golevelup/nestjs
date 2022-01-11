@@ -18,13 +18,16 @@ const defaultHasuraEndpoint = '/hasura/events';
 
 @Injectable()
 class UserEventService {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+  // @ts-ignore
   @HasuraEventHandler({
     triggerName,
   })
   handleUserCreatedTrigger(evt) {
     triggerBoundEventHandler(evt);
   }
-
+  // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+  // @ts-ignore
   @HasuraEventHandler({
     triggerName: scheduled_trigger,
   })

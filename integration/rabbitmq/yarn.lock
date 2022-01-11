@@ -326,14 +326,6 @@
   dependencies:
     optional "0.1.4"
 
-"@nestjs/websockets@7.5.5":
-  version "7.5.5"
-  resolved "https://registry.yarnpkg.com/@nestjs/websockets/-/websockets-7.5.5.tgz#18452ce2346e76e46d664c9bff60db9b2375e36b"
-  integrity sha512-2l7hw0BhxUVw/VY3MXnLoeWtxjMEywBUc4+LwBnUYQGf0NcjY41pBg771zbp1xRhCQhxoxFE8+JTIQNzhfrmnA==
-  dependencies:
-    iterare "1.2.1"
-    tslib "2.0.3"
-
 "@nuxtjs/opencollective@0.3.2":
   version "0.3.2"
   resolved "https://registry.yarnpkg.com/@nuxtjs/opencollective/-/opencollective-0.3.2.tgz#620ce1044f7ac77185e825e1936115bb38e2681c"
