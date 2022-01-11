@@ -52,7 +52,7 @@ class SubscribeToMultipleChannelsService {
   rpcMessageOverChannel1(payload) {
     return {
       response: 'hi',
-      payload: payload,
+      payload,
     };
   }
 
@@ -79,7 +79,7 @@ class SubscribeToMultipleChannelsService {
   rpcMessageOverNonExistingChannel(payload) {
     return {
       response: 'bonjour',
-      payload: payload,
+      payload,
     };
   }
 
@@ -100,7 +100,7 @@ class SubscribeToMultipleChannelsService {
   rpcMessageOverDefaultChannel(payload) {
     return {
       response: 'yasou',
-      payload: payload,
+      payload,
     };
   }
 
