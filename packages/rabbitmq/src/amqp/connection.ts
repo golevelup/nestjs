@@ -1,4 +1,4 @@
-import { Logger } from '@nestjs/common';
+import { ConsoleLogger, Logger } from '@nestjs/common';
 import * as amqpcon from 'amqp-connection-manager';
 import * as amqplib from 'amqplib';
 import {
@@ -53,7 +53,9 @@ const defaultConfig = {
 export class AmqpConnection {
   private readonly messageSubject = new Subject<CorrelationMessage>();
   private readonly config: Required<RabbitMQConfig>;
-  private readonly logger: Logger;
+  private readonly logger: ConsoleLogger = new ConsoleLogger(
+    AmqpConnection.name
+  );
   private readonly initialized = new Subject<void>();
   private _managedConnection!: amqpcon.AmqpConnectionManager;
   /**
@@ -70,7 +72,6 @@ export class AmqpConnection {
 
   constructor(config: RabbitMQConfig) {
     this.config = { ...defaultConfig, ...config };
-    this.logger = new Logger(AmqpConnection.name);
   }
 
   get channel(): amqplib.Channel {
@@ -457,13 +458,13 @@ export class AmqpConnection {
       routingKey,
       createQueueIfNotExists = true,
       assertQueueErrorHandler = defaultAssertQueueErrorHandler,
+      queueOptions,
+      queue: queueName = '',
     } = subscriptionOptions;
 
     let actualQueue: string;
 
     if (createQueueIfNotExists) {
-      const queueName = subscriptionOptions.queue ?? '';
-      const queueOptions = subscriptionOptions.queueOptions;
       try {
         const { queue } = await channel.assertQueue(queueName, queueOptions);
         actualQueue = queue;

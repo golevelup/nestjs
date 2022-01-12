@@ -2,7 +2,7 @@ import { DiscoveryModule, DiscoveryService } from '@golevelup/nestjs-discovery';
 import { createConfigurableDynamicRootModule } from '@golevelup/nestjs-modules';
 import {
   BadRequestException,
-  Logger,
+  ConsoleLogger,
   Module,
   OnModuleInit,
 } from '@nestjs/common';
@@ -72,8 +72,9 @@ export class HasuraModule
       ],
     }
   )
-  implements OnModuleInit {
-  private readonly logger = new Logger(HasuraModule.name);
+  implements OnModuleInit
+{
+  private readonly logger = new ConsoleLogger(HasuraModule.name);
 
   constructor(
     private readonly discover: DiscoveryService,
@@ -88,17 +89,20 @@ export class HasuraModule
   public async onModuleInit() {
     this.logger.log('Initializing Hasura Module');
 
-    const eventHandlerMeta = await this.discover.providerMethodsWithMetaAtKey<
-      HasuraEventHandlerConfig
-    >(HASURA_EVENT_HANDLER);
+    const eventHandlerMeta =
+      await this.discover.providerMethodsWithMetaAtKey<HasuraEventHandlerConfig>(
+        HASURA_EVENT_HANDLER
+      );
 
-    const trackedEventHandlerMeta = await this.discover.providerMethodsWithMetaAtKey<
-      HasuraEventHandlerConfig | TrackedHasuraEventHandlerConfig
-    >(HASURA_EVENT_HANDLER);
+    const trackedEventHandlerMeta =
+      await this.discover.providerMethodsWithMetaAtKey<
+        HasuraEventHandlerConfig | TrackedHasuraEventHandlerConfig
+      >(HASURA_EVENT_HANDLER);
 
-    const trackedScheduledEventHandlerMeta = await this.discover.providerMethodsWithMetaAtKey<
-      TrackedHasuraScheduledEventHandlerConfig
-    >(HASURA_SCHEDULED_EVENT_HANDLER);
+    const trackedScheduledEventHandlerMeta =
+      await this.discover.providerMethodsWithMetaAtKey<TrackedHasuraScheduledEventHandlerConfig>(
+        HASURA_SCHEDULED_EVENT_HANDLER
+      );
 
     if (!eventHandlerMeta.length) {
       this.logger.log('No Hasura event handlers were discovered');
@@ -155,7 +159,8 @@ export class HasuraModule
       await this.discover.providers((x) => x.name === EventHandlerService.name)
     ).map((x) => x.instance);
 
-    const eventHandlerService = eventHandlerServiceInstance as EventHandlerService;
+    const eventHandlerService =
+      eventHandlerServiceInstance as EventHandlerService;
 
     const handleEvent = (
       evt: Partial<HasuraEvent> | HasuraScheduledEventPayload

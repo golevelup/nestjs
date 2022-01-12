@@ -5,10 +5,10 @@ import {
 } from '@golevelup/nestjs-modules';
 import {
   DynamicModule,
-  Logger,
   Module,
   OnModuleInit,
   OnModuleDestroy,
+  ConsoleLogger,
 } from '@nestjs/common';
 import { ExternalContextCreator } from '@nestjs/core/helpers/external-context-creator';
 import { groupBy } from 'lodash';
@@ -44,7 +44,7 @@ export class RabbitMQModule
   )
   implements OnModuleDestroy, OnModuleInit
 {
-  private readonly logger = new Logger(RabbitMQModule.name);
+  private readonly logger = new ConsoleLogger(RabbitMQModule.name);
 
   constructor(
     private readonly discover: DiscoveryService,
@@ -57,13 +57,13 @@ export class RabbitMQModule
   static async AmqpConnectionFactory(config: RabbitMQConfig) {
     const connection = new AmqpConnection(config);
     await connection.init();
-    const logger = new Logger(RabbitMQModule.name);
+    const logger = new ConsoleLogger(RabbitMQModule.name);
     logger.log('Successfully connected to RabbitMQ');
     return connection;
   }
 
   public static build(config: RabbitMQConfig): DynamicModule {
-    const logger = new Logger(RabbitMQModule.name);
+    const logger = new ConsoleLogger(RabbitMQModule.name);
     logger.warn(
       'build() is deprecated. use forRoot() or forRootAsync() to configure RabbitMQ'
     );
@@ -137,6 +137,7 @@ export class RabbitMQModule
           const handlerDisplayName = `${discoveredMethod.parentClass.name}.${
             discoveredMethod.methodName
           } {${config.type}} -> ${
+            // eslint-disable-next-line sonarjs/no-nested-template-literals
             queueOptions?.channel ? `${queueOptions.channel}::` : ''
           }${exchange}::${routingKey}::${queue || 'amqpgen'}`;
 

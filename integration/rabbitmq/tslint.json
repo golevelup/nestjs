@@ -14,7 +14,9 @@
     "arrow-parens": false,
     "object-literal-sort-keys": false,
     "max-classes-per-file": false,
-    "@typescript-eslint/camelcase": false
+    "@typescript-eslint/camelcase": false,
+    "whitespace": false,
+    "no-unused-expression": false
   },
   "rulesDirectory": []
 }
