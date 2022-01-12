@@ -98,6 +98,7 @@ class SubscribeService {
 
   @RabbitSubscribe({ exchange: FANOUT, routingKey: '' })
   emptyRoutingKey(message: any) {
+    // tslint:disable-next-line:no-console
     console.log('received message from empty routing key');
     fanoutHandler(message);
   }

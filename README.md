@@ -9,12 +9,6 @@ A collection of Badass modules and utilities to help you level up your NestJS ap
 <p align="center">
 </p>
 
-<span align="center">
-
-[![Build Status](https://dev.azure.com/golevelup/nestjs/_apis/build/status/golevelup.nestjs?branchName=master)](https://dev.azure.com/golevelup/nestjs/_build/latest?definitionId=1&branchName=master)
-
-</span>
-
 | Package                                                           | Description                                                                                                              | Version                                                                                                                                           | Changelog                                            |
 | ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
 | [`@golevelup/nestjs-common`](./packages/common)                   | Common types, mixins                                                                                                     | [![version](https://img.shields.io/npm/v/@golevelup/nestjs-common.svg)](https://www.npmjs.com/package/@golevelup/nestjs-common)                   | [changelog](./packages/common/CHANGELOG.md)          |

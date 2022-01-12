@@ -34,6 +34,7 @@ class SubscribeService {
     queue,
   })
   handleSubscribe(message: object) {
+    // tslint:disable-next-line:no-console
     console.log(`RECEIVED MESSAGE: ${message}`);
   }
 }
