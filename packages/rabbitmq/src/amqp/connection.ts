@@ -423,8 +423,8 @@ export class AmqpConnection {
     let actualQueue: string;
 
     if (createQueueIfNotExists) {
-      const queueName = subscriptionOptions.queue || '';
-      const queueOptions = subscriptionOptions.queueOptions || undefined;
+      const queueName = subscriptionOptions.queue ?? '';
+      const queueOptions = subscriptionOptions.queueOptions;
       try {
         const { queue } = await channel.assertQueue(queueName, queueOptions);
         actualQueue = queue;
