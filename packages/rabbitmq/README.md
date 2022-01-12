@@ -22,6 +22,7 @@
     - [Exposing Pub/Sub Handlers](#exposing-pubsub-handlers)
     - [Message Handling](#message-handling)
     - [Conditional Handler Registration](#conditional-handler-registration)
+    - [Selecting channel for handler](#selecting-channel-for-handler)
   - [Sending Messages](#sending-messages)
     - [Inject the AmqpConnection](#inject-the-amqpconnection)
     - [Publising Messages (Fire and Forget)](#publising-messages-fire-and-forget)
@@ -95,6 +96,8 @@ Import and add `RabbitMQModule` it to the `imports` array of module for which yo
 
 If you are using exchanges, provide information about them to the module and they will be automatically asserted for you as part of initialization. If you don't, it's possible message passing will fail if an exchange is addressed that hasn't been created yet.
 
+You can also optionally create your own channels which you consume messages from. If you don't create your own channels there will always be one created by default. You can also select which channel is default if you are creating your own. By setting `prefetchCount` for a particular channel you can manage message speeds of your various handlers on the same connection.
+
 ```typescript
 import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
 import { Module } from '@nestjs/common';
@@ -111,6 +114,15 @@ import { MessagingService } from './messaging/messaging.service';
         },
       ],
       uri: 'amqp://rabbitmq:rabbitmq@localhost:5672',
+      channels: {
+        'channel-1': {
+          prefetchCount: 15,
+          default: true,
+        },
+        'channel-2': {
+          prefetchCount: 2,
+        },
+      },
     }),
     RabbitExampleModule,
   ],
@@ -247,6 +259,43 @@ export class MessagingService {
   })
   public async pubSubHandler(msg: {}, amqpMsg: ConsumeMessage) {
     console.log(`Correlation id: ${amqpMsg.properties.correlationId}`);
+  }
+}
+```
+
+### Selecting channel for handler
+
+You can optionally select channel which handler uses to consume messages from.
+
+Set the `queueOptions.channel` to the name of the channel to enable this feature. If channel does not exist or you haven't specified one, it will use the default channel. For channel to exist it needs to be created in module config.
+
+```typescript
+import { RabbitSubscribe, RabbitRPC } from '@golevelup/nestjs-rabbitmq';
+import { Injectable } from '@nestjs/common';
+
+@Injectable()
+export class MessagingService {
+  @RabbitRPC({
+    exchange: 'exchange1',
+    routingKey: 'subscribe-route',
+    queue: 'subscribe-queue',
+    queueOptions: {
+      channel: 'channel-2',
+    },
+  })
+  public async rpcHandler(msg: {}) {
+    console.log(`Received rpc message: ${JSON.stringify(msg)}`);
+
+    return { message: 'hi' };
+  }
+
+  @RabbitSubscribe({
+    exchange: 'exchange1',
+    routingKey: 'subscribe-route-2',
+    queue: 'subscribe-queue-2',
+  })
+  public async pubSubHandler(msg: {}) {
+    console.log(`Received pub/sub message: ${JSON.stringify(msg)}`);
   }
 }
 ```

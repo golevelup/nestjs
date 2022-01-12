@@ -37,6 +37,13 @@ export interface QueueOptions {
   maxLength?: number;
   maxPriority?: number;
   bindQueueArguments?: any;
+  /**
+   * Set this to the name of the channel you want to consume messages from to enable this feature.
+   *
+   * If channel does not exist or you haven't specified one, it will use the default channel.
+   *
+   * For channel to exist it needs to be created in module config.
+   */
   channel?: string;
 }
 
@@ -83,6 +90,11 @@ export interface RabbitMQConfig {
   connectionManagerOptions?: amqpConnectionManager.AmqpConnectionManagerOptions;
   registerHandlers?: boolean;
   enableDirectReplyTo?: boolean;
+  /**
+   * You can optionally create channels which you consume messages from.
+   *
+   * By setting `prefetchCount` for a channel, you can manage message speeds of your various handlers on the same connection.
+   */
   channels?: Record<string, RabbitMQChannelConfig>;
 }
 
