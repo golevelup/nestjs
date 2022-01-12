@@ -1,4 +1,5 @@
 import * as amqplib from 'amqplib';
+import { QueueOptions } from '../rabbitmq.interfaces';
 
 export enum MessageHandlerErrorBehavior {
   ACK = 'ACK',
@@ -52,4 +53,41 @@ export const getHandlerForLegacyBehavior = (
     default:
       return defaultNackErrorHandler;
   }
+};
+
+export type AssertQueueErrorHandler = (
+  channel: amqplib.Channel,
+  queueName: string,
+  queueOptions: QueueOptions | undefined,
+  error: any
+) => Promise<string> | string;
+
+/**
+ * Just rethrows the error
+ */
+export const defaultAssertQueueErrorHandler: AssertQueueErrorHandler = (
+  channel: amqplib.Channel,
+  queueName: string,
+  queueOptions: QueueOptions | undefined,
+  error: any
+) => {
+  throw error;
+};
+
+/**
+ * Tries to delete the queue and to redeclare it with the provided options
+ */
+export const forceDeleteAssertQueueErrorHandler: AssertQueueErrorHandler = async (
+  channel: amqplib.Channel,
+  queueName: string,
+  queueOptions: QueueOptions | undefined,
+  error: any
+) => {
+  if (error.code == 406) {
+    //406 == preconditions failed
+    await channel.deleteQueue(queueName);
+    const { queue } = await channel.assertQueue(queueName, queueOptions);
+    return queue;
+  }
+  throw error;
 };
