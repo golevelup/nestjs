@@ -22,6 +22,7 @@
     - [Exposing Pub/Sub Handlers](#exposing-pubsub-handlers)
     - [Message Handling](#message-handling)
     - [Conditional Handler Registration](#conditional-handler-registration)
+    - [Selecting channel for handler](#selecting-channel-for-handler)
   - [Sending Messages](#sending-messages)
     - [Inject the AmqpConnection](#inject-the-amqpconnection)
     - [Publising Messages (Fire and Forget)](#publising-messages-fire-and-forget)
@@ -95,6 +96,8 @@ Import and add `RabbitMQModule` it to the `imports` array of module for which yo
 
 If you are using exchanges, provide information about them to the module and they will be automatically asserted for you as part of initialization. If you don't, it's possible message passing will fail if an exchange is addressed that hasn't been created yet.
 
+You can also optionally create your own channels which you consume messages from. If you don't create your own channels there will always be one created by default. You can also select which channel is default if you are creating your own. By setting `prefetchCount` for a particular channel you can manage message speeds of your various handlers on the same connection.
+
 ```typescript
 import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
 import { Module } from '@nestjs/common';
@@ -111,6 +114,15 @@ import { MessagingService } from './messaging/messaging.service';
         },
       ],
       uri: 'amqp://rabbitmq:rabbitmq@localhost:5672',
+      channels: {
+        'channel-1': {
+          prefetchCount: 15,
+          default: true,
+        },
+        'channel-2': {
+          prefetchCount: 2,
+        },
+      },
     }),
     RabbitExampleModule,
   ],
@@ -236,7 +248,7 @@ If the method signature of the consumer accepts `amqplib.ConsumeMessage` as a se
 ```typescript
 import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
 import { Injectable } from '@nestjs/common';
-import { ConsumeMessage } from "amqplib";
+import { ConsumeMessage } from 'amqplib';
 
 @Injectable()
 export class MessagingService {
@@ -247,6 +259,43 @@ export class MessagingService {
   })
   public async pubSubHandler(msg: {}, amqpMsg: ConsumeMessage) {
     console.log(`Correlation id: ${amqpMsg.properties.correlationId}`);
+  }
+}
+```
+
+### Selecting channel for handler
+
+You can optionally select channel which handler uses to consume messages from.
+
+Set the `queueOptions.channel` to the name of the channel to enable this feature. If channel does not exist or you haven't specified one, it will use the default channel. For channel to exist it needs to be created in module config.
+
+```typescript
+import { RabbitSubscribe, RabbitRPC } from '@golevelup/nestjs-rabbitmq';
+import { Injectable } from '@nestjs/common';
+
+@Injectable()
+export class MessagingService {
+  @RabbitRPC({
+    exchange: 'exchange1',
+    routingKey: 'subscribe-route',
+    queue: 'subscribe-queue',
+    queueOptions: {
+      channel: 'channel-2',
+    },
+  })
+  public async rpcHandler(msg: {}) {
+    console.log(`Received rpc message: ${JSON.stringify(msg)}`);
+
+    return { message: 'hi' };
+  }
+
+  @RabbitSubscribe({
+    exchange: 'exchange1',
+    routingKey: 'subscribe-route-2',
+    queue: 'subscribe-queue-2',
+  })
+  public async pubSubHandler(msg: {}) {
+    console.log(`Received pub/sub message: ${JSON.stringify(msg)}`);
   }
 }
 ```
@@ -298,7 +347,7 @@ const response = await amqpConnection.request<ExpectedReturnType>({
   payload: {
     request: 'val',
   },
-  timeout : 10000, // optional timeout for how long the request
+  timeout: 10000, // optional timeout for how long the request
   // should wait before failing if no response is received
 });
 ```
@@ -347,6 +396,50 @@ export class MessagingService {
   }
 }
 ```
+
+### Handling errors
+
+By default, the library tries to do its best to give you the control on errors if you want and to do something sensible by default.
+
+This is done with the `errorHandler` property that is availble both in RPC and RabbitSubscribe.
+
+```typescript
+  @RabbitSubscribe({
+    exchange: 'exchange1',
+    routingKey: 'subscribe-route1',
+    queue: 'subscribe-queue',
+    errorHandler: myErrorHandler
+  })
+```
+
+> it should be used with `rpcOptions` for RPC
+
+The default is `defaultNackErrorHandler` and it just nack the message without requeue (which is usually ok to avoid the message coming back in the queue again and again)
+
+However, you can do more fancy stuff like inspecting the message properties to decide to requeue or not. Be aware that you should not requeue indefinitely...
+
+Please note that nack will trigger the dead-letter mecanism of RabbitMQ (and so, you can use the deadLetterExchange in the queueOptions in order to send the message somewhere else).
+
+A complete error handling strategy for RabbitMQ is out of the scope of this library.
+
+### Handling errors during queue creation
+
+Similarly to message errors, the library provide an error handler for failures during a queue creation (more exactly, during the assertQueue operation which will create the queue if it does not exist).
+
+```typescript
+  @RabbitSubscribe({
+    exchange: 'exchange1',
+    routingKey: 'subscribe-route1',
+    queue: 'subscribe-queue',
+    assertQueueErrorHandler: myErrorHandler
+  })
+```
+
+The default is `defaultAssertQueueErrorHandler` which just rethrows the RabbitMq error (because there is no "one size fits all" for this situation).
+
+You have the option to use `forceDeleteAssertQueueErrorHandler` which will try to delete the queue and recreate it with the provided queueOptions (if any)
+
+Obviously, you can also provide your own function and do whatever is best for you, in this case the function must return the name of the created queue.
 
 ## Contribute
 
