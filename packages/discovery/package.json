@@ -1,6 +1,6 @@
 {
   "name": "@golevelup/nestjs-discovery",
-  "version": "2.3.1",
+  "version": "2.3.2",
   "description": "A Badass NestJS module for querying your app's controllers, providers and handlers",
   "keywords": [
     "NestJS",

@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.20.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@1.19.0...@golevelup/nestjs-rabbitmq@1.20.0) (2022-01-19)
+
+### Features
+
+- **rabbitmq:** add support for multiple channels ([01dee85](https://github.com/golevelup/nestjs/commit/01dee85))
+- **rabbitmq:** assert queue error handler ([8a8698b](https://github.com/golevelup/nestjs/commit/8a8698b))
+
 # [1.19.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@1.18.1...@golevelup/nestjs-rabbitmq@1.19.0) (2021-12-17)
 
 ### Features
