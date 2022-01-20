@@ -3,7 +3,8 @@
   "private": true,
   "license": "MIT",
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "integration/*"
   ],
   "dependencies": {
     "@nestjs/common": "^8.0.0",
