@@ -37,8 +37,8 @@
   },
   "dependencies": {
     "@golevelup/nestjs-common": "^1.4.2",
-    "@golevelup/nestjs-discovery": "^2.3.1",
-    "@golevelup/nestjs-modules": "^0.5.0",
+    "@golevelup/nestjs-discovery": "^2.3.2",
+    "@golevelup/nestjs-modules": "^0.4.4",
     "@hasura/metadata": "^1.0.2",
     "js-yaml": "^4.1.0",
     "zod": "^3.3.4"

@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.3.2](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-discovery@2.3.1...@golevelup/nestjs-discovery@2.3.2) (2022-01-19)
+
+**Note:** Version bump only for package @golevelup/nestjs-discovery
+
 ## [2.3.1](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-discovery@2.3.0...@golevelup/nestjs-discovery@2.3.1) (2020-05-13)
 
 **Note:** Version bump only for package @golevelup/nestjs-discovery
