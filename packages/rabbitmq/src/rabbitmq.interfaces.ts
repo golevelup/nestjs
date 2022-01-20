@@ -1,5 +1,5 @@
-import * as amqpConnectionManager from 'amqp-connection-manager';
-import * as amqplib from 'amqplib';
+import { AmqpConnectionManagerOptions } from 'amqp-connection-manager';
+import { Options } from 'amqplib';
 import {
   AssertQueueErrorHandler,
   MessageErrorHandler,
@@ -9,7 +9,7 @@ import {
 export interface RabbitMQExchangeConfig {
   name: string;
   type?: string;
-  options?: amqplib.Options.AssertExchange;
+  options?: Options.AssertExchange;
 }
 
 export interface MessageOptions {
@@ -75,6 +75,8 @@ export interface ConnectionInitOptions {
   reject?: boolean;
 }
 
+export type RabbitMQChannels = Record<string, RabbitMQChannelConfig>;
+
 export interface RabbitMQConfig {
   uri: string | string[];
   /**
@@ -87,7 +89,7 @@ export interface RabbitMQConfig {
   defaultRpcErrorBehavior?: MessageHandlerErrorBehavior;
   defaultSubscribeErrorBehavior?: MessageHandlerErrorBehavior;
   connectionInitOptions?: ConnectionInitOptions;
-  connectionManagerOptions?: amqpConnectionManager.AmqpConnectionManagerOptions;
+  connectionManagerOptions?: AmqpConnectionManagerOptions;
   registerHandlers?: boolean;
   enableDirectReplyTo?: boolean;
   /**
@@ -95,7 +97,7 @@ export interface RabbitMQConfig {
    *
    * By setting `prefetchCount` for a channel, you can manage message speeds of your various handlers on the same connection.
    */
-  channels?: Record<string, RabbitMQChannelConfig>;
+  channels?: RabbitMQChannels;
 }
 
 export type RabbitHandlerType = 'rpc' | 'subscribe';
