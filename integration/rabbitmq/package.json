@@ -20,8 +20,7 @@
     "test:e2e": "jest --config ../../jest-e2e.json"
   },
   "dependencies": {
-    "rimraf": "2.6.3",
-    "@golevelup/nestjs-rabbitmq": "latest"
+    "rimraf": "2.6.3"
   },
   "devDependencies": {
     "@nestjs/testing": "8.2.3",
