@@ -64,7 +64,7 @@ export interface MessageHandlerOptions {
   /**
    * A function that will be called if an error is thown during queue creation (i.e during channel.assertQueue)
    */
-  assertQueueErrorHandler: AssertQueueErrorHandler;
+  assertQueueErrorHandler?: AssertQueueErrorHandler;
   allowNonJsonMessages?: boolean;
   createQueueIfNotExists?: boolean;
 }
