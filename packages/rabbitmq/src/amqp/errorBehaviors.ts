@@ -1,4 +1,4 @@
-import * as amqplib from 'amqplib';
+import { Channel, ConsumeMessage } from 'amqplib';
 import { QueueOptions } from '../rabbitmq.interfaces';
 
 export enum MessageHandlerErrorBehavior {
@@ -8,37 +8,29 @@ export enum MessageHandlerErrorBehavior {
 }
 
 export type MessageErrorHandler = (
-  channel: amqplib.Channel,
-  msg: amqplib.ConsumeMessage,
+  channel: Channel,
+  msg: ConsumeMessage,
   error: any
 ) => Promise<void> | void;
 
 /**
  * An error handler that will ack the message which caused an error during processing
  */
-export const ackErrorHandler: MessageErrorHandler = (channel, msg, error) => {
+export const ackErrorHandler: MessageErrorHandler = (channel, msg) => {
   channel.ack(msg);
 };
 
 /**
  * An error handler that will nack and requeue a message which created an error during processing
  */
-export const requeueErrorHandler: MessageErrorHandler = (
-  channel,
-  msg,
-  error
-) => {
+export const requeueErrorHandler: MessageErrorHandler = (channel, msg) => {
   channel.nack(msg, false, true);
 };
 
 /**
  * An error handler that will nack a message which created an error during processing
  */
-export const defaultNackErrorHandler: MessageErrorHandler = (
-  channel,
-  msg,
-  error
-) => {
+export const defaultNackErrorHandler: MessageErrorHandler = (channel, msg) => {
   channel.nack(msg, false, false);
 };
 
@@ -56,7 +48,7 @@ export const getHandlerForLegacyBehavior = (
 };
 
 export type AssertQueueErrorHandler = (
-  channel: amqplib.Channel,
+  channel: Channel,
   queueName: string,
   queueOptions: QueueOptions | undefined,
   error: any
@@ -66,7 +58,7 @@ export type AssertQueueErrorHandler = (
  * Just rethrows the error
  */
 export const defaultAssertQueueErrorHandler: AssertQueueErrorHandler = (
-  channel: amqplib.Channel,
+  channel: Channel,
   queueName: string,
   queueOptions: QueueOptions | undefined,
   error: any
@@ -78,7 +70,7 @@ export const defaultAssertQueueErrorHandler: AssertQueueErrorHandler = (
  * Tries to delete the queue and to redeclare it with the provided options
  */
 export const forceDeleteAssertQueueErrorHandler: AssertQueueErrorHandler = async (
-  channel: amqplib.Channel,
+  channel: Channel,
   queueName: string,
   queueOptions: QueueOptions | undefined,
   error: any

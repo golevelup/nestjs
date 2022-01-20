@@ -1,6 +1,16 @@
 import { Logger } from '@nestjs/common';
-import * as amqpcon from 'amqp-connection-manager';
-import * as amqplib from 'amqplib';
+import {
+  ChannelWrapper,
+  AmqpConnectionManager,
+  connect,
+} from 'amqp-connection-manager';
+import {
+  ConsumeMessage,
+  Channel,
+  Connection,
+  ConfirmChannel,
+  Options,
+} from 'amqplib';
 import { EMPTY, interval, race, Subject, throwError } from 'rxjs';
 import {
   catchError,
@@ -55,39 +65,39 @@ export class AmqpConnection {
   private readonly config: Required<RabbitMQConfig>;
   private readonly logger: Logger;
   private readonly initialized = new Subject();
-  private _managedConnection!: amqpcon.AmqpConnectionManager;
+  private _managedConnection!: AmqpConnectionManager;
   /**
    * Will now specify the default managed channel.
    */
-  private _managedChannel!: amqpcon.ChannelWrapper;
-  private _managedChannels: Record<string, amqpcon.ChannelWrapper> = {};
+  private _managedChannel!: ChannelWrapper;
+  private _managedChannels: Record<string, ChannelWrapper> = {};
   /**
    * Will now specify the default channel.
    */
-  private _channel!: amqplib.Channel;
-  private _channels: Record<string, amqplib.Channel> = {};
-  private _connection?: amqplib.Connection;
+  private _channel!: Channel;
+  private _channels: Record<string, Channel> = {};
+  private _connection?: Connection;
 
   constructor(config: RabbitMQConfig) {
     this.config = { ...defaultConfig, ...config };
     this.logger = new Logger(AmqpConnection.name);
   }
 
-  get channel(): amqplib.Channel {
+  get channel(): Channel {
     if (!this._channel) throw new Error('channel is not available');
     return this._channel;
   }
 
-  get connection(): amqplib.Connection {
+  get connection(): Connection {
     if (!this._connection) throw new Error('connection is not available');
     return this._connection;
   }
 
-  get managedChannel(): amqpcon.ChannelWrapper {
+  get managedChannel(): ChannelWrapper {
     return this._managedChannel;
   }
 
-  get managedConnection(): amqpcon.AmqpConnectionManager {
+  get managedConnection(): AmqpConnectionManager {
     return this._managedConnection;
   }
 
@@ -133,7 +143,7 @@ export class AmqpConnection {
   private async initCore(): Promise<void> {
     this.logger.log('Trying to connect to a RabbitMQ broker');
 
-    this._managedConnection = amqpcon.connect(
+    this._managedConnection = connect(
       Array.isArray(this.config.uri) ? this.config.uri : [this.config.uri],
       this.config.connectionManagerOptions
     );
@@ -177,7 +187,7 @@ export class AmqpConnection {
   }
 
   private async setupInitChannel(
-    channel: amqplib.ConfirmChannel,
+    channel: ConfirmChannel,
     name: string,
     config: RabbitMQChannelConfig
   ): Promise<void> {
@@ -205,7 +215,7 @@ export class AmqpConnection {
     }
   }
 
-  private async initDirectReplyQueue(channel: amqplib.ConfirmChannel) {
+  private async initDirectReplyQueue(channel: ConfirmChannel) {
     // Set up a consumer on the Direct Reply-To queue to facilitate RPC functionality
     await channel.consume(
       DIRECT_REPLY_QUEUE,
@@ -271,7 +281,7 @@ export class AmqpConnection {
   public async createSubscriber<T>(
     handler: (
       msg: T | undefined,
-      rawMessage?: amqplib.ConsumeMessage
+      rawMessage?: ConsumeMessage
     ) => Promise<SubscribeResponse>,
     msgOptions: MessageHandlerOptions
   ) {
@@ -285,10 +295,10 @@ export class AmqpConnection {
   private async setupSubscriberChannel<T>(
     handler: (
       msg: T | undefined,
-      rawMessage?: amqplib.ConsumeMessage
+      rawMessage?: ConsumeMessage
     ) => Promise<SubscribeResponse>,
     msgOptions: MessageHandlerOptions,
-    channel: amqplib.ConfirmChannel
+    channel: ConfirmChannel
   ): Promise<void> {
     const queue = await this.setupQueue(msgOptions, channel);
 
@@ -336,7 +346,7 @@ export class AmqpConnection {
   public async createRpc<T, U>(
     handler: (
       msg: T | undefined,
-      rawMessage?: amqplib.ConsumeMessage
+      rawMessage?: ConsumeMessage
     ) => Promise<RpcResponse<U>>,
     rpcOptions: MessageHandlerOptions
   ) {
@@ -350,10 +360,10 @@ export class AmqpConnection {
   public async setupRpcChannel<T, U>(
     handler: (
       msg: T | undefined,
-      rawMessage?: amqplib.ConsumeMessage
+      rawMessage?: ConsumeMessage
     ) => Promise<RpcResponse<U>>,
     rpcOptions: MessageHandlerOptions,
-    channel: amqplib.ConfirmChannel
+    channel: ConfirmChannel
   ) {
     const queue = await this.setupQueue(rpcOptions, channel);
 
@@ -400,7 +410,7 @@ export class AmqpConnection {
     exchange: string,
     routingKey: string,
     message: any,
-    options?: amqplib.Options.Publish
+    options?: Options.Publish
   ) {
     // source amqplib channel is used directly to keep the behavior of throwing connection related errors
     if (!this.managedConnection.isConnected() || !this._channel) {
@@ -422,11 +432,8 @@ export class AmqpConnection {
   }
 
   private handleMessage<T, U>(
-    handler: (
-      msg: T | undefined,
-      rawMessage?: amqplib.ConsumeMessage
-    ) => Promise<U>,
-    msg: amqplib.ConsumeMessage,
+    handler: (msg: T | undefined, rawMessage?: ConsumeMessage) => Promise<U>,
+    msg: ConsumeMessage,
     allowNonJsonMessages?: boolean
   ) {
     let message: T | undefined = undefined;
@@ -448,7 +455,7 @@ export class AmqpConnection {
 
   private async setupQueue(
     subscriptionOptions: MessageHandlerOptions,
-    channel: amqplib.ConfirmChannel
+    channel: ConfirmChannel
   ): Promise<string> {
     const {
       exchange,
@@ -538,7 +545,7 @@ export class AmqpConnection {
    * @param name name of the channel
    * @returns channel wrapper
    */
-  private selectManagedChannel(name?: string): amqpcon.ChannelWrapper {
+  private selectManagedChannel(name?: string): ChannelWrapper {
     if (!name) return this._managedChannel;
     const channel = this._managedChannels[name];
     if (!channel) {
