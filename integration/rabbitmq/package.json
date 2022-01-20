@@ -1,7 +1,7 @@
 {
-  "name": "nest-typescript-starter",
+  "name": "rabbitmq-integration",
   "version": "1.0.0",
-  "description": "Nest TypeScript starter repository",
+  "description": "RabbitMQ integration project",
   "license": "MIT",
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
