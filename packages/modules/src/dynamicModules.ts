@@ -4,7 +4,7 @@ import { get } from 'lodash';
 import { interval, lastValueFrom, race, Subject } from 'rxjs';
 import { first, map } from 'rxjs/operators';
 
-type InjectionToken = string | symbol | Type<any>;
+type InjectionToken = string | symbol | Type;
 
 export interface ModuleConfigFactory<T> {
   createModuleConfig(): Promise<T> | T;

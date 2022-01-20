@@ -3,9 +3,9 @@ import {
   RabbitRPC,
 } from '@golevelup/nestjs-rabbitmq';
 import { Injectable, UseInterceptors } from '@nestjs/common';
-import { RpcException } from '@nestjs/microservices';
 import { TransformInterceptor } from '../transform.interceptor';
 import { ReplyErrorCallback } from './reply.error.callback';
+import { RpcException } from './rpc-exception';
 
 @Injectable()
 export class RpcService {

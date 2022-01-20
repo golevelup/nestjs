@@ -1,4 +1,4 @@
-import { ConsoleLogger, Logger } from '@nestjs/common';
+import { ConsoleLogger } from '@nestjs/common';
 import {
   ChannelWrapper,
   AmqpConnectionManager,
@@ -62,7 +62,7 @@ const defaultConfig = {
 
 export class AmqpConnection {
   private readonly messageSubject = new Subject<CorrelationMessage>();
-   private readonly logger: ConsoleLogger = new ConsoleLogger(
+  private readonly logger: ConsoleLogger = new ConsoleLogger(
     AmqpConnection.name
   );
   private readonly initialized = new Subject<void>();
@@ -78,6 +78,7 @@ export class AmqpConnection {
   private _channel!: Channel;
   private _channels: Record<string, Channel> = {};
   private _connection?: Connection;
+  private readonly config: Required<RabbitMQConfig>;
 
   constructor(config: RabbitMQConfig) {
     this.config = { ...defaultConfig, ...config };

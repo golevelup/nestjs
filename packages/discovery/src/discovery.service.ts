@@ -65,7 +65,7 @@ export class DiscoveryService {
 
   /**
    * Discovers all providers in a Nest App that match a filter
-   * @param providerFilter
+   * @param filter
    */
   async providers(filter: Filter<DiscoveredClass>): Promise<DiscoveredClass[]> {
     if (!this.discoveredProviders) {
@@ -125,7 +125,7 @@ export class DiscoveryService {
 
   /**
    * Discovers all controllers in a Nest App that match a filter
-   * @param providerFilter
+   * @param filter
    */
   async controllers(
     filter: Filter<DiscoveredClass>

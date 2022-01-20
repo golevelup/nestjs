@@ -5,3 +5,4 @@ packages/*/lib
 .idea
 coverage/
 tsconfig.build.tsbuildinfo
+yarn-error.log
