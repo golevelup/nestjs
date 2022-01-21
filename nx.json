@@ -1,0 +1,19 @@
+{
+  "extends": "@nrwl/workspace/presets/core.json",
+  "npmScope": "golevelup",
+  "affected": {
+    "defaultBase": "main"
+  },
+  "cli": {
+    "defaultCollection": "@nrwl/node"
+  },
+  "tasksRunnerOptions": {
+    "default": {
+      "runner": "@nrwl/workspace/tasks-runners/default",
+      "options": {
+        "cacheableOperations": ["build", "lint", "test", "e2e"]
+      }
+    }
+  },
+  "defaultProject": "rabbitmq-e2e"
+}

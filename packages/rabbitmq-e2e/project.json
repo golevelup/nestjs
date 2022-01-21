@@ -1,0 +1,23 @@
+{
+  "root": "packages/rabbitmq-e2e",
+  "sourceRoot": "packages/rabbitmq-e2e/src",
+  "projectType": "application",
+  "targets": {
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["packages/rabbitmq-e2e/**/*.ts"]
+      }
+    },
+    "integration": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/packages/rabbitmq-e2e"],
+      "options": {
+        "jestConfig": "packages/rabbitmq-e2e/jest.config.js",
+        "passWithNoTests": true
+      }
+    }
+  },
+  "tags": []
+}

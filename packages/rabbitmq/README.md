@@ -22,6 +22,7 @@
     - [Exposing Pub/Sub Handlers](#exposing-pubsub-handlers)
     - [Message Handling](#message-handling)
     - [Conditional Handler Registration](#conditional-handler-registration)
+    - [Dealing with the amqp original message](#dealing-with-the-amqp-original-message)
     - [Selecting channel for handler](#selecting-channel-for-handler)
   - [Sending Messages](#sending-messages)
     - [Inject the AmqpConnection](#inject-the-amqpconnection)
@@ -31,6 +32,8 @@
       - [Interop with other RPC Servers](#interop-with-other-rpc-servers)
   - [Advanced Patterns](#advanced-patterns)
     - [Competing Consumers](#competing-consumers)
+    - [Handling errors](#handling-errors)
+    - [Handling errors during queue creation](#handling-errors-during-queue-creation)
   - [Contribute](#contribute)
   - [License](#license)
 
