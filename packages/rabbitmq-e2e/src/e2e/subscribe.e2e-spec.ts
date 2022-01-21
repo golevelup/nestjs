@@ -151,10 +151,8 @@ describe('Rabbit Subscribe', () => {
   });
 
   it('should receive subscribe messages and handle them', async () => {
-    await Promise.all(
-      [routingKey1, routingKey2, nonJsonRoutingKey].map((x, i) =>
-        amqpConnection.publish(exchange, x, `testMessage-${i}`)
-      )
+    [routingKey1, routingKey2, nonJsonRoutingKey].forEach((x, i) =>
+      amqpConnection.publish(exchange, x, `testMessage-${i}`)
     );
 
     await new Promise((resolve) => setTimeout(resolve, 50));
@@ -186,13 +184,9 @@ describe('Rabbit Subscribe', () => {
   });
 
   it('should receive undefined argument when subscriber allows non-json messages and message is invalid', async () => {
-    await amqpConnection.publish(exchange, nonJsonRoutingKey, undefined);
-    await amqpConnection.publish(exchange, nonJsonRoutingKey, Buffer.alloc(0));
-    await amqpConnection.publish(
-      exchange,
-      nonJsonRoutingKey,
-      Buffer.from('{a:')
-    );
+    amqpConnection.publish(exchange, nonJsonRoutingKey, undefined);
+    amqpConnection.publish(exchange, nonJsonRoutingKey, Buffer.alloc(0));
+    amqpConnection.publish(exchange, nonJsonRoutingKey, Buffer.from('{a:'));
 
     await new Promise((resolve) => setTimeout(resolve, 50));
 
@@ -208,21 +202,9 @@ describe('Rabbit Subscribe', () => {
     const message2 = '{"key":"value 2"}';
     const message3 = '{"key":"value 3"}';
 
-    await amqpConnection.publish(
-      amqDefaultExchange,
-      preExistingQueue,
-      message1
-    );
-    await amqpConnection.publish(
-      amqDefaultExchange,
-      preExistingQueue,
-      message2
-    );
-    await amqpConnection.publish(
-      amqDefaultExchange,
-      preExistingQueue,
-      message3
-    );
+    amqpConnection.publish(amqDefaultExchange, preExistingQueue, message1);
+    amqpConnection.publish(amqDefaultExchange, preExistingQueue, message2);
+    amqpConnection.publish(amqDefaultExchange, preExistingQueue, message3);
 
     await new Promise((resolve) => setTimeout(resolve, 50));
 
@@ -235,7 +217,7 @@ describe('Rabbit Subscribe', () => {
   it('should receive messages in new queue without setting exchange routing key on subscribe', async () => {
     const message = '{"key":"value"}';
     // publish to the default exchange, using the queue as routing key
-    await amqpConnection.publish(amqDefaultExchange, nonExistingQueue, message);
+    amqpConnection.publish(amqDefaultExchange, nonExistingQueue, message);
 
     await new Promise((resolve) => setTimeout(resolve, 50));
 
@@ -245,7 +227,7 @@ describe('Rabbit Subscribe', () => {
 
   it('should route messages to fanout exchange handlers with no routing key', async () => {
     const message = { message: 'message' };
-    await amqpConnection.publish(FANOUT, '', message);
+    amqpConnection.publish(FANOUT, '', message);
 
     await new Promise((resolve) => setTimeout(resolve, 50));
 

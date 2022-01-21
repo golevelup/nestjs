@@ -83,7 +83,7 @@ describe('Rabbit Subscribe Without Register Handlers', () => {
   });
 
   it('should recognize a rabbit handler execution context and allow for interceptors to be skipped', async () => {
-    await amqpConnection.publish(exchange, 'x', `test-message`);
+    amqpConnection.publish(exchange, 'x', `test-message`);
     await new Promise((resolve) => setTimeout(resolve, 100));
     expect(interceptorHandler).not.toHaveBeenCalled();
   });

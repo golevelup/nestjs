@@ -190,7 +190,7 @@ describe('Rabbit Multiple Channels', () => {
 
   it('should receive pub/sub message over channel 2', async () => {
     const payload = { message: 'hello' };
-    await amqpConnection.publish(exchange, `${routePrefix}1`, payload);
+    amqpConnection.publish(exchange, `${routePrefix}1`, payload);
 
     await new Promise((resolve) => setTimeout(resolve, 50));
 
@@ -214,7 +214,7 @@ describe('Rabbit Multiple Channels', () => {
 
   it('should receive pub/sub message over non-existing channel', async () => {
     const payload = { message: 'hi' };
-    await amqpConnection.publish(exchange, `${routePrefix}3`, payload);
+    amqpConnection.publish(exchange, `${routePrefix}3`, payload);
 
     await new Promise((resolve) => setTimeout(resolve, 50));
 
@@ -238,7 +238,7 @@ describe('Rabbit Multiple Channels', () => {
 
   it('should receive pub/sub message over default channel', async () => {
     const payload = { message: 'guten tag' };
-    await amqpConnection.publish(exchange, `${routePrefix}5`, payload);
+    amqpConnection.publish(exchange, `${routePrefix}5`, payload);
 
     await new Promise((resolve) => setTimeout(resolve, 50));
 
@@ -263,10 +263,8 @@ describe('Rabbit Multiple Channels', () => {
   it('should receive pub/sub messages in order with prefetch 1 on channel 1', async () => {
     const numbers = [1, 2, 3, 4, 5];
 
-    await Promise.all(
-      numbers.map((n) =>
-        amqpConnection.publish(exchange, `${routePrefix}7`, { n })
-      )
+    numbers.forEach((n) =>
+      amqpConnection.publish(exchange, `${routePrefix}7`, { n })
     );
 
     await new Promise((resolve) => setTimeout(resolve, 50));

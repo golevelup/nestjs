@@ -81,7 +81,7 @@ describe('RMQ Context in Global interceptor', () => {
   });
 
   it('should recognize as rmq context type and not the default (HTTP)', async () => {
-    await amqpConnection.publish(exchange, 'x', `test-message`);
+    amqpConnection.publish(exchange, 'x', `test-message`);
 
     await new Promise((resolve) => setTimeout(resolve, 100));
 

@@ -222,7 +222,7 @@ export class AmqpConnection {
     // Set up a consumer on the Direct Reply-To queue to facilitate RPC functionality
     await channel.consume(
       DIRECT_REPLY_QUEUE,
-      async (msg) => {
+      (msg) => {
         if (msg == null) {
           return;
         }
@@ -415,7 +415,7 @@ export class AmqpConnection {
     });
   }
 
-  public async publish(
+  public publish(
     exchange: string,
     routingKey: string,
     message: any,
@@ -505,9 +505,9 @@ export class AmqpConnection {
 
     if (exchange && routingKeys) {
       await Promise.all(
-        routingKeys.map((routingKey) => {
+        routingKeys.map(async (routingKey) => {
           if (routingKey != null) {
-            channel.bindQueue(
+            await channel.bindQueue(
               actualQueue,
               exchange,
               routingKey,
