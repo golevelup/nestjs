@@ -1,6 +1,27 @@
 {
   "name": "@golevelup/nestjs-rabbitmq",
   "version": "2.0.0",
+  "description": "Badass RabbitMQ addons for NestJS",
+  "author": "Jesse Carter <jesse.r.carter@gmail.com>",
+  "homepage": "https://github.com/golevelup/nestjs/blob/master/packages/rabbitmq/README.md",
+  "license": "MIT",
+  "keywords": [
+    "NestJS",
+    "RabbitMQ",
+    "microservices",
+    "messaging",
+    "amqp"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/golevelup/nestjs.git"
+  },
+  "bugs": {
+    "url": "https://github.com/golevelup/nestjs/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "peerDependencies": {
     "@nestjs/common": "^8.2.6",
     "@nestjs/core": "^8.2.6",

@@ -1,6 +1,28 @@
 {
   "name": "@golevelup/nestjs-graphql-request",
   "version": "0.2.0",
+  "description": "Badass utilities for integrating graphql-request and NestJS",
+  "author": "Jesse Carter <jesse.r.carter@gmail.com>",
+  "homepage": "https://github.com/golevelup/nestjs#readme",
+  "license": "MIT",
+  "keywords": [
+    "NestJS",
+    "graphql-request",
+    "sdk",
+    "codegen",
+    "graphql",
+    "gql"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/golevelup/nestjs.git"
+  },
+  "bugs": {
+    "url": "https://github.com/golevelup/nestjs/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "peerDependencies": {
     "@nestjs/common": "^8.2.6",
     "rxjs": "^7.5.2"

@@ -1,6 +1,25 @@
 {
   "name": "@golevelup/nestjs-discovery",
   "version": "3.0.0",
+  "description": "A Badass NestJS module for querying your app's controllers, providers and handlers",
+  "author": "Jesse Carter <jesse.r.carter@gmail.com>",
+  "homepage": "https://github.com/golevelup/nestjs/blob/master/packages/discovery/README.md",
+  "license": "MIT",
+  "keywords": [
+    "NestJS",
+    "discovery",
+    "modules"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/golevelup/nestjs.git"
+  },
+  "bugs": {
+    "url": "https://github.com/golevelup/nestjs/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "peerDependencies": {
     "@nestjs/common": "^8.2.6",
     "@nestjs/core": "^8.2.6"
