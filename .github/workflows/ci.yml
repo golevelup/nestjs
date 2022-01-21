@@ -2,7 +2,7 @@ name: Continuous Integration
 
 on: pull_request
 
-concurrency: 
+concurrency:
   group: ci-${{ github.head_ref }}
   cancel-in-progress: true
 
@@ -22,16 +22,18 @@ jobs:
       rabbitmq:
         image: rabbitmq:management
         env:
-          RABBITMQ_ERLANG_COOKIE: "SWQOKODSQALRPCLNMEQG"
-          RABBITMQ_DEFAULT_USER: "rabbitmq"
-          RABBITMQ_DEFAULT_PASS: "rabbitmq"
-          RABBITMQ_DEFAULT_VHOST: "/"
+          RABBITMQ_ERLANG_COOKIE: 'SWQOKODSQALRPCLNMEQG'
+          RABBITMQ_DEFAULT_USER: 'rabbitmq'
+          RABBITMQ_DEFAULT_PASS: 'rabbitmq'
+          RABBITMQ_DEFAULT_VHOST: '/'
         ports:
           - 5672/tcp
 
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
       - name: Setup Node.js ${{ matrix.node }}
         uses: actions/setup-node@v2
@@ -76,6 +78,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
       - name: Setup Node.js ${{ matrix.node }}
         uses: actions/setup-node@v2
