@@ -5,6 +5,9 @@
   "references": [
     {
       "path": "./tsconfig.e2e.json"
+    },
+    {
+      "path": "./tsconfig.spec.json"
     }
   ]
 }
