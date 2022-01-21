@@ -12,3 +12,4 @@
   headers:
     - name: NESTJS_SECRET_HEADER
       value_from_env: NESTJS_WEBHOOK_SECRET_HEADER_VALUE
+  comment: !<tag:yaml.org,2002:js/undefined> ''
