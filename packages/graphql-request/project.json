@@ -28,6 +28,19 @@
         "jestConfig": "packages/graphql-request/jest.config.js",
         "passWithNoTests": true
       }
+    },
+    "version": {
+      "executor": "@jscutlery/semver:version",
+      "options": {
+        "commitMessageFormat": "chore(${projectName}): release version ${version}",
+        "postTargets": ["graphql-request:publish"]
+      }
+    },
+    "publish": {
+      "executor": "ngx-deploy-npm:deploy",
+      "options": {
+        "access": "public"
+      }
     }
   },
   "tags": []

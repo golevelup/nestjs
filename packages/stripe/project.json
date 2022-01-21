@@ -28,6 +28,19 @@
         "jestConfig": "packages/stripe/jest.config.js",
         "passWithNoTests": true
       }
+    },
+    "version": {
+      "executor": "@jscutlery/semver:version",
+      "options": {
+        "commitMessageFormat": "chore(${projectName}): release version ${version}",
+        "postTargets": ["stripe:publish"]
+      }
+    },
+    "publish": {
+      "executor": "ngx-deploy-npm:deploy",
+      "options": {
+        "access": "public"
+      }
     }
   },
   "tags": []

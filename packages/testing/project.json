@@ -28,6 +28,19 @@
         "jestConfig": "packages/testing/jest.config.js",
         "passWithNoTests": true
       }
+    },
+    "version": {
+      "executor": "@jscutlery/semver:version",
+      "options": {
+        "commitMessageFormat": "chore(${projectName}): release version ${version}",
+        "postTargets": ["testing:publish"]
+      }
+    },
+    "publish": {
+      "executor": "ngx-deploy-npm:deploy",
+      "options": {
+        "access": "public"
+      }
     }
   },
   "tags": []
