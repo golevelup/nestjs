@@ -6,6 +6,6 @@
     "declaration": true,
     "types": ["jest", "node"]
   },
-  "exclude": ["**/*.spec.ts", "**/*.test.ts"],
+  "exclude": ["**/*.*spec*.ts", "**/*.test.ts"],
   "include": ["**/*.ts"]
 }

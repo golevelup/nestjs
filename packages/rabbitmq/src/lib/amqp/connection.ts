@@ -22,8 +22,6 @@ import {
 import { catchError, filter, first, map, take, timeout } from 'rxjs/operators';
 import * as uuid from 'uuid';
 
-import { defaultAssertQueueErrorHandler } from '..';
-
 import {
   ConnectionInitOptions,
   MessageHandlerOptions,
@@ -32,6 +30,7 @@ import {
   RabbitMQChannelConfig,
 } from '../rabbitmq.interfaces';
 import {
+  defaultAssertQueueErrorHandler,
   getHandlerForLegacyBehavior,
   MessageHandlerErrorBehavior,
 } from './errorBehaviors';
