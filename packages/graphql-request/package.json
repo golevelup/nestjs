@@ -1,4 +1,8 @@
 {
   "name": "@golevelup/nestjs-graphql-request",
-  "version": "0.2.0"
+  "version": "0.2.0",
+  "peerDependencies": {
+    "@nestjs/common": "^8.2.6",
+    "rxjs": "^7.5.2"
+  }
 }

@@ -1,4 +1,7 @@
 {
   "name": "@golevelup/nestjs-common",
-  "version": "0.0.1"
+  "version": "0.0.1",
+  "peerDependencies": {
+    "@nestjs/common": "^8.2.6"
+  }
 }
