@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
+    "nx": "nx",
     "commit": "npm run git-cz",
     "publish": "npm run build && npm run test && lerna publish -m 'chore: publish'",
     "publish:prerelease": "npm run build && npm run test && lerna publish prerelease --preid rc -m 'chore: publish prerelease'",
