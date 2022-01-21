@@ -5,8 +5,6 @@
   "scripts": {
     "nx": "nx",
     "commit": "npm run git-cz",
-    "publish": "npm run build && npm run test && lerna publish -m 'chore: publish'",
-    "publish:prerelease": "npm run build && npm run test && lerna publish prerelease --preid rc -m 'chore: publish prerelease'",
     "build": " nx run-many --target=build --all",
     "test": "nx run-many --target=test --all --parallel",
     "test:integration": "nx run-many --target=integration --all",

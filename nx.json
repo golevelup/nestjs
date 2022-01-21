@@ -2,7 +2,7 @@
   "extends": "@nrwl/workspace/presets/core.json",
   "npmScope": "golevelup",
   "affected": {
-    "defaultBase": "main"
+    "defaultBase": "master"
   },
   "cli": {
     "defaultCollection": "@nrwl/node"
@@ -15,5 +15,5 @@
       }
     }
   },
-  "defaultProject": "rabbitmq-e2e"
+  "defaultProject": "common"
 }
