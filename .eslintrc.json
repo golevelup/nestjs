@@ -11,7 +11,12 @@
         "plugin:import/recommended",
         "plugin:import/typescript"
       ],
-      "plugins": ["sonarjs", "unused-imports", "eslint-plugin-import-helpers", "import"],
+      "plugins": [
+        "sonarjs",
+        "unused-imports",
+        "eslint-plugin-import-helpers",
+        "import"
+      ],
       "rules": {
         "@nrwl/nx/enforce-module-boundaries": [
           "error",
@@ -36,7 +41,11 @@
           "error",
           {
             "newlinesBetween": "always",
-            "groups": ["module", "/^@golevelup/", ["parent", "sibling", "index"]],
+            "groups": [
+              "module",
+              "/^@golevelup/",
+              ["parent", "sibling", "index"]
+            ],
             "alphabetize": {
               "order": "asc",
               "ignoreCase": true
@@ -71,6 +80,8 @@
         "@typescript-eslint/no-unsafe-return": "warn",
         "@typescript-eslint/no-unsafe-assignment": "warn",
         "@typescript-eslint/restrict-template-expressions": "warn",
+        "@typescript-eslint/no-unsafe-argument": "warn",
+        "@typescript-eslint/no-misused-promises": "warn",
         "sonarjs/cognitive-complexity": ["error", 20]
       }
     },

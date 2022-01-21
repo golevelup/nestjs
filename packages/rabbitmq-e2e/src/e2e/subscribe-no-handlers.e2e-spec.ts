@@ -1,10 +1,4 @@
-import {
-  CallHandler,
-  ExecutionContext,
-  NestInterceptor,
-  INestApplication,
-  Injectable,
-} from '@nestjs/common';
+import { INestApplication, Injectable } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 
 import {
@@ -13,37 +7,25 @@ import {
   RabbitSubscribe,
 } from '@golevelup/nestjs-rabbitmq';
 
-const validRmqTypeHandler = jest.fn();
+const testHandler = jest.fn();
 
-const exchange = 'contextExchange';
-const queue = 'contextQueue';
-
-@Injectable()
-class TestInterceptor implements NestInterceptor {
-  intercept(context: ExecutionContext, next: CallHandler<any>) {
-    if (context.getType() !== 'rmq') {
-      return next.handle();
-    }
-
-    validRmqTypeHandler('invoked');
-    return next.handle();
-  }
-}
+const exchange = 'testSubscribeNoHandlerExhange';
+const routingKey1 = 'testSubscribeNoHandlerRoute1';
+const routingKey2 = 'testSubscribeNoHandlerRoute2';
 
 @Injectable()
 class SubscribeService {
   @RabbitSubscribe({
     exchange,
-    routingKey: '#',
-    queue,
+    routingKey: [routingKey1, routingKey2],
+    queue: 'subscribeNoHandlerQueue',
   })
   handleSubscribe(message: object) {
-    // tslint:disable-next-line:no-console
-    console.log(`RECEIVED MESSAGE: ${message}`);
+    testHandler(message);
   }
 }
 
-describe('RMQ Context in Global interceptor', () => {
+describe('Rabbit Subscribe Without Register Handlers', () => {
   let app: INestApplication;
   let amqpConnection: AmqpConnection;
 
@@ -55,7 +37,7 @@ describe('RMQ Context in Global interceptor', () => {
 
   beforeAll(async () => {
     const moduleFixture = await Test.createTestingModule({
-      providers: [SubscribeService, TestInterceptor],
+      providers: [SubscribeService],
       imports: [
         RabbitMQModule.forRoot(RabbitMQModule, {
           exchanges: [
@@ -66,27 +48,28 @@ describe('RMQ Context in Global interceptor', () => {
           ],
           uri,
           connectionInitOptions: { wait: true, reject: true, timeout: 3000 },
+          registerHandlers: false,
         }),
       ],
     }).compile();
 
     app = moduleFixture.createNestApplication();
     amqpConnection = app.get<AmqpConnection>(AmqpConnection);
-    app.useGlobalInterceptors(new TestInterceptor());
     await app.init();
   });
 
   afterAll(async () => {
-    await app.close();
+    await app?.close();
   });
 
-  it('should recognize as rmq context type and not the default (HTTP)', (done) => {
-    amqpConnection.publish(exchange, 'x', `test-message`);
-    expect.assertions(1);
+  it('should not receive subscribe messages because register handlers is disabled', async () => {
+    await Promise.all(
+      [routingKey1, routingKey2].map((x, i) =>
+        amqpConnection.publish(exchange, x, `testMessage-${i}`)
+      )
+    );
 
-    setTimeout(() => {
-      expect(validRmqTypeHandler).toHaveBeenCalled();
-      done();
-    }, 100);
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    expect(testHandler).not.toHaveBeenCalled();
   });
 });

@@ -55,7 +55,7 @@ describe('Module Configuration', () => {
       app = await Test.createTestingModule({
         imports: [
           RabbitMQModule.forRootAsync(RabbitMQModule, {
-            useFactory: async () => {
+            useFactory: () => {
               return {
                 uri,
                 connectionInitOptions: {

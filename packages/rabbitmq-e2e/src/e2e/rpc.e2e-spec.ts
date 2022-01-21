@@ -3,7 +3,7 @@ import { Test } from '@nestjs/testing';
 
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
 
-import { AppModule } from '../src/app.module';
+import { AppModule } from '../app.module';
 
 const nonJsonRpcRoutingKey = 'non-json-rpc';
 

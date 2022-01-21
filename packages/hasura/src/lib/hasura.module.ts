@@ -157,9 +157,9 @@ export class HasuraModule
       })
     );
 
-    const [eventHandlerServiceInstance] = await (
-      await this.discover.providers((x) => x.name === EventHandlerService.name)
-    ).map((x) => x.instance);
+    const [eventHandlerServiceInstance] = await this.discover
+      .providers((x) => x.name === EventHandlerService.name)
+      .then((discovered) => discovered.map((x) => x.instance));
 
     const eventHandlerService =
       eventHandlerServiceInstance as EventHandlerService;

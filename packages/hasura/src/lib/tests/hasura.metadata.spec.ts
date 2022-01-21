@@ -53,7 +53,7 @@ describe('Hasura Metadata', () => {
       await app.init();
     });
 
-    test('generates correct yaml file', async () => {
+    test('generates correct yaml file', () => {
       expect(yamlFileToJson(cronTriggersYamlPath)).toEqual(
         yamlFileToJson(`${cronTriggersYamlPath}.expected`)
       );
@@ -82,7 +82,7 @@ describe('Hasura Metadata', () => {
 
     describe('tables', () => {
       describe('event handlers', () => {
-        test('generates the correct metadata', async () => {
+        test('generates the correct metadata', () => {
           expect(yamlFileToJson(tablesFilePath)).toEqual(
             yamlFileToJson(expectedFilePath)
           );

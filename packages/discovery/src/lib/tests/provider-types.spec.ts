@@ -119,7 +119,7 @@ describe.each(testCases)('Provider Types', (testCase: CaseType) => {
     });
 
     it('should discover providers based on a metadata key', async () => {
-      providerMetadataTest(discover);
+      await providerMetadataTest(discover);
     });
 
     it('should discover providers based on a metadata key', async () => {
