@@ -1,6 +1,6 @@
 {
   "name": "@golevelup/nestjs-modules",
-  "version": "0.0.1",
+  "version": "0.4.4",
   "peerDependencies": {
     "@nestjs/common": "^8.2.6",
     "rxjs": "^7.5.2"

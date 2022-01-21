@@ -1,6 +1,6 @@
 {
   "name": "@golevelup/ts-jest",
-  "version": "0.0.1",
+  "version": "0.3.2",
   "peerDependencies": {
     "@nestjs/common": "^8.2.6"
   }
