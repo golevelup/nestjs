@@ -24,6 +24,7 @@ export interface RequestOptions {
   timeout?: number;
   payload?: any;
   headers?: any;
+  expiration?: string | number;
 }
 
 export interface QueueOptions {
