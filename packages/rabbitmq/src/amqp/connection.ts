@@ -1,4 +1,4 @@
-import { Logger } from '@nestjs/common';
+import { ConsoleLogger } from '@nestjs/common';
 import {
   ChannelWrapper,
   AmqpConnectionManager,
@@ -11,15 +11,15 @@ import {
   ConfirmChannel,
   Options,
 } from 'amqplib';
-import { EMPTY, interval, race, Subject, throwError } from 'rxjs';
 import {
-  catchError,
-  filter,
-  first,
-  map,
-  take,
-  timeoutWith,
-} from 'rxjs/operators';
+  EMPTY,
+  interval,
+  lastValueFrom,
+  race,
+  Subject,
+  throwError,
+} from 'rxjs';
+import { catchError, filter, first, map, take, timeout } from 'rxjs/operators';
 import * as uuid from 'uuid';
 import { defaultAssertQueueErrorHandler } from '..';
 import {
@@ -39,7 +39,7 @@ const DIRECT_REPLY_QUEUE = 'amq.rabbitmq.reply-to';
 
 export interface CorrelationMessage {
   correlationId: string;
-  message: {};
+  message: Record<string, unknown>;
 }
 
 const defaultConfig = {
@@ -62,9 +62,10 @@ const defaultConfig = {
 
 export class AmqpConnection {
   private readonly messageSubject = new Subject<CorrelationMessage>();
-  private readonly config: Required<RabbitMQConfig>;
-  private readonly logger: Logger;
-  private readonly initialized = new Subject();
+  private readonly logger: ConsoleLogger = new ConsoleLogger(
+    AmqpConnection.name
+  );
+  private readonly initialized = new Subject<void>();
   private _managedConnection!: AmqpConnectionManager;
   /**
    * Will now specify the default managed channel.
@@ -77,10 +78,10 @@ export class AmqpConnection {
   private _channel!: Channel;
   private _channels: Record<string, Channel> = {};
   private _connection?: Connection;
+  private readonly config: Required<RabbitMQConfig>;
 
   constructor(config: RabbitMQConfig) {
     this.config = { ...defaultConfig, ...config };
-    this.logger = new Logger(AmqpConnection.name);
   }
 
   get channel(): Channel {
@@ -124,20 +125,22 @@ export class AmqpConnection {
     const p = this.initCore();
     if (!wait) return p;
 
-    return this.initialized
-      .pipe(
+    return lastValueFrom(
+      this.initialized.pipe(
         take(1),
-        timeoutWith(
-          timeoutInterval,
-          throwError(
-            new Error(
-              `Failed to connect to a RabbitMQ broker within a timeout of ${timeoutInterval}ms`
-            )
-          )
-        ),
-        catchError((err) => (reject ? throwError(err) : EMPTY))
+        timeout({
+          each: timeoutInterval,
+          with: () =>
+            throwError(
+              () =>
+                new Error(
+                  `Failed to connect to a RabbitMQ broker within a timeout of ${timeoutInterval}ms`
+                )
+            ),
+        }),
+        catchError((err) => (reject ? throwError(() => err) : EMPTY))
       )
-      .toPromise<any>();
+    );
   }
 
   private async initCore(): Promise<void> {
@@ -173,7 +176,6 @@ export class AmqpConnection {
           defaultChannel.name = channelName;
           defaultChannel.config.prefetchCount =
             config.prefetchCount || this.config.prefetchCount;
-
           return;
         }
 
@@ -243,7 +245,7 @@ export class AmqpConnection {
     );
   }
 
-  public async request<T extends {}>(
+  public async request<T extends Record<string, unknown>>(
     requestOptions: RequestOptions
   ): Promise<T> {
     const correlationId = requestOptions.correlationId || uuid.v4();
@@ -277,7 +279,7 @@ export class AmqpConnection {
       })
     );
 
-    return race(response$, timeout$).toPromise();
+    return lastValueFrom(race(response$, timeout$));
   }
 
   public async createSubscriber<T>(
@@ -468,13 +470,13 @@ export class AmqpConnection {
       routingKey,
       createQueueIfNotExists = true,
       assertQueueErrorHandler = defaultAssertQueueErrorHandler,
+      queueOptions,
+      queue: queueName = '',
     } = subscriptionOptions;
 
     let actualQueue: string;
 
     if (createQueueIfNotExists) {
-      const queueName = subscriptionOptions.queue ?? '';
-      const queueOptions = subscriptionOptions.queueOptions;
       try {
         const { queue } = await channel.assertQueue(queueName, queueOptions);
         actualQueue = queue;

@@ -1,6 +1,6 @@
 import { DiscoveryModule, DiscoveryService } from '@golevelup/nestjs-discovery';
 import { createConfigurableDynamicRootModule } from '@golevelup/nestjs-modules';
-import { Logger, Module, OnModuleInit } from '@nestjs/common';
+import { ConsoleLogger, Module, OnModuleInit } from '@nestjs/common';
 import { PATH_METADATA } from '@nestjs/common/constants';
 import { ExternalContextCreator } from '@nestjs/core/helpers/external-context-creator';
 import { flatten, groupBy } from 'lodash';
@@ -48,7 +48,7 @@ export class StripeModule
           useFactory: ({
             apiKey,
             typescript = true,
-            apiVersion = '2020-03-02',
+            apiVersion = '2020-08-27',
             webhookConfig,
             ...options
           }: StripeModuleConfig): Stripe => {
@@ -66,8 +66,9 @@ export class StripeModule
       exports: [STRIPE_MODULE_CONFIG_TOKEN, STRIPE_CLIENT_TOKEN],
     }
   )
-  implements OnModuleInit {
-  private readonly logger = new Logger(StripeModule.name);
+  implements OnModuleInit
+{
+  private readonly logger = new ConsoleLogger(StripeModule.name);
 
   constructor(
     private readonly discover: DiscoveryService,
@@ -97,7 +98,7 @@ export class StripeModule
 
     this.logger.log('Initializing Stripe Module for webhooks');
 
-    const [stripeWebhookService] = await (
+    const [stripeWebhookService] = (
       (await this.discover.providersWithMetaAtKey<boolean>(
         STRIPE_WEBHOOK_SERVICE
       )) || []
@@ -110,9 +111,10 @@ export class StripeModule
       throw new Error('Could not find instance of Stripe Webhook Service');
     }
 
-    const eventHandlerMeta = await this.discover.providerMethodsWithMetaAtKey<
-      string
-    >(STRIPE_WEBHOOK_HANDLER);
+    const eventHandlerMeta =
+      await this.discover.providerMethodsWithMetaAtKey<string>(
+        STRIPE_WEBHOOK_HANDLER
+      );
 
     const grouped = groupBy(
       eventHandlerMeta,

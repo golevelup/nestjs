@@ -98,6 +98,7 @@ class SubscribeService {
 
   @RabbitSubscribe({ exchange: FANOUT, routingKey: '' })
   emptyRoutingKey(message: any) {
+    // tslint:disable-next-line:no-console
     console.log('received message from empty routing key');
     fanoutHandler(message);
   }
@@ -141,30 +142,27 @@ describe('Rabbit Subscribe', () => {
   });
 
   afterAll(async () => {
-    await app.close();
+    await app?.close();
   });
 
   beforeEach(() => {
     jest.resetAllMocks();
   });
 
-  it('should receive subscribe messages and handle them', async (done) => {
+  it('should receive subscribe messages and handle them', async () => {
     [routingKey1, routingKey2, nonJsonRoutingKey].forEach((x, i) =>
       amqpConnection.publish(exchange, x, `testMessage-${i}`),
     );
 
-    expect.assertions(4);
+    await new Promise((resolve) => setTimeout(resolve, 50));
 
-    setTimeout(() => {
-      expect(testHandler).toHaveBeenCalledTimes(3);
-      expect(testHandler).toHaveBeenCalledWith(`testMessage-0`);
-      expect(testHandler).toHaveBeenCalledWith(`testMessage-1`);
-      expect(testHandler).toHaveBeenCalledWith(`testMessage-2`);
-      done();
-    }, 50);
+    expect(testHandler).toHaveBeenCalledTimes(3);
+    expect(testHandler).toHaveBeenCalledWith(`testMessage-0`);
+    expect(testHandler).toHaveBeenCalledWith(`testMessage-1`);
+    expect(testHandler).toHaveBeenCalledWith(`testMessage-2`);
   });
 
-  it('should work with a topic exchange set up that has multiple subscribers with similar routing keys', async (done) => {
+  it('should work with a topic exchange set up that has multiple subscribers with similar routing keys', async () => {
     const routingKeys = [createRoutingKey, updateRoutingKey, deleteRoutingKey];
 
     const promises = flatten(
@@ -174,35 +172,30 @@ describe('Rabbit Subscribe', () => {
     );
 
     await Promise.all(promises);
+    await new Promise((resolve) => setTimeout(resolve, 150));
 
-    expect.assertions(303);
-
-    setTimeout(() => {
-      expect(createHandler).toHaveBeenCalledTimes(100);
-      times(100).forEach((x) => expect(createHandler).toHaveBeenCalledWith(x));
-      expect(updateHandler).toHaveBeenCalledTimes(100);
-      times(100).forEach((x) => expect(updateHandler).toHaveBeenCalledWith(x));
-      expect(deleteHandler).toHaveBeenCalledTimes(100);
-      times(100).forEach((x) => expect(deleteHandler).toHaveBeenCalledWith(x));
-      done();
-    }, 150);
+    expect(createHandler).toHaveBeenCalledTimes(100);
+    times(100).forEach((x) => expect(createHandler).toHaveBeenCalledWith(x));
+    expect(updateHandler).toHaveBeenCalledTimes(100);
+    times(100).forEach((x) => expect(updateHandler).toHaveBeenCalledWith(x));
+    expect(deleteHandler).toHaveBeenCalledTimes(100);
+    times(100).forEach((x) => expect(deleteHandler).toHaveBeenCalledWith(x));
   });
 
-  it('should receive undefined argument when subscriber allows non-json messages and message is invalid', async (done) => {
+  it('should receive undefined argument when subscriber allows non-json messages and message is invalid', async () => {
     amqpConnection.publish(exchange, nonJsonRoutingKey, undefined);
     amqpConnection.publish(exchange, nonJsonRoutingKey, Buffer.alloc(0));
     amqpConnection.publish(exchange, nonJsonRoutingKey, Buffer.from('{a:'));
 
-    setTimeout(() => {
-      expect(testHandler).toHaveBeenCalledTimes(3);
-      expect(testHandler).toHaveBeenNthCalledWith(1, undefined);
-      expect(testHandler).toHaveBeenNthCalledWith(2, undefined);
-      expect(testHandler).toHaveBeenNthCalledWith(3, undefined);
-      done();
-    }, 50);
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    expect(testHandler).toHaveBeenCalledTimes(3);
+    expect(testHandler).toHaveBeenNthCalledWith(1, undefined);
+    expect(testHandler).toHaveBeenNthCalledWith(2, undefined);
+    expect(testHandler).toHaveBeenNthCalledWith(3, undefined);
   });
 
-  it('should receive messages in existing queue without setting exchange and routing key on subscribe', async (done) => {
+  it('should receive messages in existing queue without setting exchange and routing key on subscribe', async () => {
     // publish to the default exchange, using the queue as routing key
     const message1 = '{"key":"value 1"}';
     const message2 = '{"key":"value 2"}';
@@ -212,41 +205,32 @@ describe('Rabbit Subscribe', () => {
     amqpConnection.publish(amqDefaultExchange, preExistingQueue, message2);
     amqpConnection.publish(amqDefaultExchange, preExistingQueue, message3);
 
-    // ASSERT
-    expect.assertions(4);
-    setTimeout(() => {
-      expect(testHandler).toHaveBeenCalledTimes(3);
-      expect(testHandler).toHaveBeenCalledWith(message1);
-      expect(testHandler).toHaveBeenCalledWith(message2);
-      expect(testHandler).toHaveBeenCalledWith(message3);
-      done();
-    }, 50);
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    expect(testHandler).toHaveBeenCalledTimes(3);
+    expect(testHandler).toHaveBeenCalledWith(message1);
+    expect(testHandler).toHaveBeenCalledWith(message2);
+    expect(testHandler).toHaveBeenCalledWith(message3);
   });
 
-  it('should receive messages in new queue without setting exchange routing key on subscribe', async (done) => {
+  it('should receive messages in new queue without setting exchange routing key on subscribe', async () => {
     const message = '{"key":"value"}';
     // publish to the default exchange, using the queue as routing key
     amqpConnection.publish(amqDefaultExchange, nonExistingQueue, message);
 
-    // ASSERT
-    expect.assertions(2);
-    setTimeout(() => {
-      expect(testHandler).toHaveBeenCalledTimes(1);
-      expect(testHandler).toHaveBeenCalledWith(message);
-      done();
-    }, 50);
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    expect(testHandler).toHaveBeenCalledTimes(1);
+    expect(testHandler).toHaveBeenCalledWith(message);
   });
 
-  it('should route messages to fanout exchange handlers with no routing key', async (done) => {
+  it('should route messages to fanout exchange handlers with no routing key', async () => {
     const message = { message: 'message' };
     amqpConnection.publish(FANOUT, '', message);
 
-    // ASSERT
-    expect.assertions(2);
-    setTimeout(() => {
-      expect(fanoutHandler).toHaveBeenCalledTimes(1);
-      expect(fanoutHandler).toHaveBeenCalledWith(message);
-      done();
-    }, 50);
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    expect(fanoutHandler).toHaveBeenCalledTimes(1);
+    expect(fanoutHandler).toHaveBeenCalledWith(message);
   });
 });

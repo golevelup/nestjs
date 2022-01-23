@@ -1,5 +1,5 @@
 import { makeInjectableDecorator } from '@golevelup/nestjs-common';
-import { SetMetadata } from '@nestjs/common';
+import { applyDecorators, SetMetadata } from '@nestjs/common';
 import {
   HASURA_EVENT_HANDLER,
   HASURA_MODULE_CONFIG,
@@ -11,25 +11,19 @@ import {
   TrackedHasuraScheduledEventHandlerConfig,
 } from './hasura.interfaces';
 
-export const HasuraEventHandler = (config: HasuraEventHandlerConfig) => (
-  target,
-  key,
-  descriptor
-) => SetMetadata(HASURA_EVENT_HANDLER, config)(target, key, descriptor);
+export const HasuraEventHandler = (config: HasuraEventHandlerConfig) =>
+  applyDecorators(SetMetadata(HASURA_EVENT_HANDLER, config));
 
 export const InjectHasuraConfig = makeInjectableDecorator(HASURA_MODULE_CONFIG);
 
 export const TrackedHasuraEventHandler = (
   config: TrackedHasuraEventHandlerConfig
-) => SetMetadata(HASURA_EVENT_HANDLER, config);
+) => applyDecorators(SetMetadata(HASURA_EVENT_HANDLER, config));
 
 export const TrackedHasuraScheduledEventHandler = (
   config: TrackedHasuraScheduledEventHandlerConfig
-) => (target, key, descriptor) => {
-  SetMetadata(HASURA_SCHEDULED_EVENT_HANDLER, config)(target, key, descriptor);
-  SetMetadata(HASURA_EVENT_HANDLER, { triggerName: config.name })(
-    target,
-    key,
-    descriptor
+) =>
+  applyDecorators(
+    SetMetadata(HASURA_SCHEDULED_EVENT_HANDLER, config),
+    SetMetadata(HASURA_EVENT_HANDLER, { triggerName: config.name })
   );
-};

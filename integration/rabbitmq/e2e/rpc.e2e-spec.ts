@@ -14,7 +14,7 @@ describe('Rabbit RPC', () => {
   });
 
   afterAll(async () => {
-    await app.close();
+    await app?.close();
   });
 
   beforeAll(async () => {

@@ -4,5 +4,5 @@ npm-debug.log
 packages/*/lib
 .idea
 coverage/
-junit.xml
 tsconfig.build.tsbuildinfo
+yarn-error.log

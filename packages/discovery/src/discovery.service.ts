@@ -11,7 +11,7 @@ import {
   DiscoveredClassWithMeta,
   DiscoveredMethodWithMeta,
   Filter,
-  MetaKey
+  MetaKey,
 } from './discovery.interfaces';
 
 /**
@@ -41,16 +41,17 @@ export function getComponentMetaAtKey<T>(
  * certain key
  * @param key The meta key to search for
  */
-export const withMetaAtKey: (
-  key: MetaKey
-) => Filter<DiscoveredClass> = key => component => {
-  const metaTargets: Function[] = [
-    get(component, 'instance.constructor'),
-    component.injectType as Function
-  ].filter(x => x != null);
+export const withMetaAtKey: (key: MetaKey) => Filter<DiscoveredClass> =
+  (key) => (component) => {
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    const metaTargets: Function[] = [
+      get(component, 'instance.constructor'),
+      // eslint-disable-next-line @typescript-eslint/ban-types
+      component.injectType as Function,
+    ].filter((x) => x != null);
 
-  return some(metaTargets, x => Reflect.getMetadata(key, x));
-};
+    return some(metaTargets, (x) => Reflect.getMetadata(key, x));
+  };
 
 @Injectable()
 export class DiscoveryService {
@@ -64,13 +65,13 @@ export class DiscoveryService {
 
   /**
    * Discovers all providers in a Nest App that match a filter
-   * @param providerFilter
+   * @param filter
    */
   async providers(filter: Filter<DiscoveredClass>): Promise<DiscoveredClass[]> {
     if (!this.discoveredProviders) {
       this.discoveredProviders = this.discover('providers');
     }
-    return (await this.discoveredProviders).filter(x => filter(x));
+    return (await this.discoveredProviders).filter((x) => filter(x));
   }
 
   /**
@@ -85,11 +86,11 @@ export class DiscoveryService {
   ): Promise<DiscoveredMethodWithMeta<T>[]> {
     const controllersWithMeta = (
       await this.controllersWithMetaAtKey<T>(metaKey)
-    ).filter(x => metaFilter(x.meta));
+    ).filter((x) => metaFilter(x.meta));
 
     const methodsFromDecoratedControllers = flatMap(
       controllersWithMeta,
-      controller => {
+      (controller) => {
         return this.classMethodsWithMetaAtKey<T>(
           controller.discoveredClass,
           PATH_METADATA
@@ -99,11 +100,11 @@ export class DiscoveryService {
 
     const decoratedMethods = (
       await this.controllerMethodsWithMetaAtKey<T>(metaKey)
-    ).filter(x => metaFilter(x.meta));
+    ).filter((x) => metaFilter(x.meta));
 
     return uniqBy(
       [...methodsFromDecoratedControllers, ...decoratedMethods],
-      x => x.discoveredMethod.handler
+      (x) => x.discoveredMethod.handler
     );
   }
 
@@ -116,15 +117,15 @@ export class DiscoveryService {
   ): Promise<DiscoveredClassWithMeta<T>[]> {
     const providers = await this.providers(withMetaAtKey(metaKey));
 
-    return providers.map(x => ({
+    return providers.map((x) => ({
       meta: getComponentMetaAtKey<T>(metaKey, x) as T,
-      discoveredClass: x
+      discoveredClass: x,
     }));
   }
 
   /**
    * Discovers all controllers in a Nest App that match a filter
-   * @param providerFilter
+   * @param filter
    */
   async controllers(
     filter: Filter<DiscoveredClass>
@@ -132,7 +133,7 @@ export class DiscoveryService {
     if (!this.discoveredControllers) {
       this.discoveredControllers = this.discover('controllers');
     }
-    return (await this.discoveredControllers).filter(x => filter(x));
+    return (await this.discoveredControllers).filter((x) => filter(x));
   }
 
   /**
@@ -144,9 +145,9 @@ export class DiscoveryService {
   ): Promise<DiscoveredClassWithMeta<T>[]> {
     const controllers = await this.controllers(withMetaAtKey(metaKey));
 
-    return controllers.map(x => ({
+    return controllers.map((x) => ({
       meta: getComponentMetaAtKey<T>(metaKey, x) as T,
-      discoveredClass: x
+      discoveredClass: x,
     }));
   }
 
@@ -168,10 +169,10 @@ export class DiscoveryService {
     const prototype = Object.getPrototypeOf(instance);
 
     return this.metadataScanner
-      .scanFromPrototype(instance, prototype, name =>
+      .scanFromPrototype(instance, prototype, (name) =>
         this.extractMethodMetaAtKey<T>(metaKey, component, prototype, name)
       )
-      .filter(x => !!x.meta);
+      .filter((x) => !!x.meta);
   }
 
   /**
@@ -185,7 +186,7 @@ export class DiscoveryService {
   ): Promise<DiscoveredMethodWithMeta<T>[]> {
     const providers = await this.providers(providerFilter);
 
-    return flatMap(providers, provider =>
+    return flatMap(providers, (provider) =>
       this.classMethodsWithMetaAtKey<T>(provider, metaKey)
     );
   }
@@ -201,7 +202,7 @@ export class DiscoveryService {
   ): Promise<DiscoveredMethodWithMeta<T>[]> {
     const controllers = await this.controllers(controllerFilter);
 
-    return flatMap(controllers, controller =>
+    return flatMap(controllers, (controller) =>
       this.classMethodsWithMetaAtKey<T>(controller, metaKey)
     );
   }
@@ -228,8 +229,8 @@ export class DiscoveryService {
         name: nestModule.metatype.name,
         instance: nestModule.instance,
         injectType: nestModule.metatype,
-        dependencyType: nestModule.instance.constructor as Type<{}>
-      }
+        dependencyType: nestModule.instance.constructor as Type<object>,
+      },
     };
   }
 
@@ -247,8 +248,8 @@ export class DiscoveryService {
       discoveredMethod: {
         handler,
         methodName,
-        parentClass: discoveredClass
-      }
+        parentClass: discoveredClass,
+      },
     };
   }
 
@@ -259,8 +260,8 @@ export class DiscoveryService {
       flatMap(modulesMap, ([key, nestModule]) => {
         const components = [...nestModule[component].values()];
         return components
-          .filter(component => component.scope !== Scope.REQUEST)
-          .map(component => this.toDiscoveredClass(nestModule, component));
+          .filter((component) => component.scope !== Scope.REQUEST)
+          .map((component) => this.toDiscoveredClass(nestModule, component));
       })
     );
   }
