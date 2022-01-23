@@ -265,6 +265,8 @@ export class AmqpConnection {
       {
         replyTo: DIRECT_REPLY_QUEUE,
         correlationId,
+        headers: requestOptions.headers,
+        expiration: requestOptions.expiration,
       }
     );
 
@@ -386,9 +388,13 @@ export class AmqpConnection {
           return;
         }
 
-        const { replyTo, correlationId } = msg.properties;
+        const { replyTo, correlationId, expiration, headers } = msg.properties;
         if (replyTo) {
-          await this.publish('', replyTo, response, { correlationId });
+          await this.publish('', replyTo, response, {
+            correlationId,
+            expiration,
+            headers,
+          });
         }
         channel.ack(msg);
       } catch (e) {

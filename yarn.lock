@@ -537,13 +537,6 @@
     unique-filename "^1.1.1"
     which "^1.3.1"
 
-"@golevelup/nestjs-modules@^0.4.4":
-  version "0.4.4"
-  resolved "https://registry.yarnpkg.com/@golevelup/nestjs-modules/-/nestjs-modules-0.4.4.tgz#60ce2c3cca09f3b242b1968523fab3b5fb0b58ea"
-  integrity sha512-E0gM0tlIrV4yuYGtGYqKE1Zqae6Xmdh2TEdqpGdv/c0+B6iA0EiJwNpxuXVVZ5GBjj8/oH3sP2z+GJyZQHBWqA==
-  dependencies:
-    lodash "^4.17.21"
-
 "@hasura/metadata@^1.0.2":
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/@hasura/metadata/-/metadata-1.0.2.tgz#0e212a349a176108c1f2572faa03317d21c2f052"
