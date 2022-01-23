@@ -23,6 +23,7 @@ export interface RequestOptions {
   correlationId?: string;
   timeout?: number;
   payload?: any;
+  headers?: any;
 }
 
 export interface QueueOptions {
