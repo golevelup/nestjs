@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.22.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@1.21.0...@golevelup/nestjs-rabbitmq@1.22.0) (2022-01-23)
+
+### Features
+
+- **rabbitmq:** message expiration property ([#373](https://github.com/golevelup/nestjs/issues/373)) ([08e2014](https://github.com/golevelup/nestjs/commit/08e2014)), closes [#270](https://github.com/golevelup/nestjs/issues/270)
+
 # [1.21.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@1.20.1...@golevelup/nestjs-rabbitmq@1.21.0) (2022-01-23)
 
 ### Features
