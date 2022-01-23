@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.21.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@1.20.1...@golevelup/nestjs-rabbitmq@1.21.0) (2022-01-23)
+
+### Features
+
+- **rabbitmq:** allow setting custom message headers ([#374](https://github.com/golevelup/nestjs/issues/374)) ([d0a2192](https://github.com/golevelup/nestjs/commit/d0a2192)), closes [#372](https://github.com/golevelup/nestjs/issues/372)
+
 ## [1.20.1](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@1.20.0...@golevelup/nestjs-rabbitmq@1.20.1) (2022-01-20)
 
 ### Bug Fixes
