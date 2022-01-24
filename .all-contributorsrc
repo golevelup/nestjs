@@ -17,7 +17,10 @@
       "profile": "https://github.com/WonderPanda",
       "contributions": [
         "code",
-        "ideas"
+        "ideas",
+        "bug",
+        "doc",
+        "review"
       ]
     },
     {
@@ -35,7 +38,9 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/28268680?v=4",
       "profile": "https://github.com/jmcdo29",
       "contributions": [
-        "code"
+        "code",
+        "doc",
+        "ideas"
       ]
     },
     {
@@ -44,7 +49,11 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/15980884?v=4",
       "profile": "https://github.com/underfisk",
       "contributions": [
-        "code"
+        "code",
+        "doc",
+        "bug",
+        "ideas",
+        "review"
       ]
     },
     {
@@ -62,7 +71,8 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/6763873?v=4",
       "profile": "https://jeremylvln.fr/",
       "contributions": [
-        "code"
+        "code",
+        "ideas"
       ]
     },
     {
