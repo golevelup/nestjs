@@ -1,0 +1,47 @@
+{
+  "root": "packages/hasura",
+  "sourceRoot": "packages/hasura/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/node:package",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/packages/hasura",
+        "tsConfig": "packages/hasura/tsconfig.lib.json",
+        "packageJson": "packages/hasura/package.json",
+        "main": "packages/hasura/src/index.ts",
+        "assets": ["packages/hasura/*.md"]
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["packages/hasura/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/packages/hasura"],
+      "options": {
+        "jestConfig": "packages/hasura/jest.config.js",
+        "passWithNoTests": true
+      }
+    },
+    "version": {
+      "executor": "@jscutlery/semver:version",
+      "options": {
+        "commitMessageFormat": "chore(${projectName}): release version ${version}",
+        "postTargets": ["hasura:publish"]
+      }
+    },
+    "publish": {
+      "executor": "ngx-deploy-npm:deploy",
+      "options": {
+        "access": "public"
+      }
+    }
+  },
+  "tags": []
+}

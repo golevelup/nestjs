@@ -2,15 +2,15 @@ name: Continuous Integration
 
 on: pull_request
 
-concurrency: 
-  group: ${{ github.head_ref }}
+concurrency:
+  group: ci-${{ github.head_ref }}
   cancel-in-progress: true
 
 env:
   LATEST_NODE_VERSION: 17
 
 jobs:
-  ci:
+  test:
     runs-on: ubuntu-latest
 
     strategy:
@@ -22,41 +22,77 @@ jobs:
       rabbitmq:
         image: rabbitmq:management
         env:
-          RABBITMQ_ERLANG_COOKIE: "SWQOKODSQALRPCLNMEQG"
-          RABBITMQ_DEFAULT_USER: "rabbitmq"
-          RABBITMQ_DEFAULT_PASS: "rabbitmq"
-          RABBITMQ_DEFAULT_VHOST: "/"
+          RABBITMQ_ERLANG_COOKIE: 'SWQOKODSQALRPCLNMEQG'
+          RABBITMQ_DEFAULT_USER: 'rabbitmq'
+          RABBITMQ_DEFAULT_PASS: 'rabbitmq'
+          RABBITMQ_DEFAULT_VHOST: '/'
         ports:
           - 5672/tcp
 
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
       - name: Setup Node.js ${{ matrix.node }}
         uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node }}
-          cache: 'yarn'
+          cache: 'npm'
 
       - name: Install dependencies
-        run: yarn install
+        run: npm ci
 
       - name: Build
-        run: yarn build
+        uses: mansagroup/nrwl-nx-action@v2
+        with:
+          targets: build
+          parallel: true
+          maxParallel: 3
 
       - name: Run unit tests
-        run: yarn test:ci
+        uses: mansagroup/nrwl-nx-action@v2
+        with:
+          targets: test
+          parallel: true
+          maxParallel: 3
 
       - name: Publish code coverage
         if: matrix.node == env.LATEST_NODE_VERSION
         run: echo Not Implemented Yet
 
       - name: Run integration tests
-        run: |
-          yarn --cwd ./integration/rabbitmq
-          yarn test:ci:integration
+        uses: mansagroup/nrwl-nx-action@v2
+        with:
+          targets: integration
+          parallel: false
         env:
           NODE_ENV: ci
           RABBITMQ_HOST: localhost
           RABBITMQ_PORT: ${{ job.services.rabbitmq.ports[5672] }}
+
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js ${{ matrix.node }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run lint
+        uses: mansagroup/nrwl-nx-action@v2
+        with:
+          targets: lint
+          parallel: true
+          maxParallel: 3

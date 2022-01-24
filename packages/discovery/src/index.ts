@@ -1,3 +1,3 @@
-export * from './discovery.interfaces';
-export * from './discovery.module';
-export * from './discovery.service';
+export * from './lib/discovery.interfaces';
+export * from './lib/discovery.module';
+export * from './lib/discovery.service';

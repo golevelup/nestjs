@@ -1,9 +1,13 @@
 {
-  "extends": "../../tsconfig.json",
-  "compilerOptions": {
-    "outDir": "./lib",
-    "rootDir": "./src"
-  },
-  "include": ["./src"],
-  "references": [{ "path": "../discovery" }, { "path": "../modules" }]
+  "extends": "../../tsconfig.base.json",
+  "files": [],
+  "include": [],
+  "references": [
+    {
+      "path": "./tsconfig.lib.json"
+    },
+    {
+      "path": "./tsconfig.spec.json"
+    }
+  ]
 }

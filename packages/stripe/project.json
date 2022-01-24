@@ -1,0 +1,47 @@
+{
+  "root": "packages/stripe",
+  "sourceRoot": "packages/stripe/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/node:package",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/packages/stripe",
+        "tsConfig": "packages/stripe/tsconfig.lib.json",
+        "packageJson": "packages/stripe/package.json",
+        "main": "packages/stripe/src/index.ts",
+        "assets": ["packages/stripe/*.md"]
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["packages/stripe/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/packages/stripe"],
+      "options": {
+        "jestConfig": "packages/stripe/jest.config.js",
+        "passWithNoTests": true
+      }
+    },
+    "version": {
+      "executor": "@jscutlery/semver:version",
+      "options": {
+        "commitMessageFormat": "chore(${projectName}): release version ${version}",
+        "postTargets": ["stripe:publish"]
+      }
+    },
+    "publish": {
+      "executor": "ngx-deploy-npm:deploy",
+      "options": {
+        "access": "public"
+      }
+    }
+  },
+  "tags": []
+}

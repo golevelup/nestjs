@@ -1,0 +1,123 @@
+{
+  "root": true,
+  "ignorePatterns": ["**/*"],
+  "plugins": ["@nrwl/nx"],
+  "overrides": [
+    {
+      "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
+      "extends": [
+        "plugin:@typescript-eslint/recommended-requiring-type-checking",
+        "plugin:sonarjs/recommended",
+        "plugin:import/recommended",
+        "plugin:import/typescript"
+      ],
+      "plugins": [
+        "sonarjs",
+        "unused-imports",
+        "eslint-plugin-import-helpers",
+        "import"
+      ],
+      "rules": {
+        "@nrwl/nx/enforce-module-boundaries": [
+          "error",
+          {
+            "enforceBuildableLibDependency": true,
+            "allow": [],
+            "depConstraints": [
+              {
+                "sourceTag": "*",
+                "onlyDependOnLibsWithTags": ["*"]
+              }
+            ]
+          }
+        ],
+        "import/no-unresolved": [
+          "error",
+          {
+            "ignore": ["^@golevelup/.+"]
+          }
+        ],
+        "import-helpers/order-imports": [
+          "error",
+          {
+            "newlinesBetween": "always",
+            "groups": [
+              "module",
+              "/^@golevelup/",
+              ["parent", "sibling", "index"]
+            ],
+            "alphabetize": {
+              "order": "asc",
+              "ignoreCase": true
+            }
+          }
+        ],
+        "no-unused-vars": "off",
+        "@typescript-eslint/no-unused-vars": [
+          "warn",
+          {
+            "vars": "all",
+            "varsIgnorePattern": "^_",
+            "args": "after-used",
+            "argsIgnorePattern": "^_",
+            "ignoreRestSiblings": true
+          }
+        ],
+        "unused-imports/no-unused-imports-ts": ["error"],
+        "unused-imports/no-unused-vars-ts": [
+          "warn",
+          {
+            "vars": "all",
+            "varsIgnorePattern": "^_",
+            "args": "after-used",
+            "argsIgnorePattern": "^_",
+            "ignoreRestSiblings": true
+          }
+        ],
+        "@typescript-eslint/no-explicit-any": "warn",
+        "@typescript-eslint/no-unsafe-call": "warn",
+        "@typescript-eslint/no-unsafe-member-access": "warn",
+        "@typescript-eslint/no-unsafe-return": "warn",
+        "@typescript-eslint/no-unsafe-assignment": "warn",
+        "@typescript-eslint/restrict-template-expressions": "warn",
+        "@typescript-eslint/no-unsafe-argument": "warn",
+        "@typescript-eslint/no-misused-promises": "warn",
+        "sonarjs/cognitive-complexity": ["error", 20]
+      }
+    },
+    {
+      "files": ["*.ts", "*.tsx"],
+      "extends": ["plugin:@nrwl/nx/typescript"],
+      "rules": {}
+    },
+    {
+      "files": ["*.js", "*.jsx"],
+      "extends": ["plugin:@nrwl/nx/javascript"],
+      "rules": {}
+    },
+    {
+      "files": ["*.*spec.ts", "*.*spec.tsx"],
+      "rules": {
+        "@typescript-eslint/unbound-method": "off",
+        "sonarjs/no-duplicate-string": "warn"
+      }
+    },
+    {
+      "files": [
+        "*.ts",
+        "*.tsx",
+        "*.js",
+        "*.jsx",
+        "*.md",
+        "*.yml",
+        "*.yaml",
+        "*.html",
+        "*.css",
+        "*.scss",
+        "*.json"
+      ],
+      "extends": ["plugin:prettier/recommended"],
+      "plugins": ["prettier"]
+    }
+  ]
+}

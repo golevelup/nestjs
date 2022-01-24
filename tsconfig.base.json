@@ -1,0 +1,32 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "rootDir": ".",
+    "sourceMap": true,
+    "declaration": false,
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "target": "es2015",
+    "module": "esnext",
+    "lib": ["es2017", "dom"],
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@golevelup/nestjs-common": ["packages/common/src/index.ts"],
+      "@golevelup/nestjs-discovery": ["packages/discovery/src/index.ts"],
+      "@golevelup/nestjs-graphql-request": [
+        "packages/graphql-request/src/index.ts"
+      ],
+      "@golevelup/nestjs-hasura": ["packages/hasura/src/index.ts"],
+      "@golevelup/nestjs-modules": ["packages/modules/src/index.ts"],
+      "@golevelup/nestjs-rabbitmq": ["packages/rabbitmq/src/index.ts"],
+      "@golevelup/nestjs-stripe": ["packages/stripe/src/index.ts"],
+      "@golevelup/nestjs-testing": ["packages/testing/src/index.ts"],
+      "@golevelup/nestjs-webhooks": ["packages/webhooks/src/index.ts"]
+    }
+  },
+  "exclude": ["node_modules", "tmp"]
+}

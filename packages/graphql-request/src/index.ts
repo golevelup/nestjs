@@ -1,3 +1,3 @@
-export * from './graphql-request.constants';
-export * from './graphql-request.decorators';
-export * from './graphql-request.module';
+export * from './lib/graphql-request.constants';
+export * from './lib/graphql-request.decorators';
+export * from './lib/graphql-request.module';

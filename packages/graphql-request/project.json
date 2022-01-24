@@ -1,0 +1,47 @@
+{
+  "root": "packages/graphql-request",
+  "sourceRoot": "packages/graphql-request/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/node:package",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/packages/graphql-request",
+        "tsConfig": "packages/graphql-request/tsconfig.lib.json",
+        "packageJson": "packages/graphql-request/package.json",
+        "main": "packages/graphql-request/src/index.ts",
+        "assets": ["packages/graphql-request/*.md"]
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["packages/graphql-request/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/packages/graphql-request"],
+      "options": {
+        "jestConfig": "packages/graphql-request/jest.config.js",
+        "passWithNoTests": true
+      }
+    },
+    "version": {
+      "executor": "@jscutlery/semver:version",
+      "options": {
+        "commitMessageFormat": "chore(${projectName}): release version ${version}",
+        "postTargets": ["graphql-request:publish"]
+      }
+    },
+    "publish": {
+      "executor": "ngx-deploy-npm:deploy",
+      "options": {
+        "access": "public"
+      }
+    }
+  },
+  "tags": []
+}

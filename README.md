@@ -1,5 +1,5 @@
 <p align="center">
-    <image src="golevelup-nest-logo.svg">
+    <image src=".github/assets/golevelup-nest-logo.svg">
 </p>
 
 <p align="center">

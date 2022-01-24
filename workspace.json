@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "projects": {
+    "common": "packages/common",
+    "discovery": "packages/discovery",
+    "graphql-request": "packages/graphql-request",
+    "hasura": "packages/hasura",
+    "modules": "packages/modules",
+    "rabbitmq": "packages/rabbitmq",
+    "rabbitmq-e2e": "packages/rabbitmq-e2e",
+    "stripe": "packages/stripe",
+    "testing": "packages/testing",
+    "webhooks": "packages/webhooks"
+  }
+}

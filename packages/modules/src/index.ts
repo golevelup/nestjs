@@ -1,1 +1,1 @@
-export * from './dynamicModules';
+export * from './lib/dynamicModules';
