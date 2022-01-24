@@ -2,6 +2,7 @@
   "name": "rabbitmq-integration",
   "version": "1.0.0",
   "description": "RabbitMQ integration project",
+  "private": true,
   "license": "MIT",
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
