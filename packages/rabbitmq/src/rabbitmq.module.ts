@@ -6,9 +6,9 @@ import {
 import {
   DynamicModule,
   Module,
-  OnModuleInit,
-  OnModuleDestroy,
   ConsoleLogger,
+  OnApplicationBootstrap,
+  OnApplicationShutdown,
 } from '@nestjs/common';
 import { ExternalContextCreator } from '@nestjs/core/helpers/external-context-creator';
 import { groupBy } from 'lodash';
@@ -42,7 +42,7 @@ export class RabbitMQModule
       exports: [AmqpConnection],
     }
   )
-  implements OnModuleDestroy, OnModuleInit
+  implements OnApplicationBootstrap, OnApplicationShutdown
 {
   private readonly logger = new ConsoleLogger(RabbitMQModule.name);
 
@@ -94,12 +94,12 @@ export class RabbitMQModule
     };
   }
 
-  async onModuleDestroy() {
+  async onApplicationShutdown() {
     this.logger.verbose('Closing AMQP Connection');
     await this.amqpConnection.managedConnection.close();
   }
 
-  public async onModuleInit() {
+  public async onApplicationBootstrap() {
     if (!this.amqpConnection.configuration.registerHandlers) {
       this.logger.log(
         'Skipping RabbitMQ Handlers due to configuration. This application instance will not receive messages over RabbitMQ'
