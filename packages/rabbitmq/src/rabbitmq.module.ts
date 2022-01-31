@@ -62,25 +62,6 @@ export class RabbitMQModule
     return connection;
   }
 
-  public static build(config: RabbitMQConfig): DynamicModule {
-    const logger = new ConsoleLogger(RabbitMQModule.name);
-    logger.warn(
-      'build() is deprecated. use forRoot() or forRootAsync() to configure RabbitMQ'
-    );
-    return {
-      module: RabbitMQModule,
-      providers: [
-        {
-          provide: AmqpConnection,
-          useFactory: async (): Promise<AmqpConnection> => {
-            return RabbitMQModule.AmqpConnectionFactory(config);
-          },
-        },
-      ],
-      exports: [AmqpConnection],
-    };
-  }
-
   public static attach(connection: AmqpConnection): DynamicModule {
     return {
       module: RabbitMQModule,
