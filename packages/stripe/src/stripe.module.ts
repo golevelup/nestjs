@@ -1,6 +1,6 @@
 import { DiscoveryModule, DiscoveryService } from '@golevelup/nestjs-discovery';
 import { createConfigurableDynamicRootModule } from '@golevelup/nestjs-modules';
-import { ConsoleLogger, Module, OnModuleInit } from '@nestjs/common';
+import { Logger, Module, OnModuleInit } from '@nestjs/common';
 import { PATH_METADATA } from '@nestjs/common/constants';
 import { ExternalContextCreator } from '@nestjs/core/helpers/external-context-creator';
 import { flatten, groupBy } from 'lodash';
@@ -68,7 +68,7 @@ export class StripeModule
   )
   implements OnModuleInit
 {
-  private readonly logger = new ConsoleLogger(StripeModule.name);
+  private readonly logger = new Logger(StripeModule.name);
 
   constructor(
     private readonly discover: DiscoveryService,
