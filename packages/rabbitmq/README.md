@@ -17,6 +17,7 @@
     - [Install](#install)
     - [Module Initialization](#module-initialization)
   - [Usage with Interceptors](#usage-with-interceptors)
+  - [Usage with Controllers](#usage-with-controllers)
   - [Receiving Messages](#receiving-messages)
     - [Exposing RPC Handlers](#exposing-rpc-handlers)
     - [Exposing Pub/Sub Handlers](#exposing-pubsub-handlers)
@@ -151,6 +152,39 @@ class ExampleInterceptor implements NestInterceptor {
     return next.handle();
   }
 }
+```
+
+## Usage with Controllers
+
+To improve the migration process, it is possible to use NestJS controllers as handlers.
+WARNING: When using controllers, be aware that no HTTP context is available.
+
+To enable the controller discovery the option enableControllerDiscovery has to be true.
+
+```typescript
+import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
+import { Module } from '@nestjs/common';
+import { MessagingController } from './messaging/messaging.controller';
+import { MessagingService } from './messaging/messaging.service';
+
+@Module({
+  imports: [
+    RabbitMQModule.forRoot(RabbitMQModule, {
+      exchanges: [
+        {
+          name: 'exchange1',
+          type: 'topic',
+        },
+      ],
+      uri: 'amqp://rabbitmq:rabbitmq@localhost:5672',
+      enableControllerDiscovery: true,
+    }),
+    RabbitExampleModule,
+  ],
+  providers: [MessagingService],
+  controllers: [MessagingController],
+})
+export class RabbitExampleModule {}
 ```
 
 ## Receiving Messages

@@ -94,6 +94,7 @@ export interface RabbitMQConfig {
   connectionManagerOptions?: AmqpConnectionManagerOptions;
   registerHandlers?: boolean;
   enableDirectReplyTo?: boolean;
+  enableControllerDiscovery?: boolean;
   /**
    * You can optionally create channels which you consume messages from.
    *

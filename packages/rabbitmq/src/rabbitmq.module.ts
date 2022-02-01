@@ -110,10 +110,21 @@ export class RabbitMQModule
 
     this.logger.log('Initializing RabbitMQ Handlers');
 
-    const rabbitMeta =
+    let rabbitMeta =
       await this.discover.providerMethodsWithMetaAtKey<RabbitHandlerConfig>(
         RABBIT_HANDLER
       );
+
+    if (this.amqpConnection.configuration.enableControllerDiscovery) {
+      this.logger.log(
+        'Searching for RabbitMQ Handlers in Controllers. You can not use NestJS HTTP-Requests in these controllers!'
+      );
+      rabbitMeta = rabbitMeta.concat(
+        await this.discover.controllerMethodsWithMetaAtKey<RabbitHandlerConfig>(
+          RABBIT_HANDLER
+        )
+      );
+    }
 
     const grouped = groupBy(
       rabbitMeta,
