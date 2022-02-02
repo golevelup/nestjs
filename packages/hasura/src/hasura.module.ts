@@ -2,7 +2,7 @@ import { DiscoveryModule, DiscoveryService } from '@golevelup/nestjs-discovery';
 import { createConfigurableDynamicRootModule } from '@golevelup/nestjs-modules';
 import {
   BadRequestException,
-  ConsoleLogger,
+  Logger,
   Module,
   OnModuleInit,
 } from '@nestjs/common';
@@ -74,7 +74,7 @@ export class HasuraModule
   )
   implements OnModuleInit
 {
-  private readonly logger = new ConsoleLogger(HasuraModule.name);
+  private readonly logger = new Logger(HasuraModule.name);
 
   constructor(
     private readonly discover: DiscoveryService,
