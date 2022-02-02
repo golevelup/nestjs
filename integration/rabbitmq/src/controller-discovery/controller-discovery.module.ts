@@ -1,6 +1,7 @@
 import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
 import { Module } from '@nestjs/common';
 import { ControllerDiscoveryController } from './controller-discovery.controller';
+import { SubmoduleModule } from './submodule/submodule.module';
 
 const rabbitHost =
   process.env.NODE_ENV === 'ci' ? process.env.RABBITMQ_HOST : 'localhost';
@@ -23,6 +24,7 @@ const uri = `amqp://rabbitmq:rabbitmq@${rabbitHost}:${rabbitPort}`;
         enableControllerDiscovery: true,
       }),
     }),
+    SubmoduleModule,
   ],
   controllers: [ControllerDiscoveryController],
   providers: [ControllerDiscoveryController],
