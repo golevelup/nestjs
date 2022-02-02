@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.1.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@2.0.0...@golevelup/nestjs-rabbitmq@2.1.0) (2022-02-01)
+
+### Features
+
+- **rabbitmq:** module lifecycle updates ([#387](https://github.com/golevelup/nestjs/issues/387)) ([4b178b3](https://github.com/golevelup/nestjs/commit/4b178b39d3a2d5600cf705ca3a2b99188ea12fc2)), closes [#386](https://github.com/golevelup/nestjs/issues/386)
+
 # [2.0.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@1.22.0...@golevelup/nestjs-rabbitmq@2.0.0) (2022-01-24)
 
 - feat!: update libraries to support Nest 8 (#342) ([de7cd35](https://github.com/golevelup/nestjs/commit/de7cd35ac2e63d66af76b792d5bf99b4a2d82bb4)), closes [#342](https://github.com/golevelup/nestjs/issues/342)
