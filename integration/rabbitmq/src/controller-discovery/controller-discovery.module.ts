@@ -25,6 +25,6 @@ const uri = `amqp://rabbitmq:rabbitmq@${rabbitHost}:${rabbitPort}`;
     }),
   ],
   controllers: [ControllerDiscoveryController],
-  providers: [],
+  providers: [ControllerDiscoveryController],
 })
 export class ControllerDiscoveryModule {}

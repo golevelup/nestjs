@@ -3,10 +3,11 @@ import {
   MessageHandlerErrorBehavior,
   RabbitRPC,
 } from '@golevelup/nestjs-rabbitmq';
-import { Controller, Get, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ReplyErrorCallback } from '../rpc/reply.error.callback';
 import { TransformInterceptor } from '../transform.interceptor';
 import { RpcException } from '../rpc/rpc-exception';
+import { DenyGuard } from '../deny.guard';
 
 @Controller('controller-discovery')
 export class ControllerDiscoveryController {
@@ -41,10 +42,24 @@ export class ControllerDiscoveryController {
     exchange: 'exchange2',
     queue: 'intercepted-rpc-2',
   })
-  @UseInterceptors(new TransformInterceptor()) // has to be an instance... it wont work with classes. could not find cause in nestjs-source
+  @UseInterceptors(TransformInterceptor) // has to be an instance... it wont work with classes. could not find cause in nestjs-source
   interceptedRpc() {
     return {
       message: 42,
+    };
+  }
+
+  @RabbitRPC({
+    routingKey: 'piped-rpc-2',
+    exchange: 'exchange2',
+    queue: 'piped-rpc-2',
+    errorBehavior: MessageHandlerErrorBehavior.ACK,
+    errorHandler: ReplyErrorCallback,
+  })
+  @UseGuards(DenyGuard)
+  pipedRpc() {
+    return {
+      message: 'success',
     };
   }
 

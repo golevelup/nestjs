@@ -48,6 +48,27 @@ describe('Rabbit Controller RPC', () => {
     expect(response).toEqual({ transformed: { message: 42 } });
   });
 
+  it('guarded RPC handler should receive a RPC error response', async () => {
+    const response = await amqpConnection.request({
+      exchange: 'exchange2',
+      routingKey: 'piped-rpc-2',
+      payload: 41,
+    });
+
+    expect(response).toHaveProperty('message');
+    expect(response).toMatchObject({ status: 'error' });
+  });
+
+  it('guarded RPC handler should receive a RPC response', async () => {
+    const response = await amqpConnection.request({
+      exchange: 'exchange2',
+      routingKey: 'piped-rpc-2',
+      payload: 42,
+    });
+
+    expect(response).toEqual({ message: 'success' });
+  });
+
   it('error reply RPC handler with non-JSON message should return an RPC error response', async () => {
     const response = await amqpConnection.request({
       exchange: 'exchange2',
