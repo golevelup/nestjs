@@ -1,13 +1,21 @@
 import {
   AmqpConnection,
   MessageHandlerErrorBehavior,
+  RabbitPayload,
   RabbitRPC,
 } from '@golevelup/nestjs-rabbitmq';
-import { Controller, Get, UseGuards, UseInterceptors } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  UseGuards,
+  UseInterceptors,
+  UsePipes,
+} from '@nestjs/common';
 import { ReplyErrorCallback } from '../rpc/reply.error.callback';
 import { TransformInterceptor } from '../transform.interceptor';
 import { RpcException } from '../rpc/rpc-exception';
 import { DenyGuard } from '../deny.guard';
+import { ValidationPipe } from '../validation.pipe';
 
 @Controller('controller-discovery')
 export class ControllerDiscoveryController {
@@ -56,8 +64,36 @@ export class ControllerDiscoveryController {
     errorBehavior: MessageHandlerErrorBehavior.ACK,
     errorHandler: ReplyErrorCallback,
   })
+  @UsePipes(ValidationPipe)
+  pipedRpc(@RabbitPayload() message: number) {
+    return {
+      message,
+    };
+  }
+
+  @RabbitRPC({
+    routingKey: 'piped-param-rpc-2',
+    exchange: 'exchange2',
+    queue: 'piped-param-rpc-2',
+    errorBehavior: MessageHandlerErrorBehavior.ACK,
+    errorHandler: ReplyErrorCallback,
+  })
+  // eslint-disable-next-line sonarjs/no-identical-functions
+  pipedParamRpc(@RabbitPayload(ValidationPipe) message: number) {
+    return {
+      message,
+    };
+  }
+
+  @RabbitRPC({
+    routingKey: 'guarded-rpc-2',
+    exchange: 'exchange2',
+    queue: 'guarded-rpc-2',
+    errorBehavior: MessageHandlerErrorBehavior.ACK,
+    errorHandler: ReplyErrorCallback,
+  })
   @UseGuards(DenyGuard)
-  pipedRpc() {
+  guardedRpc() {
     return {
       message: 'success',
     };
