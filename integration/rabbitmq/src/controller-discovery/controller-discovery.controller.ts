@@ -50,7 +50,7 @@ export class ControllerDiscoveryController {
     exchange: 'exchange2',
     queue: 'intercepted-rpc-2',
   })
-  @UseInterceptors(TransformInterceptor) // has to be an instance... it wont work with classes. could not find cause in nestjs-source
+  @UseInterceptors(TransformInterceptor)
   interceptedRpc() {
     return {
       message: 42,

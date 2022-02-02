@@ -181,10 +181,29 @@ import { MessagingService } from './messaging/messaging.service';
     }),
     RabbitExampleModule,
   ],
-  providers: [MessagingService],
+  providers: [MessagingService, MessagingController],
   controllers: [MessagingController],
 })
 export class RabbitExampleModule {}
+```
+
+### Interceptors, Guards, Pipes
+
+To use Interceptors, Guards or Pipes, the controller has to be imported as provider in the module.
+Then simly add the corresponding decorator to the whole controller or the method.
+
+```typescript
+@RabbitRPC({
+  routingKey: 'intercepted-rpc-2',
+  exchange: 'exchange2',
+  queue: 'intercepted-rpc-2',
+})
+@UseInterceptors(TransformInterceptor)
+interceptedRpc() {
+  return {
+    message: 42,
+  };
+}
 ```
 
 ## Receiving Messages
