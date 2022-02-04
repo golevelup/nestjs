@@ -13,7 +13,12 @@ import {
 import { ExternalContextCreator } from '@nestjs/core/helpers/external-context-creator';
 import { groupBy } from 'lodash';
 import { AmqpConnection } from './amqp/connection';
-import { RABBIT_CONFIG_TOKEN, RABBIT_HANDLER } from './rabbitmq.constants';
+import {
+  RABBIT_ARGS_METADATA,
+  RABBIT_CONFIG_TOKEN,
+  RABBIT_HANDLER,
+} from './rabbitmq.constants';
+import { RabbitRpcParamsFactory } from './rabbitmq.factory';
 import { RabbitHandlerConfig, RabbitMQConfig } from './rabbitmq.interfaces';
 
 declare const placeholder: IConfigurableDynamicRootModule<
@@ -38,6 +43,7 @@ export class RabbitMQModule
           },
           inject: [RABBIT_CONFIG_TOKEN],
         },
+        RabbitRpcParamsFactory,
       ],
       exports: [AmqpConnection],
     }
@@ -49,7 +55,8 @@ export class RabbitMQModule
   constructor(
     private readonly discover: DiscoveryService,
     private readonly amqpConnection: AmqpConnection,
-    private readonly externalContextCreator: ExternalContextCreator
+    private readonly externalContextCreator: ExternalContextCreator,
+    private readonly rpcParamsFactory: RabbitRpcParamsFactory
   ) {
     super();
   }
@@ -76,6 +83,7 @@ export class RabbitMQModule
             return RabbitMQModule.AmqpConnectionFactory(config);
           },
         },
+        RabbitRpcParamsFactory,
       ],
       exports: [AmqpConnection],
     };
@@ -89,6 +97,7 @@ export class RabbitMQModule
           provide: AmqpConnection,
           useValue: connection,
         },
+        RabbitRpcParamsFactory,
       ],
       exports: [AmqpConnection],
     };
@@ -110,10 +119,21 @@ export class RabbitMQModule
 
     this.logger.log('Initializing RabbitMQ Handlers');
 
-    const rabbitMeta =
+    let rabbitMeta =
       await this.discover.providerMethodsWithMetaAtKey<RabbitHandlerConfig>(
         RABBIT_HANDLER
       );
+
+    if (this.amqpConnection.configuration.enableControllerDiscovery) {
+      this.logger.log(
+        'Searching for RabbitMQ Handlers in Controllers. You can not use NestJS HTTP-Requests in these controllers!'
+      );
+      rabbitMeta = rabbitMeta.concat(
+        await this.discover.controllerMethodsWithMetaAtKey<RabbitHandlerConfig>(
+          RABBIT_HANDLER
+        )
+      );
+    }
 
     const grouped = groupBy(
       rabbitMeta,
@@ -130,8 +150,8 @@ export class RabbitMQModule
             discoveredMethod.parentClass.instance,
             discoveredMethod.handler,
             discoveredMethod.methodName,
-            undefined,
-            undefined,
+            RABBIT_ARGS_METADATA,
+            this.rpcParamsFactory,
             undefined,
             undefined,
             undefined,

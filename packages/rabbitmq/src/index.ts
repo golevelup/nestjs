@@ -6,3 +6,4 @@ export * from './rabbitmq.decorators';
 export * from './rabbitmq.interfaces';
 export * from './rabbitmq.module';
 export * from './rabbitmq.helpers';
+export * from './rabbitmq.factory';

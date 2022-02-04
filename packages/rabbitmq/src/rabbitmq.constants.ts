@@ -1,2 +1,4 @@
 export const RABBIT_HANDLER = Symbol('RABBIT_HANDLER');
 export const RABBIT_CONFIG_TOKEN = Symbol('RABBIT_CONFIG');
+export const RABBIT_ARGS_METADATA = 'RABBIT_ARGS_METADATA';
+export const RABBIT_PARAM_TYPE = 3;

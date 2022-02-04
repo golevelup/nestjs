@@ -58,6 +58,7 @@ const defaultConfig = {
   registerHandlers: true,
   enableDirectReplyTo: true,
   channels: {},
+  enableControllerDiscovery: false,
 };
 
 export class AmqpConnection {
