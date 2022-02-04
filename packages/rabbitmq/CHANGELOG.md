@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.1.1](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@2.1.0...@golevelup/nestjs-rabbitmq@2.1.1) (2022-02-04)
+
+### Bug Fixes
+
+- **logging:** use Logger instead of ConsoleLogger ([#388](https://github.com/golevelup/nestjs/issues/388)) ([a0f2597](https://github.com/golevelup/nestjs/commit/a0f2597a3d3522f8003957753ca9b814b47652fd)), closes [#351](https://github.com/golevelup/nestjs/issues/351)
+
 # [2.1.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@2.0.0...@golevelup/nestjs-rabbitmq@2.1.0) (2022-02-01)
 
 ### Features
