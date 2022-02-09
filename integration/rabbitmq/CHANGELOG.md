@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.2.0](https://github.com/golevelup/nestjs/compare/rabbitmq-integration@2.1.0...rabbitmq-integration@2.2.0) (2022-02-09)
+
+### Features
+
+- **rabbitmq:** enable handler discovery in controllers ([35f3628](https://github.com/golevelup/nestjs/commit/35f36282272918759d2697c4e2fe2a4245f35146)), closes [#369](https://github.com/golevelup/nestjs/issues/369) [#251](https://github.com/golevelup/nestjs/issues/251)
+
 # [2.1.0](https://github.com/golevelup/nestjs/compare/rabbitmq-integration@2.0.0...rabbitmq-integration@2.1.0) (2022-02-01)
 
 ### Features
