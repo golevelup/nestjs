@@ -63,7 +63,7 @@ const defaultConfig = {
 
 export class AmqpConnection {
   private readonly messageSubject = new Subject<CorrelationMessage>();
-  private readonly logger = new Logger(AmqpConnection.name);
+  private readonly logger;
   private readonly initialized = new Subject<void>();
   private _managedConnection!: AmqpConnectionManager;
   /**
@@ -80,7 +80,13 @@ export class AmqpConnection {
   private readonly config: Required<RabbitMQConfig>;
 
   constructor(config: RabbitMQConfig) {
-    this.config = { ...defaultConfig, ...config };
+    this.config = {
+      logger: config.logger || new Logger(AmqpConnection.name),
+      ...defaultConfig,
+      ...config,
+    };
+
+    this.logger = this.config.logger;
   }
 
   get channel(): Channel {

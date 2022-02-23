@@ -1,4 +1,5 @@
 import { RabbitMQConfig, RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
+import { ConsoleLogger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as amqplib from 'amqplib';
 
@@ -132,6 +133,27 @@ describe('Module Configuration', () => {
 
       expect(spy).toHaveBeenCalledTimes(1);
       expect(spy).toHaveBeenCalledWith(amqplibUri, undefined);
+    });
+  });
+
+  describe('logger', () => {
+    it('should use the custom logger', async () => {
+      const logger = new ConsoleLogger('Custom');
+      const spy = jest.spyOn(logger, 'log');
+
+      app = await Test.createTestingModule({
+        imports: [
+          RabbitMQModule.forRoot(RabbitMQModule, {
+            uri,
+            connectionInitOptions: { wait: true, reject: true, timeout: 3000 },
+            logger,
+          }),
+        ],
+      }).compile();
+
+      expect(app).toBeDefined();
+
+      expect(spy).toHaveBeenCalledTimes(1);
     });
   });
 });
