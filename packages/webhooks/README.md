@@ -51,11 +51,11 @@ import {
 } from '@golevelup/nestjs-webhooks';
 ```
 
-In your `AppModule` (or equivalent top level module), include both of the above middleware in your `imports` array:
+In your `AppModule` (or equivalent top level module), include both of the above middleware in your `providers` array:
 
 ```typescript
 @Module({
-    imports: [JsonBodyMiddleware, RawBodyMiddleware]
+    providers: [JsonBodyMiddleware, RawBodyMiddleware]
 })
 ```
 
