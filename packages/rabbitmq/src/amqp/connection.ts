@@ -20,7 +20,7 @@ import {
   throwError,
 } from 'rxjs';
 import { catchError, filter, first, map, take, timeout } from 'rxjs/operators';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'crypto';
 import { defaultAssertQueueErrorHandler } from '..';
 import {
   ConnectionInitOptions,
@@ -247,7 +247,7 @@ export class AmqpConnection {
   public async request<T extends Record<string, unknown>>(
     requestOptions: RequestOptions
   ): Promise<T> {
-    const correlationId = requestOptions.correlationId || uuidv4();
+    const correlationId = requestOptions.correlationId || randomUUID();
     const timeout = requestOptions.timeout || this.config.defaultRpcTimeout;
     const payload = requestOptions.payload || {};
 
