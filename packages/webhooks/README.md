@@ -42,24 +42,7 @@ const app = await NestFactory.create(AppModule, {
 });
 ```
 
-#### Step 2: Include middlewares in your AppModule
-
-```typescript
-import {
-  JsonBodyMiddleware,
-  RawBodyMiddleware,
-} from '@golevelup/nestjs-webhooks';
-```
-
-In your `AppModule` (or equivalent top level module), include both of the above middleware in your `imports` array:
-
-```typescript
-@Module({
-    imports: [JsonBodyMiddleware, RawBodyMiddleware]
-})
-```
-
-#### Step 3: Configure Middleware Routes
+#### Step 2: Configure Middleware Routes
 
 If your AppModule doesn't already, implement the `NestModule` interface from `@nestjs/common`. This will allow you to [apply middleware to specific routes](https://docs.nestjs.com/middleware#applying-middleware).
 
