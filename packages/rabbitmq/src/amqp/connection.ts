@@ -43,6 +43,7 @@ export interface CorrelationMessage {
 }
 
 const defaultConfig = {
+  name: 'default',
   prefetchCount: 10,
   defaultExchangeType: 'topic',
   defaultRpcErrorBehavior: MessageHandlerErrorBehavior.REQUEUE,
