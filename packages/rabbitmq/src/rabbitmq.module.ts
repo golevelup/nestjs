@@ -122,9 +122,11 @@ export class RabbitMQModule
   async onApplicationShutdown() {
     this.logger.verbose('Closing AMQP Connections');
 
-    for (const connection of this.connectionManager.getConnections()) {
-      await connection.managedConnection.close();
-    }
+    await Promise.all(
+      this.connectionManager
+        .getConnections()
+        .map((connection) => connection.managedConnection.close())
+    );
   }
 
   // eslint-disable-next-line sonarjs/cognitive-complexity
