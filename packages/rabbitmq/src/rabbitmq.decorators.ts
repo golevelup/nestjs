@@ -11,7 +11,6 @@ import { isString } from 'lodash';
 import {
   RABBIT_ARGS_METADATA,
   RABBIT_CONFIG_TOKEN,
-  RABBIT_CONNECTIONS,
   RABBIT_HANDLER,
   RABBIT_PARAM_TYPE,
 } from './rabbitmq.constants';
@@ -37,9 +36,6 @@ export const RabbitRPC = makeRabbitDecorator({ type: 'rpc' });
 
 export const InjectRabbitMQConfig =
   makeInjectableDecorator(RABBIT_CONFIG_TOKEN);
-
-export const InjectRabbitMQConnections =
-  makeInjectableDecorator(RABBIT_CONNECTIONS);
 
 export const createPipesRpcParamDecorator =
   (

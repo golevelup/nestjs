@@ -13,13 +13,12 @@ import {
 import { ExternalContextCreator } from '@nestjs/core/helpers/external-context-creator';
 import { groupBy } from 'lodash';
 import { AmqpConnection } from './amqp/connection';
+import { AmqpConnectionManager } from './amqp/connectionManager';
 import {
   RABBIT_ARGS_METADATA,
   RABBIT_CONFIG_TOKEN,
-  RABBIT_CONNECTIONS,
   RABBIT_HANDLER,
 } from './rabbitmq.constants';
-import { InjectRabbitMQConnections } from './rabbitmq.decorators';
 import { RabbitRpcParamsFactory } from './rabbitmq.factory';
 import { RabbitHandlerConfig, RabbitMQConfig } from './rabbitmq.interfaces';
 
@@ -37,12 +36,12 @@ export class RabbitMQModule
     {
       providers: [
         {
-          provide: RABBIT_CONNECTIONS,
+          provide: AmqpConnectionManager,
           useFactory: async (
             config: RabbitMQConfig
-          ): Promise<AmqpConnection[]> => {
+          ): Promise<AmqpConnectionManager> => {
             await RabbitMQModule.AmqpConnectionFactory(config);
-            return RabbitMQModule.connections;
+            return RabbitMQModule.connectionManager;
           },
           inject: [RABBIT_CONFIG_TOKEN],
         },
@@ -51,38 +50,35 @@ export class RabbitMQModule
           useFactory: async (
             config: RabbitMQConfig
           ): Promise<AmqpConnection> => {
-            return RabbitMQModule.connections.find(
-              (connection) =>
-                connection.configuration.name === config.name || 'default'
+            return RabbitMQModule.connectionManager.getConnection(
+              config.name || 'default'
             ) as AmqpConnection;
           },
           inject: [RABBIT_CONFIG_TOKEN],
         },
         RabbitRpcParamsFactory,
       ],
-      exports: [RABBIT_CONNECTIONS, AmqpConnection],
+      exports: [AmqpConnectionManager, AmqpConnection],
     }
   )
   implements OnApplicationBootstrap, OnApplicationShutdown
 {
   private readonly logger = new Logger(RabbitMQModule.name);
 
-  private static connections: AmqpConnection[] = [];
+  private static connectionManager = new AmqpConnectionManager();
 
   constructor(
     private readonly discover: DiscoveryService,
     private readonly externalContextCreator: ExternalContextCreator,
     private readonly rpcParamsFactory: RabbitRpcParamsFactory,
-
-    @InjectRabbitMQConnections()
-    private readonly amqpConnections: AmqpConnection[]
+    private readonly connectionManager: AmqpConnectionManager
   ) {
     super();
   }
 
   static async AmqpConnectionFactory(config: RabbitMQConfig) {
     const connection = new AmqpConnection(config);
-    this.connections.push(connection);
+    this.connectionManager.addConnection(connection);
     await connection.init();
     const logger = new Logger(RabbitMQModule.name);
     logger.log('Successfully connected to RabbitMQ');
@@ -126,13 +122,14 @@ export class RabbitMQModule
   async onApplicationShutdown() {
     this.logger.verbose('Closing AMQP Connections');
 
-    for (const connection of this.amqpConnections) {
+    for (const connection of this.connectionManager.getConnections()) {
       await connection.managedConnection.close();
     }
   }
 
+  // eslint-disable-next-line sonarjs/cognitive-complexity
   public async onApplicationBootstrap() {
-    for (const connection of this.amqpConnections) {
+    for (const connection of this.connectionManager.getConnections()) {
       if (!connection.configuration.registerHandlers) {
         this.logger.log(
           'Skipping RabbitMQ Handlers due to configuration. This application instance will not receive messages over RabbitMQ'
