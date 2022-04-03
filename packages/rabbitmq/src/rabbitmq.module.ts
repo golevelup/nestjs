@@ -143,7 +143,7 @@ export class RabbitMQModule
           'Skipping RabbitMQ Handlers due to configuration. This application instance will not receive messages over RabbitMQ'
         );
 
-        return;
+        continue;
       }
 
       this.logger.log('Initializing RabbitMQ Handlers');
