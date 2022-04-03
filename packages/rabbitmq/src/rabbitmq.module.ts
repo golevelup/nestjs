@@ -66,6 +66,7 @@ export class RabbitMQModule
   private readonly logger = new Logger(RabbitMQModule.name);
 
   private static connectionManager = new AmqpConnectionManager();
+  private static bootstrapped = false;
 
   constructor(
     private readonly discover: DiscoveryService,
@@ -131,6 +132,11 @@ export class RabbitMQModule
 
   // eslint-disable-next-line sonarjs/cognitive-complexity
   public async onApplicationBootstrap() {
+    if (RabbitMQModule.bootstrapped) {
+      return;
+    }
+    RabbitMQModule.bootstrapped = true;
+
     for (const connection of this.connectionManager.getConnections()) {
       if (!connection.configuration.registerHandlers) {
         this.logger.log(
