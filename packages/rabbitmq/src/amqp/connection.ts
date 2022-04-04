@@ -114,6 +114,10 @@ export class AmqpConnection {
     return this._managedChannels;
   }
 
+  get connected() {
+    return this._managedConnection.isConnected();
+  }
+
   public async init(): Promise<void> {
     const options: Required<ConnectionInitOptions> = {
       ...defaultConfig.connectionInitOptions,
