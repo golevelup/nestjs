@@ -43,25 +43,27 @@ export interface CorrelationMessage {
 }
 
 type BaseConsumerHandler = {
-  consumerTag: string,
-  channel: ConfirmChannel
-}
+  consumerTag: string;
+  channel: ConfirmChannel;
+};
 
-type ConsumerHandler<T, U> = BaseConsumerHandler & {
-  type: 'subscribe',
-  msgOptions: MessageHandlerOptions,
-  handler: (
-    msg: T,
-    rawMessage?: ConsumeMessage
-  ) => Promise<SubscribeResponse>,
-} | BaseConsumerHandler & {
-  type: 'rpc',
-  rpcOptions: MessageHandlerOptions,
-  handler: (
-    msg: T,
-    rawMessage?: ConsumeMessage
-  ) => Promise<RpcResponse<U | undefined>>,
-}
+type ConsumerHandler<T, U> =
+  | (BaseConsumerHandler & {
+      type: 'subscribe';
+      msgOptions: MessageHandlerOptions;
+      handler: (
+        msg: T | undefined,
+        rawMessage?: ConsumeMessage
+      ) => Promise<SubscribeResponse>;
+    })
+  | (BaseConsumerHandler & {
+      type: 'rpc';
+      rpcOptions: MessageHandlerOptions;
+      handler: (
+        msg: T | undefined,
+        rawMessage?: ConsumeMessage
+      ) => Promise<RpcResponse<U | undefined>>;
+    });
 
 const defaultConfig = {
   prefetchCount: 10,
@@ -361,7 +363,7 @@ export class AmqpConnection {
             msgOptions.errorHandler ||
             getHandlerForLegacyBehavior(
               msgOptions.errorBehavior ||
-              this.config.defaultSubscribeErrorBehavior
+                this.config.defaultSubscribeErrorBehavior
             );
 
           await errorHandler(channel, msg, e);
@@ -369,7 +371,13 @@ export class AmqpConnection {
       }
     });
 
-    this.registerConsumerForQueue({ type: 'subscribe', consumerTag, handler, msgOptions, channel })
+    this.registerConsumerForQueue({
+      type: 'subscribe',
+      consumerTag,
+      handler,
+      msgOptions,
+      channel,
+    });
   }
 
   public async createRpc<T, U>(
@@ -430,7 +438,7 @@ export class AmqpConnection {
             rpcOptions.errorHandler ||
             getHandlerForLegacyBehavior(
               rpcOptions.errorBehavior ||
-              this.config.defaultSubscribeErrorBehavior
+                this.config.defaultSubscribeErrorBehavior
             );
 
           await errorHandler(channel, msg, e);
@@ -438,7 +446,13 @@ export class AmqpConnection {
       }
     });
 
-    this.registerConsumerForQueue({ type: 'rpc', consumerTag, handler, rpcOptions, channel })
+    this.registerConsumerForQueue({
+      type: 'rpc',
+      consumerTag,
+      handler,
+      rpcOptions,
+      channel,
+    });
   }
 
   public async publish(
@@ -593,28 +607,34 @@ export class AmqpConnection {
     return channel;
   }
 
-  private registerConsumerForQueue<T, U>(
-    consumer: ConsumerHandler<T, U>
-  ) {
-    this._consumers.push(consumer)
+  private registerConsumerForQueue<T, U>(consumer: ConsumerHandler<T, U>) {
+    this._consumers.push(consumer);
   }
 
   private getConsumer(consumerTag: string) {
     const idx = this._consumers.findIndex((x) => x.consumerTag === consumerTag);
-    return this._consumers[idx]
+    return this._consumers[idx];
   }
 
   async cancelConsumer(consumerTag: string) {
-    const consumer = this.getConsumer(consumerTag)
+    const consumer = this.getConsumer(consumerTag);
     if (consumer && consumer.channel) {
       await consumer.channel.cancel(consumerTag);
     }
   }
 
   public resumeConsumer(consumerTag: string) {
-    const consumer = this.getConsumer(consumerTag)
+    const consumer = this.getConsumer(consumerTag);
     return consumer.type === 'rpc'
-      ? this.setupRpcChannel(consumer.handler, consumer.rpcOptions, consumer.channel)
-      : this.setupSubscriberChannel(consumer.handler, consumer.msgOptions, consumer.channel)
+      ? this.setupRpcChannel(
+          consumer.handler,
+          consumer.rpcOptions,
+          consumer.channel
+        )
+      : this.setupSubscriberChannel(
+          consumer.handler,
+          consumer.msgOptions,
+          consumer.channel
+        );
   }
 }
