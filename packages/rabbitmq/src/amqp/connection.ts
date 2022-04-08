@@ -49,21 +49,21 @@ type BaseConsumerHandler = {
 
 type ConsumerHandler<T, U> =
   | (BaseConsumerHandler & {
-      type: 'subscribe';
-      msgOptions: MessageHandlerOptions;
-      handler: (
-        msg: T | undefined,
-        rawMessage?: ConsumeMessage
-      ) => Promise<SubscribeResponse>;
-    })
+    type: 'subscribe';
+    msgOptions: MessageHandlerOptions;
+    handler: (
+      msg: T | undefined,
+      rawMessage?: ConsumeMessage
+    ) => Promise<SubscribeResponse>;
+  })
   | (BaseConsumerHandler & {
-      type: 'rpc';
-      rpcOptions: MessageHandlerOptions;
-      handler: (
-        msg: T | undefined,
-        rawMessage?: ConsumeMessage
-      ) => Promise<RpcResponse<U | undefined>>;
-    });
+    type: 'rpc';
+    rpcOptions: MessageHandlerOptions;
+    handler: (
+      msg: T | undefined,
+      rawMessage?: ConsumeMessage
+    ) => Promise<RpcResponse<U | undefined>>;
+  });
 
 const defaultConfig = {
   prefetchCount: 10,
@@ -363,7 +363,7 @@ export class AmqpConnection {
             msgOptions.errorHandler ||
             getHandlerForLegacyBehavior(
               msgOptions.errorBehavior ||
-                this.config.defaultSubscribeErrorBehavior
+              this.config.defaultSubscribeErrorBehavior
             );
 
           await errorHandler(channel, msg, e);
@@ -438,7 +438,7 @@ export class AmqpConnection {
             rpcOptions.errorHandler ||
             getHandlerForLegacyBehavior(
               rpcOptions.errorBehavior ||
-                this.config.defaultSubscribeErrorBehavior
+              this.config.defaultSubscribeErrorBehavior
             );
 
           await errorHandler(channel, msg, e);
@@ -611,8 +611,20 @@ export class AmqpConnection {
     this._consumers.push(consumer);
   }
 
+  private unregisterConsumerForQueue<T, U>(consumerTag: string) {
+    const idx = this._consumers.indexOf(consumerTag)
+    if (idx === -1) {
+      return;
+    }
+    this._consumers.splice(idx, 1);
+  }
+
+  private getConsumerIdx(consumerTag: string) {
+    return this._consumers.findIndex((x) => x.consumerTag === consumerTag)
+  }
+
   private getConsumer(consumerTag: string) {
-    const idx = this._consumers.findIndex((x) => x.consumerTag === consumerTag);
+    const idx = this.getConsumerIdx(consumerTag);
     return this._consumers[idx];
   }
 
@@ -623,18 +635,19 @@ export class AmqpConnection {
     }
   }
 
-  public resumeConsumer(consumerTag: string) {
+  public async resumeConsumer(consumerTag: string) {
     const consumer = this.getConsumer(consumerTag);
-    return consumer.type === 'rpc'
+    await consumer.type === 'rpc'
       ? this.setupRpcChannel(
-          consumer.handler,
-          consumer.rpcOptions,
-          consumer.channel
-        )
+        consumer.handler,
+        consumer.rpcOptions,
+        consumer.channel
+      )
       : this.setupSubscriberChannel(
-          consumer.handler,
-          consumer.msgOptions,
-          consumer.channel
-        );
+        consumer.handler,
+        consumer.msgOptions,
+        consumer.channel
+      );
+    this.unregisterConsumerForQueue(consumerTag);
   }
 }
