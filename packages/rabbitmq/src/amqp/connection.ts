@@ -62,7 +62,7 @@ type ConsumerHandler<T, U> =
     handler: (
       msg: T | undefined,
       rawMessage?: ConsumeMessage
-    ) => Promise<RpcResponse<U | undefined>>;
+    ) => Promise<RpcResponse<U>>;
   });
 
 const defaultConfig = {
@@ -101,7 +101,7 @@ export class AmqpConnection {
   private _channels: Record<string, Channel> = {};
   private _connection?: Connection;
 
-  private _consumers: ConsumerHandler[] = [];
+  private _consumers: ConsumerHandler<unknown, unknown>[] = [];
 
   private readonly config: Required<RabbitMQConfig>;
 
@@ -608,14 +608,15 @@ export class AmqpConnection {
   }
 
   private registerConsumerForQueue<T, U>(consumer: ConsumerHandler<T, U>) {
-    this._consumers.push(consumer);
+    const consumers = this._consumers as ConsumerHandler<T, U>[]
+    consumers.push(consumer);
   }
 
   private getConsumerIdx(consumerTag: string) {
     return this._consumers.findIndex((x) => x.consumerTag === consumerTag)
   }
 
-  private unregisterConsumerForQueue<T, U>(consumerTag: string) {
+  private unregisterConsumerForQueue(consumerTag: string) {
     const idx = this.getConsumerIdx(consumerTag)
     if (idx === -1) {
       return;
@@ -628,27 +629,29 @@ export class AmqpConnection {
     return this._consumers[idx];
   }
 
-  async cancelConsumer(consumerTag: string) {
+  public async cancelConsumer(consumerTag: string) {
     const consumer = this.getConsumer(consumerTag);
     if (consumer && consumer.channel) {
       await consumer.channel.cancel(consumerTag);
     }
   }
 
-  public async resumeConsumer(consumerTag: string) {
-    const consumer = this.getConsumer(consumerTag);
+  public async resumeConsumer<T, U>(consumerTag: string) {
+    const consumer = this.getConsumer(consumerTag) as ConsumerHandler<T, U>;
     if (consumer) {
-      await consumer.type === 'rpc'
-        ? this.setupRpcChannel(
+      if (consumer.type === 'rpc') {
+        await this.setupRpcChannel<T, U>(
           consumer.handler,
           consumer.rpcOptions,
           consumer.channel
         )
-        : this.setupSubscriberChannel(
+      } else {
+        await this.setupSubscriberChannel<T>(
           consumer.handler,
           consumer.msgOptions,
           consumer.channel
-        );
+        )
+      }
       // A new consumerTag was created, remove old
       this.unregisterConsumerForQueue(consumerTag);
     }
