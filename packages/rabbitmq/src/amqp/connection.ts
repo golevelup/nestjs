@@ -637,18 +637,20 @@ export class AmqpConnection {
 
   public async resumeConsumer(consumerTag: string) {
     const consumer = this.getConsumer(consumerTag);
-    await consumer.type === 'rpc'
-      ? this.setupRpcChannel(
-        consumer.handler,
-        consumer.rpcOptions,
-        consumer.channel
-      )
-      : this.setupSubscriberChannel(
-        consumer.handler,
-        consumer.msgOptions,
-        consumer.channel
-      );
-    // A new consumerTag was created, remove old
-    this.unregisterConsumerForQueue(consumerTag);
+    if (consumer) {
+      await consumer.type === 'rpc'
+        ? this.setupRpcChannel(
+          consumer.handler,
+          consumer.rpcOptions,
+          consumer.channel
+        )
+        : this.setupSubscriberChannel(
+          consumer.handler,
+          consumer.msgOptions,
+          consumer.channel
+        );
+      // A new consumerTag was created, remove old
+      this.unregisterConsumerForQueue(consumerTag);
+    }
   }
 }
