@@ -611,16 +611,16 @@ export class AmqpConnection {
     this._consumers.push(consumer);
   }
 
+  private getConsumerIdx(consumerTag: string) {
+    return this._consumers.findIndex((x) => x.consumerTag === consumerTag)
+  }
+
   private unregisterConsumerForQueue<T, U>(consumerTag: string) {
-    const idx = this._consumers.indexOf(consumerTag)
+    const idx = this.getConsumerIdx(consumerTag)
     if (idx === -1) {
       return;
     }
     this._consumers.splice(idx, 1);
-  }
-
-  private getConsumerIdx(consumerTag: string) {
-    return this._consumers.findIndex((x) => x.consumerTag === consumerTag)
   }
 
   private getConsumer(consumerTag: string) {
