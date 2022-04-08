@@ -648,6 +648,7 @@ export class AmqpConnection {
         consumer.msgOptions,
         consumer.channel
       );
+    // A new consumerTag was created, remove old
     this.unregisterConsumerForQueue(consumerTag);
   }
 }
