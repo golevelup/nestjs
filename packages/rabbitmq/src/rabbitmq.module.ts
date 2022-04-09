@@ -13,6 +13,7 @@ import {
 import { ExternalContextCreator } from '@nestjs/core/helpers/external-context-creator';
 import { groupBy } from 'lodash';
 import { AmqpConnection } from './amqp/connection';
+import { AmqpConnectionManager } from './amqp/connectionManager';
 import {
   RABBIT_ARGS_METADATA,
   RABBIT_CONFIG_TOKEN,
@@ -35,34 +36,50 @@ export class RabbitMQModule
     {
       providers: [
         {
+          provide: AmqpConnectionManager,
+          useFactory: async (
+            config: RabbitMQConfig
+          ): Promise<AmqpConnectionManager> => {
+            await RabbitMQModule.AmqpConnectionFactory(config);
+            return RabbitMQModule.connectionManager;
+          },
+          inject: [RABBIT_CONFIG_TOKEN],
+        },
+        {
           provide: AmqpConnection,
           useFactory: async (
             config: RabbitMQConfig
           ): Promise<AmqpConnection> => {
-            return RabbitMQModule.AmqpConnectionFactory(config);
+            return RabbitMQModule.connectionManager.getConnection(
+              config.name || 'default'
+            ) as AmqpConnection;
           },
           inject: [RABBIT_CONFIG_TOKEN],
         },
         RabbitRpcParamsFactory,
       ],
-      exports: [AmqpConnection],
+      exports: [AmqpConnectionManager, AmqpConnection],
     }
   )
   implements OnApplicationBootstrap, OnApplicationShutdown
 {
   private readonly logger = new Logger(RabbitMQModule.name);
 
+  private static connectionManager = new AmqpConnectionManager();
+  private static bootstrapped = false;
+
   constructor(
     private readonly discover: DiscoveryService,
-    private readonly amqpConnection: AmqpConnection,
     private readonly externalContextCreator: ExternalContextCreator,
-    private readonly rpcParamsFactory: RabbitRpcParamsFactory
+    private readonly rpcParamsFactory: RabbitRpcParamsFactory,
+    private readonly connectionManager: AmqpConnectionManager
   ) {
     super();
   }
 
   static async AmqpConnectionFactory(config: RabbitMQConfig) {
     const connection = new AmqpConnection(config);
+    this.connectionManager.addConnection(connection);
     await connection.init();
     const logger = new Logger(RabbitMQModule.name);
     logger.log('Successfully connected to RabbitMQ');
@@ -104,86 +121,106 @@ export class RabbitMQModule
   }
 
   async onApplicationShutdown() {
-    this.logger.verbose('Closing AMQP Connection');
-    await this.amqpConnection.managedConnection.close();
+    this.logger.verbose('Closing AMQP Connections');
+
+    await Promise.all(
+      this.connectionManager
+        .getConnections()
+        .map((connection) => connection.managedConnection.close)
+    );
   }
 
+  // eslint-disable-next-line sonarjs/cognitive-complexity
   public async onApplicationBootstrap() {
-    if (!this.amqpConnection.configuration.registerHandlers) {
-      this.logger.log(
-        'Skipping RabbitMQ Handlers due to configuration. This application instance will not receive messages over RabbitMQ'
-      );
-
+    if (RabbitMQModule.bootstrapped) {
       return;
     }
+    RabbitMQModule.bootstrapped = true;
 
-    this.logger.log('Initializing RabbitMQ Handlers');
+    for (const connection of this.connectionManager.getConnections()) {
+      if (!connection.configuration.registerHandlers) {
+        this.logger.log(
+          'Skipping RabbitMQ Handlers due to configuration. This application instance will not receive messages over RabbitMQ'
+        );
 
-    let rabbitMeta =
-      await this.discover.providerMethodsWithMetaAtKey<RabbitHandlerConfig>(
-        RABBIT_HANDLER
-      );
+        continue;
+      }
 
-    if (this.amqpConnection.configuration.enableControllerDiscovery) {
-      this.logger.log(
-        'Searching for RabbitMQ Handlers in Controllers. You can not use NestJS HTTP-Requests in these controllers!'
-      );
-      rabbitMeta = rabbitMeta.concat(
-        await this.discover.controllerMethodsWithMetaAtKey<RabbitHandlerConfig>(
+      this.logger.log('Initializing RabbitMQ Handlers');
+
+      let rabbitMeta =
+        await this.discover.providerMethodsWithMetaAtKey<RabbitHandlerConfig>(
           RABBIT_HANDLER
-        )
+        );
+
+      if (connection.configuration.enableControllerDiscovery) {
+        this.logger.log(
+          'Searching for RabbitMQ Handlers in Controllers. You can not use NestJS HTTP-Requests in these controllers!'
+        );
+        rabbitMeta = rabbitMeta.concat(
+          await this.discover.controllerMethodsWithMetaAtKey<RabbitHandlerConfig>(
+            RABBIT_HANDLER
+          )
+        );
+      }
+
+      const grouped = groupBy(
+        rabbitMeta,
+        (x) => x.discoveredMethod.parentClass.name
       );
-    }
 
-    const grouped = groupBy(
-      rabbitMeta,
-      (x) => x.discoveredMethod.parentClass.name
-    );
+      const providerKeys = Object.keys(grouped);
 
-    const providerKeys = Object.keys(grouped);
+      for (const key of providerKeys) {
+        this.logger.log(`Registering rabbitmq handlers from ${key}`);
+        await Promise.all(
+          grouped[key].map(async ({ discoveredMethod, meta: config }) => {
+            if (
+              config.connection &&
+              config.connection !== connection.configuration.name
+            ) {
+              return;
+            }
 
-    for (const key of providerKeys) {
-      this.logger.log(`Registering rabbitmq handlers from ${key}`);
-      await Promise.all(
-        grouped[key].map(async ({ discoveredMethod, meta: config }) => {
-          const handler = this.externalContextCreator.create(
-            discoveredMethod.parentClass.instance,
-            discoveredMethod.handler,
-            discoveredMethod.methodName,
-            RABBIT_ARGS_METADATA,
-            this.rpcParamsFactory,
-            undefined,
-            undefined,
-            undefined,
-            'rmq'
-          );
-
-          const { exchange, routingKey, queue, queueOptions } = config;
-
-          const handlerDisplayName = `${discoveredMethod.parentClass.name}.${
-            discoveredMethod.methodName
-          } {${config.type}} -> ${
-            // eslint-disable-next-line sonarjs/no-nested-template-literals
-            queueOptions?.channel ? `${queueOptions.channel}::` : ''
-          }${exchange}::${routingKey}::${queue || 'amqpgen'}`;
-
-          if (
-            config.type === 'rpc' &&
-            !this.amqpConnection.configuration.enableDirectReplyTo
-          ) {
-            this.logger.warn(
-              `Direct Reply-To Functionality is disabled. RPC handler ${handlerDisplayName} will not be registered`
+            const handler = this.externalContextCreator.create(
+              discoveredMethod.parentClass.instance,
+              discoveredMethod.handler,
+              discoveredMethod.methodName,
+              RABBIT_ARGS_METADATA,
+              this.rpcParamsFactory,
+              undefined,
+              undefined,
+              undefined,
+              'rmq'
             );
-            return;
-          }
 
-          this.logger.log(handlerDisplayName);
+            const { exchange, routingKey, queue, queueOptions } = config;
 
-          return config.type === 'rpc'
-            ? this.amqpConnection.createRpc(handler, config)
-            : this.amqpConnection.createSubscriber(handler, config);
-        })
-      );
+            const handlerDisplayName = `${discoveredMethod.parentClass.name}.${
+              discoveredMethod.methodName
+            } {${config.type}} -> ${
+              // eslint-disable-next-line sonarjs/no-nested-template-literals
+              queueOptions?.channel ? `${queueOptions.channel}::` : ''
+            }${exchange}::${routingKey}::${queue || 'amqpgen'}`;
+
+            if (
+              config.type === 'rpc' &&
+              !connection.configuration.enableDirectReplyTo
+            ) {
+              this.logger.warn(
+                `Direct Reply-To Functionality is disabled. RPC handler ${handlerDisplayName} will not be registered`
+              );
+              return;
+            }
+
+            this.logger.log(handlerDisplayName);
+
+            return config.type === 'rpc'
+              ? connection.createRpc(handler, config)
+              : connection.createSubscriber(handler, config);
+          })
+        );
+      }
     }
   }
 }

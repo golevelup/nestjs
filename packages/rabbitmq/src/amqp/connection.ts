@@ -43,6 +43,7 @@ export interface CorrelationMessage {
 }
 
 const defaultConfig = {
+  name: 'default',
   prefetchCount: 10,
   defaultExchangeType: 'topic',
   defaultRpcErrorBehavior: MessageHandlerErrorBehavior.REQUEUE,
@@ -113,6 +114,10 @@ export class AmqpConnection {
     return this._managedChannels;
   }
 
+  get connected() {
+    return this._managedConnection.isConnected();
+  }
+
   public async init(): Promise<void> {
     const options: Required<ConnectionInitOptions> = {
       ...defaultConfig.connectionInitOptions,
@@ -143,7 +148,9 @@ export class AmqpConnection {
   }
 
   private async initCore(): Promise<void> {
-    this.logger.log('Trying to connect to a RabbitMQ broker');
+    this.logger.log(
+      `Trying to connect to RabbitMQ broker (${this.config.name})`
+    );
 
     this._managedConnection = connect(
       Array.isArray(this.config.uri) ? this.config.uri : [this.config.uri],
@@ -152,11 +159,16 @@ export class AmqpConnection {
 
     this._managedConnection.on('connect', ({ connection }) => {
       this._connection = connection;
-      this.logger.log('Successfully connected to a RabbitMQ broker');
+      this.logger.log(
+        `Successfully connected to RabbitMQ broker (${this.config.name})`
+      );
     });
 
     this._managedConnection.on('disconnect', ({ err }) => {
-      this.logger.error('Disconnected from RabbitMQ broker', err?.stack);
+      this.logger.error(
+        `Disconnected from RabbitMQ broker (${this.config.name})`,
+        err?.stack
+      );
     });
 
     const defaultChannel: { name: string; config: RabbitMQChannelConfig } = {

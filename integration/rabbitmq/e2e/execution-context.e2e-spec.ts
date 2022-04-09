@@ -10,8 +10,8 @@ import { Test } from '@nestjs/testing';
 
 const interceptorHandler = jest.fn();
 
-const exchange = 'contextExchange';
-const queue = 'contextQueue';
+const exchange = 'executionContextExchange';
+const queue = 'executionContextQueue';
 
 @Injectable()
 class TestInterceptor implements NestInterceptor {
