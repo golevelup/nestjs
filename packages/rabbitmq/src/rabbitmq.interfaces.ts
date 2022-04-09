@@ -51,6 +51,7 @@ export interface QueueOptions {
 }
 
 export interface MessageHandlerOptions {
+  connection?: string;
   exchange?: string;
   routingKey?: string | string[];
   queue?: string;
@@ -81,6 +82,7 @@ export interface ConnectionInitOptions {
 export type RabbitMQChannels = Record<string, RabbitMQChannelConfig>;
 
 export interface RabbitMQConfig {
+  name?: string;
   uri: string | string[];
   /**
    * Now specifies the default prefetch count for all channels.
