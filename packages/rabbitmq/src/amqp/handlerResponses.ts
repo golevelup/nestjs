@@ -7,4 +7,4 @@ export class Nack {
 }
 
 export type RpcResponse<T> = T | Nack;
-export type SubscribeResponse = Nack | undefined;
+export type SubscribeResponse = Nack | undefined | void;

@@ -9,8 +9,8 @@ import { Test } from '@nestjs/testing';
 
 const validRmqTypeHandler = jest.fn();
 
-const exchange = 'contextExchange';
-const queue = 'contextQueue';
+const exchange = 'rmqContextExchange';
+const queue = 'rmqContextQueue';
 
 @Injectable()
 class TestInterceptor implements NestInterceptor {
