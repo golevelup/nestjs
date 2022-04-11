@@ -153,7 +153,7 @@ describe('Module Configuration', () => {
 
       expect(app).toBeDefined();
 
-      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalled();
     });
   });
 });
