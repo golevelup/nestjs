@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.3](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-hasura@2.0.2...@golevelup/nestjs-hasura@2.0.3) (2022-04-18)
+
+**Note:** Version bump only for package @golevelup/nestjs-hasura
+
 ## [2.0.2](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-hasura@2.0.1...@golevelup/nestjs-hasura@2.0.2) (2022-02-04)
 
 ### Bug Fixes

@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.3.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@2.2.0...@golevelup/nestjs-rabbitmq@2.3.0) (2022-04-18)
+
+### Bug Fixes
+
+- **rabbitmq:** add void to types of SubscribeResponse ([#407](https://github.com/golevelup/nestjs/issues/407)) ([18ca799](https://github.com/golevelup/nestjs/commit/18ca7996ca66d9681ff763658cfc5256f9d26405)), closes [#396](https://github.com/golevelup/nestjs/issues/396)
+
+### Features
+
+- **rabbitmq:** add support for multiple named connections ([532e2b9](https://github.com/golevelup/nestjs/commit/532e2b9a134d8a27ef6af36c2a71fab7e95c133d))
+
 # [2.2.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@2.1.1...@golevelup/nestjs-rabbitmq@2.2.0) (2022-02-09)
 
 ### Features
