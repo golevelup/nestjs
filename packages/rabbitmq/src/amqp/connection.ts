@@ -1,4 +1,4 @@
-import { Logger } from '@nestjs/common';
+import { Logger, LoggerService } from '@nestjs/common';
 import {
   ChannelWrapper,
   AmqpConnectionManager,
@@ -64,7 +64,7 @@ const defaultConfig = {
 
 export class AmqpConnection {
   private readonly messageSubject = new Subject<CorrelationMessage>();
-  private readonly logger;
+  private readonly logger: LoggerService;
   private readonly initialized = new Subject<void>();
   private _managedConnection!: AmqpConnectionManager;
   /**
