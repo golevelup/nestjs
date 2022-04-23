@@ -37,6 +37,7 @@ import { Nack, RpcResponse, SubscribeResponse } from './handlerResponses';
 
 const DIRECT_REPLY_QUEUE = 'amq.rabbitmq.reply-to';
 
+type ConsumerTag = string;
 export interface CorrelationMessage {
   correlationId: string;
   message: Record<string, unknown>;
@@ -49,21 +50,21 @@ type BaseConsumerHandler = {
 
 type ConsumerHandler<T, U> =
   | (BaseConsumerHandler & {
-    type: 'subscribe';
-    msgOptions: MessageHandlerOptions;
-    handler: (
-      msg: T | undefined,
-      rawMessage?: ConsumeMessage
-    ) => Promise<SubscribeResponse>;
-  })
+      type: 'subscribe';
+      msgOptions: MessageHandlerOptions;
+      handler: (
+        msg: T | undefined,
+        rawMessage?: ConsumeMessage
+      ) => Promise<SubscribeResponse>;
+    })
   | (BaseConsumerHandler & {
-    type: 'rpc';
-    rpcOptions: MessageHandlerOptions;
-    handler: (
-      msg: T | undefined,
-      rawMessage?: ConsumeMessage
-    ) => Promise<RpcResponse<U>>;
-  });
+      type: 'rpc';
+      rpcOptions: MessageHandlerOptions;
+      handler: (
+        msg: T | undefined,
+        rawMessage?: ConsumeMessage
+      ) => Promise<RpcResponse<U>>;
+    });
 
 const defaultConfig = {
   name: 'default',
@@ -102,7 +103,8 @@ export class AmqpConnection {
   private _channels: Record<string, Channel> = {};
   private _connection?: Connection;
 
-  private _consumers: ConsumerHandler<unknown, unknown>[] = [];
+  private _consumers: Record<ConsumerTag, ConsumerHandler<unknown, unknown>> =
+    {};
 
   private readonly config: Required<RabbitMQConfig>;
 
@@ -381,7 +383,7 @@ export class AmqpConnection {
             msgOptions.errorHandler ||
             getHandlerForLegacyBehavior(
               msgOptions.errorBehavior ||
-              this.config.defaultSubscribeErrorBehavior
+                this.config.defaultSubscribeErrorBehavior
             );
 
           await errorHandler(channel, msg, e);
@@ -456,7 +458,7 @@ export class AmqpConnection {
             rpcOptions.errorHandler ||
             getHandlerForLegacyBehavior(
               rpcOptions.errorBehavior ||
-              this.config.defaultSubscribeErrorBehavior
+                this.config.defaultSubscribeErrorBehavior
             );
 
           await errorHandler(channel, msg, e);
@@ -626,35 +628,27 @@ export class AmqpConnection {
   }
 
   private registerConsumerForQueue<T, U>(consumer: ConsumerHandler<T, U>) {
-    const consumers = this._consumers as ConsumerHandler<T, U>[]
-    consumers.push(consumer);
+    (this._consumers as Record<ConsumerTag, ConsumerHandler<T, U>>)[
+      consumer.consumerTag
+    ] = consumer;
   }
 
-  private getConsumerIdx(consumerTag: string) {
-    return this._consumers.findIndex((x) => x.consumerTag === consumerTag)
+  private unregisterConsumerForQueue(consumerTag: ConsumerTag) {
+    delete this._consumers[consumerTag];
   }
 
-  private unregisterConsumerForQueue(consumerTag: string) {
-    const idx = this.getConsumerIdx(consumerTag)
-    if (idx === -1) {
-      return;
-    }
-    this._consumers.splice(idx, 1);
+  private getConsumer(consumerTag: ConsumerTag) {
+    return this._consumers[consumerTag];
   }
 
-  private getConsumer(consumerTag: string) {
-    const idx = this.getConsumerIdx(consumerTag);
-    return this._consumers[idx];
-  }
-
-  public async cancelConsumer(consumerTag: string) {
+  public async cancelConsumer(consumerTag: ConsumerTag) {
     const consumer = this.getConsumer(consumerTag);
     if (consumer && consumer.channel) {
       await consumer.channel.cancel(consumerTag);
     }
   }
 
-  public async resumeConsumer<T, U>(consumerTag: string) {
+  public async resumeConsumer<T, U>(consumerTag: ConsumerTag) {
     const consumer = this.getConsumer(consumerTag) as ConsumerHandler<T, U>;
     if (consumer) {
       if (consumer.type === 'rpc') {
@@ -662,13 +656,13 @@ export class AmqpConnection {
           consumer.handler,
           consumer.rpcOptions,
           consumer.channel
-        )
+        );
       } else {
         await this.setupSubscriberChannel<T>(
           consumer.handler,
           consumer.msgOptions,
           consumer.channel
-        )
+        );
       }
       // A new consumerTag was created, remove old
       this.unregisterConsumerForQueue(consumerTag);
