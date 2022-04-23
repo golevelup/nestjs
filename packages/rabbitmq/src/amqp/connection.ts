@@ -34,8 +34,14 @@ import {
   MessageHandlerErrorBehavior,
 } from './errorBehaviors';
 import { Nack, RpcResponse, SubscribeResponse } from './handlerResponses';
+import { isNull } from 'lodash';
 
 const DIRECT_REPLY_QUEUE = 'amq.rabbitmq.reply-to';
+
+export type SubscriberHandler<T = unknown> = (
+  msg: T | undefined,
+  rawMessage?: ConsumeMessage
+) => Promise<SubscribeResponse>;
 
 export interface CorrelationMessage {
   correlationId: string;
@@ -300,32 +306,33 @@ export class AmqpConnection {
   }
 
   public async createSubscriber<T>(
-    handler: (
-      msg: T | undefined,
-      rawMessage?: ConsumeMessage
-    ) => Promise<SubscribeResponse>,
-    msgOptions: MessageHandlerOptions
+    handler: SubscriberHandler<T>,
+    msgOptions: MessageHandlerOptions,
+    originalHandlerName: string
   ) {
     return this.selectManagedChannel(
       msgOptions?.queueOptions?.channel
     ).addSetup((channel) =>
-      this.setupSubscriberChannel<T>(handler, msgOptions, channel)
+      this.setupSubscriberChannel<T>(
+        handler,
+        msgOptions,
+        channel,
+        originalHandlerName
+      )
     );
   }
 
   private async setupSubscriberChannel<T>(
-    handler: (
-      msg: T | undefined,
-      rawMessage?: ConsumeMessage
-    ) => Promise<SubscribeResponse>,
+    handler: SubscriberHandler<T>,
     msgOptions: MessageHandlerOptions,
-    channel: ConfirmChannel
+    channel: ConfirmChannel,
+    originalHandlerName: string
   ): Promise<void> {
     const queue = await this.setupQueue(msgOptions, channel);
 
     await channel.consume(queue, async (msg) => {
       try {
-        if (msg == null) {
+        if (isNull(msg)) {
           throw new Error('Received null message');
         }
 
@@ -340,15 +347,19 @@ export class AmqpConnection {
           return;
         }
 
+        // developers should be responsible to avoid subscribers that return therefore
+        // the request will be acknowledged
         if (response) {
-          throw new Error(
-            'Received response from subscribe handler. Subscribe handlers should only return void'
+          this.logger.warn(
+            `Received response: [${JSON.stringify(
+              response
+            )}] from subscribe handler [${originalHandlerName}]. Subscribe handlers should only return void`
           );
         }
 
         channel.ack(msg);
       } catch (e) {
-        if (msg == null) {
+        if (isNull(msg)) {
           return;
         } else {
           const errorHandler =
@@ -431,7 +442,7 @@ export class AmqpConnection {
     });
   }
 
-  public async publish(
+  public publish(
     exchange: string,
     routingKey: string,
     message: any,

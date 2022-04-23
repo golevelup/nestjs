@@ -3,14 +3,15 @@ import {
   RabbitMQModule,
   RabbitSubscribe,
 } from '@golevelup/nestjs-rabbitmq';
-import { INestApplication, Injectable } from '@nestjs/common';
+import { INestApplication, Injectable, LoggerService } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { flatten, times } from 'lodash';
+import { createMock } from '@golevelup/ts-jest';
 
 const testHandler = jest.fn();
 
 const amqDefaultExchange = '';
-const exchange = 'testSubscribeExhange';
+const exchange = 'testSubscribeExchange';
 const routingKey1 = 'testSubscribeRoute1';
 const routingKey2 = 'testSubscribeRoute2';
 const nonJsonRoutingKey = 'nonJsonSubscribeRoute';
@@ -98,15 +99,24 @@ class SubscribeService {
 
   @RabbitSubscribe({ exchange: FANOUT, routingKey: '' })
   emptyRoutingKey(message: any) {
-    // tslint:disable-next-line:no-console
-    console.log('received message from empty routing key');
     fanoutHandler(message);
+  }
+
+  @RabbitSubscribe({
+    exchange,
+    routingKey: 'infinite-loop',
+  })
+  subscriberThatReturns() {
+    return Promise.resolve(true);
   }
 }
 
 describe('Rabbit Subscribe', () => {
   let app: INestApplication;
   let amqpConnection: AmqpConnection;
+  const customLogger = createMock<LoggerService>({
+    warn: jest.fn(),
+  });
 
   const rabbitHost =
     process.env.NODE_ENV === 'ci' ? process.env.RABBITMQ_HOST : 'localhost';
@@ -131,6 +141,7 @@ describe('Rabbit Subscribe', () => {
           ],
           uri,
           connectionInitOptions: { wait: true, reject: true, timeout: 3000 },
+          logger: customLogger,
         }),
       ],
     }).compile();
@@ -232,5 +243,18 @@ describe('Rabbit Subscribe', () => {
 
     expect(fanoutHandler).toHaveBeenCalledTimes(1);
     expect(fanoutHandler).toHaveBeenCalledWith(message);
+  });
+
+  it('should go into infite lopo', async () => {
+    const message = '{"key":"value"}';
+    // tslint:disable-next-line:no-console
+    // publish and expect to acknowledge but not throw
+    const warnSpy = jest.spyOn(customLogger, 'warn');
+    amqpConnection.publish(exchange, 'infinite-loop', message);
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringContaining('Subscribe handlers should only return void'),
+    );
   });
 });
