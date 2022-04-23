@@ -38,6 +38,8 @@ import { isNull } from 'lodash';
 
 const DIRECT_REPLY_QUEUE = 'amq.rabbitmq.reply-to';
 
+export type ConsumerTag = string;
+
 export type SubscriberHandler<T = unknown> = (
   msg: T | undefined,
   rawMessage?: ConsumeMessage
@@ -47,6 +49,29 @@ export interface CorrelationMessage {
   correlationId: string;
   message: Record<string, unknown>;
 }
+
+export type BaseConsumerHandler = {
+  consumerTag: string;
+  channel: ConfirmChannel;
+};
+
+export type ConsumerHandler<T, U> =
+  | (BaseConsumerHandler & {
+      type: 'subscribe';
+      msgOptions: MessageHandlerOptions;
+      handler: (
+        msg: T | undefined,
+        rawMessage?: ConsumeMessage
+      ) => Promise<SubscribeResponse>;
+    })
+  | (BaseConsumerHandler & {
+      type: 'rpc';
+      rpcOptions: MessageHandlerOptions;
+      handler: (
+        msg: T | undefined,
+        rawMessage?: ConsumeMessage
+      ) => Promise<RpcResponse<U>>;
+    });
 
 const defaultConfig = {
   name: 'default',
@@ -84,6 +109,10 @@ export class AmqpConnection {
   private _channel!: Channel;
   private _channels: Record<string, Channel> = {};
   private _connection?: Connection;
+
+  private _consumers: Record<ConsumerTag, ConsumerHandler<unknown, unknown>> =
+    {};
+
   private readonly config: Required<RabbitMQConfig>;
 
   constructor(config: RabbitMQConfig) {
@@ -326,11 +355,11 @@ export class AmqpConnection {
     handler: SubscriberHandler<T>,
     msgOptions: MessageHandlerOptions,
     channel: ConfirmChannel,
-    originalHandlerName: string
+    originalHandlerName = 'unknown'
   ): Promise<void> {
     const queue = await this.setupQueue(msgOptions, channel);
 
-    await channel.consume(queue, async (msg) => {
+    const { consumerTag } = await channel.consume(queue, async (msg) => {
       try {
         if (isNull(msg)) {
           throw new Error('Received null message');
@@ -373,6 +402,14 @@ export class AmqpConnection {
         }
       }
     });
+
+    this.registerConsumerForQueue({
+      type: 'subscribe',
+      consumerTag,
+      handler,
+      msgOptions,
+      channel,
+    });
   }
 
   public async createRpc<T, U>(
@@ -399,7 +436,7 @@ export class AmqpConnection {
   ) {
     const queue = await this.setupQueue(rpcOptions, channel);
 
-    await channel.consume(queue, async (msg) => {
+    const { consumerTag } = await channel.consume(queue, async (msg) => {
       try {
         if (msg == null) {
           throw new Error('Received null message');
@@ -439,6 +476,14 @@ export class AmqpConnection {
           await errorHandler(channel, msg, e);
         }
       }
+    });
+
+    this.registerConsumerForQueue({
+      type: 'rpc',
+      consumerTag,
+      handler,
+      rpcOptions,
+      channel,
     });
   }
 
@@ -592,5 +637,47 @@ export class AmqpConnection {
       return this._managedChannel;
     }
     return channel;
+  }
+
+  private registerConsumerForQueue<T, U>(consumer: ConsumerHandler<T, U>) {
+    (this._consumers as Record<ConsumerTag, ConsumerHandler<T, U>>)[
+      consumer.consumerTag
+    ] = consumer;
+  }
+
+  private unregisterConsumerForQueue(consumerTag: ConsumerTag) {
+    delete this._consumers[consumerTag];
+  }
+
+  private getConsumer(consumerTag: ConsumerTag) {
+    return this._consumers[consumerTag];
+  }
+
+  public async cancelConsumer(consumerTag: ConsumerTag) {
+    const consumer = this.getConsumer(consumerTag);
+    if (consumer && consumer.channel) {
+      await consumer.channel.cancel(consumerTag);
+    }
+  }
+
+  public async resumeConsumer<T, U>(consumerTag: ConsumerTag) {
+    const consumer = this.getConsumer(consumerTag) as ConsumerHandler<T, U>;
+    if (consumer) {
+      if (consumer.type === 'rpc') {
+        await this.setupRpcChannel<T, U>(
+          consumer.handler,
+          consumer.rpcOptions,
+          consumer.channel
+        );
+      } else {
+        await this.setupSubscriberChannel<T>(
+          consumer.handler,
+          consumer.msgOptions,
+          consumer.channel
+        );
+      }
+      // A new consumerTag was created, remove old
+      this.unregisterConsumerForQueue(consumerTag);
+    }
   }
 }
