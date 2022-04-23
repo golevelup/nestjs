@@ -217,7 +217,11 @@ export class RabbitMQModule
 
             return config.type === 'rpc'
               ? connection.createRpc(handler, config)
-              : connection.createSubscriber(handler, config);
+              : connection.createSubscriber(
+                  handler,
+                  config,
+                  discoveredMethod.methodName
+                );
           })
         );
       }
