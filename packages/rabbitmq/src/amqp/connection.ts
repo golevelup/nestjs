@@ -37,18 +37,18 @@ import { Nack, RpcResponse, SubscribeResponse } from './handlerResponses';
 
 const DIRECT_REPLY_QUEUE = 'amq.rabbitmq.reply-to';
 
-type ConsumerTag = string;
+export type ConsumerTag = string;
 export interface CorrelationMessage {
   correlationId: string;
   message: Record<string, unknown>;
 }
 
-type BaseConsumerHandler = {
+export type BaseConsumerHandler = {
   consumerTag: string;
   channel: ConfirmChannel;
 };
 
-type ConsumerHandler<T, U> =
+export type ConsumerHandler<T, U> =
   | (BaseConsumerHandler & {
       type: 'subscribe';
       msgOptions: MessageHandlerOptions;
