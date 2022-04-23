@@ -16,9 +16,9 @@
     "stripe": "^8.39.0"
   },
   "devDependencies": {
-    "@commitlint/cli": "^7.5.2",
-    "@commitlint/config-conventional": "^7.5.0",
-    "@commitlint/prompt": "^7.5.0",
+    "@commitlint/cli": "^16.2.3",
+    "@commitlint/config-conventional": "^16.2.1",
+    "@commitlint/prompt": "^16.2.3",
     "@nestjs/testing": "^8.4.4",
     "@types/express": "^4.17.13",
     "@types/jest": "^27.0.3",
@@ -29,7 +29,7 @@
     "@typescript-eslint/parser": "^5.6.0",
     "all-contributors-cli": "^6.20.0",
     "commitizen": "^3.0.7",
-    "cz-conventional-changelog": "^2.1.0",
+    "cz-conventional-changelog": "^3.3.0",
     "eslint": "^8.4.1",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",
