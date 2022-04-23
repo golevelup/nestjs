@@ -81,13 +81,13 @@ export class RabbitMQModule
     const connection = new AmqpConnection(config);
     this.connectionManager.addConnection(connection);
     await connection.init();
-    const logger = new Logger(RabbitMQModule.name);
+    const logger = config.logger || new Logger(RabbitMQModule.name);
     logger.log('Successfully connected to RabbitMQ');
     return connection;
   }
 
   public static build(config: RabbitMQConfig): DynamicModule {
-    const logger = new Logger(RabbitMQModule.name);
+    const logger = config.logger || new Logger(RabbitMQModule.name);
     logger.warn(
       'build() is deprecated. use forRoot() or forRootAsync() to configure RabbitMQ'
     );
