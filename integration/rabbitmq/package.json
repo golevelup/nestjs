@@ -23,7 +23,7 @@
     "rimraf": "2.6.3"
   },
   "devDependencies": {
-    "@nestjs/testing": "8.2.3",
+    "@nestjs/testing": "^8.4.4",
     "@types/express": "4.17.13",
     "@types/jest": "27.0.3",
     "@types/node": "12.12.31",
