@@ -38,7 +38,6 @@ import { isNull } from 'lodash';
 
 const DIRECT_REPLY_QUEUE = 'amq.rabbitmq.reply-to';
 
-
 export type ConsumerTag = string;
 
 export type SubscriberHandler<T = unknown> = (
@@ -356,7 +355,7 @@ export class AmqpConnection {
     handler: SubscriberHandler<T>,
     msgOptions: MessageHandlerOptions,
     channel: ConfirmChannel,
-    originalHandlerName: string
+    originalHandlerName = 'unknown'
   ): Promise<void> {
     const queue = await this.setupQueue(msgOptions, channel);
 
