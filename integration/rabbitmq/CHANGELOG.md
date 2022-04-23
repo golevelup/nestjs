@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.3.0](https://github.com/golevelup/nestjs/compare/rabbitmq-integration@2.2.0...rabbitmq-integration@2.3.0) (2022-04-18)
+
+### Features
+
+- **rabbitmq:** add support for multiple named connections ([532e2b9](https://github.com/golevelup/nestjs/commit/532e2b9a134d8a27ef6af36c2a71fab7e95c133d))
+
 # [2.2.0](https://github.com/golevelup/nestjs/compare/rabbitmq-integration@2.1.0...rabbitmq-integration@2.2.0) (2022-02-09)
 
 ### Features

@@ -1,3 +1,4 @@
+import { LoggerService } from '@nestjs/common';
 import { AmqpConnectionManagerOptions } from 'amqp-connection-manager';
 import { Options } from 'amqplib';
 import {
@@ -50,6 +51,7 @@ export interface QueueOptions {
 }
 
 export interface MessageHandlerOptions {
+  connection?: string;
   exchange?: string;
   routingKey?: string | string[];
   queue?: string;
@@ -80,6 +82,7 @@ export interface ConnectionInitOptions {
 export type RabbitMQChannels = Record<string, RabbitMQChannelConfig>;
 
 export interface RabbitMQConfig {
+  name?: string;
   uri: string | string[];
   /**
    * Now specifies the default prefetch count for all channels.
@@ -101,6 +104,11 @@ export interface RabbitMQConfig {
    * By setting `prefetchCount` for a channel, you can manage message speeds of your various handlers on the same connection.
    */
   channels?: RabbitMQChannels;
+
+  /**
+   * You can pass your implementation of the Nestjs LoggerService.
+   */
+  logger?: LoggerService;
 }
 
 export type RabbitHandlerType = 'rpc' | 'subscribe';
