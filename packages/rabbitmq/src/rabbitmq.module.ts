@@ -50,13 +50,6 @@ export class RabbitMQModule
           useFactory: async (
             config: RabbitMQConfig
           ): Promise<AmqpConnection> => {
-            if (
-              !RabbitMQModule.connectionManager.getConnection(
-                config.name || 'default'
-              )
-            ) {
-              console.error('this should not be undefined !');
-            }
             return RabbitMQModule.connectionManager.getConnection(
               config.name || 'default'
             ) as AmqpConnection;

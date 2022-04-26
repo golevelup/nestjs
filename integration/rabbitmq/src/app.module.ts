@@ -2,6 +2,7 @@ import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { ControllerDiscoveryModule } from './controller-discovery/controller-discovery.module';
+import { NamedConnectionModule } from './named-connection/named-connection.module';
 import { RpcService } from './rpc/rpc.service';
 
 const rabbitHost =
@@ -11,8 +12,23 @@ const rabbitPort =
 const uri = `amqp://rabbitmq:rabbitmq@${rabbitHost}:${rabbitPort}`;
 
 @Module({
-  imports: [ControllerDiscoveryModule],
-  controllers: [],
-  providers: [],
+  imports: [
+    RabbitMQModule.forRootAsync(RabbitMQModule, {
+      useFactory: () => ({
+        exchanges: [
+          {
+            name: 'exchange1',
+            type: 'topic',
+          },
+        ],
+        uri,
+        connectionInitOptions: { wait: true, reject: true, timeout: 3000 },
+      }),
+    }),
+    ControllerDiscoveryModule,
+    NamedConnectionModule,
+  ],
+  controllers: [AppController],
+  providers: [RpcService],
 })
 export class AppModule {}
