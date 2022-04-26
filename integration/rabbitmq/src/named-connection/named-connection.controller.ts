@@ -16,7 +16,7 @@ import { TransformInterceptor } from '../transform.interceptor';
 import { RpcException } from '../rpc/rpc-exception';
 import { DenyGuard } from '../deny.guard';
 import { ValidationPipe } from '../validation.pipe';
-import { CONNECTION_NAME } from './named-connection.constants';
+import { CONNECTION_NAME, PREFIX } from './named-connection.constants';
 
 @Controller('named-connection')
 export class NamedConnectionController {
@@ -31,7 +31,7 @@ export class NamedConnectionController {
     return 'Hello World!';
   }
 
-  @Get('rpc')
+  @Get(`${PREFIX}-rpc`)
   async getRpc() {
     return this.amqpConnection.request({
       exchange: 'exchange3',
@@ -41,9 +41,9 @@ export class NamedConnectionController {
 
   @RabbitRPC({
     connection: CONNECTION_NAME,
-    routingKey: 'rpc-2',
-    exchange: 'exchange2',
-    queue: 'rpc-2',
+    routingKey: `${PREFIX}-rpc`,
+    exchange: `${PREFIX}-exchange`,
+    queue: `${PREFIX}-rpc`,
   })
   rpc(message: object) {
     return {
@@ -53,9 +53,9 @@ export class NamedConnectionController {
 
   @RabbitRPC({
     connection: CONNECTION_NAME,
-    routingKey: 'intercepted-rpc-2',
-    exchange: 'exchange2',
-    queue: 'intercepted-rpc-2',
+    routingKey: `${PREFIX}-intercepted-rpc`,
+    exchange: `${PREFIX}-exchange`,
+    queue: `${PREFIX}-intercepted-rpc`,
   })
   @UseInterceptors(TransformInterceptor)
   interceptedRpc() {
@@ -66,9 +66,9 @@ export class NamedConnectionController {
 
   @RabbitRPC({
     connection: CONNECTION_NAME,
-    routingKey: 'piped-rpc-2',
-    exchange: 'exchange3',
-    queue: 'piped-rpc-2',
+    routingKey: `${PREFIX}-piped-rpc`,
+    exchange: `${PREFIX}-exchange`,
+    queue: `${PREFIX}-piped-rpc`,
     errorBehavior: MessageHandlerErrorBehavior.ACK,
     errorHandler: ReplyErrorCallback,
   })
@@ -81,9 +81,9 @@ export class NamedConnectionController {
 
   @RabbitRPC({
     connection: CONNECTION_NAME,
-    routingKey: 'piped-param-rpc-2',
-    exchange: 'exchange3',
-    queue: 'piped-param-rpc-2',
+    routingKey: `${PREFIX}-piped-param-rpc`,
+    exchange: `${PREFIX}-exchange`,
+    queue: `${PREFIX}-piped-param-rpc`,
     errorBehavior: MessageHandlerErrorBehavior.ACK,
     errorHandler: ReplyErrorCallback,
   })
@@ -96,9 +96,9 @@ export class NamedConnectionController {
 
   @RabbitRPC({
     connection: CONNECTION_NAME,
-    routingKey: 'guarded-rpc-2',
-    exchange: 'exchange3',
-    queue: 'guarded-rpc-2',
+    routingKey: `${PREFIX}-guarded-rpc`,
+    exchange: `${PREFIX}-exchange`,
+    queue: `${PREFIX}-guarded-rpc`,
     errorBehavior: MessageHandlerErrorBehavior.ACK,
     errorHandler: ReplyErrorCallback,
   })
@@ -111,9 +111,9 @@ export class NamedConnectionController {
 
   @RabbitRPC({
     connection: CONNECTION_NAME,
-    routingKey: 'error-reply-rpc-2',
-    exchange: 'exchange3',
-    queue: 'error-reply-rpc-2',
+    routingKey: `${PREFIX}-error-reply-rpc`,
+    exchange: `${PREFIX}-exchange`,
+    queue: `${PREFIX}-error-reply-rpc`,
     errorBehavior: MessageHandlerErrorBehavior.ACK,
     errorHandler: ReplyErrorCallback,
   })
@@ -123,9 +123,9 @@ export class NamedConnectionController {
 
   @RabbitRPC({
     connection: CONNECTION_NAME,
-    routingKey: 'non-json-rpc-2',
-    exchange: 'exchange3',
-    queue: 'non-json-rpc-2',
+    routingKey: `${PREFIX}-non-json-rpc`,
+    exchange: `${PREFIX}-exchange`,
+    queue: `${PREFIX}-non-json-rpc`,
     allowNonJsonMessages: true,
   })
   nonJsonRpc(nonJsonMessage: any) {

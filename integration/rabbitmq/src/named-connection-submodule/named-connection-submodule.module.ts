@@ -1,8 +1,10 @@
 import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
 import { Module } from '@nestjs/common';
-import { PREFIX } from './controller-discovery.constants';
-import { ControllerDiscoveryController } from './controller-discovery.controller';
-import { SubmoduleModule } from './submodule/submodule.module';
+import {
+  CONNECTION_NAME,
+  PREFIX,
+} from './named-connection-submodule.constants';
+import { NamedConnectionSubmoduleController } from './named-connection-submodule.controller';
 
 const rabbitHost =
   process.env.NODE_ENV === 'ci' ? process.env.RABBITMQ_HOST : 'localhost';
@@ -14,6 +16,7 @@ const uri = `amqp://rabbitmq:rabbitmq@${rabbitHost}:${rabbitPort}`;
   imports: [
     RabbitMQModule.forRootAsync(RabbitMQModule, {
       useFactory: () => ({
+        name: CONNECTION_NAME,
         exchanges: [
           {
             name: `${PREFIX}-exchange`,
@@ -22,12 +25,10 @@ const uri = `amqp://rabbitmq:rabbitmq@${rabbitHost}:${rabbitPort}`;
         ],
         uri,
         connectionInitOptions: { wait: true, reject: true, timeout: 3000 },
-        enableControllerDiscovery: true,
       }),
     }),
-    SubmoduleModule,
   ],
-  controllers: [ControllerDiscoveryController],
-  providers: [ControllerDiscoveryController],
+  controllers: [NamedConnectionSubmoduleController],
+  providers: [NamedConnectionSubmoduleController],
 })
-export class ControllerDiscoveryModule {}
+export class NamedConnectionSubmoduleModule {}

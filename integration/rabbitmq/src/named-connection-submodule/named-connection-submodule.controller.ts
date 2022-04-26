@@ -1,5 +1,6 @@
 import {
   AmqpConnection,
+  AmqpConnectionManager,
   MessageHandlerErrorBehavior,
   RabbitPayload,
   RabbitRPC,
@@ -16,11 +17,20 @@ import { TransformInterceptor } from '../transform.interceptor';
 import { RpcException } from '../rpc/rpc-exception';
 import { DenyGuard } from '../deny.guard';
 import { ValidationPipe } from '../validation.pipe';
-import { PREFIX } from './controller-discovery.constants';
+import {
+  CONNECTION_NAME,
+  PREFIX,
+} from './named-connection-submodule.constants';
 
-@Controller('controller-discovery')
-export class ControllerDiscoveryController {
-  constructor(private readonly amqpConnection: AmqpConnection) {}
+@Controller('named-connection')
+export class NamedConnectionSubmoduleController {
+  constructor(private readonly amqpConnectionManager: AmqpConnectionManager) {}
+
+  get amqpConnection() {
+    return this.amqpConnectionManager.getConnection(
+      CONNECTION_NAME,
+    ) as AmqpConnection;
+  }
 
   @Get()
   getHello(): string {
@@ -30,12 +40,13 @@ export class ControllerDiscoveryController {
   @Get(`${PREFIX}-rpc`)
   async getRpc() {
     return this.amqpConnection.request({
-      exchange: `${PREFIX}-exchange`,
-      routingKey: `${PREFIX}-rpc`,
+      exchange: 'exchange3',
+      routingKey: 'rpc-2',
     });
   }
 
   @RabbitRPC({
+    connection: CONNECTION_NAME,
     routingKey: `${PREFIX}-rpc`,
     exchange: `${PREFIX}-exchange`,
     queue: `${PREFIX}-rpc`,
@@ -47,6 +58,7 @@ export class ControllerDiscoveryController {
   }
 
   @RabbitRPC({
+    connection: CONNECTION_NAME,
     routingKey: `${PREFIX}-intercepted-rpc`,
     exchange: `${PREFIX}-exchange`,
     queue: `${PREFIX}-intercepted-rpc`,
@@ -59,6 +71,7 @@ export class ControllerDiscoveryController {
   }
 
   @RabbitRPC({
+    connection: CONNECTION_NAME,
     routingKey: `${PREFIX}-piped-rpc`,
     exchange: `${PREFIX}-exchange`,
     queue: `${PREFIX}-piped-rpc`,
@@ -73,6 +86,7 @@ export class ControllerDiscoveryController {
   }
 
   @RabbitRPC({
+    connection: CONNECTION_NAME,
     routingKey: `${PREFIX}-piped-param-rpc`,
     exchange: `${PREFIX}-exchange`,
     queue: `${PREFIX}-piped-param-rpc`,
@@ -87,6 +101,7 @@ export class ControllerDiscoveryController {
   }
 
   @RabbitRPC({
+    connection: CONNECTION_NAME,
     routingKey: `${PREFIX}-guarded-rpc`,
     exchange: `${PREFIX}-exchange`,
     queue: `${PREFIX}-guarded-rpc`,
@@ -101,6 +116,7 @@ export class ControllerDiscoveryController {
   }
 
   @RabbitRPC({
+    connection: CONNECTION_NAME,
     routingKey: `${PREFIX}-error-reply-rpc`,
     exchange: `${PREFIX}-exchange`,
     queue: `${PREFIX}-error-reply-rpc`,
@@ -112,6 +128,7 @@ export class ControllerDiscoveryController {
   }
 
   @RabbitRPC({
+    connection: CONNECTION_NAME,
     routingKey: `${PREFIX}-non-json-rpc`,
     exchange: `${PREFIX}-exchange`,
     queue: `${PREFIX}-non-json-rpc`,

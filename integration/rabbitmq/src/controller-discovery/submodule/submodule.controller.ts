@@ -14,13 +14,14 @@ import { TransformInterceptor } from '../../transform.interceptor';
 import { RpcException } from '../../rpc/rpc-exception';
 import { DenyGuard } from '../../deny.guard';
 import { ValidationPipe } from '../../validation.pipe';
+import { PREFIX } from '../controller-discovery.constants';
 
 @Controller('controller-discovery')
 export class SubmoduleController {
   @RabbitRPC({
-    routingKey: 'rpc-submodule',
-    exchange: 'exchange2',
-    queue: 'rpc-submodule',
+    routingKey: `${PREFIX}-rpc-submodule`,
+    exchange: `${PREFIX}-exchange`,
+    queue: `${PREFIX}-rpc-submodule`,
   })
   rpc(message: object) {
     return {
@@ -29,9 +30,9 @@ export class SubmoduleController {
   }
 
   @RabbitRPC({
-    routingKey: 'intercepted-rpc-submodule',
-    exchange: 'exchange2',
-    queue: 'intercepted-rpc-submodule',
+    routingKey: `${PREFIX}-intercepted-rpc-submodule`,
+    exchange: `${PREFIX}-exchange`,
+    queue: `${PREFIX}-intercepted-rpc-submodule`,
   })
   @UseInterceptors(TransformInterceptor)
   interceptedRpc() {
@@ -41,9 +42,9 @@ export class SubmoduleController {
   }
 
   @RabbitRPC({
-    routingKey: 'piped-rpc-submodule',
-    exchange: 'exchange2',
-    queue: 'piped-rpc-submodule',
+    routingKey: `${PREFIX}-piped-rpc-submodule`,
+    exchange: `${PREFIX}-exchange`,
+    queue: `${PREFIX}-piped-rpc-submodule`,
     errorBehavior: MessageHandlerErrorBehavior.ACK,
     errorHandler: ReplyErrorCallback,
   })
@@ -55,9 +56,9 @@ export class SubmoduleController {
   }
 
   @RabbitRPC({
-    routingKey: 'piped-param-rpc-submodule',
-    exchange: 'exchange2',
-    queue: 'piped-param-rpc-submodule',
+    routingKey: `${PREFIX}-piped-param-rpc-submodule`,
+    exchange: `${PREFIX}-exchange`,
+    queue: `${PREFIX}-piped-param-rpc-submodule`,
     errorBehavior: MessageHandlerErrorBehavior.ACK,
     errorHandler: ReplyErrorCallback,
   })
@@ -69,9 +70,9 @@ export class SubmoduleController {
   }
 
   @RabbitRPC({
-    routingKey: 'guarded-rpc-submodule',
-    exchange: 'exchange2',
-    queue: 'guarded-rpc-submodule',
+    routingKey: `${PREFIX}-guarded-rpc-submodule`,
+    exchange: `${PREFIX}-exchange`,
+    queue: `${PREFIX}-guarded-rpc-submodule`,
     errorBehavior: MessageHandlerErrorBehavior.ACK,
     errorHandler: ReplyErrorCallback,
   })
@@ -83,9 +84,9 @@ export class SubmoduleController {
   }
 
   @RabbitRPC({
-    routingKey: 'error-reply-rpc-submodule',
-    exchange: 'exchange2',
-    queue: 'error-reply-rpc-submodule',
+    routingKey: `${PREFIX}-error-reply-rpc-submodule`,
+    exchange: `${PREFIX}-exchange`,
+    queue: `${PREFIX}-error-reply-rpc-submodule`,
     errorBehavior: MessageHandlerErrorBehavior.ACK,
     errorHandler: ReplyErrorCallback,
   })
@@ -94,9 +95,9 @@ export class SubmoduleController {
   }
 
   @RabbitRPC({
-    routingKey: 'non-json-rpc-submodule',
-    exchange: 'exchange2',
-    queue: 'non-json-rpc-submodule',
+    routingKey: `${PREFIX}-non-json-rpc-submodule`,
+    exchange: `${PREFIX}-exchange`,
+    queue: `${PREFIX}-non-json-rpc-submodule`,
     allowNonJsonMessages: true,
   })
   nonJsonRpc(nonJsonMessage: any) {

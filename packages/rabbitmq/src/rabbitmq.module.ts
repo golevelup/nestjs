@@ -50,9 +50,7 @@ export class RabbitMQModule
           useFactory: async (
             config: RabbitMQConfig
           ): Promise<AmqpConnection> => {
-            return RabbitMQModule.connectionManager.getConnection(
-              config.name || 'default'
-            ) as AmqpConnection;
+            return RabbitMQModule.AmqpConnectionFactory(config);
           },
           inject: [RABBIT_CONFIG_TOKEN],
         },
@@ -78,6 +76,16 @@ export class RabbitMQModule
   }
 
   static async AmqpConnectionFactory(config: RabbitMQConfig) {
+    if (
+      typeof RabbitMQModule.connectionManager.getConnection(
+        config.name || 'default'
+      ) !== 'undefined'
+    ) {
+      return RabbitMQModule.connectionManager.getConnection(
+        config.name || 'default'
+      ) as AmqpConnection;
+    }
+
     const connection = new AmqpConnection(config);
     this.connectionManager.addConnection(connection);
     await connection.init();

@@ -1,6 +1,6 @@
 import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
 import { Module } from '@nestjs/common';
-import { CONNECTION_NAME } from './named-connection.constants';
+import { CONNECTION_NAME, PREFIX } from './named-connection.constants';
 import { NamedConnectionController } from './named-connection.controller';
 
 const rabbitHost =
@@ -16,7 +16,7 @@ const uri = `amqp://rabbitmq:rabbitmq@${rabbitHost}:${rabbitPort}`;
         name: CONNECTION_NAME,
         exchanges: [
           {
-            name: 'exchange3',
+            name: `${PREFIX}-exchange`,
             type: 'topic',
           },
         ],
