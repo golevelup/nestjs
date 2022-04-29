@@ -297,9 +297,7 @@ export class AmqpConnection {
     );
   }
 
-  public async request<T extends Record<string, unknown>>(
-    requestOptions: RequestOptions
-  ): Promise<T> {
+  public async request<T>(requestOptions: RequestOptions): Promise<T> {
     const correlationId = requestOptions.correlationId || uuid.v4();
     const timeout = requestOptions.timeout || this.config.defaultRpcTimeout;
     const payload = requestOptions.payload || {};
@@ -310,17 +308,12 @@ export class AmqpConnection {
       first()
     );
 
-    await this.publish(
-      requestOptions.exchange,
-      requestOptions.routingKey,
-      payload,
-      {
-        replyTo: DIRECT_REPLY_QUEUE,
-        correlationId,
-        headers: requestOptions.headers,
-        expiration: requestOptions.expiration,
-      }
-    );
+    this.publish(requestOptions.exchange, requestOptions.routingKey, payload, {
+      replyTo: DIRECT_REPLY_QUEUE,
+      correlationId,
+      headers: requestOptions.headers,
+      expiration: requestOptions.expiration,
+    });
 
     const timeout$ = interval(timeout).pipe(
       first(),
