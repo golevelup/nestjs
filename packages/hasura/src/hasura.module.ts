@@ -72,8 +72,7 @@ export class HasuraModule
       ],
     }
   )
-  implements OnModuleInit
-{
+  implements OnModuleInit {
   private readonly logger = new Logger(HasuraModule.name);
 
   constructor(
@@ -168,8 +167,8 @@ export class HasuraModule
       const keys = isHasuraEvent(evt)
         ? [evt.trigger?.name, `${evt?.table?.schema}-${evt?.table?.name}`]
         : isHasuraScheduledEventPayload(evt) && evt.comment
-        ? [evt.name || evt.comment]
-        : [evt.id];
+          ? [evt.name || evt.comment]
+          : [evt.id];
       if (!keys) throw new Error('Not a Hasura Event');
 
       // TODO: this should use a map for faster lookups
@@ -182,8 +181,6 @@ export class HasuraModule
       if (handlers && handlers.length) {
         return Promise.all(handlers.map((x) => x.handler(evt)));
       } else {
-        console.log('key for error message', keys, typeof keys);
-
         const errorMessage = `Handler not found for ${keys}`;
         this.logger.error(errorMessage);
         throw new BadRequestException(errorMessage);
