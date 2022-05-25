@@ -39,7 +39,7 @@ function isHasuraEvent(value: any): value is HasuraEvent {
 function isHasuraScheduledEventPayload(
   value: any
 ): value is HasuraScheduledEventPayload {
-  return ['name', 'scheduled_time', 'payload'].every((it) => it in value);
+  return ['comment', 'scheduled_time', 'payload'].every((it) => it in value);
 }
 
 @Module({
@@ -167,9 +167,9 @@ export class HasuraModule
     ) => {
       const keys = isHasuraEvent(evt)
         ? [evt.trigger?.name, `${evt?.table?.schema}-${evt?.table?.name}`]
-        : isHasuraScheduledEventPayload(evt)
-        ? [evt.name]
-        : null;
+        : isHasuraScheduledEventPayload(evt) && evt.comment
+        ? [evt.name || evt.comment]
+        : [evt.id];
       if (!keys) throw new Error('Not a Hasura Event');
 
       // TODO: this should use a map for faster lookups
@@ -182,6 +182,8 @@ export class HasuraModule
       if (handlers && handlers.length) {
         return Promise.all(handlers.map((x) => x.handler(evt)));
       } else {
+        console.log('key for error message', keys, typeof keys);
+
         const errorMessage = `Handler not found for ${keys}`;
         this.logger.error(errorMessage);
         throw new BadRequestException(errorMessage);
