@@ -93,7 +93,7 @@ export interface TrackedHasuraEventHandlerConfig {
 export interface TrackedHasuraScheduledEventHandlerConfig {
   name: string;
   cronSchedule?: string;
-  payload: any;
+  payload?: any;
   comment?: string;
   retryConfig?: ScheduledEventRetryConfig;
 }

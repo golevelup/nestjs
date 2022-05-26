@@ -57,7 +57,6 @@ function isHasuraScheduledEventPayload(
         const configPath = `${hasuraModuleConfig.managedMetaDataConfig?.dirPath}/config.yaml`;
         const configYaml = readFileSync(configPath, 'utf8');
         const configJson = load(configYaml);
-        console.log(hasuraModuleConfig);
         return {
           endpoint:
             hasuraModuleConfig.webhookConfig.rootEndpoint ||

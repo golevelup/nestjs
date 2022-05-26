@@ -58,7 +58,6 @@ export class HasuraService {
       const source$ = this.hasuraScheduledEventRequest(body);
       return lastValueFrom(source$).then((r) => r.data);
     } catch (error) {
-      console.log(error);
       throw new BadRequestException(error);
     }
   }
