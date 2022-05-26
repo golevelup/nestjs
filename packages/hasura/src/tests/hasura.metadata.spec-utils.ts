@@ -16,6 +16,8 @@ export const baseConfig = {
   webhookConfig: {
     secretFactory: 'secret',
     secretHeader: 'NESTJS_SECRET_HEADER',
+    scheduledEventsHeader: 'NESTJS_SCHEDULED_EVENTS_HEADER',
+    rootEndpoint: 'NESTJS_ROOT_ENDPOINT',
   },
   managedMetaDataConfig: {
     secretHeaderEnvName: 'NESTJS_WEBHOOK_SECRET_HEADER_VALUE',

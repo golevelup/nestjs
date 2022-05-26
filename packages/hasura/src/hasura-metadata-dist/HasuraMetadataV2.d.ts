@@ -186,7 +186,7 @@ export interface CronTrigger {
   /**
    * Cron expression at which the trigger should be invoked.
    */
-  schedule: string;
+  schedule?: string;
   /**
    * URL of the webhook
    */
@@ -1090,9 +1090,7 @@ export declare class Convert {
   static tableEntryToJson(value: TableEntry): string;
   static toCustomRootFields(json: string): CustomRootFields;
   static customRootFieldsToJson(value: CustomRootFields): string;
-  static toCustomColumnNames(
-    json: string
-  ): {
+  static toCustomColumnNames(json: string): {
     [key: string]: string;
   };
   static customColumnNamesToJson(value: { [key: string]: string }): string;
@@ -1122,9 +1120,7 @@ export declare class Convert {
   static arrRelUsingManualMappingToJson(
     value: ArrRelUsingManualMapping
   ): string;
-  static toColumnPresetsExpression(
-    json: string
-  ): {
+  static toColumnPresetsExpression(json: string): {
     [key: string]: string;
   };
   static columnPresetsExpressionToJson(value: {
@@ -1176,15 +1172,11 @@ export declare class Convert {
   static remoteRelationshipToJson(value: RemoteRelationship): string;
   static toRemoteRelationshipDef(json: string): RemoteRelationshipDef;
   static remoteRelationshipDefToJson(value: RemoteRelationshipDef): string;
-  static toRemoteField(
-    json: string
-  ): {
+  static toRemoteField(json: string): {
     [key: string]: RemoteField;
   };
   static remoteFieldToJson(value: { [key: string]: RemoteField }): string;
-  static toInputArguments(
-    json: string
-  ): {
+  static toInputArguments(json: string): {
     [key: string]: string;
   };
   static inputArgumentsToJson(value: { [key: string]: string }): string;

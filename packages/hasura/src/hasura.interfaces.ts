@@ -90,7 +90,7 @@ export interface TrackedHasuraEventHandlerConfig {
 
 export interface TrackedHasuraScheduledEventHandlerConfig {
   name: string;
-  cronSchedule: string;
+  cronSchedule?: string;
   payload: any;
   comment?: string;
   retryConfig?: ScheduledEventRetryConfig;
@@ -110,6 +110,7 @@ export interface HasuraScheduledEventPayload<T = Record<string, any>> {
   name: string;
   created_at: Date;
   id: string;
+  comment?: string;
 }
 
 export interface HasuraModuleConfig {
@@ -121,7 +122,14 @@ export interface HasuraModuleConfig {
      * The name of the Header that Hasura will send along with all event payloads
      */
     secretHeader: string;
-
+    /**
+     * The name of the Header to identify Hasura Scheduled Events created by the service
+     */
+    scheduledEventsHeader: string;
+    /**
+     * The root endpoint for Hasura's GraphQL API. e.g. http://localhost:8080
+     */
+    rootEndpoint: string;
     /**
      * The value of the secret Header. The Hasura module will ensure that incoming webhook payloads contain this
      * value in order to validate that it is a trusted request
