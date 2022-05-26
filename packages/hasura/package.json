@@ -40,6 +40,7 @@
     "@golevelup/nestjs-discovery": "^3.0.0",
     "@golevelup/nestjs-modules": "^0.5.0",
     "@hasura/metadata": "^1.0.2",
+    "@nestjs/axios": "0.0.8",
     "js-yaml": "^4.1.0",
     "zod": "^3.3.4"
   },

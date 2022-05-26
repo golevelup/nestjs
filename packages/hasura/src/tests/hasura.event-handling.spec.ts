@@ -90,6 +90,8 @@ describe.each(cases)(
       webhookConfig: {
         secretFactory: secret,
         secretHeader: secretHeader,
+        rootEndpoint: 'http://localhost:3000',
+        scheduledEventsHeader: 'nestjs-event-name',
       },
       controllerPrefix,
       enableEventLogs: true,
@@ -177,6 +179,8 @@ describe('HasuraModule with Custom Decorator', () => {
           webhookConfig: {
             secretHeader,
             secretFactory: secret,
+            rootEndpoint: 'http://localhost:3000',
+            scheduledEventsHeader: 'nestjs-event-name',
           },
         }),
       ],

@@ -1,3 +1,5 @@
+import { ScheduledEventMode } from './hasura.constants';
+
 const exampleEvent = {
   id: 'ecd5fe4a-7113-4243-bb0e-6177c78a0033',
   table: { schema: 'public', name: 'user' },
@@ -110,7 +112,51 @@ export interface HasuraScheduledEventPayload<T = Record<string, any>> {
   name: string;
   created_at: Date;
   id: string;
+}
+
+export type HasuraScheduledEventType =
+  | 'create_scheduled_event'
+  | 'delete_scheduled_event';
+
+export interface HasuraScheduledEvent<T = Record<string, any>> {
+  scheduled_time?: Date;
+  payload: T;
+  name?: string;
   comment?: string;
+  /* optional webhook_url to override the webhook provided by this package */
+  webhook_url?: string;
+}
+
+export interface CreateHasuraScheduledEventBody<T = Record<string, unknown>> {
+  type: HasuraScheduledEventType;
+  args: {
+    webhook: string;
+    schedule_at?: Date;
+    payload: T;
+    headers: {
+      name: string;
+      value?: string;
+      value_from_env?: string;
+    }[];
+    comment?: string;
+  };
+}
+
+export interface DeleteHasuraScheduledEventBody {
+  type: HasuraScheduledEventType;
+  args: {
+    type: ScheduledEventMode;
+    event_id: string;
+  };
+}
+
+export interface HasuraServiceConfig {
+  endpoint: string;
+  adminSecret: string;
+  nestEndpointEnvName: string;
+  secretHeaderEnvName: string;
+  secretHeader: string;
+  scheduledEventsHeader: string;
 }
 
 export interface HasuraModuleConfig {
@@ -129,7 +175,7 @@ export interface HasuraModuleConfig {
     /**
      * The root endpoint for Hasura's GraphQL API. e.g. http://localhost:8080
      */
-    rootEndpoint: string;
+    rootEndpoint?: string;
     /**
      * The value of the secret Header. The Hasura module will ensure that incoming webhook payloads contain this
      * value in order to validate that it is a trusted request

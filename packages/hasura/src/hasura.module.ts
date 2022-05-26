@@ -1,5 +1,6 @@
 import { DiscoveryModule, DiscoveryService } from '@golevelup/nestjs-discovery';
 import { createConfigurableDynamicRootModule } from '@golevelup/nestjs-modules';
+import { HttpModule } from '@nestjs/axios';
 import {
   BadRequestException,
   Logger,
@@ -8,11 +9,14 @@ import {
 } from '@nestjs/common';
 import { PATH_METADATA } from '@nestjs/common/constants';
 import { ExternalContextCreator } from '@nestjs/core/helpers/external-context-creator';
+import { readFileSync } from 'fs';
+import { load } from 'js-yaml';
 import { flatten, groupBy } from 'lodash';
 import {
   HASURA_EVENT_HANDLER,
   HASURA_MODULE_CONFIG,
   HASURA_SCHEDULED_EVENT_HANDLER,
+  HASURA_SERVICE_CONFIG,
 } from './hasura.constants';
 import { InjectHasuraConfig } from './hasura.decorators';
 import { EventHandlerController } from './hasura.event-handler.controller';
@@ -31,6 +35,7 @@ import {
   updateEventTriggerMeta,
   updateScheduledEventTriggerMeta,
 } from './hasura.metadata';
+import { HasuraService } from './hasura.service';
 
 function isHasuraEvent(value: any): value is HasuraEvent {
   return ['trigger', 'table', 'event'].every((it) => it in value);
@@ -43,8 +48,35 @@ function isHasuraScheduledEventPayload(
 }
 
 @Module({
-  imports: [DiscoveryModule],
+  imports: [DiscoveryModule, HttpModule],
+  providers: [
+    HasuraService,
+    {
+      provide: HASURA_SERVICE_CONFIG,
+      useFactory: (hasuraModuleConfig: HasuraModuleConfig) => {
+        const configPath = `${hasuraModuleConfig.managedMetaDataConfig?.dirPath}/config.yaml`;
+        const configYaml = readFileSync(configPath, 'utf8');
+        const configJson = load(configYaml);
+        console.log(hasuraModuleConfig);
+        return {
+          endpoint:
+            hasuraModuleConfig.webhookConfig.rootEndpoint ||
+            configJson['endpoint'],
+          adminSecret: configJson['admin_secret'],
+          nestEndpointEnvName:
+            hasuraModuleConfig.managedMetaDataConfig?.nestEndpointEnvName,
+          secretHeaderEnvName:
+            hasuraModuleConfig.managedMetaDataConfig?.secretHeaderEnvName,
+          secretHeader: hasuraModuleConfig.webhookConfig.secretHeader,
+          scheduledEventsHeader:
+            hasuraModuleConfig.webhookConfig.scheduledEventsHeader,
+        };
+      },
+      inject: [HASURA_MODULE_CONFIG],
+    },
+  ],
   controllers: [EventHandlerController],
+  exports: [HasuraService],
 })
 export class HasuraModule
   extends createConfigurableDynamicRootModule<HasuraModule, HasuraModuleConfig>(
@@ -163,13 +195,20 @@ export class HasuraModule
       eventHandlerServiceInstance as EventHandlerService;
 
     const handleEvent = (
-      evt: Partial<HasuraEvent> | HasuraScheduledEventPayload
+      evt: Partial<HasuraEvent> | HasuraScheduledEventPayload,
+      headers: any
     ) => {
+      const scheduledEventName =
+        headers[this.hasuraModuleConfig.webhookConfig.scheduledEventsHeader];
+
       const keys = isHasuraEvent(evt)
         ? [evt.trigger?.name, `${evt?.table?.schema}-${evt?.table?.name}`]
         : isHasuraScheduledEventPayload(evt)
         ? [evt.name]
+        : scheduledEventName
+        ? [scheduledEventName]
         : null;
+
       if (!keys) throw new Error('Not a Hasura Event');
 
       // TODO: this should use a map for faster lookups
