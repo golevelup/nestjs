@@ -40,18 +40,15 @@ export const getVersionedMetadataPathAndConfig = (
   v: string
 ): [string, HasuraModuleConfig] => {
   const version = metadataVersion.parse(v);
-  const metadataPath = path.join(
-    __dirname,
-    `../../test/__fixtures__/hasura/${version}/metadata`
-  );
+  const hasuraPath = path.join(__dirname, `../../test/__fixtures__/hasura`);
 
   const { managedMetaDataConfig } = baseConfig;
   return [
-    metadataPath,
+    hasuraPath,
     {
       ...baseConfig,
       managedMetaDataConfig: {
-        dirPath: metadataPath,
+        dirPath: hasuraPath,
         metadataVersion: version,
         ...managedMetaDataConfig,
       },

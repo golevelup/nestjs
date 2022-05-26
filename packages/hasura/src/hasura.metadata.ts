@@ -44,7 +44,7 @@ const updateEventTriggerMetaV2 = (
   const defaultRetryConfig =
     managedMetaDataConfig.defaultEventRetryConfig ?? defaultHasuraRetryConfig;
 
-  const tablesYamlPath = `${managedMetaDataConfig.dirPath}/tables.yaml`;
+  const tablesYamlPath = `${managedMetaDataConfig.dirPath}/metadata/tables.yaml`;
 
   const tablesMeta = readFileSync(tablesYamlPath, utf8);
   const tableEntries = load(tablesMeta) as TableEntry[];
@@ -90,7 +90,7 @@ const updateEventTriggerMetaV3 = (
   eventHandlerConfigs.forEach((config) => {
     const { schema = 'public', databaseName = 'default', tableName } = config;
 
-    const tableYamlPath = `${managedMetaDataConfig.dirPath}/databases/${databaseName}/tables/${schema}_${tableName}.yaml`;
+    const tableYamlPath = `${managedMetaDataConfig.dirPath}/metadata/databases/${databaseName}/tables/${schema}_${tableName}.yaml`;
     const tableMeta = readFileSync(tableYamlPath, utf8);
     const tableEntry = load(tableMeta) as TableEntry;
 
@@ -137,7 +137,7 @@ export const updateScheduledEventTriggerMeta = (
     throw new Error(MISSING_META_CONFIG);
   }
 
-  const cronTriggersYamlPath = `${managedMetaDataConfig.dirPath}/cron_triggers.yaml`;
+  const cronTriggersYamlPath = `${managedMetaDataConfig.dirPath}/metadata/cron_triggers.yaml`;
 
   const cronTriggersMeta = readFileSync(cronTriggersYamlPath, utf8);
   const cronEntries = (load(cronTriggersMeta) ?? []) as CronTrigger[];
