@@ -109,6 +109,16 @@ export interface RabbitMQConfig {
    * You can pass your implementation of the Nestjs LoggerService.
    */
   logger?: LoggerService;
+
+  /**
+   * This function is used to deserialize the received message.
+   */
+  deserializer?: (message: Buffer) => any;
+
+  /**
+   * This function is used to serialize the message to be sent.
+   */
+  serializer?: (value: any) => Buffer;
 }
 
 export type RabbitHandlerType = 'rpc' | 'subscribe';
