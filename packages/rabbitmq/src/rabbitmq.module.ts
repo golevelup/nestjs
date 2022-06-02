@@ -199,16 +199,11 @@ export class RabbitMQModule
               (handl) => handl.name === config.name
             );
 
-            const exchange = handlerConfig
-              ? handlerConfig.exchange
-              : config.exchange;
-            const routingKey = handlerConfig
-              ? handlerConfig.routingKey
-              : config.routingKey;
-            const queue = handlerConfig ? handlerConfig.queue : config.queue;
-            const queueOptions = handlerConfig
-              ? handlerConfig.queueOptions
-              : config.queueOptions;
+            const exchange = handlerConfig?.exchange || config.exchange;
+            const routingKey = handlerConfig?.routingKey || config.routingKey;
+            const queue = handlerConfig?.queue || config.queue;
+            const queueOptions =
+              handlerConfig?.queueOptions || config.queueOptions;
 
             const handlerDisplayName = `${discoveredMethod.parentClass.name}.${
               discoveredMethod.methodName
