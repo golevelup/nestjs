@@ -51,6 +51,7 @@ export interface QueueOptions {
 }
 
 export interface MessageHandlerOptions {
+  name?: string;
   connection?: string;
   exchange?: string;
   routingKey?: string | string[];
@@ -104,6 +105,12 @@ export interface RabbitMQConfig {
    * By setting `prefetchCount` for a channel, you can manage message speeds of your various handlers on the same connection.
    */
   channels?: RabbitMQChannels;
+
+  /**
+   * You can use a handler config specificied in module level.
+   * Just use the same name defined there.
+   */
+  handlers?: MessageHandlerOptions[];
 
   /**
    * You can pass your implementation of the Nestjs LoggerService.

@@ -33,6 +33,13 @@ const fanoutHandler = jest.fn();
 @Injectable()
 class SubscribeService {
   @RabbitSubscribe({
+    name: 'handler1',
+  })
+  handleSubscribeByName(message: object) {
+    testHandler(message);
+  }
+
+  @RabbitSubscribe({
     exchange,
     routingKey: [routingKey1, routingKey2],
     queue: 'subscribeQueue',
