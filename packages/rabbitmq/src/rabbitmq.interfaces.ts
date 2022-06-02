@@ -51,6 +51,10 @@ export interface QueueOptions {
 }
 
 export interface MessageHandlerOptions {
+  /**
+   * You can use a handler config specificied in module level.
+   * Just use the same name defined there.
+   */
   name?: string;
   connection?: string;
   exchange?: string;
@@ -107,8 +111,7 @@ export interface RabbitMQConfig {
   channels?: RabbitMQChannels;
 
   /**
-   * You can use a handler config specificied in module level.
-   * Just use the same name defined there.
+   * You can pass a list with handler configs to use in the Subscription decorator
    */
   handlers?: MessageHandlerOptions[];
 
