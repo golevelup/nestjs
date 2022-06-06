@@ -195,10 +195,8 @@ export class RabbitMQModule
               'rmq'
             );
 
-            const handlerConfig = connection.configuration.handlers.find(
-              (handl) => handl.name === config.name
-            );
-
+            const handlerConfig =
+              connection.configuration.handlers[config.name || ''];
             const exchange = handlerConfig?.exchange || config.exchange;
             const routingKey = handlerConfig?.routingKey || config.routingKey;
             const queue = handlerConfig?.queue || config.queue;

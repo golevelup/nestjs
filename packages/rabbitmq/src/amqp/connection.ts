@@ -90,7 +90,7 @@ const defaultConfig = {
   registerHandlers: true,
   enableDirectReplyTo: true,
   channels: {},
-  handlers: [],
+  handlers: {},
   enableControllerDiscovery: false,
 };
 
