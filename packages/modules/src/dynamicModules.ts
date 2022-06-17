@@ -1,6 +1,5 @@
 import { DynamicModule, Provider, Type } from '@nestjs/common';
 import { ModuleMetadata } from '@nestjs/common/interfaces';
-import { get } from 'lodash';
 import { interval, lastValueFrom, race, Subject } from 'rxjs';
 import { first, map } from 'rxjs/operators';
 import { OptionalFactoryDependency } from '@nestjs/common/interfaces/modules/optional-factory-dependency.interface';
