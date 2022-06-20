@@ -17,6 +17,7 @@
     - [Install](#install)
     - [Module Initialization](#module-initialization)
   - [Usage with Interceptors](#usage-with-interceptors)
+  - [Usage with Controllers](#usage-with-controllers)
   - [Receiving Messages](#receiving-messages)
     - [Exposing RPC Handlers](#exposing-rpc-handlers)
     - [Exposing Pub/Sub Handlers](#exposing-pubsub-handlers)
@@ -150,6 +151,58 @@ class ExampleInterceptor implements NestInterceptor {
     // Execute custom interceptor logic for HTTP request/response
     return next.handle();
   }
+}
+```
+
+## Usage with Controllers
+
+To improve the migration process, it is possible to use NestJS controllers as handlers.
+WARNING: When using controllers, be aware that no HTTP context is available.
+
+To enable the controller discovery the option enableControllerDiscovery has to be true.
+
+```typescript
+import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
+import { Module } from '@nestjs/common';
+import { MessagingController } from './messaging/messaging.controller';
+import { MessagingService } from './messaging/messaging.service';
+
+@Module({
+  imports: [
+    RabbitMQModule.forRoot(RabbitMQModule, {
+      exchanges: [
+        {
+          name: 'exchange1',
+          type: 'topic',
+        },
+      ],
+      uri: 'amqp://rabbitmq:rabbitmq@localhost:5672',
+      enableControllerDiscovery: true,
+    }),
+    RabbitExampleModule,
+  ],
+  providers: [MessagingService, MessagingController],
+  controllers: [MessagingController],
+})
+export class RabbitExampleModule {}
+```
+
+### Interceptors, Guards, Pipes
+
+To use Interceptors, Guards or Pipes, the controller has to be imported as provider in the module.
+Then simly add the corresponding decorator to the whole controller or the method.
+
+```typescript
+@RabbitRPC({
+  routingKey: 'intercepted-rpc-2',
+  exchange: 'exchange2',
+  queue: 'intercepted-rpc-2',
+})
+@UseInterceptors(TransformInterceptor)
+interceptedRpc() {
+  return {
+    message: 42,
+  };
 }
 ```
 

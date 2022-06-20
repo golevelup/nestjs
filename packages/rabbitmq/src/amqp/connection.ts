@@ -1,4 +1,4 @@
-import { ConsoleLogger } from '@nestjs/common';
+import { Logger, LoggerService } from '@nestjs/common';
 import {
   ChannelWrapper,
   AmqpConnectionManager,
@@ -34,15 +34,47 @@ import {
   MessageHandlerErrorBehavior,
 } from './errorBehaviors';
 import { Nack, RpcResponse, SubscribeResponse } from './handlerResponses';
+import { isNull } from 'lodash';
 
 const DIRECT_REPLY_QUEUE = 'amq.rabbitmq.reply-to';
+
+export type ConsumerTag = string;
+
+export type SubscriberHandler<T = unknown> = (
+  msg: T | undefined,
+  rawMessage?: ConsumeMessage
+) => Promise<SubscribeResponse>;
 
 export interface CorrelationMessage {
   correlationId: string;
   message: Record<string, unknown>;
 }
 
+export type BaseConsumerHandler = {
+  consumerTag: string;
+  channel: ConfirmChannel;
+};
+
+export type ConsumerHandler<T, U> =
+  | (BaseConsumerHandler & {
+      type: 'subscribe';
+      msgOptions: MessageHandlerOptions;
+      handler: (
+        msg: T | undefined,
+        rawMessage?: ConsumeMessage
+      ) => Promise<SubscribeResponse>;
+    })
+  | (BaseConsumerHandler & {
+      type: 'rpc';
+      rpcOptions: MessageHandlerOptions;
+      handler: (
+        msg: T | undefined,
+        rawMessage?: ConsumeMessage
+      ) => Promise<RpcResponse<U>>;
+    });
+
 const defaultConfig = {
+  name: 'default',
   prefetchCount: 10,
   defaultExchangeType: 'topic',
   defaultRpcErrorBehavior: MessageHandlerErrorBehavior.REQUEUE,
@@ -58,13 +90,12 @@ const defaultConfig = {
   registerHandlers: true,
   enableDirectReplyTo: true,
   channels: {},
+  enableControllerDiscovery: false,
 };
 
 export class AmqpConnection {
   private readonly messageSubject = new Subject<CorrelationMessage>();
-  private readonly logger: ConsoleLogger = new ConsoleLogger(
-    AmqpConnection.name
-  );
+  private readonly logger: LoggerService;
   private readonly initialized = new Subject<void>();
   private _managedConnection!: AmqpConnectionManager;
   /**
@@ -78,10 +109,22 @@ export class AmqpConnection {
   private _channel!: Channel;
   private _channels: Record<string, Channel> = {};
   private _connection?: Connection;
+
+  private _consumers: Record<ConsumerTag, ConsumerHandler<unknown, unknown>> =
+    {};
+
   private readonly config: Required<RabbitMQConfig>;
 
   constructor(config: RabbitMQConfig) {
-    this.config = { ...defaultConfig, ...config };
+    this.config = {
+      deserializer: (message) => JSON.parse(message.toString()),
+      serializer: (value) => Buffer.from(JSON.stringify(value)),
+      logger: config.logger || new Logger(AmqpConnection.name),
+      ...defaultConfig,
+      ...config,
+    };
+
+    this.logger = this.config.logger;
   }
 
   get channel(): Channel {
@@ -114,6 +157,10 @@ export class AmqpConnection {
     return this._managedChannels;
   }
 
+  get connected() {
+    return this._managedConnection.isConnected();
+  }
+
   public async init(): Promise<void> {
     const options: Required<ConnectionInitOptions> = {
       ...defaultConfig.connectionInitOptions,
@@ -144,7 +191,9 @@ export class AmqpConnection {
   }
 
   private async initCore(): Promise<void> {
-    this.logger.log('Trying to connect to a RabbitMQ broker');
+    this.logger.log(
+      `Trying to connect to RabbitMQ broker (${this.config.name})`
+    );
 
     this._managedConnection = connect(
       Array.isArray(this.config.uri) ? this.config.uri : [this.config.uri],
@@ -153,11 +202,16 @@ export class AmqpConnection {
 
     this._managedConnection.on('connect', ({ connection }) => {
       this._connection = connection;
-      this.logger.log('Successfully connected to a RabbitMQ broker');
+      this.logger.log(
+        `Successfully connected to RabbitMQ broker (${this.config.name})`
+      );
     });
 
     this._managedConnection.on('disconnect', ({ err }) => {
-      this.logger.error('Disconnected from RabbitMQ broker', err?.stack);
+      this.logger.error(
+        `Disconnected from RabbitMQ broker (${this.config.name})`,
+        err?.stack
+      );
     });
 
     const defaultChannel: { name: string; config: RabbitMQChannelConfig } = {
@@ -229,7 +283,7 @@ export class AmqpConnection {
         // Check that the Buffer has content, before trying to parse it
         const message =
           msg.content.length > 0
-            ? JSON.parse(msg.content.toString())
+            ? this.config.deserializer(msg.content)
             : undefined;
 
         const correlationMessage: CorrelationMessage = {
@@ -245,9 +299,7 @@ export class AmqpConnection {
     );
   }
 
-  public async request<T extends Record<string, unknown>>(
-    requestOptions: RequestOptions
-  ): Promise<T> {
+  public async request<T>(requestOptions: RequestOptions): Promise<T> {
     const correlationId = requestOptions.correlationId || uuid.v4();
     const timeout = requestOptions.timeout || this.config.defaultRpcTimeout;
     const payload = requestOptions.payload || {};
@@ -258,17 +310,12 @@ export class AmqpConnection {
       first()
     );
 
-    await this.publish(
-      requestOptions.exchange,
-      requestOptions.routingKey,
-      payload,
-      {
-        replyTo: DIRECT_REPLY_QUEUE,
-        correlationId,
-        headers: requestOptions.headers,
-        expiration: requestOptions.expiration,
-      }
-    );
+    this.publish(requestOptions.exchange, requestOptions.routingKey, payload, {
+      replyTo: DIRECT_REPLY_QUEUE,
+      correlationId,
+      headers: requestOptions.headers,
+      expiration: requestOptions.expiration,
+    });
 
     const timeout$ = interval(timeout).pipe(
       first(),
@@ -283,32 +330,33 @@ export class AmqpConnection {
   }
 
   public async createSubscriber<T>(
-    handler: (
-      msg: T | undefined,
-      rawMessage?: ConsumeMessage
-    ) => Promise<SubscribeResponse>,
-    msgOptions: MessageHandlerOptions
+    handler: SubscriberHandler<T>,
+    msgOptions: MessageHandlerOptions,
+    originalHandlerName: string
   ) {
     return this.selectManagedChannel(
       msgOptions?.queueOptions?.channel
     ).addSetup((channel) =>
-      this.setupSubscriberChannel<T>(handler, msgOptions, channel)
+      this.setupSubscriberChannel<T>(
+        handler,
+        msgOptions,
+        channel,
+        originalHandlerName
+      )
     );
   }
 
   private async setupSubscriberChannel<T>(
-    handler: (
-      msg: T | undefined,
-      rawMessage?: ConsumeMessage
-    ) => Promise<SubscribeResponse>,
+    handler: SubscriberHandler<T>,
     msgOptions: MessageHandlerOptions,
-    channel: ConfirmChannel
+    channel: ConfirmChannel,
+    originalHandlerName = 'unknown'
   ): Promise<void> {
     const queue = await this.setupQueue(msgOptions, channel);
 
-    await channel.consume(queue, async (msg) => {
+    const { consumerTag } = await channel.consume(queue, async (msg) => {
       try {
-        if (msg == null) {
+        if (isNull(msg)) {
           throw new Error('Received null message');
         }
 
@@ -323,15 +371,19 @@ export class AmqpConnection {
           return;
         }
 
+        // developers should be responsible to avoid subscribers that return therefore
+        // the request will be acknowledged
         if (response) {
-          throw new Error(
-            'Received response from subscribe handler. Subscribe handlers should only return void'
+          this.logger.warn(
+            `Received response: [${this.config.serializer(
+              response
+            )}] from subscribe handler [${originalHandlerName}]. Subscribe handlers should only return void`
           );
         }
 
         channel.ack(msg);
       } catch (e) {
-        if (msg == null) {
+        if (isNull(msg)) {
           return;
         } else {
           const errorHandler =
@@ -344,6 +396,14 @@ export class AmqpConnection {
           await errorHandler(channel, msg, e);
         }
       }
+    });
+
+    this.registerConsumerForQueue({
+      type: 'subscribe',
+      consumerTag,
+      handler,
+      msgOptions,
+      channel,
     });
   }
 
@@ -371,7 +431,7 @@ export class AmqpConnection {
   ) {
     const queue = await this.setupQueue(rpcOptions, channel);
 
-    await channel.consume(queue, async (msg) => {
+    const { consumerTag } = await channel.consume(queue, async (msg) => {
       try {
         if (msg == null) {
           throw new Error('Received null message');
@@ -412,9 +472,17 @@ export class AmqpConnection {
         }
       }
     });
+
+    this.registerConsumerForQueue({
+      type: 'rpc',
+      consumerTag,
+      handler,
+      rpcOptions,
+      channel,
+    });
   }
 
-  public async publish(
+  public publish(
     exchange: string,
     routingKey: string,
     message: any,
@@ -431,7 +499,7 @@ export class AmqpConnection {
     } else if (message instanceof Uint8Array) {
       buffer = Buffer.from(message);
     } else if (message != null) {
-      buffer = Buffer.from(JSON.stringify(message));
+      buffer = this.config.serializer(message);
     } else {
       buffer = Buffer.alloc(0);
     }
@@ -448,13 +516,13 @@ export class AmqpConnection {
     if (msg.content) {
       if (allowNonJsonMessages) {
         try {
-          message = JSON.parse(msg.content.toString()) as T;
+          message = this.config.deserializer(msg.content) as T;
         } catch {
           // Let handler handle parsing error, it has the raw message anyway
           message = undefined;
         }
       } else {
-        message = JSON.parse(msg.content.toString()) as T;
+        message = this.config.deserializer(msg.content) as T;
       }
     }
 
@@ -564,5 +632,47 @@ export class AmqpConnection {
       return this._managedChannel;
     }
     return channel;
+  }
+
+  private registerConsumerForQueue<T, U>(consumer: ConsumerHandler<T, U>) {
+    (this._consumers as Record<ConsumerTag, ConsumerHandler<T, U>>)[
+      consumer.consumerTag
+    ] = consumer;
+  }
+
+  private unregisterConsumerForQueue(consumerTag: ConsumerTag) {
+    delete this._consumers[consumerTag];
+  }
+
+  private getConsumer(consumerTag: ConsumerTag) {
+    return this._consumers[consumerTag];
+  }
+
+  public async cancelConsumer(consumerTag: ConsumerTag) {
+    const consumer = this.getConsumer(consumerTag);
+    if (consumer && consumer.channel) {
+      await consumer.channel.cancel(consumerTag);
+    }
+  }
+
+  public async resumeConsumer<T, U>(consumerTag: ConsumerTag) {
+    const consumer = this.getConsumer(consumerTag) as ConsumerHandler<T, U>;
+    if (consumer) {
+      if (consumer.type === 'rpc') {
+        await this.setupRpcChannel<T, U>(
+          consumer.handler,
+          consumer.rpcOptions,
+          consumer.channel
+        );
+      } else {
+        await this.setupSubscriberChannel<T>(
+          consumer.handler,
+          consumer.msgOptions,
+          consumer.channel
+        );
+      }
+      // A new consumerTag was created, remove old
+      this.unregisterConsumerForQueue(consumerTag);
+    }
   }
 }
