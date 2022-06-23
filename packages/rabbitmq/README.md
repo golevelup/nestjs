@@ -55,7 +55,7 @@ Now, this package leverages [`amqp-connection-manager`](https://github.com/benbr
 
 **NOTE**: to maintain the same previous behavior and not introduce a major version update, the previous behavior is still the default.
 
-If you want to transition to the new behavior and enable connection resiliency, you can configure `connectionInitOptions` to not wait for a connection to be availble, for example:
+If you want to transition to the new behavior and enable connection resiliency, you can configure `connectionInitOptions` to not wait for a connection to be available, for example:
 
 ```typescript
 import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
