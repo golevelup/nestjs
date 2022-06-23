@@ -130,7 +130,13 @@ export class StripeModule
           handler: this.externalContextCreator.create(
             discoveredMethod.parentClass.instance,
             discoveredMethod.handler,
-            discoveredMethod.methodName
+            discoveredMethod.methodName,
+            undefined, // metadataKey
+            undefined, // paramsFactory
+            undefined, // contextId
+            undefined, // inquirerId
+            undefined, // options
+            'stripe_webhook' // contextType
           ),
         }));
       })
