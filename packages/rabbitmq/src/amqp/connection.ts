@@ -42,7 +42,8 @@ export type ConsumerTag = string;
 
 export type SubscriberHandler<T = unknown> = (
   msg: T | undefined,
-  rawMessage?: ConsumeMessage
+  rawMessage?: ConsumeMessage,
+  headers?: any
 ) => Promise<SubscribeResponse>;
 
 export interface CorrelationMessage {
@@ -61,7 +62,8 @@ export type ConsumerHandler<T, U> =
       msgOptions: MessageHandlerOptions;
       handler: (
         msg: T | undefined,
-        rawMessage?: ConsumeMessage
+        rawMessage?: ConsumeMessage,
+        headers?: any
       ) => Promise<SubscribeResponse>;
     })
   | (BaseConsumerHandler & {
@@ -69,7 +71,8 @@ export type ConsumerHandler<T, U> =
       rpcOptions: MessageHandlerOptions;
       handler: (
         msg: T | undefined,
-        rawMessage?: ConsumeMessage
+        rawMessage?: ConsumeMessage,
+        headers?: any
       ) => Promise<RpcResponse<U>>;
     });
 
@@ -410,7 +413,8 @@ export class AmqpConnection {
   public async createRpc<T, U>(
     handler: (
       msg: T | undefined,
-      rawMessage?: ConsumeMessage
+      rawMessage?: ConsumeMessage,
+      headers?: any
     ) => Promise<RpcResponse<U>>,
     rpcOptions: MessageHandlerOptions
   ) {
@@ -424,7 +428,8 @@ export class AmqpConnection {
   public async setupRpcChannel<T, U>(
     handler: (
       msg: T | undefined,
-      rawMessage?: ConsumeMessage
+      rawMessage?: ConsumeMessage,
+      headers?: any
     ) => Promise<RpcResponse<U>>,
     rpcOptions: MessageHandlerOptions,
     channel: ConfirmChannel
@@ -508,11 +513,16 @@ export class AmqpConnection {
   }
 
   private handleMessage<T, U>(
-    handler: (msg: T | undefined, rawMessage?: ConsumeMessage) => Promise<U>,
+    handler: (
+      msg: T | undefined,
+      rawMessage?: ConsumeMessage,
+      headers?: any
+    ) => Promise<U>,
     msg: ConsumeMessage,
     allowNonJsonMessages?: boolean
   ) {
     let message: T | undefined = undefined;
+    let headers: any = undefined;
     if (msg.content) {
       if (allowNonJsonMessages) {
         try {
@@ -526,7 +536,11 @@ export class AmqpConnection {
       }
     }
 
-    return handler(message, msg);
+    if (msg.properties && msg.properties.headers) {
+      headers = msg.properties.headers;
+    }
+
+    return handler(message, msg, headers);
   }
 
   private async setupQueue(
