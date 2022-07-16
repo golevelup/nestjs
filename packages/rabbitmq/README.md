@@ -17,7 +17,7 @@
   - [Usage](#usage)
     - [Install](#install)
     - [Module Initialization](#module-initialization)
-  - [Usage with Interceptors](#usage-with-interceptors)
+  - [Usage with Interceptors, Guards and Filters](#usage-with-interceptors-guards-and-filters)
   - [Usage with Controllers](#usage-with-controllers)
   - [Receiving Messages](#receiving-messages)
     - [Exposing RPC Handlers](#exposing-rpc-handlers)
@@ -134,9 +134,30 @@ import { MessagingService } from './messaging/messaging.service';
 export class RabbitExampleModule {}
 ```
 
-## Usage with Interceptors
+## Usage with Interceptors, Guards and Filters
 
-This library is built using an underlying NestJS concept called `External Contexts` which allows for methods to be included in the NestJS lifecycle. This means that Guards and Interceptors can be used in conjunction with RabbitMQ message handlers. However, this can have unwanted/unintended consequences if you are using Global intereceptors in your application as these will also apply to all RabbitMQ message handlers. As a workaround, there is a utiltity function available called `isRabbitContext` which you can use inside of Interceptors to do conditional logic.
+This library is built using an underlying NestJS concept called `External Contexts` which allows for methods to be included in the NestJS lifecycle. This means that Guards, Interceptors and Filters (collectively known as "enhancers") can be used in conjunction with RabbitMQ message handlers. However, this can have unwanted/unintended consequences if you are using _Global_ enhancers in your application as these will also apply to all RabbitMQ message handlers. If you were previously expecting all contexts to be HTTP contexts, you may need to add conditional logic to prevent your enhancers from applying to RabbitMQ message handlers.
+
+You can identify RabbitMQ contexts by their context type, `'rmq'`:
+
+```typescript
+@Injectable()
+class ExampleInterceptor implements NestInterceptor {
+  intercept(context: ExecutionContext, next: CallHandler<any>) {
+    const contextType = context.getType<'http' | 'rmq'>();
+
+    // Do nothing if this is a RabbitMQ event
+    if (contextType === 'rmq') {
+      return next.handle();
+    }
+
+    // Execute custom interceptor logic for HTTP request/response
+    return next.handle();
+  }
+}
+```
+
+There is also a utility function available called `isRabbitContext` which provides an alternative way to identify RabbitMQ contexts:
 
 ```typescript
 import { isRabbitContext } from '@golevelup/nestjs-rabbitmq';
@@ -144,8 +165,8 @@ import { isRabbitContext } from '@golevelup/nestjs-rabbitmq';
 @Injectable()
 class ExampleInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler<any>) {
-    const shouldSkip = isRabbitContext(context);
-    if (shouldSkip) {
+    // Do nothing if this is a RabbitMQ event
+    if (isRabbitContext(context)) {
       return next.handle();
     }
 
