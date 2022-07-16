@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [3.0.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-hasura@2.0.4...@golevelup/nestjs-hasura@3.0.0) (2022-07-16)
+
+- feat!(stripe, hasura): named execution contexts ([132c6c5](https://github.com/golevelup/nestjs/commit/132c6c5f6dfe24659e1018b92b85277cad2f1726))
+
+### BREAKING CHANGES
+
+- Switches to using named contexts for stripe and hasura which might have an impact on how interceptors and other NestJS enhancers work with methods that are decorated with the corresponding library handlers
+
 ## [2.0.4](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-hasura@2.0.3...@golevelup/nestjs-hasura@2.0.4) (2022-07-16)
 
 **Note:** Version bump only for package @golevelup/nestjs-hasura
