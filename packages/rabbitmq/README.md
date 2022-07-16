@@ -1,3 +1,4 @@
+
 # @golevelup/nestjs-rabbitmq
 
 <p align="center">
@@ -200,6 +201,23 @@ Then simly add the corresponding decorator to the whole controller or the method
 })
 @UseInterceptors(TransformInterceptor)
 interceptedRpc() {
+  return {
+    message: 42,
+  };
+}
+```
+
+
+```typescript
+@RabbitRPC({
+  routingKey: 'intercepted-rpc-2',
+  exchange: 'exchange2',
+  queue: 'intercepted-rpc-2',
+  errorBehavior: MessageHandlerErrorBehavior.ACK,
+  errorHandler: ReplyErrorCallback,
+})
+@UsePipes(ValidationPipe)
+interceptedRpc(@RabbitPayload()  message:messageDto) {
   return {
     message: 42,
   };
