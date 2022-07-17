@@ -33,7 +33,7 @@ describe('Rabbit Direct Reply To', () => {
     process.env.NODE_ENV === 'ci' ? process.env.RABBITMQ_HOST : 'localhost';
   const rabbitPort =
     process.env.NODE_ENV === 'ci' ? process.env.RABBITMQ_PORT : '5672';
-  const uri = `amqp://rabbitmq:rabbitmq@${rabbitHost}:${rabbitPort}`;
+  const uri = 'amqp://localhost:5672';
 
   beforeAll(async () => {
     const moduleFixture = await Test.createTestingModule({
