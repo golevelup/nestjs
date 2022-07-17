@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.6.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-modules@0.5.0...@golevelup/nestjs-modules@0.6.0) (2022-07-16)
+
+### Features
+
+- **modules:** display compiler error on missing attributes at forRootAsync ([4fe3fec](https://github.com/golevelup/nestjs/commit/4fe3fecc98a249dbe23fb856493b34135064bef0))
+
 # [0.5.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-modules@0.4.4...@golevelup/nestjs-modules@0.5.0) (2022-01-24)
 
 - feat!: update libraries to support Nest 8 (#342) ([de7cd35](https://github.com/golevelup/nestjs/commit/de7cd35ac2e63d66af76b792d5bf99b4a2d82bb4)), closes [#342](https://github.com/golevelup/nestjs/issues/342)

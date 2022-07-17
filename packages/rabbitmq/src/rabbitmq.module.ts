@@ -189,10 +189,10 @@ export class RabbitMQModule
               discoveredMethod.methodName,
               RABBIT_ARGS_METADATA,
               this.rpcParamsFactory,
-              undefined,
-              undefined,
-              undefined,
-              'rmq'
+              undefined, // contextId
+              undefined, // inquirerId
+              undefined, // options
+              'rmq' // contextType
             );
 
             const { exchange, routingKey, queue, queueOptions } = config;
