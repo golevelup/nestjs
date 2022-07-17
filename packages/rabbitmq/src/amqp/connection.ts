@@ -117,6 +117,8 @@ export class AmqpConnection {
 
   constructor(config: RabbitMQConfig) {
     this.config = {
+      deserializer: (message) => JSON.parse(message.toString()),
+      serializer: (value) => Buffer.from(JSON.stringify(value)),
       logger: config.logger || new Logger(AmqpConnection.name),
       ...defaultConfig,
       ...config,
@@ -281,7 +283,7 @@ export class AmqpConnection {
         // Check that the Buffer has content, before trying to parse it
         const message =
           msg.content.length > 0
-            ? JSON.parse(msg.content.toString())
+            ? this.config.deserializer(msg.content)
             : undefined;
 
         const correlationMessage: CorrelationMessage = {
@@ -373,7 +375,7 @@ export class AmqpConnection {
         // the request will be acknowledged
         if (response) {
           this.logger.warn(
-            `Received response: [${JSON.stringify(
+            `Received response: [${this.config.serializer(
               response
             )}] from subscribe handler [${originalHandlerName}]. Subscribe handlers should only return void`
           );
@@ -497,7 +499,7 @@ export class AmqpConnection {
     } else if (message instanceof Uint8Array) {
       buffer = Buffer.from(message);
     } else if (message != null) {
-      buffer = Buffer.from(JSON.stringify(message));
+      buffer = this.config.serializer(message);
     } else {
       buffer = Buffer.alloc(0);
     }
@@ -514,13 +516,13 @@ export class AmqpConnection {
     if (msg.content) {
       if (allowNonJsonMessages) {
         try {
-          message = JSON.parse(msg.content.toString()) as T;
+          message = this.config.deserializer(msg.content) as T;
         } catch {
           // Let handler handle parsing error, it has the raw message anyway
           message = undefined;
         }
       } else {
-        message = JSON.parse(msg.content.toString()) as T;
+        message = this.config.deserializer(msg.content) as T;
       }
     }
 

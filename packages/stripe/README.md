@@ -27,12 +27,14 @@ Interacting with the Stripe API or consuming Stripe webhooks in your NestJS appl
 #### NPM
 
 - Install the package along with the stripe peer dependency
-`npm install --save @golevelup/nestjs-stripe stripe`
+
+  `npm install --save @golevelup/nestjs-stripe stripe`
 
 #### YARN
 
 - Install the package using yarn with the stripe peer dependency
-`yarn add @golevelup/nestjs-stripe stripe`
+
+  `yarn add @golevelup/nestjs-stripe stripe`
 
 ### Import
 
@@ -129,6 +131,29 @@ StripeModule.forRoot(StripeModule, {
     decorators: [ThrottlerSkip()],
   },
 }),
+```
+
+### Usage with Interceptors, Guards and Filters
+
+This library is built using an underlying NestJS concept called `External Contexts` which allows for methods to be included in the NestJS lifecycle. This means that Guards, Interceptors and Filters (collectively known as "enhancers") can be used in conjunction with Stripe webhook handlers. However, this can have unwanted/unintended consequences if you are using _Global_ enhancers in your application as these will also apply to all Stripe webhook handlers. If you were previously expecting all contexts to be regular HTTP contexts, you may need to add conditional logic to prevent your enhancers from applying to Stripe webhook handlers.
+
+You can identify Stripe webhook contexts by their context type, `'stripe_webhook'`:
+
+```typescript
+@Injectable()
+class ExampleInterceptor implements NestInterceptor {
+  intercept(context: ExecutionContext, next: CallHandler<any>) {
+    const contextType = context.getType<'http' | 'stripe_webhook'>();
+
+    // Do nothing if this is a Stripe webhook event
+    if (contextType === 'stripe_webhook') {
+      return next.handle();
+    }
+
+    // Execute custom interceptor logic for HTTP request/response
+    return next.handle();
+  }
+}
 ```
 
 ### Configure Webhooks in the Stripe Dashboard

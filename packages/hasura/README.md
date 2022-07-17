@@ -22,6 +22,7 @@ Leverage NestJS to make incorporating business logic and event processing easier
       - [Registering Scheduled Event Handlers](#registering-scheduled-event-handlers)
       - [Retry Configuration](#retry-configuration)
       - [Configuring Hasura Environment Variables](#configuring-hasura-environment-variables)
+      - [Usage with Interceptors, Guards and Filters](#usage-with-interceptors-guards-and-filters)
     - [Related Hasura Documentation](#related-hasura-documentation)
       - [Concepts](#concepts)
       - [Tutorials](#tutorials)
@@ -169,6 +170,29 @@ You should provide ENV variables to your Hasura instance that map the webhook en
 
 In the examples above, `HASURA_NESTJS_WEBHOOK_SECRET_HEADER_VALUE` and `NESTJS_EVENT_WEBHOOK_ENDPOINT` were used. The webhook endpoint should point to the automatically scaffolded events endpoint eg:
 `https://my-nest-app.com/api/hasura/events`
+
+#### Usage with Interceptors, Guards and Filters
+
+This library is built using an underlying NestJS concept called `External Contexts` which allows for methods to be included in the NestJS lifecycle. This means that Guards, Interceptors and Filters (collectively known as "enhancers") can be used in conjunction with Hasura event handlers. However, this can have unwanted/unintended consequences if you are using _Global_ enhancers in your application as these will also apply to all Hasura event handlers. If you were previously expecting all contexts to be regular HTTP contexts, you may need to add conditional logic to prevent your enhancers from applying to Hasura event handlers.
+
+You can identify Hasura event contexts by their context type, `'hasura_event'`:
+
+```typescript
+@Injectable()
+class ExampleInterceptor implements NestInterceptor {
+  intercept(context: ExecutionContext, next: CallHandler<any>) {
+    const contextType = context.getType<'http' | 'hasura_event'>();
+
+    // Do nothing if this is a Hasura event
+    if (contextType === 'hasura_event') {
+      return next.handle();
+    }
+
+    // Execute custom interceptor logic for HTTP request/response
+    return next.handle();
+  }
+}
+```
 
 ### Related Hasura Documentation
 
