@@ -162,8 +162,9 @@ describe('Rabbit Subscribe', () => {
     });
 
     it('should provide a ConsumerTag on subscription', async () => {
-      const consumerTag = await amqpConnection.createSubscriber(
-        (msg) => jest.fn(),
+      const subscriptionCallback = jest.fn();
+      const { consumerTag } = await amqpConnection.createSubscriber(
+        () => subscriptionCallback(),
         {
           exchange,
           routingKey: [routingKey1],
@@ -176,7 +177,7 @@ describe('Rabbit Subscribe', () => {
 
     it('should allow for a ConsumerTag to cancel and resume a subscription', async () => {
       const subscriptionCallback = jest.fn();
-      const consumerTag = await amqpConnection.createSubscriber(
+      const { consumerTag } = await amqpConnection.createSubscriber(
         (msg) => subscriptionCallback(msg),
         {
           exchange,
@@ -186,21 +187,23 @@ describe('Rabbit Subscribe', () => {
         'testingCallback',
       );
       // Make sure the subscription is functional
-      amqpConnection.publish(exchange, routingKey1, `testMessage-1`);
+      await amqpConnection.publish(exchange, routingKey1, `testMessage-1`);
       await new Promise((resolve) => setTimeout(resolve, 50));
       expect(subscriptionCallback).toHaveBeenCalledWith(`testMessage-1`);
       subscriptionCallback.mockReset();
       // Perform cancel using consumer tag
-      amqpConnection.cancelConsumer(consumerTag);
-      // Make sure the subscription has been canceled
-      amqpConnection.publish(exchange, routingKey1, `testMessage-2`);
+      await amqpConnection.cancelConsumer(consumerTag);
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      // Make sure published messages are not received by the canceled consumer
+      await amqpConnection.publish(exchange, routingKey1, `testMessage-2`);
       await new Promise((resolve) => setTimeout(resolve, 50));
       expect(subscriptionCallback).not.toHaveBeenCalled();
       subscriptionCallback.mockReset();
       // Resume the consumer
-      const newConsumerTag = amqpConnection.resumeConsumer(consumerTag);
+      await amqpConnection.resumeConsumer(consumerTag);
+      await new Promise((resolve) => setTimeout(resolve, 50));
       // Make sure the subscription was reestablished
-      amqpConnection.publish(exchange, routingKey1, `testMessage-3`);
+      await amqpConnection.publish(exchange, routingKey1, `testMessage-3`);
       await new Promise((resolve) => setTimeout(resolve, 50));
       expect(subscriptionCallback).toHaveBeenCalledWith(`testMessage-3`);
     });
