@@ -336,19 +336,20 @@ export class AmqpConnection {
   public async createSubscriber<T>(
     handler: SubscriberHandler<T>,
     msgOptions: MessageHandlerOptions,
-    originalHandlerName: string,
-    subscriptionResultCallback?: (result: SubscriptionResult) => void
-  ) {
-    return this.selectManagedChannel(
-      msgOptions?.queueOptions?.channel
-    ).addSetup(async (channel) => {
-      const consumerTag = await this.setupSubscriberChannel<T>(
-        handler,
-        msgOptions,
-        channel,
-        originalHandlerName
+    originalHandlerName: string
+  ): Promise<SubscriptionResult> {
+    return new Promise((res) => {
+      this.selectManagedChannel(msgOptions?.queueOptions?.channel).addSetup(
+        async (channel) => {
+          const consumerTag = await this.setupSubscriberChannel<T>(
+            handler,
+            msgOptions,
+            channel,
+            originalHandlerName
+          );
+          res({ consumerTag });
+        }
       );
-      subscriptionResultCallback?.({ consumerTag });
     });
   }
 
@@ -423,18 +424,19 @@ export class AmqpConnection {
       msg: T | undefined,
       rawMessage?: ConsumeMessage
     ) => Promise<RpcResponse<U>>,
-    rpcOptions: MessageHandlerOptions,
-    subscriptionResultCallback?: (result: SubscriptionResult) => void
-  ) {
-    return this.selectManagedChannel(
-      rpcOptions?.queueOptions?.channel
-    ).addSetup(async (channel) => {
-      const consumerTag = await this.setupRpcChannel<T, U>(
-        handler,
-        rpcOptions,
-        channel
+    rpcOptions: MessageHandlerOptions
+  ): Promise<SubscriptionResult> {
+    return new Promise((res) => {
+      this.selectManagedChannel(rpcOptions?.queueOptions?.channel).addSetup(
+        async (channel) => {
+          const consumerTag = await this.setupRpcChannel<T, U>(
+            handler,
+            rpcOptions,
+            channel
+          );
+          res({ consumerTag });
+        }
       );
-      subscriptionResultCallback?.({ consumerTag });
     });
   }
 
