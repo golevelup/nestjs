@@ -332,18 +332,20 @@ export class AmqpConnection {
   public async createSubscriber<T>(
     handler: SubscriberHandler<T>,
     msgOptions: MessageHandlerOptions,
-    originalHandlerName: string
+    originalHandlerName: string,
+    consumerTagCallback?: (tag: ConsumerTag) => void
   ) {
     return this.selectManagedChannel(
       msgOptions?.queueOptions?.channel
-    ).addSetup((channel) =>
-      this.setupSubscriberChannel<T>(
+    ).addSetup(async (channel) => {
+      const consumerTag = await this.setupSubscriberChannel<T>(
         handler,
         msgOptions,
         channel,
         originalHandlerName
       )
-    );
+      consumerTagCallback?.(consumerTag);
+    });
   }
 
   private async setupSubscriberChannel<T>(
@@ -351,10 +353,10 @@ export class AmqpConnection {
     msgOptions: MessageHandlerOptions,
     channel: ConfirmChannel,
     originalHandlerName = 'unknown'
-  ): Promise<void> {
+  ): Promise<ConsumerTag> {
     const queue = await this.setupQueue(msgOptions, channel);
 
-    const { consumerTag } = await channel.consume(queue, async (msg) => {
+    const { consumerTag }: { consumerTag: ConsumerTag } = await channel.consume(queue, async (msg) => {
       try {
         if (isNull(msg)) {
           throw new Error('Received null message');
@@ -405,6 +407,8 @@ export class AmqpConnection {
       msgOptions,
       channel,
     });
+
+    return consumerTag;
   }
 
   public async createRpc<T, U>(
@@ -412,13 +416,15 @@ export class AmqpConnection {
       msg: T | undefined,
       rawMessage?: ConsumeMessage
     ) => Promise<RpcResponse<U>>,
-    rpcOptions: MessageHandlerOptions
+    rpcOptions: MessageHandlerOptions,
+    consumerTagCallback?: (tag: ConsumerTag) => void
   ) {
     return this.selectManagedChannel(
       rpcOptions?.queueOptions?.channel
-    ).addSetup((channel) =>
-      this.setupRpcChannel<T, U>(handler, rpcOptions, channel)
-    );
+    ).addSetup(async (channel) => {
+      const consumerTag = await this.setupRpcChannel<T, U>(handler, rpcOptions, channel)
+      consumerTagCallback?.(consumerTag);
+    });
   }
 
   public async setupRpcChannel<T, U>(
@@ -428,10 +434,10 @@ export class AmqpConnection {
     ) => Promise<RpcResponse<U>>,
     rpcOptions: MessageHandlerOptions,
     channel: ConfirmChannel
-  ) {
+  ): Promise<ConsumerTag> {
     const queue = await this.setupQueue(rpcOptions, channel);
 
-    const { consumerTag } = await channel.consume(queue, async (msg) => {
+    const { consumerTag }: { consumerTag: ConsumerTag } = await channel.consume(queue, async (msg) => {
       try {
         if (msg == null) {
           throw new Error('Received null message');
@@ -480,6 +486,8 @@ export class AmqpConnection {
       rpcOptions,
       channel,
     });
+
+    return consumerTag;
   }
 
   public publish(
