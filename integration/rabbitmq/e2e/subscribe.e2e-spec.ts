@@ -169,6 +169,7 @@ describe('Rabbit Subscribe', () => {
           routingKey: [routingKey1],
           queue: 'subscribeQueue',
         },
+        'testingCallback',
       );
       expect(consumerTag).toBeDefined();
     });
@@ -182,6 +183,7 @@ describe('Rabbit Subscribe', () => {
           routingKey: [routingKey1, routingKey2],
           queue: 'subscribeQueue',
         },
+        'testingCallback',
       );
       // Make sure the subscription is functional
       amqpConnection.publish(exchange, routingKey1, `testMessage-1`);
@@ -189,14 +191,14 @@ describe('Rabbit Subscribe', () => {
       expect(subscriptionCallback).toHaveBeenCalledWith(`testMessage-1`);
       subscriptionCallback.mockReset();
       // Perform cancel using consumer tag
-      amqpConnection.channel.cancelConsumer(consumerTag);
+      amqpConnection.cancelConsumer(consumerTag);
       // Make sure the subscription has been canceled
       amqpConnection.publish(exchange, routingKey1, `testMessage-2`);
       await new Promise((resolve) => setTimeout(resolve, 50));
       expect(subscriptionCallback).not.toHaveBeenCalled();
       subscriptionCallback.mockReset();
       // Resume the consumer
-      const newConsumerTag = amqpConnection.channel.resumeConsumer(consumerTag);
+      const newConsumerTag = amqpConnection.resumeConsumer(consumerTag);
       // Make sure the subscription was reestablished
       amqpConnection.publish(exchange, routingKey1, `testMessage-3`);
       await new Promise((resolve) => setTimeout(resolve, 50));
