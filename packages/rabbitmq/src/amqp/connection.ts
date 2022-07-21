@@ -343,7 +343,7 @@ export class AmqpConnection {
         msgOptions,
         channel,
         originalHandlerName
-      )
+      );
       consumerTagCallback?.(consumerTag);
     });
   }
@@ -356,49 +356,52 @@ export class AmqpConnection {
   ): Promise<ConsumerTag> {
     const queue = await this.setupQueue(msgOptions, channel);
 
-    const { consumerTag }: { consumerTag: ConsumerTag } = await channel.consume(queue, async (msg) => {
-      try {
-        if (isNull(msg)) {
-          throw new Error('Received null message');
-        }
+    const { consumerTag }: { consumerTag: ConsumerTag } = await channel.consume(
+      queue,
+      async (msg) => {
+        try {
+          if (isNull(msg)) {
+            throw new Error('Received null message');
+          }
 
-        const response = await this.handleMessage(
-          handler,
-          msg,
-          msgOptions.allowNonJsonMessages
-        );
-
-        if (response instanceof Nack) {
-          channel.nack(msg, false, response.requeue);
-          return;
-        }
-
-        // developers should be responsible to avoid subscribers that return therefore
-        // the request will be acknowledged
-        if (response) {
-          this.logger.warn(
-            `Received response: [${this.config.serializer(
-              response
-            )}] from subscribe handler [${originalHandlerName}]. Subscribe handlers should only return void`
+          const response = await this.handleMessage(
+            handler,
+            msg,
+            msgOptions.allowNonJsonMessages
           );
-        }
 
-        channel.ack(msg);
-      } catch (e) {
-        if (isNull(msg)) {
-          return;
-        } else {
-          const errorHandler =
-            msgOptions.errorHandler ||
-            getHandlerForLegacyBehavior(
-              msgOptions.errorBehavior ||
-                this.config.defaultSubscribeErrorBehavior
+          if (response instanceof Nack) {
+            channel.nack(msg, false, response.requeue);
+            return;
+          }
+
+          // developers should be responsible to avoid subscribers that return therefore
+          // the request will be acknowledged
+          if (response) {
+            this.logger.warn(
+              `Received response: [${this.config.serializer(
+                response
+              )}] from subscribe handler [${originalHandlerName}]. Subscribe handlers should only return void`
             );
+          }
 
-          await errorHandler(channel, msg, e);
+          channel.ack(msg);
+        } catch (e) {
+          if (isNull(msg)) {
+            return;
+          } else {
+            const errorHandler =
+              msgOptions.errorHandler ||
+              getHandlerForLegacyBehavior(
+                msgOptions.errorBehavior ||
+                  this.config.defaultSubscribeErrorBehavior
+              );
+
+            await errorHandler(channel, msg, e);
+          }
         }
       }
-    });
+    );
 
     this.registerConsumerForQueue({
       type: 'subscribe',
@@ -422,7 +425,11 @@ export class AmqpConnection {
     return this.selectManagedChannel(
       rpcOptions?.queueOptions?.channel
     ).addSetup(async (channel) => {
-      const consumerTag = await this.setupRpcChannel<T, U>(handler, rpcOptions, channel)
+      const consumerTag = await this.setupRpcChannel<T, U>(
+        handler,
+        rpcOptions,
+        channel
+      );
       consumerTagCallback?.(consumerTag);
     });
   }
@@ -437,47 +444,51 @@ export class AmqpConnection {
   ): Promise<ConsumerTag> {
     const queue = await this.setupQueue(rpcOptions, channel);
 
-    const { consumerTag }: { consumerTag: ConsumerTag } = await channel.consume(queue, async (msg) => {
-      try {
-        if (msg == null) {
-          throw new Error('Received null message');
-        }
+    const { consumerTag }: { consumerTag: ConsumerTag } = await channel.consume(
+      queue,
+      async (msg) => {
+        try {
+          if (msg == null) {
+            throw new Error('Received null message');
+          }
 
-        const response = await this.handleMessage(
-          handler,
-          msg,
-          rpcOptions.allowNonJsonMessages
-        );
+          const response = await this.handleMessage(
+            handler,
+            msg,
+            rpcOptions.allowNonJsonMessages
+          );
 
-        if (response instanceof Nack) {
-          channel.nack(msg, false, response.requeue);
-          return;
-        }
+          if (response instanceof Nack) {
+            channel.nack(msg, false, response.requeue);
+            return;
+          }
 
-        const { replyTo, correlationId, expiration, headers } = msg.properties;
-        if (replyTo) {
-          await this.publish('', replyTo, response, {
-            correlationId,
-            expiration,
-            headers,
-          });
-        }
-        channel.ack(msg);
-      } catch (e) {
-        if (msg == null) {
-          return;
-        } else {
-          const errorHandler =
-            rpcOptions.errorHandler ||
-            getHandlerForLegacyBehavior(
-              rpcOptions.errorBehavior ||
-                this.config.defaultSubscribeErrorBehavior
-            );
+          const { replyTo, correlationId, expiration, headers } =
+            msg.properties;
+          if (replyTo) {
+            await this.publish('', replyTo, response, {
+              correlationId,
+              expiration,
+              headers,
+            });
+          }
+          channel.ack(msg);
+        } catch (e) {
+          if (msg == null) {
+            return;
+          } else {
+            const errorHandler =
+              rpcOptions.errorHandler ||
+              getHandlerForLegacyBehavior(
+                rpcOptions.errorBehavior ||
+                  this.config.defaultSubscribeErrorBehavior
+              );
 
-          await errorHandler(channel, msg, e);
+            await errorHandler(channel, msg, e);
+          }
         }
       }
-    });
+    );
 
     this.registerConsumerForQueue({
       type: 'rpc',
@@ -663,24 +674,29 @@ export class AmqpConnection {
     }
   }
 
-  public async resumeConsumer<T, U>(consumerTag: ConsumerTag) {
+  public async resumeConsumer<T, U>(
+    consumerTag: ConsumerTag
+  ): Promise<ConsumerTag | null> {
     const consumer = this.getConsumer(consumerTag) as ConsumerHandler<T, U>;
-    if (consumer) {
-      if (consumer.type === 'rpc') {
-        await this.setupRpcChannel<T, U>(
-          consumer.handler,
-          consumer.rpcOptions,
-          consumer.channel
-        );
-      } else {
-        await this.setupSubscriberChannel<T>(
-          consumer.handler,
-          consumer.msgOptions,
-          consumer.channel
-        );
-      }
-      // A new consumerTag was created, remove old
-      this.unregisterConsumerForQueue(consumerTag);
+    if (!consumer) {
+      return null;
     }
+    let newConsumerTag: ConsumerTag;
+    if (consumer.type === 'rpc') {
+      newConsumerTag = await this.setupRpcChannel<T, U>(
+        consumer.handler,
+        consumer.rpcOptions,
+        consumer.channel
+      );
+    } else {
+      newConsumerTag = await this.setupSubscriberChannel<T>(
+        consumer.handler,
+        consumer.msgOptions,
+        consumer.channel
+      );
+    }
+    // A new consumerTag was created, remove old
+    this.unregisterConsumerForQueue(consumerTag);
+    return newConsumerTag;
   }
 }
