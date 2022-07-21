@@ -162,7 +162,7 @@ describe('Rabbit Subscribe', () => {
     });
 
     it('should provide a ConsumerTag on subscription', async () => {
-      const consumerTag = await amqpConnection.channel.createSubscriber(
+      const consumerTag = await amqpConnection.createSubscriber(
         (msg) => jest.fn(),
         {
           exchange,
@@ -175,7 +175,7 @@ describe('Rabbit Subscribe', () => {
 
     it('should allow for a ConsumerTag to cancel and resume a subscription', async () => {
       const subscriptionCallback = jest.fn();
-      const consumerTag = await amqpConnection.channel.createSubscriber(
+      const consumerTag = await amqpConnection.createSubscriber(
         (msg) => subscriptionCallback(msg),
         {
           exchange,
