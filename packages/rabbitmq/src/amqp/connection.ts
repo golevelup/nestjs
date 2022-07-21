@@ -50,6 +50,10 @@ export interface CorrelationMessage {
   message: Record<string, unknown>;
 }
 
+export interface SubscriptionResult {
+  consumerTag: ConsumerTag;
+}
+
 export type BaseConsumerHandler = {
   consumerTag: string;
   channel: ConfirmChannel;
@@ -333,7 +337,7 @@ export class AmqpConnection {
     handler: SubscriberHandler<T>,
     msgOptions: MessageHandlerOptions,
     originalHandlerName: string,
-    consumerTagCallback?: (tag: ConsumerTag) => void
+    subscriptionResultCallback?: (result: SubscriptionResult) => void
   ) {
     return this.selectManagedChannel(
       msgOptions?.queueOptions?.channel
@@ -344,7 +348,7 @@ export class AmqpConnection {
         channel,
         originalHandlerName
       );
-      consumerTagCallback?.(consumerTag);
+      subscriptionResultCallback?.({ consumerTag });
     });
   }
 
@@ -420,7 +424,7 @@ export class AmqpConnection {
       rawMessage?: ConsumeMessage
     ) => Promise<RpcResponse<U>>,
     rpcOptions: MessageHandlerOptions,
-    consumerTagCallback?: (tag: ConsumerTag) => void
+    subscriptionResultCallback?: (result: SubscriptionResult) => void
   ) {
     return this.selectManagedChannel(
       rpcOptions?.queueOptions?.channel
@@ -430,7 +434,7 @@ export class AmqpConnection {
         rpcOptions,
         channel
       );
-      consumerTagCallback?.(consumerTag);
+      subscriptionResultCallback?.({ consumerTag });
     });
   }
 
