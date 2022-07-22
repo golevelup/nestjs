@@ -75,6 +75,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
   <tr>
     <td align="center"><a href="https://stanislas.blog/"><img src="https://avatars.githubusercontent.com/u/11699655?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Stanislas</b></sub></a><br /><a href="https://github.com/golevelup/nestjs/commits?author=angristan" title="Documentation">📖</a></td>
     <td align="center"><a href="http://tom.lakesman.co.uk/"><img src="https://avatars.githubusercontent.com/u/1367638?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Tom Lakesman</b></sub></a><br /><a href="https://github.com/golevelup/nestjs/commits?author=bugsduggan" title="Code">💻</a></td>
+    <td align="center"><a href="https://www.craigotis.com/"><img src="https://avatars.githubusercontent.com/u/1367638?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Craig Otis</b></sub></a><br /><a href="https://github.com/golevelup/nestjs/commits?author=craigotis" title="Code">💻</a></td>
   </tr>
 </table>
 
