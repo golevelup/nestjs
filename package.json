@@ -50,7 +50,7 @@
     "lerna:prerelease": "lerna run build && yarn test && lerna publish prerelease --preid rc -m 'chore: publish prerelease'",
     "build": " lerna run build --ignore rabbitmq-integration",
     "build:watch": "lerna run --parallel build:watch --ignore rabbitmq-integration",
-    "clean": "rimraf packages/**/lib",
+    "clean": "rimraf packages//lib && rimraf packages//*.tsbuildinfo",
     "test": "jest",
     "test:integration": "jest --config ./jest-e2e.json",
     "test:ci:integration": "NODE_ENV=ci jest --config ./jest-e2e.json --forceExit",

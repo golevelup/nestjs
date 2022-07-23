@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [3.1.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@3.0.0...@golevelup/nestjs-rabbitmq@3.1.0) (2022-07-22)
+
+### Features
+
+- **rabbitmq:** expose consumer tag for cancel & resume ([3f554c2](https://github.com/golevelup/nestjs/commit/3f554c24edc2896540fee457a6c014983d6f1b82))
+
 # [3.0.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@2.4.1...@golevelup/nestjs-rabbitmq@3.0.0) (2022-07-16)
 
 - feat!(stripe, hasura): named execution contexts ([132c6c5](https://github.com/golevelup/nestjs/commit/132c6c5f6dfe24659e1018b92b85277cad2f1726))
