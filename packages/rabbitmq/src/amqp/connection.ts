@@ -328,7 +328,7 @@ export class AmqpConnection {
       first(),
       map(() => {
         throw new Error(
-          `Failed to receive response within timeout of ${timeout}ms`
+          `Failed to receive response within timeout of ${timeout}ms for exchange "${requestOptions.exchange}" and routing key "${requestOptions.routingKey}"`
         );
       })
     );
