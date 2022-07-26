@@ -36,7 +36,7 @@
     "lodash": "^4.17.21"
   },
   "peerDependencies": {
-    "@nestjs/common": "^8.x",
+    "@nestjs/common": "^9.x",
     "rxjs": "^7.x"
   },
   "jest": {
