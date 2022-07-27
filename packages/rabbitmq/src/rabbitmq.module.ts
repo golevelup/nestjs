@@ -127,7 +127,7 @@ export class RabbitMQModule
     await Promise.all(
       this.connectionManager
         .getConnections()
-        .map((connection) => connection.managedConnection.close)
+        .map((connection) => connection.managedConnection.close())
     );
   }
 
