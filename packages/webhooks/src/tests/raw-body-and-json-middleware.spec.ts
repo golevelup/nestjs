@@ -53,7 +53,7 @@ describe('Webhooks Raw Body And JSON middleware', () => {
         imports: [TestAppModule, RawBodyMiddleware, JsonBodyMiddleware],
       }).compile();
 
-      app = moduleFixture.createNestApplication(undefined, {
+      app = moduleFixture.createNestApplication({
         bodyParser: false,
       });
       await app.init();

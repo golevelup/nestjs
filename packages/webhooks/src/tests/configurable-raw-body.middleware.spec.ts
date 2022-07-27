@@ -62,7 +62,7 @@ describe('Webhooks Configurable Raw Body Module (e2e)', () => {
         imports: [TestAppModule],
       }).compile();
 
-      app = moduleFixture.createNestApplication(undefined, {
+      app = moduleFixture.createNestApplication({
         bodyParser: false,
       });
       await app.init();
