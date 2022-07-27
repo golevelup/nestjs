@@ -3,6 +3,37 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [3.1.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@3.0.0...@golevelup/nestjs-rabbitmq@3.1.0) (2022-07-22)
+
+### Features
+
+- **rabbitmq:** expose consumer tag for cancel & resume ([3f554c2](https://github.com/golevelup/nestjs/commit/3f554c24edc2896540fee457a6c014983d6f1b82))
+
+# [3.0.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@2.4.1...@golevelup/nestjs-rabbitmq@3.0.0) (2022-07-16)
+
+- feat!(stripe, hasura): named execution contexts ([132c6c5](https://github.com/golevelup/nestjs/commit/132c6c5f6dfe24659e1018b92b85277cad2f1726))
+
+### BREAKING CHANGES
+
+- Switches to using named contexts for stripe and hasura which might have an impact on how interceptors and other NestJS enhancers work with methods that are decorated with the corresponding library handlers
+
+## [2.4.1](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@2.4.0...@golevelup/nestjs-rabbitmq@2.4.1) (2022-07-16)
+
+**Note:** Version bump only for package @golevelup/nestjs-rabbitmq
+
+# [2.4.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@2.3.0...@golevelup/nestjs-rabbitmq@2.4.0) (2022-05-31)
+
+### Bug Fixes
+
+- **rabbitmq:** abililty to inject connection ([#442](https://github.com/golevelup/nestjs/issues/442)) ([cc49726](https://github.com/golevelup/nestjs/commit/cc4972660c362ee2208d4963b2e15db2968fe6e6)), closes [#430](https://github.com/golevelup/nestjs/issues/430)
+
+### Features
+
+- **connection:** reconsume ([#416](https://github.com/golevelup/nestjs/issues/416)) ([c05297f](https://github.com/golevelup/nestjs/commit/c05297f5e0ac1d991efb0e8c23a0a4821d27aa66)), closes [#415](https://github.com/golevelup/nestjs/issues/415)
+- **rabbitmq:** add custom logger to configuration ([#401](https://github.com/golevelup/nestjs/issues/401)) ([242fc69](https://github.com/golevelup/nestjs/commit/242fc69cf00eaf9d5dd6847c1930c0849c0d062a))
+- **rabbitmq:** add support for custom message serializer/deserializer ([#443](https://github.com/golevelup/nestjs/issues/443)) ([227f460](https://github.com/golevelup/nestjs/commit/227f4606b4c28fb120caf79feac671c4af084147))
+- improve subscriber ([#427](https://github.com/golevelup/nestjs/issues/427)) ([45f68f6](https://github.com/golevelup/nestjs/commit/45f68f68d2dbc01a82e01d2f9e3dedf3242be854))
+
 # [2.3.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@2.2.0...@golevelup/nestjs-rabbitmq@2.3.0) (2022-04-18)
 
 ### Bug Fixes
