@@ -107,7 +107,8 @@ export enum CommonCronSchedules {
 export interface HasuraScheduledEventPayload<T = Record<string, any>> {
   scheduled_time: Date;
   payload: T;
-  name: string;
+  name?: string;
+  comment?: string;
   created_at: Date;
   id: string;
 }
