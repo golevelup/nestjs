@@ -1,8 +1,8 @@
 import { DynamicModule, Provider, Type } from '@nestjs/common';
 import { ModuleMetadata } from '@nestjs/common/interfaces';
-import { get } from 'lodash';
 import { interval, lastValueFrom, race, Subject } from 'rxjs';
 import { first, map } from 'rxjs/operators';
+import { OptionalFactoryDependency } from '@nestjs/common/interfaces/modules/optional-factory-dependency.interface';
 
 type InjectionToken = string | symbol | Type;
 
@@ -10,59 +10,60 @@ export interface ModuleConfigFactory<T> {
   createModuleConfig(): Promise<T> | T;
 }
 
-export interface AsyncModuleConfig<T>
-  extends Pick<ModuleMetadata, 'imports' | 'exports'> {
-  useExisting?: {
-    value: ModuleConfigFactory<T>;
-    provide?: InjectionToken;
-  };
-  useClass?: Type<ModuleConfigFactory<T>>;
-  useFactory?: (...args: any[]) => Promise<T> | T;
-  inject?: any[];
-}
+export type AsyncModuleConfig<T> = Pick<ModuleMetadata, 'imports' | 'exports'> &
+  (
+    | {
+        useExisting: {
+          value: ModuleConfigFactory<T>;
+          provide?: InjectionToken;
+        };
+      }
+    | { useClass: Type<ModuleConfigFactory<T>> }
+    | {
+        useFactory: (...args: any[]) => Promise<T> | T;
+        inject?: any[];
+      }
+  );
 
 export function createModuleConfigProvider<T>(
   provide: InjectionToken,
   options: AsyncModuleConfig<T>
 ): Provider[] {
-  if (options.useFactory) {
+  if ('useFactory' in options) {
     return [
       {
         provide,
         useFactory: options.useFactory,
-        inject: options.inject || [],
+        inject: options.inject ?? [],
       },
     ];
   }
 
-  const optionsProvider = {
+  const optionsProviderGenerator = (
+    inject: InjectionToken | OptionalFactoryDependency
+  ): Provider => ({
     provide,
     useFactory: async (moduleConfigFactory: ModuleConfigFactory<T>) => {
       return moduleConfigFactory.createModuleConfig();
     },
-    inject: [
-      options.useClass ||
-        get(
-          options,
-          'useExisting.provide',
-          (options.useExisting as any).value.constructor.name
-        ),
-    ],
-  };
+    inject: [inject],
+  });
 
-  if (options.useClass) {
+  if ('useClass' in options) {
     return [
-      optionsProvider,
+      optionsProviderGenerator(options.useClass),
       {
         provide: options.useClass,
         useClass: options.useClass,
       },
     ];
   }
-
-  if (options.useExisting) {
+  if ('useExisting' in options) {
     return [
-      optionsProvider,
+      optionsProviderGenerator(
+        options.useExisting.provide ??
+          options.useExisting.value.constructor.name
+      ),
       {
         provide:
           options.useExisting.provide ||
