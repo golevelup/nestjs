@@ -9,7 +9,6 @@ import {
 } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as request from 'supertest';
-import { JsonBodyMiddleware, RawBodyMiddleware } from '../webhooks.middleware';
 import { applyRawBodyOnlyTo } from '../webhooks.utilities';
 
 const testBodyFn = jest.fn();
@@ -50,7 +49,7 @@ describe('Webhooks Raw Body And JSON middleware', () => {
     beforeEach(async () => {
       testBodyFn.mockReset();
       const moduleFixture: TestingModule = await Test.createTestingModule({
-        imports: [TestAppModule, RawBodyMiddleware, JsonBodyMiddleware],
+        imports: [TestAppModule],
       }).compile();
 
       app = moduleFixture.createNestApplication({
