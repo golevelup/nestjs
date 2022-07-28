@@ -127,7 +127,7 @@ export class RabbitMQModule
     await Promise.all(
       this.connectionManager
         .getConnections()
-        .map((connection) => connection.managedConnection.close)
+        .map((connection) => connection.managedConnection.close())
     );
   }
 
@@ -189,10 +189,10 @@ export class RabbitMQModule
               discoveredMethod.methodName,
               RABBIT_ARGS_METADATA,
               this.rpcParamsFactory,
-              undefined,
-              undefined,
-              undefined,
-              'rmq'
+              undefined, // contextId
+              undefined, // inquirerId
+              undefined, // options
+              'rmq' // contextType
             );
 
             const handlerConfig =

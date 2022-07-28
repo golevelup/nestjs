@@ -56,7 +56,7 @@ const eventPayloadMissingTableAndTrigger = {
 };
 
 const scheduledEventPayload: HasuraScheduledEventPayload = {
-  name: scheduled_trigger,
+  comment: scheduled_trigger,
   created_at: new Date(),
   id: 'id',
   scheduled_time: new Date(),
@@ -161,7 +161,7 @@ describe.each(cases)(
       expect(scheduledEventHandler).toHaveBeenCalledTimes(1);
       expect(scheduledEventHandler).toHaveBeenCalledWith(
         expect.objectContaining(
-          pick(scheduledEventPayload, ['name', 'payload'])
+          pick(scheduledEventPayload, ['comment', 'payload'])
         )
       );
     });
