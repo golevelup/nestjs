@@ -45,6 +45,9 @@
   "devDependencies": {
     "@types/amqplib": "^0.8.0",
     "@types/uuid": "^3.4.4"
+    "@types/amqp-connection-manager": "^2.0.4",
+    "amqp-connection-manager": "^3.0.0",
+    "amqplib": "^0.8.0"
   },
   "publishConfig": {
     "access": "public"
