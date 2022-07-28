@@ -1950,11 +1950,6 @@
   dependencies:
     "@types/superagent" "*"
 
-"@types/uuid@^3.4.4":
-  version "3.4.10"
-  resolved "https://registry.npmjs.org/@types/uuid/-/uuid-3.4.10.tgz"
-  integrity sha512-BgeaZuElf7DEYZhWYDTc/XcLZXdVgFkVSTa13BqKvbnmUrxr3TJFKofUxCtDO9UQOdhnV+HPOESdHiHKZOJV1A==
-
 "@types/yargs-parser@*":
   version "20.2.1"
   resolved "https://registry.npmjs.org/@types/yargs-parser/-/yargs-parser-20.2.1.tgz"
