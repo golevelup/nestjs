@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [3.2.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@3.1.0...@golevelup/nestjs-rabbitmq@3.2.0) (2022-07-28)
+
+### Bug Fixes
+
+- **rabbitmq:** properly close the AMQP connections on application shutdown ([cc9ed6d](https://github.com/golevelup/nestjs/commit/cc9ed6dfce03d8c93220b06abd510877a727eb5f)), closes [#482](https://github.com/golevelup/nestjs/issues/482)
+- **rabbitmq:** update uuid library using crypto module ([87d67e5](https://github.com/golevelup/nestjs/commit/87d67e5ce3eab621621de484ec8c540d8321939f))
+
+### Features
+
+- **rabbitmq:** Added a new decorator @RabbitHeader() ([b283945](https://github.com/golevelup/nestjs/commit/b283945f5560218478269fab38a892be445574e9))
+- **rabbitmq:** better RPC timeout error logs ([8677988](https://github.com/golevelup/nestjs/commit/867798875268d095d074e5802f51cffaf46a982e)), closes [#447](https://github.com/golevelup/nestjs/issues/447)
+- **rabbitmq:** new config property "handlers" ([#446](https://github.com/golevelup/nestjs/issues/446)) ([9986b3d](https://github.com/golevelup/nestjs/commit/9986b3d9a79e2e92e71105767501ce8120cd12b6)), closes [#445](https://github.com/golevelup/nestjs/issues/445)
+
 # [3.1.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@3.0.0...@golevelup/nestjs-rabbitmq@3.1.0) (2022-07-22)
 
 ### Features
