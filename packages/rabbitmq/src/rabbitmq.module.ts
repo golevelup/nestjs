@@ -195,13 +195,11 @@ export class RabbitMQModule
               'rmq' // contextType
             );
 
-            const handlerConfig =
-              connection.configuration.handlers[config.name || ''];
-            const exchange = handlerConfig?.exchange || config.exchange;
-            const routingKey = handlerConfig?.routingKey || config.routingKey;
-            const queue = handlerConfig?.queue || config.queue;
-            const queueOptions =
-              handlerConfig?.queueOptions || config.queueOptions;
+            const mergedConfig = {
+              ...config,
+              ...connection.configuration.handlers[config.name || ''],
+            };
+            const { exchange, routingKey, queue, queueOptions } = mergedConfig;
 
             const handlerDisplayName = `${discoveredMethod.parentClass.name}.${
               discoveredMethod.methodName
@@ -223,10 +221,10 @@ export class RabbitMQModule
             this.logger.log(handlerDisplayName);
 
             return config.type === 'rpc'
-              ? connection.createRpc(handler, config)
+              ? connection.createRpc(handler, mergedConfig)
               : connection.createSubscriber(
                   handler,
-                  config,
+                  mergedConfig,
                   discoveredMethod.methodName
                 );
           })
