@@ -343,8 +343,8 @@ export class AmqpConnection {
     originalHandlerName: string
   ): Promise<SubscriptionResult> {
     return new Promise((res) => {
-      this.selectManagedChannel(msgOptions?.queueOptions?.channel).addSetup(
-        async (channel) => {
+      this.selectManagedChannel(msgOptions?.queueOptions?.channel)
+        .addSetup(async (channel) => {
           const consumerTag = await this.setupSubscriberChannel<T>(
             handler,
             msgOptions,
@@ -352,8 +352,10 @@ export class AmqpConnection {
             originalHandlerName
           );
           res({ consumerTag });
-        }
-      );
+        })
+        .then((result: any) => {
+          res(result);
+        });
     });
   }
 
