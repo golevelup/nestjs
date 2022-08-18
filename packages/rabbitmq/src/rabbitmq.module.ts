@@ -130,6 +130,7 @@ export class RabbitMQModule
         .map((connection) => connection.managedConnection.close())
     );
 
+    this.connectionManager.clearConnections();
     RabbitMQModule.bootstrapped = false;
   }
 
