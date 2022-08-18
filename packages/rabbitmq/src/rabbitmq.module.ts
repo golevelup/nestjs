@@ -129,6 +129,8 @@ export class RabbitMQModule
         .getConnections()
         .map((connection) => connection.managedConnection.close())
     );
+
+    RabbitMQModule.bootstrapped = false;
   }
 
   // eslint-disable-next-line sonarjs/cognitive-complexity
