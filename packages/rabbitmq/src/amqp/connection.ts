@@ -97,6 +97,7 @@ const defaultConfig = {
   registerHandlers: true,
   enableDirectReplyTo: true,
   channels: {},
+  handlers: {},
   enableControllerDiscovery: false,
 };
 
@@ -519,10 +520,10 @@ export class AmqpConnection {
     return consumerTag;
   }
 
-  public publish(
+  public publish<T = any>(
     exchange: string,
     routingKey: string,
-    message: any,
+    message: T,
     options?: Options.Publish
   ) {
     // source amqplib channel is used directly to keep the behavior of throwing connection related errors

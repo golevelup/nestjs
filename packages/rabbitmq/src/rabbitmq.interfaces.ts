@@ -51,6 +51,11 @@ export interface QueueOptions {
 }
 
 export interface MessageHandlerOptions {
+  /**
+   * You can use a handler config specificied in module level.
+   * Just use the same key name defined there.
+   */
+  name?: string;
   connection?: string;
   exchange?: string;
   routingKey?: string | string[];
@@ -80,6 +85,7 @@ export interface ConnectionInitOptions {
 }
 
 export type RabbitMQChannels = Record<string, RabbitMQChannelConfig>;
+export type RabbitMQHandlers = Record<string, MessageHandlerOptions>;
 
 export interface RabbitMQConfig {
   name?: string;
@@ -104,6 +110,11 @@ export interface RabbitMQConfig {
    * By setting `prefetchCount` for a channel, you can manage message speeds of your various handlers on the same connection.
    */
   channels?: RabbitMQChannels;
+
+  /**
+   * You can pass a list with handler configs to use in the Subscription decorator
+   */
+  handlers?: RabbitMQHandlers;
 
   /**
    * You can pass your implementation of the Nestjs LoggerService.

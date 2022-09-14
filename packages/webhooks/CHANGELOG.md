@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.2.14](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-webhooks@0.2.13...@golevelup/nestjs-webhooks@0.2.14) (2022-07-28)
+
+**Note:** Version bump only for package @golevelup/nestjs-webhooks
+
 ## [0.2.13](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-webhooks@0.2.12...@golevelup/nestjs-webhooks@0.2.13) (2022-07-16)
 
 **Note:** Version bump only for package @golevelup/nestjs-webhooks

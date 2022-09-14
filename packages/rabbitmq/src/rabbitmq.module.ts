@@ -129,6 +129,9 @@ export class RabbitMQModule
         .getConnections()
         .map((connection) => connection.managedConnection.close())
     );
+
+    this.connectionManager.clearConnections();
+    RabbitMQModule.bootstrapped = false;
   }
 
   // eslint-disable-next-line sonarjs/cognitive-complexity
@@ -195,7 +198,11 @@ export class RabbitMQModule
               'rmq' // contextType
             );
 
-            const { exchange, routingKey, queue, queueOptions } = config;
+            const mergedConfig = {
+              ...config,
+              ...connection.configuration.handlers[config.name || ''],
+            };
+            const { exchange, routingKey, queue, queueOptions } = mergedConfig;
 
             const handlerDisplayName = `${discoveredMethod.parentClass.name}.${
               discoveredMethod.methodName
@@ -217,10 +224,10 @@ export class RabbitMQModule
             this.logger.log(handlerDisplayName);
 
             return config.type === 'rpc'
-              ? connection.createRpc(handler, config)
+              ? connection.createRpc(handler, mergedConfig)
               : connection.createSubscriber(
                   handler,
-                  config,
+                  mergedConfig,
                   discoveredMethod.methodName
                 );
           })

@@ -14,6 +14,7 @@ const amqDefaultExchange = '';
 const exchange = 'testSubscribeExchange';
 const routingKey1 = 'testSubscribeRoute1';
 const routingKey2 = 'testSubscribeRoute2';
+const routingKey3 = 'testSubscribeViaHandlerRoute';
 const nonJsonRoutingKey = 'nonJsonSubscribeRoute';
 
 const createRoutingKey = 'test.create.object';
@@ -32,6 +33,13 @@ const fanoutHandler = jest.fn();
 
 @Injectable()
 class SubscribeService {
+  @RabbitSubscribe({
+    name: 'handler1',
+  })
+  handleSubscribeByName(message: object) {
+    testHandler(message);
+  }
+
   @RabbitSubscribe({
     exchange,
     routingKey: [routingKey1, routingKey2],
@@ -139,6 +147,12 @@ describe('Rabbit Subscribe', () => {
               type: FANOUT,
             },
           ],
+          handlers: {
+            handler1: {
+              exchange,
+              routingKey: [routingKey3],
+            },
+          },
           uri,
           connectionInitOptions: { wait: true, reject: true, timeout: 3000 },
           logger: customLogger,
@@ -171,6 +185,15 @@ describe('Rabbit Subscribe', () => {
     expect(testHandler).toHaveBeenCalledWith(`testMessage-0`);
     expect(testHandler).toHaveBeenCalledWith(`testMessage-1`);
     expect(testHandler).toHaveBeenCalledWith(`testMessage-2`);
+  });
+
+  it('should receive messages when subscribed via handler name', async () => {
+    amqpConnection.publish(exchange, routingKey3, 'testMessage');
+
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    expect(testHandler).toHaveBeenCalledTimes(1);
+    expect(testHandler).toHaveBeenCalledWith(`testMessage`);
   });
 
   it('should work with a topic exchange set up that has multiple subscribers with similar routing keys', async () => {
