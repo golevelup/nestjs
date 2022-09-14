@@ -16,4 +16,8 @@ export class AmqpConnectionManager {
   getConnections() {
     return this.connections;
   }
+
+  clearConnections() {
+    this.connections = [];
+  }
 }
