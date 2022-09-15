@@ -12,8 +12,7 @@
     "@nestjs/platform-express": "^9.0.5",
     "lodash": "^4.17.21",
     "reflect-metadata": "^0.1.13",
-    "rxjs": "^7.5.6",
-    "stripe": "^8.39.0"
+    "rxjs": "^7.5.6"
   },
   "devDependencies": {
     "@commitlint/cli": "^16.2.3",
