@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [3.3.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@3.2.0...@golevelup/nestjs-rabbitmq@3.3.0) (2022-09-21)
+
+### Bug Fixes
+
+- **rabbitmq:** fix usage of handler config ([#490](https://github.com/golevelup/nestjs/issues/490)) ([241a640](https://github.com/golevelup/nestjs/commit/241a64075e06e15d273994ae786e7d0acec09c31)), closes [#489](https://github.com/golevelup/nestjs/issues/489)
+- **rabbitmq:** handle connnection not available issue on RabbitSubscribe and RabbitRPC ([#495](https://github.com/golevelup/nestjs/issues/495)) ([2f2e931](https://github.com/golevelup/nestjs/commit/2f2e93107f14cddac19bac3a7ebda76bf62818ac))
+
+### Features
+
+- **rabbitmq:** add generic type to publish for simple type checking ([#491](https://github.com/golevelup/nestjs/issues/491)) ([45afeb7](https://github.com/golevelup/nestjs/commit/45afeb7ea8b6cc82ff9ccb64afa65fb59c64744d))
+
 # [3.2.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@3.1.0...@golevelup/nestjs-rabbitmq@3.2.0) (2022-07-28)
 
 ### Bug Fixes
