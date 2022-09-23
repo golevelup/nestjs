@@ -263,13 +263,21 @@ export class AmqpConnection {
       this._channel = channel;
 
       // Always assert exchanges & rpc queue in default channel.
-      this.config.exchanges.forEach((x) =>
-        channel.assertExchange(
+      this.config.exchanges.forEach((x) => {
+        if (x.createExchangeIfNotExists) {
+            return channel.assertExchange(
+              x.name,
+              x.type || this.config.defaultExchangeType,
+              x.options
+            )
+        }
+        return channel.checkExchange(
           x.name,
           x.type || this.config.defaultExchangeType,
           x.options
         )
-      );
+      });
+
 
       if (this.config.enableDirectReplyTo) {
         await this.initDirectReplyQueue(channel);
