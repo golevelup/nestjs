@@ -92,7 +92,6 @@ describe('Module Configuration', () => {
 
       it('should create an exchange successfully if `createExchangeIfNotExists` is true', async () => {
         const spy = jest.spyOn(amqplib, 'connect');
-        // const logSpy = jest.spyOn(logger, 'log');
 
         app = await Test.createTestingModule({
           imports: [
