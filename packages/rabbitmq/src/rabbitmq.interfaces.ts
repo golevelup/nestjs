@@ -10,6 +10,7 @@ import {
 export interface RabbitMQExchangeConfig {
   name: string;
   type?: string;
+  createExchangeIfNotExists?: boolean;
   options?: Options.AssertExchange;
 }
 
