@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.6.1](https://github.com/golevelup/nestjs/compare/rabbitmq-integration@2.6.0...rabbitmq-integration@2.6.1) (2022-09-21)
+
+### Bug Fixes
+
+- **rabbitmq:** fix usage of handler config ([#490](https://github.com/golevelup/nestjs/issues/490)) ([241a640](https://github.com/golevelup/nestjs/commit/241a64075e06e15d273994ae786e7d0acec09c31)), closes [#489](https://github.com/golevelup/nestjs/issues/489)
+
 # [2.6.0](https://github.com/golevelup/nestjs/compare/rabbitmq-integration@2.5.0...rabbitmq-integration@2.6.0) (2022-07-28)
 
 ### Features

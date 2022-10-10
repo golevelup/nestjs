@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.5.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-stripe@0.4.1...@golevelup/nestjs-stripe@0.5.0) (2022-09-21)
+
+### Bug Fixes
+
+- **package.json:** add stripe v10 as optional peerDependency ([#503](https://github.com/golevelup/nestjs/issues/503)) ([46ec6fe](https://github.com/golevelup/nestjs/commit/46ec6fece51207b9c952d1615259a44d2696055c)), closes [#502](https://github.com/golevelup/nestjs/issues/502)
+
+### BREAKING CHANGES
+
+- **package.json:** Removed stripe v8 and v9 as peerDependecies. stripe ^10.8.0 is required in
+  peerDependencies now
+
+- add stripe as dev dependency
+
+- feat: stripe version update
+
+updates to the latest known version
+
+Co-authored-by: Rodrigo <monstawoodwow@gmail.com>
+
 ## [0.4.1](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-stripe@0.4.0...@golevelup/nestjs-stripe@0.4.1) (2022-07-28)
 
 **Note:** Version bump only for package @golevelup/nestjs-stripe

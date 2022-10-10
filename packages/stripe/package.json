@@ -1,6 +1,6 @@
 {
   "name": "@golevelup/nestjs-stripe",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "description": "Badass utilities for integrating stripe and NestJS",
   "author": "Jesse Carter <jesse.r.carter@gmail.com>",
   "homepage": "https://github.com/golevelup/nestjs#readme",
@@ -40,8 +40,11 @@
     "@golevelup/nestjs-discovery": "^3.0.0",
     "@golevelup/nestjs-modules": "^0.6.1"
   },
+  "devDependencies": {
+    "stripe": "^10.8.0"
+  },
   "peerDependencies": {
-    "stripe": "^8.39.0"
+    "stripe": "^10.8.0"
   },
   "jest": {
     "moduleFileExtensions": [
