@@ -440,16 +440,20 @@ export class AmqpConnection {
     rpcOptions: MessageHandlerOptions
   ): Promise<SubscriptionResult> {
     return new Promise((res) => {
-      this.selectManagedChannel(rpcOptions?.queueOptions?.channel).addSetup(
-        async (channel) => {
+      let result: SubscriptionResult;
+      this.selectManagedChannel(rpcOptions?.queueOptions?.channel)
+        .addSetup(async (channel) => {
           const consumerTag = await this.setupRpcChannel<T, U>(
             handler,
             rpcOptions,
             channel
           );
+          result = { consumerTag };
           res({ consumerTag });
-        }
-      );
+        })
+        .then(() => {
+          res(result);
+        });
     });
   }
 
