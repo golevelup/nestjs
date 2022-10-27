@@ -51,7 +51,9 @@ describe.each(cases)(
     const moduleConfig: StripeModuleConfig = {
       apiKey: '123',
       webhookConfig: {
-        stripeWebhookSecret: '123',
+        stripeSecrets: {
+          account: '123',
+        },
         loggingConfiguration: {
           logMatchingEventHandlers: true,
         },

@@ -86,10 +86,12 @@ export class StripeModule
       return;
     }
 
-    if (
+    const noOneSecretProvided =
       this.stripeModuleConfig.webhookConfig &&
-      !this.stripeModuleConfig.webhookConfig?.stripeWebhookSecret
-    ) {
+      !this.stripeModuleConfig.webhookConfig?.stripeSecrets.account &&
+      !this.stripeModuleConfig.webhookConfig?.stripeSecrets.connect;
+
+    if (noOneSecretProvided) {
       const errorMessage =
         'missing stripe webhook secret. module is improperly configured and will be unable to process incoming webhooks from Stripe';
       this.logger.error(errorMessage);
