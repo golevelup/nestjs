@@ -172,7 +172,7 @@ export class HasuraModule
     ) => {
       const keys = isHasuraEvent(evt)
         ? [evt.trigger?.name, `${evt?.table?.schema}-${evt?.table?.name}`]
-        : isHasuraScheduledEventPayload(evt) && evt.comment
+        : isHasuraScheduledEventPayload(evt)
           ? [evt.name || evt.comment]
           : [evt.id];
       if (!keys) throw new Error('Not a Hasura Event');
