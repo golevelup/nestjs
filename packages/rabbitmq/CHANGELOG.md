@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [3.4.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@3.3.0...@golevelup/nestjs-rabbitmq@3.4.0) (2022-10-31)
+
+### Features
+
+- **rabbitmq:** add the option to avoid declaring exchanges ([#506](https://github.com/golevelup/nestjs/issues/506)) ([5c9a78f](https://github.com/golevelup/nestjs/commit/5c9a78fb9d17816650d1adc984d0d9ced2f10fbc))
+
 # [3.3.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@3.2.0...@golevelup/nestjs-rabbitmq@3.3.0) (2022-09-21)
 
 ### Bug Fixes
