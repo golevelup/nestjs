@@ -123,6 +123,25 @@ describe('Mocks', () => {
       expect(result).toBe(42);
       expect(mock.doSomethingAsync).toBeCalledTimes(1);
     });
+
+    it('should work with unknown properties', () => {
+      class Base {
+        field?: unknown;
+      }
+
+      class Test {
+        get base(): Base {
+          return undefined as any;
+        }
+      }
+
+      const base = createMock<Base>();
+      const test = createMock<Test>({
+        base,
+      });
+
+      expect(test.base).toEqual(base);
+    });
   });
 
   describe('auto mocked', () => {

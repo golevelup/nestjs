@@ -2,12 +2,12 @@ name: Continuous Integration
 
 on: pull_request
 
-concurrency: 
+concurrency:
   group: ${{ github.head_ref }}
   cancel-in-progress: true
 
 env:
-  LATEST_NODE_VERSION: 17
+  LATEST_NODE_VERSION: 18
 
 jobs:
   ci:
@@ -15,7 +15,7 @@ jobs:
 
     strategy:
       matrix:
-        node: [14, 16, 17]
+        node: [14, 16, 18, 19]
       fail-fast: false
 
     services:

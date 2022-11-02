@@ -3,7 +3,7 @@ type DeepPartial<T> = {
     ? Array<DeepPartial<U>>
     : T[P] extends ReadonlyArray<infer U>
     ? ReadonlyArray<DeepPartial<U>>
-    : DeepPartial<T[P]>;
+    : (unknown extends T[P] ? T[P] : DeepPartial<T[P]>);
 };
 
 export type PartialFuncReturn<T> = {
