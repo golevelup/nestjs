@@ -38,7 +38,11 @@ Interacting with the Stripe API or consuming Stripe webhooks in your NestJS appl
 
 ### Import
 
-Import and add `StripeModule` to the `imports` section of the consuming module (most likely `AppModule`). Your Stripe API key is required, and you can optionally include a webhook configuration if you plan on consuming Stripe webhook events inside your app.
+Import and add `StripeModule` to the `imports` section of the consuming module (most likely `AppModule`). Your Stripe API key is required, and you can optionally include a webhook configuration if you plan on consuming Stripe webhook events inside your app.  
+Stripe secrets you can get from your Dashboard’s [Webhooks settings](https://dashboard.stripe.com/webhooks). Select an endpoint that you want to obtain the secret for, then click the Click to reveal button.
+
+`account` - The webhook secret registered in the Stripe Dashboard for events on your accounts  
+`connect` - The webhook secret registered in the Stripe Dashboard for events on Connected accounts
 
 ```typescript
 import { StripeModule } from '@golevelup/nestjs-stripe';
@@ -48,7 +52,10 @@ import { StripeModule } from '@golevelup/nestjs-stripe';
     StripeModule.forRoot(StripeModule, {
       apiKey: '123',
       webhookConfig: {
-        stripeWebhookSecret: 'abc',
+        stripeSecrets: {
+          account: 'abc',
+          connect: 'cba',
+        },
       },
     }),
   ],

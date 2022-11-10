@@ -1,15 +1,32 @@
 import Stripe from 'stripe';
 
+type RequireAtLeastOne<T, Keys extends keyof T = keyof T> = Pick<
+  T,
+  Exclude<keyof T, Keys>
+> &
+  {
+    [K in Keys]-?: Required<Pick<T, K>> & Partial<Pick<T, Exclude<Keys, K>>>;
+  }[Keys];
+
+interface StripeSecrets {
+  /**
+   * The webhook secret registered in the Stripe Dashboard for events on your accounts
+   */
+  account?: string;
+
+  /**
+   * The webhook secret registered in the Stripe Dashboard for events on Connected accounts
+   */
+  connect?: string;
+}
+
 export interface StripeModuleConfig extends Partial<Stripe.StripeConfig> {
   readonly apiKey: string;
   /**
    * Configuration for processing Stripe Webhooks
    */
   webhookConfig?: {
-    /**
-     * The webhook secret registered in the Stripe Dashboard
-     */
-    stripeWebhookSecret: string;
+    stripeSecrets: RequireAtLeastOne<StripeSecrets>;
 
     /**
      * The property on the request that contains the raw message body so that it

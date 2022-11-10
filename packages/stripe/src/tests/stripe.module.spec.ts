@@ -45,7 +45,9 @@ describe('Stripe Module', () => {
         StripeModule.forRoot(StripeModule, {
           apiKey: '123',
           webhookConfig: {
-            stripeWebhookSecret: 'super-secret',
+            stripeSecrets: {
+              account: 'super-secret',
+            },
             decorators: [TestDecorator()],
           },
         }),
