@@ -324,12 +324,17 @@ export class AmqpConnection {
       first()
     );
 
-    this.publish(requestOptions.exchange, requestOptions.routingKey, payload, {
-      replyTo: DIRECT_REPLY_QUEUE,
-      correlationId,
-      headers: requestOptions.headers,
-      expiration: requestOptions.expiration,
-    });
+    await this.publish(
+      requestOptions.exchange,
+      requestOptions.routingKey,
+      payload,
+      {
+        replyTo: DIRECT_REPLY_QUEUE,
+        correlationId,
+        headers: requestOptions.headers,
+        expiration: requestOptions.expiration,
+      }
+    );
 
     const timeout$ = interval(timeout).pipe(
       first(),
