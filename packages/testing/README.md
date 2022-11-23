@@ -27,13 +27,13 @@ For examples we'll show how well it works with NestJS' [ExecutionContext](https:
 Pretty standard installation, nothing too crazy
 
 ```sh
-npm i @golevelup/ts-jest
+npm i @golevelup/ts-jest --save-dev
 ```
 
 or
 
 ```sh
-yarn add @golevelup/ts-jest
+yarn add @golevelup/ts-jest --dev
 ```
 
 ### Creating Mocks

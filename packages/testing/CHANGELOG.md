@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.3.4](https://github.com/golevelup/nestjs/compare/@golevelup/ts-jest@0.3.3...@golevelup/ts-jest@0.3.4) (2022-10-31)
+
+### Bug Fixes
+
+- **ts-jest:** unknown property in deep typings issues ([#521](https://github.com/golevelup/nestjs/issues/521)) ([689cb19](https://github.com/golevelup/nestjs/commit/689cb19c6306abe9015842b40caa74bd485ff064))
+
 ## [0.3.3](https://github.com/golevelup/nestjs/compare/@golevelup/ts-jest@0.3.2...@golevelup/ts-jest@0.3.3) (2022-04-18)
 
 **Note:** Version bump only for package @golevelup/ts-jest

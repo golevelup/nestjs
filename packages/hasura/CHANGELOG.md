@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.0.2](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-hasura@3.0.1...@golevelup/nestjs-hasura@3.0.2) (2022-10-31)
+
+### Bug Fixes
+
+- **hasura:** process scheduled events ([#524](https://github.com/golevelup/nestjs/issues/524)) ([cbdc3af](https://github.com/golevelup/nestjs/commit/cbdc3af132ed89df7dd4e72e0afabd2fe96830a1)), closes [/github.com/golevelup/nestjs/blob/master/packages/hasura/src/hasura.module.ts#L175](https://github.com//github.com/golevelup/nestjs/blob/master/packages/hasura/src/hasura.module.ts/issues/L175)
+
 ## [3.0.1](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-hasura@3.0.0...@golevelup/nestjs-hasura@3.0.1) (2022-07-28)
 
 **Note:** Version bump only for package @golevelup/nestjs-hasura
