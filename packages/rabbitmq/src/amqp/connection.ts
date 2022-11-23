@@ -11,6 +11,7 @@ import {
   ConfirmChannel,
   Options,
 } from 'amqplib';
+import { Replies } from 'amqplib/properties';
 import {
   EMPTY,
   interval,
@@ -114,8 +115,8 @@ export class AmqpConnection {
   /**
    * Will now specify the default channel.
    */
-  private _channel!: Channel;
-  private _channels: Record<string, Channel> = {};
+  private _channel!: ConfirmChannel;
+  private _channels: Record<string, ConfirmChannel> = {};
   private _connection?: Connection;
 
   private _consumers: Record<ConsumerTag, ConsumerHandler<unknown, unknown>> =
@@ -323,12 +324,17 @@ export class AmqpConnection {
       first()
     );
 
-    this.publish(requestOptions.exchange, requestOptions.routingKey, payload, {
-      replyTo: DIRECT_REPLY_QUEUE,
-      correlationId,
-      headers: requestOptions.headers,
-      expiration: requestOptions.expiration,
-    });
+    await this.publish(
+      requestOptions.exchange,
+      requestOptions.routingKey,
+      payload,
+      {
+        replyTo: DIRECT_REPLY_QUEUE,
+        correlationId,
+        headers: requestOptions.headers,
+        expiration: requestOptions.expiration,
+      }
+    );
 
     const timeout$ = interval(timeout).pipe(
       first(),
@@ -530,7 +536,7 @@ export class AmqpConnection {
     routingKey: string,
     message: T,
     options?: Options.Publish
-  ) {
+  ): Promise<Replies.Empty> {
     // source amqplib channel is used directly to keep the behavior of throwing connection related errors
     if (!this.managedConnection.isConnected() || !this._channel) {
       throw new Error('AMQP connection is not available');
@@ -547,7 +553,21 @@ export class AmqpConnection {
       buffer = Buffer.alloc(0);
     }
 
-    this._channel.publish(exchange, routingKey, buffer, options);
+    return new Promise((resolve, reject) => {
+      this._channel.publish(
+        exchange,
+        routingKey,
+        buffer,
+        options,
+        (err, ok) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(ok);
+          }
+        }
+      );
+    });
   }
 
   private handleMessage<T, U>(
