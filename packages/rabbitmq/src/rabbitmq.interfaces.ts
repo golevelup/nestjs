@@ -14,6 +14,15 @@ export interface RabbitMQExchangeConfig {
   options?: Options.AssertExchange;
 }
 
+export interface ConsumeOptions {
+  consumerTag?: string;
+  noLocal?: boolean;
+  noAck?: boolean;
+  exclusive?: boolean;
+  priority?: number;
+  arguments?: any;
+}
+
 export interface MessageOptions {
   exchange: string;
   routingKey: string;
