@@ -3,14 +3,14 @@ import { Module } from '@nestjs/common';
 import { GraphQLClient } from 'graphql-request';
 import {
   GraphQLClientConfigInject,
-  GraphQLClientInject,
+  GraphQLClientInject
 } from './graphql-request.constants';
 
 type GraphQLClientConstructorParams = ConstructorParameters<
   typeof GraphQLClient
 >;
 
-interface GraphQLRequestModuleConfig {
+export interface GraphQLRequestModuleConfig {
   endpoint: GraphQLClientConstructorParams[0];
   options?: GraphQLClientConstructorParams[1];
 }
