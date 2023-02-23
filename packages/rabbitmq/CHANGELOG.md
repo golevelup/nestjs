@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [3.5.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@3.4.0...@golevelup/nestjs-rabbitmq@3.5.0) (2023-02-23)
+
+### Features
+
+- **rabbitmq:** return promise from publish to be able to await delivery ([#530](https://github.com/golevelup/nestjs/issues/530)) ([7163eca](https://github.com/golevelup/nestjs/commit/7163ecaf948c96b081b803725c023cd75b99002a))
+
 # [3.4.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@3.3.0...@golevelup/nestjs-rabbitmq@3.4.0) (2022-10-31)
 
 ### Features

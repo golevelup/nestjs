@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.6.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-stripe@0.5.0...@golevelup/nestjs-stripe@0.6.0) (2023-02-23)
+
+### Features
+
+- **module:** allow to configure two secrets for different stripe webhooks types(account & connect) ([#522](https://github.com/golevelup/nestjs/issues/522)) ([47332bc](https://github.com/golevelup/nestjs/commit/47332bc8c8520ef6348f8854f34aa7b13d1e146f))
+
+### BREAKING CHANGES
+
+- **module:** Stripe module `webhookConfig`
+
+- fix(test): amend stripe module test config
+
+Co-authored-by: Rodrigo <monstawoodwow@gmail.com>
+
 # [0.5.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-stripe@0.4.1...@golevelup/nestjs-stripe@0.5.0) (2022-09-21)
 
 ### Bug Fixes
