@@ -3,7 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import Stripe from 'stripe';
 import { InjectStripeClient } from '../stripe.decorators';
 import { StripeWebhookController } from '../stripe.webhook.controller';
-import { StripeModule } from './../stripe.module';
+import { StripeModule } from '../stripe.module';
 
 const testReceiveStripeFn = jest.fn();
 

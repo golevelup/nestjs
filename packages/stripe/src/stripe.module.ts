@@ -48,7 +48,7 @@ export class StripeModule
           useFactory: ({
             apiKey,
             typescript = true,
-            apiVersion = '2022-08-01',
+            apiVersion = '2022-11-15',
             webhookConfig,
             ...options
           }: StripeModuleConfig): Stripe => {
