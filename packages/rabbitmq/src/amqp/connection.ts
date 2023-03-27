@@ -584,13 +584,13 @@ export class AmqpConnection {
     if (msg.content) {
       if (allowNonJsonMessages) {
         try {
-          message = this.config.deserializer(msg.content) as T;
+          message = this.config.deserializer(msg.content, msg) as T;
         } catch {
-          // Let handler handle parsing error, it has the raw message anyway
-          message = undefined;
+          // Pass raw message since flag `allowNonJsonMessages` is set
+          message = msg.content as T;
         }
       } else {
-        message = this.config.deserializer(msg.content) as T;
+        message = this.config.deserializer(msg.content, msg) as T;
       }
     }
 
