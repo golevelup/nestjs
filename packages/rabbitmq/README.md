@@ -304,6 +304,7 @@ import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
 import { Module } from '@nestjs/common';
 import { MessagingController } from './messaging/messaging.controller';
 import { MessagingService } from './messaging/messaging.service';
+import { ConsumeMessage } from 'amqplib';
 
 @Module({
   imports: [
