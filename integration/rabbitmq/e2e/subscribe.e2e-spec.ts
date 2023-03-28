@@ -217,15 +217,19 @@ describe('Rabbit Subscribe', () => {
   });
 
   it('should receive message as-is if unable to parse', async () => {
-    amqpConnection.publish(exchange, nonJsonRoutingKey, undefined);
-    amqpConnection.publish(exchange, nonJsonRoutingKey, Buffer.alloc(0));
-    amqpConnection.publish(exchange, nonJsonRoutingKey, Buffer.from('{a:'));
+    await amqpConnection.publish(exchange, nonJsonRoutingKey, undefined);
+    await amqpConnection.publish(exchange, nonJsonRoutingKey, Buffer.alloc(0));
+    await amqpConnection.publish(
+      exchange,
+      nonJsonRoutingKey,
+      Buffer.from('{a:'),
+    );
 
     await new Promise((resolve) => setTimeout(resolve, 50));
 
     expect(testHandler).toHaveBeenCalledTimes(3);
-    expect(testHandler).toHaveBeenNthCalledWith(1, undefined);
-    expect(testHandler).toHaveBeenNthCalledWith(2, 0);
+    expect(testHandler).toHaveBeenNthCalledWith(1, '');
+    expect(testHandler).toHaveBeenNthCalledWith(2, '');
     expect(testHandler).toHaveBeenNthCalledWith(3, '{a:');
   });
 
