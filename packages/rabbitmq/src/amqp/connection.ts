@@ -297,7 +297,7 @@ export class AmqpConnection {
         // Check that the Buffer has content, before trying to parse it
         const message =
           msg.content.length > 0
-            ? this.config.deserializer(msg.content)
+            ? this.config.deserializer(msg.content, msg)
             : undefined;
 
         const correlationMessage: CorrelationMessage = {
@@ -584,13 +584,14 @@ export class AmqpConnection {
     if (msg.content) {
       if (allowNonJsonMessages) {
         try {
-          message = this.config.deserializer(msg.content) as T;
+          message = this.config.deserializer(msg.content, msg) as T;
         } catch {
-          // Let handler handle parsing error, it has the raw message anyway
-          message = undefined;
+          // Pass raw message since flag `allowNonJsonMessages` is set
+          // Casting to `any` first as T doesn't have a type
+          message = msg.content.toString() as any as T;
         }
       } else {
-        message = this.config.deserializer(msg.content) as T;
+        message = this.config.deserializer(msg.content, msg) as T;
       }
     }
 
