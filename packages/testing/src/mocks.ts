@@ -3,7 +3,9 @@ type DeepPartial<T> = {
     ? Array<DeepPartial<U>>
     : T[P] extends ReadonlyArray<infer U>
     ? ReadonlyArray<DeepPartial<U>>
-    : (unknown extends T[P] ? T[P] : DeepPartial<T[P]>);
+    : unknown extends T[P]
+    ? T[P]
+    : DeepPartial<T[P]>;
 };
 
 export type PartialFuncReturn<T> = {
@@ -17,8 +19,7 @@ export type DeepMocked<T> = {
     ? jest.MockInstance<ReturnType<Required<T>[K]>, jest.ArgsType<T[K]>> &
         ((...args: jest.ArgsType<T[K]>) => DeepMocked<U>)
     : T[K];
-} &
-  T;
+} & T;
 
 const createRecursiveMockProxy = (name: string) => {
   const cache = new Map<string | number | symbol, any>();
@@ -66,8 +67,11 @@ export const createMock = <T extends object>(
 
   const proxy = new Proxy(partial, {
     get: (obj, prop) => {
+      if (prop === 'constructor') {
+        return () => undefined;
+      }
+
       if (
-        prop === 'constructor' ||
         prop === 'inspect' ||
         prop === 'then' ||
         (typeof prop === 'symbol' &&

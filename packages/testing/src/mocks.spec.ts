@@ -140,7 +140,7 @@ describe('Mocks', () => {
         base,
       });
 
-      expect(test.base).toEqual(base);
+      expect(test.base).toBe(base);
     });
   });
 
@@ -223,6 +223,14 @@ describe('Mocks', () => {
 
       expect(result).toBe(42);
     });
+
+    it('should have constructor defined', () => {
+      class Service {}
+
+      const mock = createMock<Service>();
+
+      expect(mock.constructor).toBeDefined();
+    });
   });
 
   describe('Nest DI', () => {
@@ -252,9 +260,8 @@ describe('Mocks', () => {
       }).compile();
 
       mockedProvider = module.get<DeepMocked<ExecutionContext>>(diToken);
-      dependentProvider = module.get<{ dependent: () => string }>(
-        dependentToken
-      );
+      dependentProvider =
+        module.get<{ dependent: () => string }>(dependentToken);
     });
 
     it('should correctly resolve mocked providers', async () => {
