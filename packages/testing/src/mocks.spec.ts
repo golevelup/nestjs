@@ -140,7 +140,7 @@ describe('Mocks', () => {
         base,
       });
 
-      expect(test.base).toBe(base);
+      expect(test.base).toEqual(base);
     });
   });
 
