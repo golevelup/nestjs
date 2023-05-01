@@ -140,7 +140,7 @@ describe('Mocks', () => {
         base,
       });
 
-      expect(test.base).toBe(base);
+      expect(test.base).toEqual(base);
     });
   });
 
@@ -224,12 +224,30 @@ describe('Mocks', () => {
       expect(result).toBe(42);
     });
 
-    it('should have constructor defined', () => {
-      class Service {}
+    describe(`constructor`, () => {
+      it('should have constructor defined', () => {
+        class Service {}
 
-      const mock = createMock<Service>();
+        const mock = createMock<Service>();
 
-      expect(mock.constructor).toBeDefined();
+        expect(mock.constructor).toBeDefined();
+      });
+
+      it('should have the same constructor defined', () => {
+        class Service {}
+
+        const mock = createMock<Service>();
+
+        expect(mock.constructor).toEqual(mock.constructor);
+      });
+
+      it(`should allow mocks to be equal`, () => {
+        class Service {}
+
+        const comparable = createMock<Service>();
+
+        expect([comparable]).toEqual([comparable]);
+      })
     });
   });
 

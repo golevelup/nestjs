@@ -67,10 +67,6 @@ export const createMock = <T extends object>(
 
   const proxy = new Proxy(partial, {
     get: (obj, prop) => {
-      if (prop === 'constructor') {
-        return () => undefined;
-      }
-
       if (
         prop === 'inspect' ||
         prop === 'then' ||
@@ -86,12 +82,17 @@ export const createMock = <T extends object>(
 
       const checkProp = obj[prop];
 
-      const mockedProp =
-        prop in obj
-          ? typeof checkProp === 'function'
-            ? jest.fn(checkProp)
-            : checkProp
-          : createRecursiveMockProxy(`${name}.${prop.toString()}`);
+      let mockedProp: any;
+
+      if (prop in obj) {
+        mockedProp = typeof checkProp === 'function'
+          ? jest.fn(checkProp)
+          : checkProp
+      } else if (prop === 'constructor') {
+        mockedProp = () => undefined;
+      } else {
+        mockedProp = createRecursiveMockProxy(`${name}.${prop.toString()}`);
+      }
 
       cache.set(prop, mockedProp);
       return mockedProp;
