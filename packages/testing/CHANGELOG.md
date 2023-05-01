@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.3.7](https://github.com/golevelup/nestjs/compare/@golevelup/ts-jest@0.3.6...@golevelup/ts-jest@0.3.7) (2023-05-01)
+
+### Bug Fixes
+
+- **testing:** fix breaking change from 0.3.6 ([33949a9](https://github.com/golevelup/nestjs/commit/33949a98ad8ce55a76a72fb88555998cdcae4859)), closes [#586](https://github.com/golevelup/nestjs/issues/586)
+
 ## [0.3.6](https://github.com/golevelup/nestjs/compare/@golevelup/ts-jest@0.3.5...@golevelup/ts-jest@0.3.6) (2023-04-28)
 
 ### Bug Fixes
