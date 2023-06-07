@@ -1,0 +1,61 @@
+{
+  "name": "@golevelup/ts-sinon",
+  "version": "0.0.0",
+  "description": "",
+  "author": "Omer Morad <omer.moradd@gmail.com>",
+  "homepage": "https://github.com/golevelup/nestjs#readme",
+  "license": "MIT",
+  "keywords": [
+    "NestJS",
+    "testing",
+    "utilities",
+    "levelup",
+    "sinon"
+  ],
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/golevelup/nestjs.git"
+  },
+  "scripts": {
+    "build": "tsc --build tsconfig.build.json",
+    "build:watch": "tsc --build tsconfig.build.json --watch",
+    "test": "jest"
+  },
+  "bugs": {
+    "url": "https://github.com/golevelup/nestjs/issues"
+  },
+  "peerDependencies": {
+    "sinon": "^14.x"
+  },
+  "devDependencies": {
+    "sinon": "^14.x",
+    "@types/sinon": "^10.0.15"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "jest": {
+    "moduleFileExtensions": [
+      "js",
+      "json",
+      "ts"
+    ],
+    "rootDir": "src",
+    "testRegex": ".spec.ts$",
+    "transform": {
+      "^.+\\.ts$": "ts-jest"
+    },
+    "coverageDirectory": "../coverage",
+    "testEnvironment": "node"
+  },
+  "gitHead": "6f97aab8ce9d65dc074750a3ee467ec5ff3b9908"
+}
