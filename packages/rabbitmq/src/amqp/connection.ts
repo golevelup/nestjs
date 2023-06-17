@@ -323,7 +323,7 @@ export class AmqpConnection {
       map((x) => x.message as T),
       first()
     );
-    
+
     const timeout$ = interval(timeout).pipe(
       first(),
       map(() => {
@@ -425,7 +425,8 @@ export class AmqpConnection {
             await errorHandler(channel, msg, e);
           }
         }
-      }
+      },
+      msgOptions.consumeOptions
     );
 
     this.registerConsumerForQueue({

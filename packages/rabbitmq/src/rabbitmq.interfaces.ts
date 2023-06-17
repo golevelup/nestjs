@@ -77,6 +77,10 @@ export interface MessageHandlerOptions {
   assertQueueErrorHandler?: AssertQueueErrorHandler;
   allowNonJsonMessages?: boolean;
   createQueueIfNotExists?: boolean;
+  /**
+   * Options for Channel#consume()
+   */
+  consumeOptions: Options.Consume;
 }
 
 export interface ConnectionInitOptions {

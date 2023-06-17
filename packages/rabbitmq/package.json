@@ -1,8 +1,8 @@
 {
-  "name": "@golevelup/nestjs-rabbitmq",
-  "version": "3.6.1",
-  "description": "Badass RabbitMQ addons for NestJS",
-  "author": "Jesse Carter <jesse.r.carter@gmail.com>",
+  "name": "@jasonwanghge/nestjs-rabbitmq",
+  "version": "0.1.0",
+  "description": "Fork of @golevelup/nestjs-rabbitmq with explicit streams support",
+  "author": "Jason Wang <jwang@tohigherground.com>",
   "homepage": "https://github.com/golevelup/nestjs/blob/master/packages/rabbitmq/README.md",
   "license": "MIT",
   "keywords": [
