@@ -1,7 +1,7 @@
 {
   "name": "@jasonwanghge/nestjs-rabbitmq",
-  "version": "0.1.1",
-  "description": "Fork of @golevelup/nestjs-rabbitmq with explicit streams support",
+  "version": "0.1.2",
+  "description": "Fork of @golevelup/nestjs-rabbitmq with more support for stream queues",
   "author": "Jason Wang <jwang@tohigherground.com>",
   "homepage": "https://github.com/golevelup/nestjs/blob/master/packages/rabbitmq/README.md",
   "license": "MIT",
