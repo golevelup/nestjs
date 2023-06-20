@@ -80,7 +80,7 @@ export interface MessageHandlerOptions {
   /**
    * Options for Channel#consume()
    */
-  consumeOptions: Options.Consume;
+  consumeOptions?: Options.Consume;
 }
 
 export interface ConnectionInitOptions {
