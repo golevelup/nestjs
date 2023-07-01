@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-A collection of Badass modules and utilities to help you level up your NestJS application. 
+A collection of Badass modules and utilities to help you level up your NestJS application.
 </p>
 
 <p align="center">
@@ -19,6 +19,7 @@ A collection of Badass modules and utilities to help you level up your NestJS ap
 | [`@golevelup/nestjs-graphql-request`](./packages/graphql-request) | Dependency Injection for GraphQLClient. Make type safe requests to third party GQL APIs                                  | [![version](https://img.shields.io/npm/v/@golevelup/nestjs-graphql-request.svg)](https://www.npmjs.com/package/@golevelup/nestjs-graphql-request) | [changelog](./packages/graphql-request/CHANGELOG.md) |
 | [`@golevelup/nestjs-webhooks`](./packages/webhooks)               | Middlewares and helpers for processing webhooks                                                                          | [![version](https://img.shields.io/npm/v/@golevelup/nestjs-webhooks.svg)](https://www.npmjs.com/package/@golevelup/nestjs-webhooks)               | [changelog](./packages/webhooks/CHANGELOG.md)        |
 | [`@golevelup/nestjs-stripe`](./packages/stripe)                   | Stripe client and webhook processing                                                                                     | [![version](https://img.shields.io/npm/v/@golevelup/nestjs-stripe.svg)](https://www.npmjs.com/package/@golevelup/nestjs-stripe)                   | [changelog](./packages/stripe/CHANGELOG.md)          |
+| [`@golevelup/ts-jest`](./packages/testing)                   | Jest utilities for making testing NestJS applications easier.                                                                                        | [![version](https://img.shields.io/npm/v/@golevelup/ts-jest.svg)](https://www.npmjs.com/package/@golevelup/ts-jest)                               | [changelog](./packages/testing/CHANGELOG.md)          |
 
 ## Contribute
 
