@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.6.1](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@3.6.0...@golevelup/nestjs-rabbitmq@3.6.1) (2023-06-05)
+
+### Bug Fixes
+
+- **rabbitmq:** race condition for RPC ([efdb4d1](https://github.com/golevelup/nestjs/commit/efdb4d1cf00fdba94ffeebfb75c5224b34f864e8)), closes [#599](https://github.com/golevelup/nestjs/issues/599)
+
 # [3.6.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@3.5.0...@golevelup/nestjs-rabbitmq@3.6.0) (2023-03-28)
 
 ### Features
