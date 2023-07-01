@@ -297,7 +297,7 @@ export class AmqpConnection {
         // Check that the Buffer has content, before trying to parse it
         const message =
           msg.content.length > 0
-            ? this.config.deserializer(msg.content)
+            ? this.config.deserializer(msg.content, msg)
             : undefined;
 
         const correlationMessage: CorrelationMessage = {
@@ -323,6 +323,17 @@ export class AmqpConnection {
       map((x) => x.message as T),
       first()
     );
+    
+    const timeout$ = interval(timeout).pipe(
+      first(),
+      map(() => {
+        throw new Error(
+          `Failed to receive response within timeout of ${timeout}ms for exchange "${requestOptions.exchange}" and routing key "${requestOptions.routingKey}"`
+        );
+      })
+    );
+
+    const result = lastValueFrom(race(response$, timeout$));
 
     await this.publish(
       requestOptions.exchange,
@@ -336,16 +347,7 @@ export class AmqpConnection {
       }
     );
 
-    const timeout$ = interval(timeout).pipe(
-      first(),
-      map(() => {
-        throw new Error(
-          `Failed to receive response within timeout of ${timeout}ms for exchange "${requestOptions.exchange}" and routing key "${requestOptions.routingKey}"`
-        );
-      })
-    );
-
-    return lastValueFrom(race(response$, timeout$));
+    return result;
   }
 
   public async createSubscriber<T>(
@@ -584,13 +586,14 @@ export class AmqpConnection {
     if (msg.content) {
       if (allowNonJsonMessages) {
         try {
-          message = this.config.deserializer(msg.content) as T;
+          message = this.config.deserializer(msg.content, msg) as T;
         } catch {
-          // Let handler handle parsing error, it has the raw message anyway
-          message = undefined;
+          // Pass raw message since flag `allowNonJsonMessages` is set
+          // Casting to `any` first as T doesn't have a type
+          message = msg.content.toString() as any as T;
         }
       } else {
-        message = this.config.deserializer(msg.content) as T;
+        message = this.config.deserializer(msg.content, msg) as T;
       }
     }
 

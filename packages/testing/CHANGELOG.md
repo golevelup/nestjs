@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.3.7](https://github.com/golevelup/nestjs/compare/@golevelup/ts-jest@0.3.6...@golevelup/ts-jest@0.3.7) (2023-05-01)
+
+### Bug Fixes
+
+- **testing:** fix breaking change from 0.3.6 ([33949a9](https://github.com/golevelup/nestjs/commit/33949a98ad8ce55a76a72fb88555998cdcae4859)), closes [#586](https://github.com/golevelup/nestjs/issues/586)
+
+## [0.3.6](https://github.com/golevelup/nestjs/compare/@golevelup/ts-jest@0.3.5...@golevelup/ts-jest@0.3.6) (2023-04-28)
+
+### Bug Fixes
+
+- **testing:** support for mocking constructors ([e31d2b3](https://github.com/golevelup/nestjs/commit/e31d2b39c4647fc9e96afa9e68ad41f244e6fc20)), closes [#583](https://github.com/golevelup/nestjs/issues/583)
+
 ## [0.3.5](https://github.com/golevelup/nestjs/compare/@golevelup/ts-jest@0.3.4...@golevelup/ts-jest@0.3.5) (2023-02-23)
 
 **Note:** Version bump only for package @golevelup/ts-jest
