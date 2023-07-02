@@ -33,7 +33,11 @@
     "access": "public"
   },
   "dependencies": {
-    "nanoid": "^3.2.0"
+    "nanoid": "^3.2.0",
+    "lodash": "^4.17.21"
+  },
+  "peerDependencies": {
+    "@nestjs/common": "^9.x"
   },
   "jest": {
     "moduleFileExtensions": [
