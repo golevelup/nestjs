@@ -5,7 +5,7 @@ import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 import { Module } from '@nestjs/core/injector/module';
 import { ModulesContainer } from '@nestjs/core/injector/modules-container';
 import { MetadataScanner } from '@nestjs/core/metadata-scanner';
-import { flatMap, get, some, uniqBy } from 'lodash';
+import { flatMap, get, isNil, some, uniqBy } from 'lodash';
 import {
   DiscoveredClass,
   DiscoveredClassWithMeta,
@@ -172,7 +172,7 @@ export class DiscoveryService {
       .scanFromPrototype(instance, prototype, (name) =>
         this.extractMethodMetaAtKey<T>(metaKey, component, prototype, name)
       )
-      .filter((x) => !!x.meta);
+      .filter((x) => !isNil(x.meta));
   }
 
   /**
