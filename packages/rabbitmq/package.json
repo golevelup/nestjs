@@ -38,11 +38,18 @@
     "@golevelup/nestjs-discovery": "^3.0.0",
     "@golevelup/nestjs-modules": "^0.6.1",
     "amqp-connection-manager": "^3.0.0",
-    "amqplib": "^0.8.0"
+    "amqplib": "^0.8.0",
+    "lodash": "^4.17.21"
   },
   "devDependencies": {
     "@types/amqp-connection-manager": "^2.0.4",
     "@types/amqplib": "^0.5.9"
+  },
+  "peerDependencies": {
+    "@nestjs/common": "^9.x",
+    "@nestjs/core": "^9.x",
+    "reflect-metadata": "^0.1.0",
+    "rxjs": "^7.x"
   },
   "publishConfig": {
     "access": "public"
