@@ -29,6 +29,7 @@ import {
   RabbitMQConfig,
   RequestOptions,
   RabbitMQChannelConfig,
+  ConsumeOptions,
 } from '../rabbitmq.interfaces';
 import {
   getHandlerForLegacyBehavior,
@@ -353,7 +354,8 @@ export class AmqpConnection {
   public async createSubscriber<T>(
     handler: SubscriberHandler<T>,
     msgOptions: MessageHandlerOptions,
-    originalHandlerName: string
+    originalHandlerName: string,
+    consumeOptions?: ConsumeOptions
   ): Promise<SubscriptionResult> {
     return new Promise((res) => {
       let result: SubscriptionResult;
@@ -363,7 +365,8 @@ export class AmqpConnection {
             handler,
             msgOptions,
             channel,
-            originalHandlerName
+            originalHandlerName,
+            consumeOptions
           );
           result = { consumerTag };
         })
@@ -377,7 +380,8 @@ export class AmqpConnection {
     handler: SubscriberHandler<T>,
     msgOptions: MessageHandlerOptions,
     channel: ConfirmChannel,
-    originalHandlerName = 'unknown'
+    originalHandlerName = 'unknown',
+    consumeOptions?: ConsumeOptions
   ): Promise<ConsumerTag> {
     const queue = await this.setupQueue(msgOptions, channel);
 
@@ -425,7 +429,8 @@ export class AmqpConnection {
             await errorHandler(channel, msg, e);
           }
         }
-      }
+      },
+      consumeOptions
     );
 
     this.registerConsumerForQueue({
