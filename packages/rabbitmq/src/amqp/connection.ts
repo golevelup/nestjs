@@ -484,6 +484,11 @@ export class AmqpConnection {
             throw new Error('Received null message');
           }
 
+          if (rpcOptions.routingKey !== msg.fields.routingKey) {
+            channel.nack(msg, false, true);
+            return;
+          }
+
           const response = await this.handleMessage(
             handler,
             msg,
