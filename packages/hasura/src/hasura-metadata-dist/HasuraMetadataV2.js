@@ -714,8 +714,8 @@ const typeMap = {
         { json: "webhook", js: "webhook", typ: "" },
     ], "any"),
     "RetryConfST": o([
-        { json: "num_retries", js: "num_retries", typ: u(undefined, 0) },
         { json: "retry_interval_seconds", js: "retry_interval_seconds", typ: u(undefined, 0) },
+        { json: "num_retries", js: "num_retries", typ: u(undefined, 0) },
         { json: "timeout_seconds", js: "timeout_seconds", typ: u(undefined, 0) },
         { json: "tolerance_seconds", js: "tolerance_seconds", typ: u(undefined, 0) },
     ], "any"),
