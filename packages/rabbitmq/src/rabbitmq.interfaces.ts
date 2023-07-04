@@ -1,6 +1,6 @@
 import { LoggerService } from '@nestjs/common';
 import { AmqpConnectionManagerOptions } from 'amqp-connection-manager';
-import { Options } from 'amqplib';
+import { ConsumeMessage, Options } from 'amqplib';
 import {
   AssertQueueErrorHandler,
   MessageErrorHandler,
@@ -125,7 +125,7 @@ export interface RabbitMQConfig {
   /**
    * This function is used to deserialize the received message.
    */
-  deserializer?: (message: Buffer) => any;
+  deserializer?: (message: Buffer, msg: ConsumeMessage) => any;
 
   /**
    * This function is used to serialize the message to be sent.

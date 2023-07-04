@@ -216,17 +216,21 @@ describe('Rabbit Subscribe', () => {
     times(100).forEach((x) => expect(deleteHandler).toHaveBeenCalledWith(x));
   });
 
-  it('should receive undefined argument when subscriber allows non-json messages and message is invalid', async () => {
-    amqpConnection.publish(exchange, nonJsonRoutingKey, undefined);
-    amqpConnection.publish(exchange, nonJsonRoutingKey, Buffer.alloc(0));
-    amqpConnection.publish(exchange, nonJsonRoutingKey, Buffer.from('{a:'));
+  it('should receive message as-is if unable to parse', async () => {
+    await amqpConnection.publish(exchange, nonJsonRoutingKey, undefined);
+    await amqpConnection.publish(exchange, nonJsonRoutingKey, Buffer.alloc(0));
+    await amqpConnection.publish(
+      exchange,
+      nonJsonRoutingKey,
+      Buffer.from('{a:'),
+    );
 
     await new Promise((resolve) => setTimeout(resolve, 50));
 
     expect(testHandler).toHaveBeenCalledTimes(3);
-    expect(testHandler).toHaveBeenNthCalledWith(1, undefined);
-    expect(testHandler).toHaveBeenNthCalledWith(2, undefined);
-    expect(testHandler).toHaveBeenNthCalledWith(3, undefined);
+    expect(testHandler).toHaveBeenNthCalledWith(1, '');
+    expect(testHandler).toHaveBeenNthCalledWith(2, '');
+    expect(testHandler).toHaveBeenNthCalledWith(3, '{a:');
   });
 
   it('should receive messages in existing queue without setting exchange and routing key on subscribe', async () => {
