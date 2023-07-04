@@ -479,6 +479,10 @@ export class AmqpConnection {
     const { consumerTag }: { consumerTag: ConsumerTag } = await channel.consume(
       queue,
       async (msg) => {
+         if(rpcOptions.routingKey !== msg.fields.routingKey) {
+                channel.nack(msg, false, true);
+                return
+            }
         try {
           if (msg == null) {
             throw new Error('Received null message');
