@@ -32,7 +32,7 @@
     "test": "jest"
   },
   "dependencies": {
-    "lodash": "^4.17.15"
+    "lodash": "^4.17.21"
   },
   "peerDependencies": {
     "@nestjs/common": "^9.x",
