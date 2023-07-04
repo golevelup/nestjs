@@ -653,6 +653,13 @@
     lodash "^4.17.21"
     nanoid "^3.2.0"
 
+"@golevelup/nestjs-discovery@^3.0.1":
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/@golevelup/nestjs-discovery/-/nestjs-discovery-3.0.1.tgz#7ad7e2c5ac245bd315ff4a98d4870248dace535a"
+  integrity sha512-kK/GBYVxb8XGlwXgtCWAkPOwDVh7dXyLRaoZuk2bBYntV3DZkYGAIbLKOFTGz+MGz71vEeQ9bGLP7cHKtCee4g==
+  dependencies:
+    lodash "^4.17.15"
+
 "@hasura/metadata@^1.0.2":
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/@hasura/metadata/-/metadata-1.0.2.tgz#0e212a349a176108c1f2572faa03317d21c2f052"
