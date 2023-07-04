@@ -355,7 +355,7 @@ export class AmqpConnection {
     handler: SubscriberHandler<T>,
     msgOptions: MessageHandlerOptions,
     originalHandlerName: string,
-    consumeOption?: ConsumeOptions
+    consumeOptions?: ConsumeOptions
   ): Promise<SubscriptionResult> {
     return new Promise((res) => {
       let result: SubscriptionResult;
@@ -366,7 +366,7 @@ export class AmqpConnection {
             msgOptions,
             channel,
             originalHandlerName,
-            consumeOption
+            consumeOptions
           );
           result = { consumerTag };
         })
@@ -381,7 +381,7 @@ export class AmqpConnection {
     msgOptions: MessageHandlerOptions,
     channel: ConfirmChannel,
     originalHandlerName = 'unknown',
-    consumeOption?: ConsumeOptions
+    consumeOptions?: ConsumeOptions
   ): Promise<ConsumerTag> {
     const queue = await this.setupQueue(msgOptions, channel);
 
@@ -430,7 +430,7 @@ export class AmqpConnection {
           }
         }
       },
-      consumeOption
+      consumeOptions
     );
 
     this.registerConsumerForQueue({
