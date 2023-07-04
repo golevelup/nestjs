@@ -117,8 +117,8 @@ For a few more examples on what can be done [the mock.spec](src/mocks.spec.ts) f
 
 ## Contribute
 
-Contributions welcome! Read the [contribution guidelines](../../CONTRIBUTING.md) first.
+Contributions welcome! Read the [contribution guidelines](../../../CONTRIBUTING.md) first.
 
 ## License
 
-[MIT License](../../LICENSE)
+[MIT License](../../../LICENSE)
