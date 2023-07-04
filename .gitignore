@@ -2,6 +2,7 @@ node_modules/
 lerna-debug.log
 npm-debug.log
 packages/*/lib
+packages/testing/*/lib
 .idea
 coverage/
 tsconfig.build.tsbuildinfo
