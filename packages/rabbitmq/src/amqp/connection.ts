@@ -485,8 +485,8 @@ export class AmqpConnection {
           }
 
           if (rpcOptions.routingKey !== msg.fields.routingKey) {
-                    channel.nack(msg, false, true);
-                    return;
+            channel.nack(msg, false, true);
+            return;
           }
 
           const response = await this.handleMessage(
