@@ -33,7 +33,7 @@
     "access": "public"
   },
   "dependencies": {
-    "nanoid": "^4.0.2",
+    "nanoid": "^3.3.6",
     "lodash": "^4.17.21"
   },
   "peerDependencies": {
