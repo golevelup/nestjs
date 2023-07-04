@@ -3,6 +3,30 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [3.7.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@3.6.1...@golevelup/nestjs-rabbitmq@3.7.0) (2023-07-03)
+
+### Features
+
+- **rabbitmq:** support service property to read consumer tags ([#612](https://github.com/golevelup/nestjs/issues/612)) ([37cbb31](https://github.com/golevelup/nestjs/commit/37cbb3140997a14638c07848d3b600b610981168)), closes [#596](https://github.com/golevelup/nestjs/issues/596)
+
+## [3.6.1](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@3.6.0...@golevelup/nestjs-rabbitmq@3.6.1) (2023-06-05)
+
+### Bug Fixes
+
+- **rabbitmq:** race condition for RPC ([efdb4d1](https://github.com/golevelup/nestjs/commit/efdb4d1cf00fdba94ffeebfb75c5224b34f864e8)), closes [#599](https://github.com/golevelup/nestjs/issues/599)
+
+# [3.6.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@3.5.0...@golevelup/nestjs-rabbitmq@3.6.0) (2023-03-28)
+
+### Features
+
+- **rabbitmq:** extend custom parsers, update docs ([5e15faf](https://github.com/golevelup/nestjs/commit/5e15faf2c5e0e079d16c5ebe6c601528f9f658ef)), closes [#574](https://github.com/golevelup/nestjs/issues/574)
+
+# [3.5.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@3.4.0...@golevelup/nestjs-rabbitmq@3.5.0) (2023-02-23)
+
+### Features
+
+- **rabbitmq:** return promise from publish to be able to await delivery ([#530](https://github.com/golevelup/nestjs/issues/530)) ([7163eca](https://github.com/golevelup/nestjs/commit/7163ecaf948c96b081b803725c023cd75b99002a))
+
 # [3.4.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@3.3.0...@golevelup/nestjs-rabbitmq@3.4.0) (2022-10-31)
 
 ### Features

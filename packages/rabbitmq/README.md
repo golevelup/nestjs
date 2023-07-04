@@ -18,11 +18,14 @@
     - [Module Initialization](#module-initialization)
   - [Usage with Interceptors, Guards and Filters](#usage-with-interceptors-guards-and-filters)
   - [Usage with Controllers](#usage-with-controllers)
+    - [Interceptors, Guards, Pipes](#interceptors-guards-pipes)
   - [Receiving Messages](#receiving-messages)
     - [Exposing RPC Handlers](#exposing-rpc-handlers)
     - [Exposing Pub/Sub Handlers](#exposing-pubsub-handlers)
+    - [Handling messages with format different than JSON](#handling-messages-with-format-different-than-json)
     - [Message Handling](#message-handling)
     - [Conditional Handler Registration](#conditional-handler-registration)
+    - [Dealing with the amqp original message](#dealing-with-the-amqp-original-message)
     - [Selecting channel for handler](#selecting-channel-for-handler)
   - [Sending Messages](#sending-messages)
     - [Inject the AmqpConnection](#inject-the-amqpconnection)
@@ -32,6 +35,8 @@
       - [Interop with other RPC Servers](#interop-with-other-rpc-servers)
   - [Advanced Patterns](#advanced-patterns)
     - [Competing Consumers](#competing-consumers)
+    - [Handling errors](#handling-errors)
+    - [Handling errors during queue creation](#handling-errors-during-queue-creation)
   - [Contribute](#contribute)
   - [License](#license)
 
@@ -288,6 +293,42 @@ export class MessagingService {
   }
 }
 ```
+
+### Handling messages with format different than JSON
+
+By default, messages are parsed with `JSON.parse` method when they are received and stringified with `JSON.stringify` on publish.
+If you wish to change this behavior, you can use your own parsers, like so
+
+```typescript
+import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
+import { Module } from '@nestjs/common';
+import { MessagingController } from './messaging/messaging.controller';
+import { MessagingService } from './messaging/messaging.service';
+import { ConsumeMessage } from 'amqplib';
+
+@Module({
+  imports: [
+    RabbitMQModule.forRoot(RabbitMQModule, {
+      // ...
+      deserializer: (message: Buffer, msg: ConsumeMessage) => {
+        const decodedMessage = myCustomDeserializer(
+          msg.toString(),
+          msg.properties.headers
+        );
+        return decodedMessage;
+      },
+      serializer: (msg: any) => {
+        const encodedMessage = myCustomSerializer(msg);
+        return Buffer.from(encodedMessage);
+      },
+    }),
+  ],
+  // ...
+})
+export class RabbitExampleModule {}
+```
+
+Also, if you simply do not want to parse incoming message, set flag `allowNonJsonMessages` on consumer level, it will return raw message if unable to parse it
 
 ### Message Handling
 

@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.8.0](https://github.com/golevelup/nestjs/compare/rabbitmq-integration@2.7.0...rabbitmq-integration@2.8.0) (2023-03-28)
+
+### Features
+
+- **rabbitmq:** extend custom parsers, update docs ([5e15faf](https://github.com/golevelup/nestjs/commit/5e15faf2c5e0e079d16c5ebe6c601528f9f658ef)), closes [#574](https://github.com/golevelup/nestjs/issues/574)
+
 # [2.7.0](https://github.com/golevelup/nestjs/compare/rabbitmq-integration@2.6.1...rabbitmq-integration@2.7.0) (2022-10-31)
 
 ### Features

@@ -223,6 +223,32 @@ describe('Mocks', () => {
 
       expect(result).toBe(42);
     });
+
+    describe(`constructor`, () => {
+      it('should have constructor defined', () => {
+        class Service {}
+
+        const mock = createMock<Service>();
+
+        expect(mock.constructor).toBeDefined();
+      });
+
+      it('should have the same constructor defined', () => {
+        class Service {}
+
+        const mock = createMock<Service>();
+
+        expect(mock.constructor).toEqual(mock.constructor);
+      });
+
+      it(`should allow mocks to be equal`, () => {
+        class Service {}
+
+        const comparable = createMock<Service>();
+
+        expect([comparable]).toEqual([comparable]);
+      })
+    });
   });
 
   describe('Nest DI', () => {
@@ -252,9 +278,8 @@ describe('Mocks', () => {
       }).compile();
 
       mockedProvider = module.get<DeepMocked<ExecutionContext>>(diToken);
-      dependentProvider = module.get<{ dependent: () => string }>(
-        dependentToken
-      );
+      dependentProvider =
+        module.get<{ dependent: () => string }>(dependentToken);
     });
 
     it('should correctly resolve mocked providers', async () => {
