@@ -42,21 +42,21 @@ jobs:
       - name: Install dependencies
         run: yarn install
 
-#      - name: Build
-#        run: yarn build
-#
-#      - name: Run unit tests
-#        run: yarn test:ci
+      - name: Build
+        run: yarn build
 
-#      - name: Publish code coverage
-#        if: matrix.node == env.LATEST_NODE_VERSION
-#        run: echo Not Implemented Yet
+      - name: Run unit tests
+        run: yarn test:ci
 
-#      - name: Run integration tests
-#        run: |
-#          yarn --cwd ./integration/rabbitmq
-#          yarn test:ci:integration
-#        env:
-#          NODE_ENV: ci
-#          RABBITMQ_HOST: localhost
-#          RABBITMQ_PORT: ${{ job.services.rabbitmq.ports[5672] }}
+      - name: Publish code coverage
+        if: matrix.node == env.LATEST_NODE_VERSION
+        run: echo Not Implemented Yet
+
+      - name: Run integration tests
+        run: |
+          yarn --cwd ./integration/rabbitmq
+          yarn test:ci:integration
+        env:
+          NODE_ENV: ci
+          RABBITMQ_HOST: localhost
+          RABBITMQ_PORT: ${{ job.services.rabbitmq.ports[5672] }}
