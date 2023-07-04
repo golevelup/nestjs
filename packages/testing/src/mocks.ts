@@ -1,3 +1,5 @@
+import { jest } from '@jest/globals';
+
 type DeepPartial<T> = {
   [P in keyof T]?: T[P] extends Array<infer U>
     ? Array<DeepPartial<U>>
@@ -85,9 +87,8 @@ export const createMock = <T extends object>(
       let mockedProp: any;
 
       if (prop in obj) {
-        mockedProp = typeof checkProp === 'function'
-          ? jest.fn(checkProp)
-          : checkProp
+        mockedProp =
+          typeof checkProp === 'function' ? jest.fn(checkProp) : checkProp;
       } else if (prop === 'constructor') {
         mockedProp = () => undefined;
       } else {

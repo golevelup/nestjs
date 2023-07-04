@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.3.8](https://github.com/golevelup/nestjs/compare/@golevelup/ts-jest@0.3.7...@golevelup/ts-jest@0.3.8) (2023-07-03)
+
+### Bug Fixes
+
+- **testing:** missing jest when injectGlobals=false ([#566](https://github.com/golevelup/nestjs/issues/566)) ([26a681e](https://github.com/golevelup/nestjs/commit/26a681efb2a6ea11979ec6066fc5d12abbb06a40)), closes [/github.com/golevelup/nestjs/issues/557#event-8587363528](https://github.com//github.com/golevelup/nestjs/issues/557/issues/event-8587363528)
+
 ## [0.3.7](https://github.com/golevelup/nestjs/compare/@golevelup/ts-jest@0.3.6...@golevelup/ts-jest@0.3.7) (2023-05-01)
 
 ### Bug Fixes
