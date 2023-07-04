@@ -4,6 +4,7 @@
   "license": "MIT",
   "workspaces": [
     "packages/*",
+    "packages/testing/*",
     "integration/*"
   ],
   "dependencies": {

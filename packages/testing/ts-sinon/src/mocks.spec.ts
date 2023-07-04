@@ -1,7 +1,8 @@
 import { ExecutionContext } from '@nestjs/common';
 import { HttpArgumentsHost } from '@nestjs/common/interfaces';
-import { Test, TestingModule } from '@nestjs/testing';
 import { createMock, DeepMocked } from './mocks';
+import { SinonStub } from 'sinon';
+import { Test, TestingModule } from '@nestjs/testing';
 
 interface TestInterface {
   someNum: number;
@@ -41,7 +42,7 @@ describe('Mocks', () => {
       const result = mock.switchToHttp().getRequest();
 
       expect(result).toBe(request);
-      expect(mock.switchToHttp).toBeCalledTimes(1);
+      expect(mock.switchToHttp.calledOnce).toBeTruthy();
     });
 
     it('should work with truthy values properties', () => {
@@ -83,14 +84,14 @@ describe('Mocks', () => {
 
       const funcResult = mock.func(42, '42');
       expect(funcResult).toBe(false);
-      expect(mock.func).toBeCalledTimes(1);
-      expect(mock.func).toBeCalledWith(42, '42');
+      expect(mock.func.calledOnce).toBeTruthy();
+      expect(mock.func.calledWith(42, '42')).toBeTruthy();
     });
 
     it('should work with classes', () => {
       const mock = createMock<TestClass>(undefined, { name: 'TestClass' });
 
-      mock.someMethod.mockReturnValueOnce(42);
+      mock.someMethod.returns(42);
 
       const result = mock.someMethod();
       expect(result).toBe(42);
@@ -103,9 +104,9 @@ describe('Mocks', () => {
       };
 
       const mock = createMock<TypeWithOptionalProps>();
-      mock.maybe?.mockImplementationOnce(() => 42);
+      (mock.maybe as SinonStub)?.callsFake(() => 42);
 
-      const result = mock.maybe!();
+      const result = mock.maybe?.();
 
       expect(result).toBe(42);
     });
@@ -121,7 +122,7 @@ describe('Mocks', () => {
 
       const result = await mock.doSomethingAsync();
       expect(result).toBe(42);
-      expect(mock.doSomethingAsync).toBeCalledTimes(1);
+      expect(mock.doSomethingAsync.calledOnce).toBeTruthy();
     });
 
     it('should work with unknown properties', () => {
@@ -145,7 +146,7 @@ describe('Mocks', () => {
   });
 
   describe('auto mocked', () => {
-    it('should auto mock functions that are not provided by user', () => {
+    it('should auto mock functions that are not provided by the user', () => {
       const mock = createMock<ExecutionContext>({
         switchToHttp: () => ({
           getRequest: () => request,
@@ -156,24 +157,25 @@ describe('Mocks', () => {
       const second = mock.switchToRpc();
       const third = mock.switchToWs();
 
-      expect(mock.switchToRpc).toBeCalledTimes(2);
-      expect(mock.switchToWs).toBeCalledTimes(1);
+      expect(mock.switchToRpc.calledTwice).toBeTruthy();
+      expect(mock.switchToWs.calledOnce).toBeTruthy();
+
       expect(first.getContext).toBeDefined();
       expect(second.getContext).toBeDefined();
       expect(third.getClient).toBeDefined();
     });
 
-    it('should allow for mock implementation on automocked properties', () => {
+    it('should allow for mock implementation on auto mocked properties', () => {
       const executionContextMock = createMock<ExecutionContext>();
       const httpArgsHost = createMock<HttpArgumentsHost>({
         getRequest: () => request,
       });
 
-      executionContextMock.switchToHttp.mockImplementation(() => httpArgsHost);
+      executionContextMock.switchToHttp.callsFake(() => httpArgsHost);
 
       const result = executionContextMock.switchToHttp().getRequest();
       expect(result).toBe(request);
-      expect(httpArgsHost.getRequest).toBeCalledTimes(1);
+      expect(httpArgsHost.getRequest.calledOnce).toBeTruthy();
     });
 
     it('should automock promises so that they are awaitable', async () => {
@@ -185,21 +187,23 @@ describe('Mocks', () => {
 
       const result = await mock.doSomethingAsync();
       expect(result).toBeDefined();
-      expect(mock.doSomethingAsync).toBeCalledTimes(1);
+      expect(mock.doSomethingAsync.calledOnce).toBeTruthy();
     });
 
     it('should automock objects returned from automocks', () => {
       const mock = createMock<ExecutionContext>();
 
-      mock.switchToHttp().getRequest.mockImplementation(() => request);
+      mock.switchToHttp().getRequest.callsFake(() => request);
 
       const request1 = mock.switchToHttp().getRequest();
       const request2 = mock.switchToHttp().getRequest();
       expect(request1).toBe(request);
       expect(request2).toBe(request);
 
-      expect(mock.switchToHttp).toBeCalledTimes(3);
-      expect(mock.switchToHttp().getRequest).toBeCalledTimes(2);
+      expect(mock.switchToHttp.calledThrice).toBeTruthy();
+      expect(
+        (mock.switchToHttp().getRequest as SinonStub).calledTwice
+      ).toBeTruthy();
     });
 
     it('should automock objects returned from automocks recursively', () => {
@@ -217,14 +221,14 @@ describe('Mocks', () => {
 
       const mock = createMock<Three>();
 
-      mock.getTwo().getOne().getNumber.mockReturnValueOnce(42);
+      mock.getTwo().getOne().getNumber.returns(42);
 
       const result = mock.getTwo().getOne().getNumber();
 
       expect(result).toBe(42);
     });
 
-    describe(`constructor`, () => {
+    describe('constructor', () => {
       it('should have constructor defined', () => {
         class Service {}
 
@@ -247,7 +251,7 @@ describe('Mocks', () => {
         const comparable = createMock<Service>();
 
         expect([comparable]).toEqual([comparable]);
-      })
+      });
     });
   });
 
@@ -287,7 +291,7 @@ describe('Mocks', () => {
         key: 'val',
       };
 
-      mockedProvider.switchToHttp.mockReturnValueOnce(
+      mockedProvider.switchToHttp.returns(
         createMock<HttpArgumentsHost>({
           getRequest: () => request,
         })

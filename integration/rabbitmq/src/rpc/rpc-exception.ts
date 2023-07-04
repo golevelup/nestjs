@@ -15,10 +15,10 @@ export class RpcException extends Error {
       isString((this.error as Record<string, any>).message)
     ) {
       this.message = (this.error as Record<string, any>).message;
-    } else if (this.constructor) {
-      this.message = this.constructor.name
-        .match(/[A-Z][a-z]+|[0-9]+/g)
-        .join(' ');
+    } else if (this.constructor.name) {
+      const matchResult =
+        this.constructor.name.match(/[A-Z][a-z]+|[0-9]+/g) ?? [];
+      this.message = matchResult.join(' ');
     }
   }
 
