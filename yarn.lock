@@ -645,6 +645,14 @@
     unique-filename "^1.1.1"
     which "^1.3.1"
 
+"@golevelup/nestjs-common@^1.4.5":
+  version "1.4.5"
+  resolved "https://registry.yarnpkg.com/@golevelup/nestjs-common/-/nestjs-common-1.4.5.tgz#28557ae2d7cfda60d4f845e1f2ff1da90b337d4d"
+  integrity sha512-WqxGAP4KZjvUea/lYCEfFXB8fS3NwxEWgrQpz2H8jusbz11OSrLECv5TNU9RIRKFnUPbGevy45dvKHF2JTQfJw==
+  dependencies:
+    lodash "^4.17.21"
+    nanoid "^3.2.0"
+
 "@hasura/metadata@^1.0.2":
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/@hasura/metadata/-/metadata-1.0.2.tgz#0e212a349a176108c1f2572faa03317d21c2f052"
