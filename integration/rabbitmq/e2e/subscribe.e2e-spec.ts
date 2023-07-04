@@ -188,7 +188,7 @@ describe('Rabbit Subscribe', () => {
   });
 
   it('should receive messages when subscribed via handler name', async () => {
-    amqpConnection.publish(exchange, routingKey3, 'testMessage');
+    await amqpConnection.publish(exchange, routingKey3, 'testMessage');
 
     await new Promise((resolve) => setTimeout(resolve, 50));
 

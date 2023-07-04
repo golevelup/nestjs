@@ -87,9 +87,8 @@ export const createMock = <T extends object>(
       let mockedProp: any;
 
       if (prop in obj) {
-        mockedProp = typeof checkProp === 'function'
-          ? jest.fn(checkProp)
-          : checkProp
+        mockedProp =
+          typeof checkProp === 'function' ? jest.fn(checkProp) : checkProp;
       } else if (prop === 'constructor') {
         mockedProp = () => undefined;
       } else {

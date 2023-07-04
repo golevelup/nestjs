@@ -39,10 +39,9 @@ export class ConfigurableRawBodyMiddleware implements NestMiddleware {
 
   use(req: Request, res: Response, next: () => any) {
     json({
-      verify: (req: any, res, buffer, encoding) => {
+      verify: (req: any, res, buffer) => {
         if (Buffer.isBuffer(buffer)) {
-          const rawBody = Buffer.from(buffer);
-          req[this.config.requestRawBodyProperty] = rawBody;
+          req[this.config.requestRawBodyProperty] = Buffer.from(buffer);
         }
         return true;
       },
