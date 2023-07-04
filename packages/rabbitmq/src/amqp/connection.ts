@@ -323,7 +323,7 @@ export class AmqpConnection {
       map((x) => x.message as T),
       first()
     );
-    
+
     const timeout$ = interval(timeout).pipe(
       first(),
       map(() => {
@@ -482,6 +482,11 @@ export class AmqpConnection {
         try {
           if (msg == null) {
             throw new Error('Received null message');
+          }
+
+          if (rpcOptions.routingKey !== msg.fields.routingKey) {
+            channel.nack(msg, false, true);
+            return;
           }
 
           const response = await this.handleMessage(
@@ -721,6 +726,10 @@ export class AmqpConnection {
 
   private getConsumer(consumerTag: ConsumerTag) {
     return this._consumers[consumerTag];
+  }
+
+  get consumerTags(): string[] {
+    return Object.keys(this._consumers);
   }
 
   public async cancelConsumer(consumerTag: ConsumerTag) {

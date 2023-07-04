@@ -172,7 +172,7 @@ export class DiscoveryService {
       .scanFromPrototype(instance, prototype, (name) =>
         this.extractMethodMetaAtKey<T>(metaKey, component, prototype, name)
       )
-      .filter((x) => !!x.meta);
+      .filter((x) => !isNil(x.meta));
   }
 
   /**
