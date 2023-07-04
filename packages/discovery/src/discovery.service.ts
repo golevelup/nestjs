@@ -5,7 +5,7 @@ import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 import { Module } from '@nestjs/core/injector/module';
 import { ModulesContainer } from '@nestjs/core/injector/modules-container';
 import { MetadataScanner } from '@nestjs/core/metadata-scanner';
-import { flatMap, get, some, uniqBy } from 'lodash';
+import { flatMap, get, isNil, some, uniqBy } from 'lodash';
 import {
   DiscoveredClass,
   DiscoveredClassWithMeta,
@@ -45,10 +45,10 @@ export const withMetaAtKey: (key: MetaKey) => Filter<DiscoveredClass> =
   (key) => (component) => {
     // eslint-disable-next-line @typescript-eslint/ban-types
     const metaTargets: Function[] = [
-      get(component, 'instance.constructor'),
+      get(component, 'instance.constructor') as any,
       // eslint-disable-next-line @typescript-eslint/ban-types
       component.injectType as Function,
-    ].filter((x) => x != null);
+    ].filter((x) => !isNil(x));
 
     return some(metaTargets, (x) => Reflect.getMetadata(key, x));
   };
