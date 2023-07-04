@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.0.1](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-discovery@3.0.0...@golevelup/nestjs-discovery@3.0.1) (2023-07-03)
+
+### Bug Fixes
+
+- **discovery:** uses better truth check with lodash isNil ([#611](https://github.com/golevelup/nestjs/issues/611)) ([fcb83da](https://github.com/golevelup/nestjs/commit/fcb83da98c0e5b79d71e069f7b94c2c5cf8b160b))
+
 # [3.0.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-discovery@2.3.2...@golevelup/nestjs-discovery@3.0.0) (2022-01-24)
 
 - feat!: update libraries to support Nest 8 (#342) ([de7cd35](https://github.com/golevelup/nestjs/commit/de7cd35ac2e63d66af76b792d5bf99b4a2d82bb4)), closes [#342](https://github.com/golevelup/nestjs/issues/342)

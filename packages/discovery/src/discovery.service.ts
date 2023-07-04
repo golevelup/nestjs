@@ -45,10 +45,10 @@ export const withMetaAtKey: (key: MetaKey) => Filter<DiscoveredClass> =
   (key) => (component) => {
     // eslint-disable-next-line @typescript-eslint/ban-types
     const metaTargets: Function[] = [
-      get(component, 'instance.constructor'),
+      get(component, 'instance.constructor') as any,
       // eslint-disable-next-line @typescript-eslint/ban-types
       component.injectType as Function,
-    ].filter((x) => x != null);
+    ].filter((x) => !isNil(x));
 
     return some(metaTargets, (x) => Reflect.getMetadata(key, x));
   };

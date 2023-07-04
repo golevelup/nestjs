@@ -14,6 +14,8 @@ export interface RabbitMQExchangeConfig {
   options?: Options.AssertExchange;
 }
 
+export type ConsumeOptions = Options.Consume;
+
 export interface MessageOptions {
   exchange: string;
   routingKey: string;
