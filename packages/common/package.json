@@ -1,6 +1,6 @@
 {
   "name": "@golevelup/nestjs-common",
-  "version": "1.4.5",
+  "version": "2.0.0",
   "description": "Common module and utility building blocks for badass NestJS applications",
   "author": "Jesse Carter <jesse.r.carter@gmail.com>",
   "homepage": "https://github.com/golevelup/nestjs#readme",
@@ -33,8 +33,8 @@
     "access": "public"
   },
   "dependencies": {
-    "nanoid": "^3.3.6",
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.21",
+    "nanoid": "^3.3.6"
   },
   "peerDependencies": {
     "@nestjs/common": "^10.x"

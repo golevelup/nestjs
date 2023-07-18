@@ -1,6 +1,6 @@
 {
   "name": "@golevelup/nestjs-graphql-request",
-  "version": "0.1.15",
+  "version": "0.1.16",
   "description": "Badass utilities for integrating graphql-request and NestJS",
   "author": "Jesse Carter <jesse.r.carter@gmail.com>",
   "homepage": "https://github.com/golevelup/nestjs#readme",
@@ -38,9 +38,9 @@
     "access": "public"
   },
   "dependencies": {
-    "@golevelup/nestjs-common": "^1.4.5",
-    "@golevelup/nestjs-discovery": "^3.0.1",
-    "@golevelup/nestjs-modules": "^0.6.1",
+    "@golevelup/nestjs-common": "^2.0.0",
+    "@golevelup/nestjs-discovery": "^4.0.0",
+    "@golevelup/nestjs-modules": "^0.7.0",
     "graphql": "^15.6.1",
     "graphql-request": "^3.5.0"
   },

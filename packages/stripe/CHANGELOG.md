@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.6.3](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-stripe@0.6.2...@golevelup/nestjs-stripe@0.6.3) (2023-07-18)
+
+**Note:** Version bump only for package @golevelup/nestjs-stripe
+
 ## [0.6.2](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-stripe@0.6.1...@golevelup/nestjs-stripe@0.6.2) (2023-07-03)
 
 **Note:** Version bump only for package @golevelup/nestjs-stripe

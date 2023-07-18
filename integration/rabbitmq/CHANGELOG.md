@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [3.0.0](https://github.com/golevelup/nestjs/compare/rabbitmq-integration@2.8.0...rabbitmq-integration@3.0.0) (2023-07-18)
+
+- feat(nestjs)!: add support for v10 (#617) ([817729e](https://github.com/golevelup/nestjs/commit/817729ef0fc4d63647430ddac0d011c038b0c36b)), closes [#617](https://github.com/golevelup/nestjs/issues/617)
+
+### Features
+
+- **ts-sinon:** adds new mocking package for sinon users ([#603](https://github.com/golevelup/nestjs/issues/603)) ([4029547](https://github.com/golevelup/nestjs/commit/4029547c241a6a2337d5a381f5374dc4cb88db31))
+
+### BREAKING CHANGES
+
+- updating to new major NestJS versions
+
 # [2.8.0](https://github.com/golevelup/nestjs/compare/rabbitmq-integration@2.7.0...rabbitmq-integration@2.8.0) (2023-03-28)
 
 ### Features

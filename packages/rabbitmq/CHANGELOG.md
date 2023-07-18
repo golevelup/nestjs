@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [4.0.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@3.7.0...@golevelup/nestjs-rabbitmq@4.0.0) (2023-07-18)
+
+- feat(nestjs)!: add support for v10 (#617) ([817729e](https://github.com/golevelup/nestjs/commit/817729ef0fc4d63647430ddac0d011c038b0c36b)), closes [#617](https://github.com/golevelup/nestjs/issues/617)
+
+### Features
+
+- **rabbitmq:** add consumeOption to createSubscriber() ([#535](https://github.com/golevelup/nestjs/issues/535)) ([baeeb2d](https://github.com/golevelup/nestjs/commit/baeeb2db539d968d2a60ede775a5fafce70c8574))
+- **rabbitmq:** handle mismatched routing key ([e6d1c08](https://github.com/golevelup/nestjs/commit/e6d1c08caf30cf75a184a1e29bb8e7d6d15f3abd)), closes [#567](https://github.com/golevelup/nestjs/issues/567)
+
+### BREAKING CHANGES
+
+- updating to new major NestJS versions
+
 # [3.7.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@3.6.1...@golevelup/nestjs-rabbitmq@3.7.0) (2023-07-03)
 
 ### Features

@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [4.0.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-discovery@3.0.1...@golevelup/nestjs-discovery@4.0.0) (2023-07-18)
+
+- feat(nestjs)!: add support for v10 (#617) ([817729e](https://github.com/golevelup/nestjs/commit/817729ef0fc4d63647430ddac0d011c038b0c36b)), closes [#617](https://github.com/golevelup/nestjs/issues/617)
+
+### BREAKING CHANGES
+
+- updating to new major NestJS versions
+
 ## [3.0.1](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-discovery@3.0.0...@golevelup/nestjs-discovery@3.0.1) (2023-07-03)
 
 ### Bug Fixes
