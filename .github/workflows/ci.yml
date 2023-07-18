@@ -15,7 +15,7 @@ jobs:
 
     strategy:
       matrix:
-        node: [14, 16, 18, 19]
+        node: [16, 18, 19]
       fail-fast: false
 
     services:
