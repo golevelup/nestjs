@@ -216,7 +216,7 @@ export class RabbitExampleModule {}
 ### Interceptors, Guards, Pipes
 
 To use Interceptors, Guards or Pipes, the controller has to be imported as provider in the module.
-Then simly add the corresponding decorator to the whole controller or the method.
+Then simply add the corresponding decorator to the whole controller or the method.
 
 ```typescript
 @RabbitRPC({
