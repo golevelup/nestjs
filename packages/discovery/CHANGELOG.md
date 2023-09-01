@@ -3,38 +3,6 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-# 5.0.0 (2023-09-01)
-
-- feat(nestjs)!: add support for v10 (#617) ([817729e](https://github.com/golevelup/nestjs/commit/817729ef0fc4d63647430ddac0d011c038b0c36b)), closes [#617](https://github.com/golevelup/nestjs/issues/617)
-- feat!: update libraries to support Nest 8 (#342) ([de7cd35](https://github.com/golevelup/nestjs/commit/de7cd35ac2e63d66af76b792d5bf99b4a2d82bb4)), closes [#342](https://github.com/golevelup/nestjs/issues/342)
-
-### Bug Fixes
-
-- **discovery:** add lodash as dependency ([b1baad6](https://github.com/golevelup/nestjs/commit/b1baad6fac6087f93bd03f25ea810a065e172b4a))
-- **discovery:** discovery of components/providers in lazy way ([8a6fa7f](https://github.com/golevelup/nestjs/commit/8a6fa7f0bdc1e38275df13acbbfbeb1b0d6d11d2))
-- **discovery:** tolerate possibly null providers ([30c87d0](https://github.com/golevelup/nestjs/commit/30c87d07f8fed3f6e011f28d296a8e7af6bed478)), closes [#44](https://github.com/golevelup/nestjs/issues/44)
-- **discovery:** uses better truth check with lodash isNil ([#611](https://github.com/golevelup/nestjs/issues/611)) ([fcb83da](https://github.com/golevelup/nestjs/commit/fcb83da98c0e5b79d71e069f7b94c2c5cf8b160b))
-- **eslint:** add missing eslint dev deps ([7bfcc2c](https://github.com/golevelup/nestjs/commit/7bfcc2c25dd2f1ea6ce767991df15e3b237c54b7))
-- **eslint:** fix sonarcloud diplicate code error ([1868fab](https://github.com/golevelup/nestjs/commit/1868fab94ffdff0aa16d660a71867f856ea931a9))
-- **integration:** update integration test packages and fix tests ([1a2a8cb](https://github.com/golevelup/nestjs/commit/1a2a8cbaaf14f27fd7d4259352658cab2eee1eaf))
-
-### Features
-
-- **all packages:** upgrade to Nest v6 ([5a8e903](https://github.com/golevelup/nestjs/commit/5a8e903302320da13a213c83d5578026a9eed9a7))
-- **hasura:** event handling service ([09d3f4d](https://github.com/golevelup/nestjs/commit/09d3f4df0a6e5c5d803839df0db81197ddbc9716)), closes [#116](https://github.com/golevelup/nestjs/issues/116)
-
-### BREAKING CHANGES
-
-- updating to new major NestJS versions
-- Nest dependencies have been bumped from 6.x -> 8.x and we will no longer be supporting versions older than 8.x for future development
-
-Co-authored-by: Christophe BLIN <cblin@monkeyfactory.fr>
-Co-authored-by: danocmx <glencocomaster@centrum.cz>
-Co-authored-by: Rodrigo <monstawoodwow@gmail.com>
-Co-authored-by: Jesse Carter <jesse.r.carter@gmail.com>
-
-- **all packages:** upgrades underlying nest package dependencies to v6 versions
-
 # [4.0.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-discovery@3.0.1...@golevelup/nestjs-discovery@4.0.0) (2023-07-18)
 
 - feat(nestjs)!: add support for v10 (#617) ([817729e](https://github.com/golevelup/nestjs/commit/817729ef0fc4d63647430ddac0d011c038b0c36b)), closes [#617](https://github.com/golevelup/nestjs/issues/617)
