@@ -3,6 +3,26 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# 3.0.0 (2023-09-01)
+
+- feat(nestjs)!: add support for v10 (#617) ([817729e](https://github.com/golevelup/nestjs/commit/817729ef0fc4d63647430ddac0d011c038b0c36b)), closes [#617](https://github.com/golevelup/nestjs/issues/617)
+
+### Bug Fixes
+
+- **dynamic-modules:** incorrectly configured some forRootAsync scenarios ([8560460](https://github.com/golevelup/nestjs/commit/85604602b674cb3a8a27f3ba8284f98ba5e69b74)), closes [AB#8](https://github.com/AB/issues/8)
+
+### Features
+
+- **all packages:** upgrade to Nest v6 ([5a8e903](https://github.com/golevelup/nestjs/commit/5a8e903302320da13a213c83d5578026a9eed9a7))
+- **common:** injectable decorator factory ([42b2f34](https://github.com/golevelup/nestjs/commit/42b2f3493dd371a34466f6404a5ee4ecc117f489)), closes [#120](https://github.com/golevelup/nestjs/issues/120)
+- **dynamic modules:** helpers to reduce dynamic module boilerplate ([80a2b2c](https://github.com/golevelup/nestjs/commit/80a2b2c7eaff868c9e283fed72cf9d2b31ae81b7))
+- **rabbitmq:** adds consistent rabbitmq config ([8d6de1d](https://github.com/golevelup/nestjs/commit/8d6de1d650d5ecb51aa090b04f27196402957c64)), closes [#34](https://github.com/golevelup/nestjs/issues/34)
+
+### BREAKING CHANGES
+
+- updating to new major NestJS versions
+- **all packages:** upgrades underlying nest package dependencies to v6 versions
+
 # [2.0.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-common@1.4.5...@golevelup/nestjs-common@2.0.0) (2023-07-18)
 
 - feat(nestjs)!: add support for v10 (#617) ([817729e](https://github.com/golevelup/nestjs/commit/817729ef0fc4d63647430ddac0d011c038b0c36b)), closes [#617](https://github.com/golevelup/nestjs/issues/617)
