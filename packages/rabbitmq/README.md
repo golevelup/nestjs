@@ -216,7 +216,7 @@ export class RabbitExampleModule {}
 ### Interceptors, Guards, Pipes
 
 To use Interceptors, Guards or Pipes, the controller has to be imported as provider in the module.
-Then simly add the corresponding decorator to the whole controller or the method.
+Then simply add the corresponding decorator to the whole controller or the method.
 
 ```typescript
 @RabbitRPC({
@@ -332,7 +332,7 @@ Also, if you simply do not want to parse incoming message, set flag `allowNonJso
 
 ### Message Handling
 
-NestJS Plus provides sane defaults for message handling with automatic acking of messages that have been successfully processed by either RPC or PubSub handlers. However, there are situtations where an application may want to Negatively Acknowledge (or Nack) a message. To support this, the library exposes the `Nack` object which when returned from a handler allows a developer to control the message handling behavior. Simply return a `Nack` instance to negatively acknowledge the message.
+NestJS Plus provides sane defaults for message handling with automatic acking of messages that have been successfully processed by either RPC or PubSub handlers. However, there are situations where an application may want to Negatively Acknowledge (or Nack) a message. To support this, the library exposes the `Nack` object which when returned from a handler allows a developer to control the message handling behavior. Simply return a `Nack` instance to negatively acknowledge the message.
 
 By default, messages that are Nacked will not be requeued. However, if you would like to requeue the message so that another handler has an opportunity to process it use the optional requeue constructor argument set to true.
 
@@ -370,7 +370,7 @@ The default behavior is that handlers will be attached, but to opt out simply se
 
 ### Dealing with the amqp original message
 
-In some scenarios, it wil be useful to get the original amqp message (to retrieve the fields, properties...).
+In some scenarios, it will be useful to get the original amqp message (to retrieve the fields, properties...).
 
 The raw message is passed to the consumer as a second argument.
 
@@ -540,7 +540,7 @@ export class MessagingService {
 
 By default, the library tries to do its best to give you the control on errors if you want and to do something sensible by default.
 
-This is done with the `errorHandler` property that is availble both in RPC and RabbitSubscribe.
+This is done with the `errorHandler` property that is available both in RPC and RabbitSubscribe.
 
 ```typescript
   @RabbitSubscribe({
