@@ -86,7 +86,9 @@ const defaultConfig = {
   name: 'default',
   prefetchCount: 10,
   defaultExchangeType: 'topic',
-  defaultRpcErrorBehavior: MessageHandlerErrorBehavior.REQUEUE,
+  defaultRpcErrorHandler: getHandlerForLegacyBehavior(
+    MessageHandlerErrorBehavior.REQUEUE
+  ),
   defaultSubscribeErrorBehavior: MessageHandlerErrorBehavior.REQUEUE,
   exchanges: [],
   defaultRpcTimeout: 10000,
@@ -521,6 +523,7 @@ export class AmqpConnection {
           } else {
             const errorHandler =
               rpcOptions.errorHandler ||
+              this.config.defaultRpcErrorHandler ||
               getHandlerForLegacyBehavior(
                 rpcOptions.errorBehavior ||
                   this.config.defaultSubscribeErrorBehavior
