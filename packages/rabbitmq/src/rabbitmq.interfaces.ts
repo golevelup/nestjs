@@ -100,7 +100,7 @@ export interface RabbitMQConfig {
   exchanges?: RabbitMQExchangeConfig[];
   defaultRpcTimeout?: number;
   defaultExchangeType?: string;
-  defaultRpcErrorBehavior?: MessageHandlerErrorBehavior;
+  defaultRpcErrorHandler?: MessageErrorHandler;
   defaultSubscribeErrorBehavior?: MessageHandlerErrorBehavior;
   connectionInitOptions?: ConnectionInitOptions;
   connectionManagerOptions?: AmqpConnectionManagerOptions;
