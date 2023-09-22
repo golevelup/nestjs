@@ -7,9 +7,9 @@ import {
   Type,
   assignMetadata,
 } from '@nestjs/common';
+import { ROUTE_ARGS_METADATA } from '@nestjs/common/constants';
 import { isString } from 'lodash';
 import {
-  RABBIT_ARGS_METADATA,
   RABBIT_CONFIG_TOKEN,
   RABBIT_HANDLER,
   RABBIT_HEADER_TYPE,
@@ -47,14 +47,14 @@ export const createPipesRpcParamDecorator =
   ): ParameterDecorator =>
   (target, key, index) => {
     const args =
-      Reflect.getMetadata(RABBIT_ARGS_METADATA, target.constructor, key) || {};
+      Reflect.getMetadata(ROUTE_ARGS_METADATA, target.constructor, key) || {};
 
     const hasParamData = isString(data);
     const paramData = hasParamData ? data : undefined;
     const paramPipes = hasParamData ? pipes : [data, ...pipes];
 
     Reflect.defineMetadata(
-      RABBIT_ARGS_METADATA,
+      ROUTE_ARGS_METADATA,
       assignMetadata(args, type, index, paramData, ...paramPipes),
       target.constructor,
       key
