@@ -10,15 +10,12 @@ import {
   OnApplicationBootstrap,
   OnApplicationShutdown,
 } from '@nestjs/common';
+import { ROUTE_ARGS_METADATA } from '@nestjs/common/constants';
 import { ExternalContextCreator } from '@nestjs/core/helpers/external-context-creator';
 import { groupBy } from 'lodash';
 import { AmqpConnection } from './amqp/connection';
 import { AmqpConnectionManager } from './amqp/connectionManager';
-import {
-  RABBIT_ARGS_METADATA,
-  RABBIT_CONFIG_TOKEN,
-  RABBIT_HANDLER,
-} from './rabbitmq.constants';
+import { RABBIT_CONFIG_TOKEN, RABBIT_HANDLER } from './rabbitmq.constants';
 import { RabbitRpcParamsFactory } from './rabbitmq.factory';
 import { RabbitHandlerConfig, RabbitMQConfig } from './rabbitmq.interfaces';
 
@@ -190,7 +187,7 @@ export class RabbitMQModule
               discoveredMethod.parentClass.instance,
               discoveredMethod.handler,
               discoveredMethod.methodName,
-              RABBIT_ARGS_METADATA,
+              ROUTE_ARGS_METADATA,
               this.rpcParamsFactory,
               undefined, // contextId
               undefined, // inquirerId
