@@ -1,4 +1,4 @@
-export * from './webhooks.contants';
+export * from './webhooks.constants';
 export * from './webhooks.decorators';
 export * from './webhooks.interfaces';
 export * from './webhooks.middleware';

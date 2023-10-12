@@ -2,7 +2,7 @@ import { makeInjectableDecorator } from '@golevelup/nestjs-common';
 import {
   WEBHOOK_MODULE_CONFIG_TOKEN,
   WEBHOOK_MODULE_PROVIDED_CONFIG_TOKEN,
-} from './webhooks.contants';
+} from './webhooks.constants';
 
 /**
  * Injects the Webhook Config provided to this module (may have optional values)

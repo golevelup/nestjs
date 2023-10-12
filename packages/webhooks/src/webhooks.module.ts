@@ -3,7 +3,7 @@ import { Module } from '@nestjs/common';
 import {
   WEBHOOK_MODULE_CONFIG_TOKEN,
   WEBHOOK_MODULE_PROVIDED_CONFIG_TOKEN,
-} from './webhooks.contants';
+} from './webhooks.constants';
 import {
   WebhooksModuleConfig,
   WebhooksModuleProvidedConfig,
