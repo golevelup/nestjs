@@ -286,7 +286,7 @@ export class AmqpConnection {
         if (createQueueIfNotExists) {
           return channel.assertQueue(queue.name, queue.options);
         }
-        return channel.checkExchange(queue.name);
+        return channel.checkQueue(queue.name);
       });
 
       if (this.config.enableDirectReplyTo) {
