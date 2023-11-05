@@ -14,6 +14,12 @@ export interface RabbitMQExchangeConfig {
   options?: Options.AssertExchange;
 }
 
+export interface RabbitMQQueueConfig {
+  name: string;
+  createQueueIfNotExists?: boolean;
+  options?: Options.AssertQueue;
+}
+
 export type ConsumeOptions = Options.Consume;
 
 export interface MessageOptions {
@@ -98,6 +104,7 @@ export interface RabbitMQConfig {
    */
   prefetchCount?: number;
   exchanges?: RabbitMQExchangeConfig[];
+  queues?: RabbitMQQueueConfig[];
   defaultRpcTimeout?: number;
   defaultExchangeType?: string;
   defaultRpcErrorHandler?: MessageErrorHandler;

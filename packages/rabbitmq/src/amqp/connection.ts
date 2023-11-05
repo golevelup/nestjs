@@ -280,6 +280,15 @@ export class AmqpConnection {
         return channel.checkExchange(x.name);
       });
 
+      this.config.queues.forEach((queue) => {
+        const { createQueueIfNotExists = true } = queue;
+
+        if (createQueueIfNotExists) {
+          return channel.assertQueue(queue.name, queue.options);
+        }
+        return channel.checkExchange(queue.name);
+      });
+
       if (this.config.enableDirectReplyTo) {
         await this.initDirectReplyQueue(channel);
       }
