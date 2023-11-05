@@ -162,6 +162,36 @@ describe('Module Configuration', () => {
         await amqpConnection.channel.deleteExchange(nonExistingExchange);
       });
 
+      it("should throw an error if queue doesn't exist and `createQueueIfNotExists` is false", async () => {
+        try {
+          app = await Test.createTestingModule({
+            imports: [
+              RabbitMQModule.forRoot(RabbitMQModule, {
+                queues: [
+                  {
+                    name: nonExistingQueue,
+                    createExchangeIfNotExists: false,
+                  },
+                ],
+                uri,
+                connectionInitOptions: {
+                  wait: true,
+                  reject: true,
+                  timeout: 3000,
+                },
+                logger,
+              }),
+            ],
+          }).compile();
+
+          fail(
+            `Queue "${nonExistingQueue}" should not exist before running this test`,
+          );
+        } catch (error) {
+          expect(error).toBeDefined();
+        }
+      });
+
       it('should create a queue successfully if `createQueueIfNotExists` is true', async () => {
         const spy = jest.spyOn(amqplib, 'connect');
 
