@@ -91,6 +91,7 @@ const defaultConfig = {
   ),
   defaultSubscribeErrorBehavior: MessageHandlerErrorBehavior.REQUEUE,
   exchanges: [],
+  queues: [],
   defaultRpcTimeout: 10000,
   connectionInitOptions: {
     wait: true,
