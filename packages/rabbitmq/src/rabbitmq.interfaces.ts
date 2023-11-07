@@ -18,6 +18,9 @@ export interface RabbitMQQueueConfig {
   name: string;
   createQueueIfNotExists?: boolean;
   options?: Options.AssertQueue;
+  exchange?: string;
+  routingKey?: string | string[];
+  bindQueueArguments?: any;
 }
 
 export type ConsumeOptions = Options.Consume;
