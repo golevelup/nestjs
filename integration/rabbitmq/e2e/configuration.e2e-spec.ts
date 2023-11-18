@@ -16,6 +16,7 @@ const amqplibUri = `${uri}?heartbeat=5`;
 const logger = new ConsoleLogger('Custom logger');
 
 const nonExistingExchange = 'non-existing-exchange';
+const nonExistingQueue = 'non-existing-queue';
 
 class RabbitConfig {
   createModuleConfig(): RabbitMQConfig {
@@ -159,6 +160,72 @@ describe('Module Configuration', () => {
 
         // Clear non-existing exchange
         await amqpConnection.channel.deleteExchange(nonExistingExchange);
+      });
+
+      it("should throw an error if queue doesn't exist and `createQueueIfNotExists` is false", async () => {
+        try {
+          app = await Test.createTestingModule({
+            imports: [
+              RabbitMQModule.forRoot(RabbitMQModule, {
+                queues: [
+                  {
+                    name: nonExistingQueue,
+                    createExchangeIfNotExists: false,
+                  },
+                ],
+                uri,
+                connectionInitOptions: {
+                  wait: true,
+                  reject: true,
+                  timeout: 3000,
+                },
+                logger,
+              }),
+            ],
+          }).compile();
+
+          fail(
+            `Queue "${nonExistingQueue}" should not exist before running this test`,
+          );
+        } catch (error) {
+          expect(error).toBeDefined();
+        }
+      });
+
+      it('should create a queue successfully if `createQueueIfNotExists` is true', async () => {
+        const spy = jest.spyOn(amqplib, 'connect');
+
+        app = await Test.createTestingModule({
+          imports: [
+            RabbitMQModule.forRoot(RabbitMQModule, {
+              queues: [
+                {
+                  name: nonExistingQueue,
+                  createExchangeIfNotExists: true,
+                },
+              ],
+              uri,
+              connectionInitOptions: {
+                wait: true,
+                reject: true,
+                timeout: 3000,
+              },
+              logger,
+            }),
+          ],
+        }).compile();
+
+        const amqpConnection = app.get<AmqpConnection>(AmqpConnection);
+        expect(app).toBeDefined();
+
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(spy).toHaveBeenCalledWith(amqplibUri, undefined);
+
+        await app.init();
+        expect(
+          await amqpConnection.channel.checkQueue(nonExistingQueue),
+        ).toBeDefined();
+        await app.close();
       });
     });
   });

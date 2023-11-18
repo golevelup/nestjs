@@ -22,7 +22,7 @@ import {
 } from 'rxjs';
 import { catchError, filter, first, map, take, timeout } from 'rxjs/operators';
 import { randomUUID } from 'crypto';
-import { defaultAssertQueueErrorHandler } from '..';
+import { defaultAssertQueueErrorHandler, RabbitMQQueueConfig } from '..';
 import {
   ConnectionInitOptions,
   MessageHandlerOptions,
@@ -91,6 +91,7 @@ const defaultConfig = {
   ),
   defaultSubscribeErrorBehavior: MessageHandlerErrorBehavior.REQUEUE,
   exchanges: [],
+  queues: [],
   defaultRpcTimeout: 10000,
   connectionInitOptions: {
     wait: true,
@@ -280,11 +281,51 @@ export class AmqpConnection {
         return channel.checkExchange(x.name);
       });
 
+      this.setupQueuesWithBindings(channel, this.config.queues);
+
       if (this.config.enableDirectReplyTo) {
         await this.initDirectReplyQueue(channel);
       }
 
       this.initialized.next();
+    }
+  }
+
+  private async setupQueuesWithBindings(
+    channel: ConfirmChannel,
+    queues: RabbitMQQueueConfig[]
+  ) {
+    for (const configuredQueue of queues) {
+      const { createQueueIfNotExists = true } = configuredQueue;
+
+      if (createQueueIfNotExists) {
+        this.setupQueue(configuredQueue, channel);
+      }
+      await channel.assertQueue(configuredQueue.name, configuredQueue.options);
+
+      let routingKeys: string[] = [];
+      if (Array.isArray(configuredQueue.routingKey)) {
+        routingKeys = configuredQueue.routingKey;
+      } else {
+        if (configuredQueue.routingKey != null) {
+          routingKeys = [configuredQueue.routingKey];
+        }
+      }
+
+      if (routingKeys.length > 0) {
+        await Promise.all(
+          routingKeys.map((routingKey) => {
+            if (configuredQueue.exchange != undefined) {
+              channel.bindQueue(
+                configuredQueue.name,
+                configuredQueue.exchange,
+                routingKey,
+                configuredQueue.bindQueueArguments
+              );
+            }
+          })
+        );
+      }
     }
   }
 
