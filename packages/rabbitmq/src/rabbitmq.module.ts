@@ -9,6 +9,8 @@ import {
   Logger,
   OnApplicationBootstrap,
   OnApplicationShutdown,
+  Inject,
+  LoggerService,
 } from '@nestjs/common';
 import { ROUTE_ARGS_METADATA } from '@nestjs/common/constants';
 import { ExternalContextCreator } from '@nestjs/core/helpers/external-context-creator';
@@ -61,7 +63,7 @@ export class RabbitMQModule
   )
   implements OnApplicationBootstrap, OnApplicationShutdown
 {
-  private readonly logger = new Logger(RabbitMQModule.name);
+  private readonly logger: LoggerService;
 
   private static connectionManager = new AmqpConnectionManager();
   private static bootstrapped = false;
@@ -70,9 +72,11 @@ export class RabbitMQModule
     private readonly discover: DiscoveryService,
     private readonly externalContextCreator: ExternalContextCreator,
     private readonly rpcParamsFactory: RabbitRpcParamsFactory,
-    private readonly connectionManager: AmqpConnectionManager
+    private readonly connectionManager: AmqpConnectionManager,
+    @Inject(RABBIT_CONFIG_TOKEN) config: RabbitMQConfig
   ) {
     super();
+    this.logger = config.logger || new Logger(RabbitMQModule.name);
   }
 
   static async AmqpConnectionFactory(config: RabbitMQConfig) {
@@ -119,7 +123,7 @@ export class RabbitMQModule
   }
 
   async onApplicationShutdown() {
-    this.logger.verbose('Closing AMQP Connections');
+    this.logger.verbose?.('Closing AMQP Connections');
 
     await Promise.all(
       this.connectionManager
