@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [4.1.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@4.0.0...@golevelup/nestjs-rabbitmq@4.1.0) (2023-11-21)
+
+### Bug Fixes
+
+- use the Logger passed in config instead of default ([#663](https://github.com/golevelup/nestjs/issues/663)) ([ec69e13](https://github.com/golevelup/nestjs/commit/ec69e1376a97844756a71a7453e2ced9238467d5))
+- **rabbitmq:** using **routeArguments** to allow pipe injection ([#648](https://github.com/golevelup/nestjs/issues/648)) ([77b9039](https://github.com/golevelup/nestjs/commit/77b90399302f6f0c986983b3e8ecd5f32dddfa5a))
+
+### Features
+
+- **rabbitmq:** replace defaultRpcErrorBehavior with defaultRpcErrorHandler ([#644](https://github.com/golevelup/nestjs/issues/644)) ([c927cb1](https://github.com/golevelup/nestjs/commit/c927cb12f5203fe4739027fc54d78c6ae2629cfb))
+
 # [4.0.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@3.7.0...@golevelup/nestjs-rabbitmq@4.0.0) (2023-07-18)
 
 - feat(nestjs)!: add support for v10 (#617) ([817729e](https://github.com/golevelup/nestjs/commit/817729ef0fc4d63647430ddac0d011c038b0c36b)), closes [#617](https://github.com/golevelup/nestjs/issues/617)

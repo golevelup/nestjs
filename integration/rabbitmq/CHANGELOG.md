@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.0.1](https://github.com/golevelup/nestjs/compare/rabbitmq-integration@3.0.0...rabbitmq-integration@3.0.1) (2023-11-21)
+
+**Note:** Version bump only for package rabbitmq-integration
+
 # [3.0.0](https://github.com/golevelup/nestjs/compare/rabbitmq-integration@2.8.0...rabbitmq-integration@3.0.0) (2023-07-18)
 
 - feat(nestjs)!: add support for v10 (#617) ([817729e](https://github.com/golevelup/nestjs/commit/817729ef0fc4d63647430ddac0d011c038b0c36b)), closes [#617](https://github.com/golevelup/nestjs/issues/617)

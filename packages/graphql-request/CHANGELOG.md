@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.2.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-graphql-request@0.1.16...@golevelup/nestjs-graphql-request@0.2.0) (2023-11-21)
+
+- deps(graphql-request)!: update graphql and graphql-request packages (#664) ([a1b1977](https://github.com/golevelup/nestjs/commit/a1b1977245e1433c83558117d37eada567cabc9b)), closes [#664](https://github.com/golevelup/nestjs/issues/664)
+
+### BREAKING CHANGES
+
+- Changes to underlying dependencies that this library depends on
+
 ## [0.1.16](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-graphql-request@0.1.15...@golevelup/nestjs-graphql-request@0.1.16) (2023-07-18)
 
 **Note:** Version bump only for package @golevelup/nestjs-graphql-request
