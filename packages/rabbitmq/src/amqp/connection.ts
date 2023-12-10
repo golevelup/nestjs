@@ -548,8 +548,9 @@ export class AmqpConnection {
               topicPattern.match(msg.fields.routingKey || '')
             )
           ) {
-            channel.nack(msg, false, true);
-            return;
+            throw new Error(
+              'Received message with mismatch defined routing key or keys'
+            );
           }
 
           const response = await this.handleMessage(
