@@ -549,7 +549,11 @@ export class AmqpConnection {
             )
           ) {
             throw new Error(
-              'Received message with mismatch defined routing key or keys'
+              `Received message with routing key: '${
+                msg.fields.routingKey
+              }' which can't be handled due to defined routing keys: ${JSON.stringify(
+                rpcOptions.routingKey
+              )}`
             );
           }
 
