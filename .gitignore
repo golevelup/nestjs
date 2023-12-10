@@ -8,3 +8,4 @@ coverage/
 tsconfig.build.tsbuildinfo
 yarn-error.log
 integration/rabbitmq/dist
+package-lock.json

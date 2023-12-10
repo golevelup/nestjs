@@ -22,6 +22,7 @@ import {
 } from 'rxjs';
 import { catchError, filter, first, map, take, timeout } from 'rxjs/operators';
 import { randomUUID } from 'crypto';
+import { TopicPattern } from '@artie-owlet/amqp-routing-match';
 import { defaultAssertQueueErrorHandler, RabbitMQQueueConfig } from '..';
 import {
   ConnectionInitOptions,
@@ -524,6 +525,15 @@ export class AmqpConnection {
   ): Promise<ConsumerTag> {
     const queue = await this.setupQueue(rpcOptions, channel);
 
+    let topicPatterns: TopicPattern[];
+    if (Array.isArray(rpcOptions.routingKey)) {
+      topicPatterns = rpcOptions.routingKey.map(
+        (routingKey) => new TopicPattern(routingKey)
+      );
+    } else if (rpcOptions.routingKey) {
+      topicPatterns = [new TopicPattern(rpcOptions.routingKey)];
+    }
+
     const { consumerTag }: { consumerTag: ConsumerTag } = await channel.consume(
       queue,
       async (msg) => {
@@ -532,7 +542,12 @@ export class AmqpConnection {
             throw new Error('Received null message');
           }
 
-          if (rpcOptions.routingKey !== msg.fields.routingKey) {
+          if (
+            topicPatterns &&
+            !topicPatterns.some((topicPattern) =>
+              topicPattern.match(msg.fields.routingKey || '')
+            )
+          ) {
             channel.nack(msg, false, true);
             return;
           }
