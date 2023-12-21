@@ -29,7 +29,7 @@
     - [Selecting channel for handler](#selecting-channel-for-handler)
   - [Sending Messages](#sending-messages)
     - [Inject the AmqpConnection](#inject-the-amqpconnection)
-    - [Publising Messages (Fire and Forget)](#publising-messages-fire-and-forget)
+    - [Publishing Messages (Fire and Forget)](#publishing-messages-fire-and-forget)
     - [Requesting Data from an RPC](#requesting-data-from-an-rpc)
       - [Type Inference](#type-inference)
       - [Interop with other RPC Servers](#interop-with-other-rpc-servers)
@@ -446,7 +446,7 @@ export class AppController {
 }
 ```
 
-### Publising Messages (Fire and Forget)
+### Publishing Messages (Fire and Forget)
 
 If you just want to publish a message onto a RabbitMQ exchange, use the `publish` method of the `AmqpConnection` which has the following signature:
 
@@ -557,7 +557,7 @@ The default is `defaultNackErrorHandler` and it just nack the message without re
 
 However, you can do more fancy stuff like inspecting the message properties to decide to requeue or not. Be aware that you should not requeue indefinitely...
 
-Please note that nack will trigger the dead-letter mecanism of RabbitMQ (and so, you can use the deadLetterExchange in the queueOptions in order to send the message somewhere else).
+Please note that nack will trigger the dead-letter mechanism of RabbitMQ (and so, you can use the deadLetterExchange in the queueOptions in order to send the message somewhere else).
 
 A complete error handling strategy for RabbitMQ is out of the scope of this library.
 
