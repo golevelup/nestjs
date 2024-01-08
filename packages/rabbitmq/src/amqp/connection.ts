@@ -299,7 +299,7 @@ export class AmqpConnection {
       const { createQueueIfNotExists = true } = configuredQueue;
 
       if (createQueueIfNotExists) {
-        this.setupQueue(configuredQueue, channel);
+        this.setupQueue({...configuredQueue,queue: configuredQueue.name,queueOptions:configuredQueue.options}, channel);
       }
       await channel.assertQueue(configuredQueue.name, configuredQueue.options);
 
