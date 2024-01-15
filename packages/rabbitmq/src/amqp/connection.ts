@@ -236,21 +236,23 @@ export class AmqpConnection {
     };
 
     await Promise.all([
-      Object.keys(this.config.channels).map(async (channelName) => {
-        const config = this.config.channels[channelName];
-        // Only takes the first channel specified as default so other ones get created.
-        if (defaultChannel.name === AmqpConnection.name && config.default) {
-          defaultChannel.name = channelName;
-          defaultChannel.config.prefetchCount =
-            config.prefetchCount || this.config.prefetchCount;
-          return;
-        }
+      Promise.all(
+        Object.keys(this.config.channels).map(async (channelName) => {
+          const config = this.config.channels[channelName];
+          // Only takes the first channel specified as default so other ones get created.
+          if (defaultChannel.name === AmqpConnection.name && config.default) {
+            defaultChannel.name = channelName;
+            defaultChannel.config.prefetchCount =
+              config.prefetchCount || this.config.prefetchCount;
+            return;
+          }
 
-        return this.setupManagedChannel(channelName, {
-          ...config,
-          default: false,
-        });
-      }),
+          return this.setupManagedChannel(channelName, {
+            ...config,
+            default: false,
+          });
+        })
+      ),
       this.setupManagedChannel(defaultChannel.name, defaultChannel.config),
     ]);
   }
@@ -268,20 +270,22 @@ export class AmqpConnection {
       this._channel = channel;
 
       // Always assert exchanges & rpc queue in default channel.
-      this.config.exchanges.forEach((x) => {
-        const { createExchangeIfNotExists = true } = x;
+      await Promise.all(
+        this.config.exchanges.map((x) => {
+          const { createExchangeIfNotExists = true } = x;
 
-        if (createExchangeIfNotExists) {
-          return channel.assertExchange(
-            x.name,
-            x.type || this.config.defaultExchangeType,
-            x.options
-          );
-        }
-        return channel.checkExchange(x.name);
-      });
+          if (createExchangeIfNotExists) {
+            return channel.assertExchange(
+              x.name,
+              x.type || this.config.defaultExchangeType,
+              x.options
+            );
+          }
+          return channel.checkExchange(x.name);
+        })
+      );
 
-      this.setupQueuesWithBindings(channel, this.config.queues);
+      await this.setupQueuesWithBindings(channel, this.config.queues);
 
       if (this.config.enableDirectReplyTo) {
         await this.initDirectReplyQueue(channel);
@@ -295,38 +299,43 @@ export class AmqpConnection {
     channel: ConfirmChannel,
     queues: RabbitMQQueueConfig[]
   ) {
-    for (const configuredQueue of queues) {
-      const { createQueueIfNotExists = true } = configuredQueue;
+    await Promise.all(
+      queues.map(async (configuredQueue) => {
+        const { createQueueIfNotExists = true } = configuredQueue;
 
-      if (createQueueIfNotExists) {
-        this.setupQueue(configuredQueue, channel);
-      }
-      await channel.assertQueue(configuredQueue.name, configuredQueue.options);
-
-      let routingKeys: string[] = [];
-      if (Array.isArray(configuredQueue.routingKey)) {
-        routingKeys = configuredQueue.routingKey;
-      } else {
-        if (configuredQueue.routingKey != null) {
-          routingKeys = [configuredQueue.routingKey];
+        if (createQueueIfNotExists) {
+          await this.setupQueue(configuredQueue, channel);
         }
-      }
-
-      if (routingKeys.length > 0) {
-        await Promise.all(
-          routingKeys.map((routingKey) => {
-            if (configuredQueue.exchange != undefined) {
-              channel.bindQueue(
-                configuredQueue.name,
-                configuredQueue.exchange,
-                routingKey,
-                configuredQueue.bindQueueArguments
-              );
-            }
-          })
+        await channel.assertQueue(
+          configuredQueue.name,
+          configuredQueue.options
         );
-      }
-    }
+
+        let routingKeys: string[] = [];
+        if (Array.isArray(configuredQueue.routingKey)) {
+          routingKeys = configuredQueue.routingKey;
+        } else {
+          if (configuredQueue.routingKey != null) {
+            routingKeys = [configuredQueue.routingKey];
+          }
+        }
+
+        if (routingKeys.length > 0) {
+          await Promise.all(
+            routingKeys.map((routingKey) => {
+              if (configuredQueue.exchange != undefined) {
+                return channel.bindQueue(
+                  configuredQueue.name,
+                  configuredQueue.exchange,
+                  routingKey,
+                  configuredQueue.bindQueueArguments
+                );
+              }
+            })
+          );
+        }
+      })
+    );
   }
 
   private async initDirectReplyQueue(channel: ConfirmChannel) {
@@ -703,7 +712,7 @@ export class AmqpConnection {
       await Promise.all(
         routingKeys.map((routingKey) => {
           if (routingKey != null) {
-            channel.bindQueue(
+            return channel.bindQueue(
               actualQueue as string,
               exchange,
               routingKey,
