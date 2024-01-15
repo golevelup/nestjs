@@ -296,36 +296,20 @@ export class AmqpConnection {
     queues: RabbitMQQueueConfig[]
   ) {
     for (const configuredQueue of queues) {
-      const { createQueueIfNotExists = true } = configuredQueue;
+      const { name, options, bindQueueArguments, ...rest } = configuredQueue;
+      const queueOptions = {
+        ...options,
+        ...(bindQueueArguments !== undefined && { bindQueueArguments }),
+      };
 
-      if (createQueueIfNotExists) {
-        this.setupQueue(configuredQueue, channel);
-      }
-      await channel.assertQueue(configuredQueue.name, configuredQueue.options);
-
-      let routingKeys: string[] = [];
-      if (Array.isArray(configuredQueue.routingKey)) {
-        routingKeys = configuredQueue.routingKey;
-      } else {
-        if (configuredQueue.routingKey != null) {
-          routingKeys = [configuredQueue.routingKey];
-        }
-      }
-
-      if (routingKeys.length > 0) {
-        await Promise.all(
-          routingKeys.map((routingKey) => {
-            if (configuredQueue.exchange != undefined) {
-              channel.bindQueue(
-                configuredQueue.name,
-                configuredQueue.exchange,
-                routingKey,
-                configuredQueue.bindQueueArguments
-              );
-            }
-          })
-        );
-      }
+      await this.setupQueue(
+        {
+          ...rest,
+          ...(name !== undefined && { queue: name }),
+          queueOptions,
+        },
+        channel
+      );
     }
   }
 
@@ -693,8 +677,8 @@ export class AmqpConnection {
     }
 
     let bindQueueArguments: any;
-    if (subscriptionOptions.queueOptions) {
-      bindQueueArguments = subscriptionOptions.queueOptions.bindQueueArguments;
+    if (queueOptions) {
+      bindQueueArguments = queueOptions.bindQueueArguments;
     }
 
     const routingKeys = Array.isArray(routingKey) ? routingKey : [routingKey];
