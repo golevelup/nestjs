@@ -11,7 +11,6 @@ import {
   ConfirmChannel,
   Options,
 } from 'amqplib';
-import { Replies } from 'amqplib/properties';
 import {
   EMPTY,
   interval,
@@ -589,12 +588,7 @@ export class AmqpConnection {
     routingKey: string,
     message: T,
     options?: Options.Publish
-  ): Promise<Replies.Empty> {
-    // source amqplib channel is used directly to keep the behavior of throwing connection related errors
-    if (!this.managedConnection.isConnected() || !this._channel) {
-      throw new Error('AMQP connection is not available');
-    }
-
+  ): Promise<boolean> {
     let buffer: Buffer;
     if (message instanceof Buffer) {
       buffer = message;
@@ -606,21 +600,7 @@ export class AmqpConnection {
       buffer = Buffer.alloc(0);
     }
 
-    return new Promise((resolve, reject) => {
-      this._channel.publish(
-        exchange,
-        routingKey,
-        buffer,
-        options,
-        (err, ok) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(ok);
-          }
-        }
-      );
-    });
+    return this._managedChannel.publish(exchange, routingKey, buffer, options);
   }
 
   private handleMessage<T, U>(
