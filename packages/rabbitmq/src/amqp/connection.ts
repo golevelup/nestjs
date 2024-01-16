@@ -236,21 +236,23 @@ export class AmqpConnection {
     };
 
     await Promise.all([
-      Object.keys(this.config.channels).map(async (channelName) => {
-        const config = this.config.channels[channelName];
-        // Only takes the first channel specified as default so other ones get created.
-        if (defaultChannel.name === AmqpConnection.name && config.default) {
-          defaultChannel.name = channelName;
-          defaultChannel.config.prefetchCount =
-            config.prefetchCount || this.config.prefetchCount;
-          return;
-        }
+      Promise.all(
+        Object.keys(this.config.channels).map(async (channelName) => {
+          const config = this.config.channels[channelName];
+          // Only takes the first channel specified as default so other ones get created.
+          if (defaultChannel.name === AmqpConnection.name && config.default) {
+            defaultChannel.name = channelName;
+            defaultChannel.config.prefetchCount =
+              config.prefetchCount || this.config.prefetchCount;
+            return;
+          }
 
-        return this.setupManagedChannel(channelName, {
-          ...config,
-          default: false,
-        });
-      }),
+          return this.setupManagedChannel(channelName, {
+            ...config,
+            default: false,
+          });
+        })
+      ),
       this.setupManagedChannel(defaultChannel.name, defaultChannel.config),
     ]);
   }
@@ -268,20 +270,22 @@ export class AmqpConnection {
       this._channel = channel;
 
       // Always assert exchanges & rpc queue in default channel.
-      this.config.exchanges.forEach((x) => {
-        const { createExchangeIfNotExists = true } = x;
+      await Promise.all(
+        this.config.exchanges.map((x) => {
+          const { createExchangeIfNotExists = true } = x;
 
-        if (createExchangeIfNotExists) {
-          return channel.assertExchange(
-            x.name,
-            x.type || this.config.defaultExchangeType,
-            x.options
-          );
-        }
-        return channel.checkExchange(x.name);
-      });
+          if (createExchangeIfNotExists) {
+            return channel.assertExchange(
+              x.name,
+              x.type || this.config.defaultExchangeType,
+              x.options
+            );
+          }
+          return channel.checkExchange(x.name);
+        })
+      );
 
-      this.setupQueuesWithBindings(channel, this.config.queues);
+      await this.setupQueuesWithBindings(channel, this.config.queues);
 
       if (this.config.enableDirectReplyTo) {
         await this.initDirectReplyQueue(channel);
@@ -295,22 +299,24 @@ export class AmqpConnection {
     channel: ConfirmChannel,
     queues: RabbitMQQueueConfig[]
   ) {
-    for (const configuredQueue of queues) {
-      const { name, options, bindQueueArguments, ...rest } = configuredQueue;
-      const queueOptions = {
-        ...options,
-        ...(bindQueueArguments !== undefined && { bindQueueArguments }),
-      };
+    await Promise.all(
+      queues.map(async (configuredQueue) => {
+        const { name, options, bindQueueArguments, ...rest } = configuredQueue;
+        const queueOptions = {
+          ...options,
+          ...(bindQueueArguments !== undefined && { bindQueueArguments }),
+        };
 
-      await this.setupQueue(
-        {
-          ...rest,
-          ...(name !== undefined && { queue: name }),
-          queueOptions,
-        },
-        channel
-      );
-    }
+        await this.setupQueue(
+          {
+            ...rest,
+            ...(name !== undefined && { queue: name }),
+            queueOptions,
+          },
+          channel
+        );
+      })
+    );
   }
 
   private async initDirectReplyQueue(channel: ConfirmChannel) {
@@ -687,7 +693,7 @@ export class AmqpConnection {
       await Promise.all(
         routingKeys.map((routingKey) => {
           if (routingKey != null) {
-            channel.bindQueue(
+            return channel.bindQueue(
               actualQueue as string,
               exchange,
               routingKey,
