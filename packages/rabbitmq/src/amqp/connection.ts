@@ -301,39 +301,20 @@ export class AmqpConnection {
   ) {
     await Promise.all(
       queues.map(async (configuredQueue) => {
-        const { createQueueIfNotExists = true } = configuredQueue;
+        const { name, options, bindQueueArguments, ...rest } = configuredQueue;
+        const queueOptions = {
+          ...options,
+          ...(bindQueueArguments !== undefined && { bindQueueArguments }),
+        };
 
-        if (createQueueIfNotExists) {
-          await this.setupQueue(configuredQueue, channel);
-        }
-        await channel.assertQueue(
-          configuredQueue.name,
-          configuredQueue.options
+        await this.setupQueue(
+          {
+            ...rest,
+            ...(name !== undefined && { queue: name }),
+            queueOptions,
+          },
+          channel
         );
-
-        let routingKeys: string[] = [];
-        if (Array.isArray(configuredQueue.routingKey)) {
-          routingKeys = configuredQueue.routingKey;
-        } else {
-          if (configuredQueue.routingKey != null) {
-            routingKeys = [configuredQueue.routingKey];
-          }
-        }
-
-        if (routingKeys.length > 0) {
-          await Promise.all(
-            routingKeys.map((routingKey) => {
-              if (configuredQueue.exchange != undefined) {
-                return channel.bindQueue(
-                  configuredQueue.name,
-                  configuredQueue.exchange,
-                  routingKey,
-                  configuredQueue.bindQueueArguments
-                );
-              }
-            })
-          );
-        }
       })
     );
   }
@@ -702,8 +683,8 @@ export class AmqpConnection {
     }
 
     let bindQueueArguments: any;
-    if (subscriptionOptions.queueOptions) {
-      bindQueueArguments = subscriptionOptions.queueOptions.bindQueueArguments;
+    if (queueOptions) {
+      bindQueueArguments = queueOptions.bindQueueArguments;
     }
 
     const routingKeys = Array.isArray(routingKey) ? routingKey : [routingKey];
