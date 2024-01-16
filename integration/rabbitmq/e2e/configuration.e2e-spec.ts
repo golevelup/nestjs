@@ -173,7 +173,7 @@ describe('Module Configuration', () => {
                 queues: [
                   {
                     name: nonExistingQueue,
-                    createExchangeIfNotExists: false,
+                    createQueueIfNotExists: false,
                   },
                 ],
                 uri,
@@ -204,7 +204,7 @@ describe('Module Configuration', () => {
               queues: [
                 {
                   name: nonExistingQueue,
-                  createExchangeIfNotExists: true,
+                  createQueueIfNotExists: true,
                 },
               ],
               uri,
