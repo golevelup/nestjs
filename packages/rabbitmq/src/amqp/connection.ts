@@ -227,6 +227,13 @@ export class AmqpConnection {
       );
     });
 
+    this._managedConnection.on('connectFailed', ({ err }) => {
+      this.logger.error(
+        `Failed to connect to RabbitMQ broker (${this.config.name})`,
+        err?.stack
+      );
+    });
+
     const defaultChannel: { name: string; config: RabbitMQChannelConfig } = {
       name: AmqpConnection.name,
       config: {
