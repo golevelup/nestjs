@@ -33,6 +33,7 @@ describe('Module Configuration', () => {
 
   afterEach(async () => {
     jest.clearAllMocks();
+    jest.restoreAllMocks();
     await app?.close();
   });
 
@@ -225,6 +226,68 @@ describe('Module Configuration', () => {
         expect(
           await amqpConnection.channel.checkQueue(nonExistingQueue),
         ).toBeDefined();
+        await app.close();
+      });
+
+      it('should not assert queue with empty name', async () => {
+        const originalConnect = amqplib.connect;
+        let assertQueueSpy;
+
+        const connectSpy = jest
+          .spyOn(amqplib, 'connect')
+          .mockImplementation((...args) => {
+            const result = originalConnect(...args);
+            result.then((conn) => {
+              const originalCreateConfirmChannel = conn.createConfirmChannel;
+              jest
+                .spyOn(conn, 'createConfirmChannel')
+                .mockImplementation(function (...args) {
+                  const result = originalCreateConfirmChannel.apply(this, args);
+                  result.then((channel) => {
+                    assertQueueSpy = jest.spyOn(channel, 'assertQueue');
+                  });
+                  return result;
+                });
+            });
+            return result;
+          });
+
+        app = await Test.createTestingModule({
+          imports: [
+            RabbitMQModule.forRootAsync(RabbitMQModule, {
+              useFactory: async () => {
+                return {
+                  queues: [
+                    {
+                      name: nonExistingQueue,
+                      createQueueIfNotExists: true,
+                      options: {
+                        durable: true,
+                      },
+                    },
+                  ],
+                  uri,
+                  connectionInitOptions: {
+                    wait: true,
+                    reject: true,
+                    timeout: 3000,
+                  },
+                };
+              },
+            }),
+          ],
+        }).compile();
+
+        expect(app).toBeDefined();
+
+        expect(connectSpy).toHaveBeenCalledTimes(1);
+        expect(connectSpy).toHaveBeenCalledWith(amqplibUri, undefined);
+        expect(assertQueueSpy).not.toHaveBeenCalledWith('', undefined);
+        expect(assertQueueSpy).toHaveBeenCalledWith(nonExistingQueue, {
+          durable: true,
+        });
+
+        await app.init();
         await app.close();
       });
     });
