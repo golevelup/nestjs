@@ -23,6 +23,13 @@ export interface RabbitMQQueueConfig {
   bindQueueArguments?: any;
 }
 
+export interface RabbitMQExchangeBindingConfig {
+  destination: string;
+  source: string;
+  pattern: string;
+  args?: any;
+}
+
 export type ConsumeOptions = Options.Consume;
 
 export interface MessageOptions {
@@ -110,6 +117,7 @@ export interface RabbitMQConfig {
    */
   prefetchCount?: number;
   exchanges?: RabbitMQExchangeConfig[];
+  exchangeBindings?: RabbitMQExchangeBindingConfig[];
   queues?: RabbitMQQueueConfig[];
   defaultRpcTimeout?: number;
   defaultExchangeType?: string;
