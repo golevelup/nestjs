@@ -97,7 +97,10 @@ export interface ConnectionInitOptions {
 }
 
 export type RabbitMQChannels = Record<string, RabbitMQChannelConfig>;
-export type RabbitMQHandlers = Record<string, MessageHandlerOptions>;
+export type RabbitMQHandlers = Record<
+  string,
+  MessageHandlerOptions | MessageHandlerOptions[]
+>;
 
 export interface RabbitMQConfig {
   name?: string;

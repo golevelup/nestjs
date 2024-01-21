@@ -15,6 +15,8 @@ const exchange = 'testSubscribeExchange';
 const routingKey1 = 'testSubscribeRoute1';
 const routingKey2 = 'testSubscribeRoute2';
 const routingKey3 = 'testSubscribeViaHandlerRoute';
+const routingKey4 = 'testSubscribeViaHandlerRouteMulti1';
+const routingKey5 = 'testSubscribeViaHandlerRouteMulti2';
 const nonJsonRoutingKey = 'nonJsonSubscribeRoute';
 
 const createRoutingKey = 'test.create.object';
@@ -37,6 +39,13 @@ class SubscribeService {
     name: 'handler1',
   })
   handleSubscribeByName(message: object) {
+    testHandler(message);
+  }
+
+  @RabbitSubscribe({
+    name: 'handler2',
+  })
+  handleSubscribeByNameMulti(message: object) {
     testHandler(message);
   }
 
@@ -152,6 +161,16 @@ describe('Rabbit Subscribe', () => {
               exchange,
               routingKey: [routingKey3],
             },
+            handler2: [
+              {
+                exchange,
+                routingKey: routingKey4,
+              },
+              {
+                exchange,
+                routingKey: routingKey5,
+              },
+            ],
           },
           uri,
           connectionInitOptions: { wait: true, reject: true, timeout: 3000 },
@@ -194,6 +213,17 @@ describe('Rabbit Subscribe', () => {
 
     expect(testHandler).toHaveBeenCalledTimes(1);
     expect(testHandler).toHaveBeenCalledWith(`testMessage`);
+  });
+
+  it('should receive all messages when subscribed via handler name with multiple configs', async () => {
+    await amqpConnection.publish(exchange, routingKey4, 'testMessage');
+    await amqpConnection.publish(exchange, routingKey5, 'testMessage2');
+
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    expect(testHandler).toHaveBeenCalledTimes(2);
+    expect(testHandler).toHaveBeenCalledWith(`testMessage`);
+    expect(testHandler).toHaveBeenCalledWith(`testMessage2`);
   });
 
   it('should work with a topic exchange set up that has multiple subscribers with similar routing keys', async () => {

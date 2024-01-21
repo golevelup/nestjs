@@ -1,4 +1,9 @@
-import { DiscoveryModule, DiscoveryService } from '@golevelup/nestjs-discovery';
+import {
+  DiscoveredMethod,
+  DiscoveredMethodWithMeta,
+  DiscoveryModule,
+  DiscoveryService,
+} from '@golevelup/nestjs-discovery';
 import {
   createConfigurableDynamicRootModule,
   IConfigurableDynamicRootModule,
@@ -135,6 +140,40 @@ export class RabbitMQModule
     RabbitMQModule.bootstrapped = false;
   }
 
+  private async setupHandler(
+    connection: AmqpConnection,
+    discoveredMethod: DiscoveredMethod,
+    config: RabbitHandlerConfig,
+    handler: (...args: any[]) => Promise<any>
+  ) {
+    const handlerDisplayName = `${discoveredMethod.parentClass.name}.${
+      discoveredMethod.methodName
+    } {${config.type}} -> ${
+      // eslint-disable-next-line sonarjs/no-nested-template-literals
+      config.queueOptions?.channel ? `${config.queueOptions.channel}::` : ''
+    }${config.exchange}::${config.routingKey}::${config.queue || 'amqpgen'}`;
+
+    if (
+      config.type === 'rpc' &&
+      !connection.configuration.enableDirectReplyTo
+    ) {
+      this.logger.warn(
+        `Direct Reply-To Functionality is disabled. RPC handler ${handlerDisplayName} will not be registered`
+      );
+      return;
+    }
+
+    this.logger.log(handlerDisplayName);
+
+    return config.type === 'rpc'
+      ? connection.createRpc(handler, config)
+      : connection.createSubscriber(
+          handler,
+          config,
+          discoveredMethod.methodName
+        );
+  }
+
   // eslint-disable-next-line sonarjs/cognitive-complexity
   public async onApplicationBootstrap() {
     if (RabbitMQModule.bootstrapped) {
@@ -199,38 +238,28 @@ export class RabbitMQModule
               'rmq' // contextType
             );
 
-            const mergedConfig = {
-              ...config,
-              ...connection.configuration.handlers[config.name || ''],
-            };
-            const { exchange, routingKey, queue, queueOptions } = mergedConfig;
+            const moduleHandlerConfigRaw =
+              connection.configuration.handlers[config.name || ''];
 
-            const handlerDisplayName = `${discoveredMethod.parentClass.name}.${
-              discoveredMethod.methodName
-            } {${config.type}} -> ${
-              // eslint-disable-next-line sonarjs/no-nested-template-literals
-              queueOptions?.channel ? `${queueOptions.channel}::` : ''
-            }${exchange}::${routingKey}::${queue || 'amqpgen'}`;
+            const moduleHandlerConfigs = Array.isArray(moduleHandlerConfigRaw)
+              ? moduleHandlerConfigRaw
+              : [moduleHandlerConfigRaw];
 
-            if (
-              config.type === 'rpc' &&
-              !connection.configuration.enableDirectReplyTo
-            ) {
-              this.logger.warn(
-                `Direct Reply-To Functionality is disabled. RPC handler ${handlerDisplayName} will not be registered`
-              );
-              return;
-            }
+            await Promise.all(
+              moduleHandlerConfigs.map((moduleHandlerConfig) => {
+                const mergedConfig = {
+                  ...config,
+                  ...moduleHandlerConfig,
+                };
 
-            this.logger.log(handlerDisplayName);
-
-            return config.type === 'rpc'
-              ? connection.createRpc(handler, mergedConfig)
-              : connection.createSubscriber(
-                  handler,
+                return this.setupHandler(
+                  connection,
+                  discoveredMethod,
                   mergedConfig,
-                  discoveredMethod.methodName
+                  handler
                 );
+              })
+            );
           })
         );
       }
