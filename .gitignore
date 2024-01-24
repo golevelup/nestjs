@@ -6,5 +6,6 @@ packages/testing/*/lib
 .idea
 coverage/
 tsconfig.build.tsbuildinfo
+.yarn
 yarn-error.log
 integration/rabbitmq/dist

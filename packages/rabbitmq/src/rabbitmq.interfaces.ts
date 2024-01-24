@@ -95,6 +95,7 @@ export interface MessageHandlerOptions {
   assertQueueErrorHandler?: AssertQueueErrorHandler;
   allowNonJsonMessages?: boolean;
   createQueueIfNotExists?: boolean;
+  usePersistentReplyTo?: boolean;
 }
 
 export interface ConnectionInitOptions {
