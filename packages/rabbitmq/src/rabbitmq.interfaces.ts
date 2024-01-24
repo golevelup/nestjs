@@ -95,6 +95,12 @@ export interface MessageHandlerOptions {
   assertQueueErrorHandler?: AssertQueueErrorHandler;
   allowNonJsonMessages?: boolean;
   createQueueIfNotExists?: boolean;
+
+  /**
+   * Indicates whether responses to requests with a 'replyTo' header should be persistent.
+   * @default false - By default, responses are not persistent unless this is set to true.
+   */
+  usePersistentReplyTo?: boolean;
 }
 
 export interface ConnectionInitOptions {

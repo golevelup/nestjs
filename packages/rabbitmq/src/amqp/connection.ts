@@ -563,6 +563,7 @@ export class AmqpConnection {
               correlationId,
               expiration,
               headers,
+              persistent: rpcOptions.usePersistentReplyTo ?? false,
             });
           }
           channel.ack(msg);
