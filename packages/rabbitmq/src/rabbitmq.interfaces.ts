@@ -67,6 +67,8 @@ export interface QueueOptions {
    * For channel to exist it needs to be created in module config.
    */
   channel?: string;
+
+  consumerOptions?: ConsumeOptions;
 }
 
 export interface MessageHandlerOptions {
