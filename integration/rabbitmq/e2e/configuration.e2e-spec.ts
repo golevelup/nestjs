@@ -582,5 +582,85 @@ describe('Module Configuration', () => {
         await app.close();
       });
     });
+
+    it('should create exchange bindings', async () => {
+      const originalConnect = amqplib.connect;
+      let bindExchangeSpy;
+
+      const connectSpy = jest
+        .spyOn(amqplib, 'connect')
+        .mockImplementation((...args) => {
+          const result = originalConnect(...args);
+          result.then((conn) => {
+            const originalCreateConfirmChannel = conn.createConfirmChannel;
+            jest
+              .spyOn(conn, 'createConfirmChannel')
+              .mockImplementation(function (...args) {
+                const result = originalCreateConfirmChannel.apply(this, args);
+                result.then((channel) => {
+                  bindExchangeSpy = jest.spyOn(channel, 'bindExchange');
+                });
+                return result;
+              });
+          });
+          return result;
+        });
+
+      const otherExchangeName = 'otherExchange';
+
+      app = await Test.createTestingModule({
+        imports: [
+          RabbitMQModule.forRootAsync(RabbitMQModule, {
+            useFactory: async () => {
+              return {
+                exchanges: [
+                  {
+                    name: nonExistingExchange,
+                    type: 'topic',
+                    createExchangeIfNotExists: true,
+                  },
+                  {
+                    name: otherExchangeName,
+                    type: 'topic',
+                    createExchangeIfNotExists: true,
+                  },
+                ],
+                exchangeBindings: [
+                  {
+                    destination: otherExchangeName,
+                    source: nonExistingExchange,
+                    pattern: '*',
+                  },
+                ],
+                uri,
+                connectionInitOptions: {
+                  wait: true,
+                  reject: true,
+                  timeout: 3000,
+                },
+              };
+            },
+          }),
+        ],
+      }).compile();
+
+      const amqpConnection = app.get<AmqpConnection>(AmqpConnection);
+      expect(app).toBeDefined();
+
+      expect(connectSpy).toHaveBeenCalledTimes(1);
+      expect(connectSpy).toHaveBeenCalledWith(amqplibUri, undefined);
+      expect(bindExchangeSpy).toHaveBeenCalledWith(
+        otherExchangeName,
+        nonExistingExchange,
+        '*',
+        undefined,
+      );
+
+      await app.init();
+      expect(
+        await amqpConnection.channel.checkExchange(nonExistingExchange),
+      ).toBeDefined();
+      await app.close();
+    });
   });
 });

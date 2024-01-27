@@ -90,6 +90,7 @@ const defaultConfig = {
   ),
   defaultSubscribeErrorBehavior: MessageHandlerErrorBehavior.REQUEUE,
   exchanges: [],
+  exchangeBindings: [],
   queues: [],
   defaultRpcTimeout: 10000,
   connectionInitOptions: {
@@ -289,6 +290,17 @@ export class AmqpConnection {
           }
           return channel.checkExchange(x.name);
         })
+      );
+
+      await Promise.all(
+        this.config.exchangeBindings.map((exchangeBinding) =>
+          channel.bindExchange(
+            exchangeBinding.destination,
+            exchangeBinding.source,
+            exchangeBinding.pattern,
+            exchangeBinding.args
+          )
+        )
       );
 
       await this.setupQueuesWithBindings(channel, this.config.queues);
@@ -551,6 +563,7 @@ export class AmqpConnection {
               correlationId,
               expiration,
               headers,
+              persistent: rpcOptions.usePersistentReplyTo ?? false,
             });
           }
           channel.ack(msg);
@@ -569,7 +582,8 @@ export class AmqpConnection {
             await errorHandler(channel, msg, e);
           }
         }
-      }
+      },
+      rpcOptions?.queueOptions?.consumerOptions
     );
 
     this.registerConsumerForQueue({

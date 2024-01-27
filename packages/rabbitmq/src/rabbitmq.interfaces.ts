@@ -23,6 +23,13 @@ export interface RabbitMQQueueConfig {
   bindQueueArguments?: any;
 }
 
+export interface RabbitMQExchangeBindingConfig {
+  destination: string;
+  source: string;
+  pattern: string;
+  args?: any;
+}
+
 export type ConsumeOptions = Options.Consume;
 
 export interface MessageOptions {
@@ -60,6 +67,8 @@ export interface QueueOptions {
    * For channel to exist it needs to be created in module config.
    */
   channel?: string;
+
+  consumerOptions?: ConsumeOptions;
 }
 
 export interface MessageHandlerOptions {
@@ -88,6 +97,12 @@ export interface MessageHandlerOptions {
   assertQueueErrorHandler?: AssertQueueErrorHandler;
   allowNonJsonMessages?: boolean;
   createQueueIfNotExists?: boolean;
+
+  /**
+   * Indicates whether responses to requests with a 'replyTo' header should be persistent.
+   * @default false - By default, responses are not persistent unless this is set to true.
+   */
+  usePersistentReplyTo?: boolean;
 }
 
 export interface ConnectionInitOptions {
@@ -97,7 +112,10 @@ export interface ConnectionInitOptions {
 }
 
 export type RabbitMQChannels = Record<string, RabbitMQChannelConfig>;
-export type RabbitMQHandlers = Record<string, MessageHandlerOptions>;
+export type RabbitMQHandlers = Record<
+  string,
+  MessageHandlerOptions | MessageHandlerOptions[]
+>;
 
 export interface RabbitMQConfig {
   name?: string;
@@ -107,6 +125,7 @@ export interface RabbitMQConfig {
    */
   prefetchCount?: number;
   exchanges?: RabbitMQExchangeConfig[];
+  exchangeBindings?: RabbitMQExchangeBindingConfig[];
   queues?: RabbitMQQueueConfig[];
   defaultRpcTimeout?: number;
   defaultExchangeType?: string;
