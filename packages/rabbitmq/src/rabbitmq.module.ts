@@ -170,7 +170,8 @@ export class RabbitMQModule
       : connection.createSubscriber(
           handler,
           config,
-          discoveredMethod.methodName
+          discoveredMethod.methodName,
+          config?.queueOptions?.consumerOptions
         );
   }
 

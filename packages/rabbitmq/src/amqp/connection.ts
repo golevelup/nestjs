@@ -582,7 +582,8 @@ export class AmqpConnection {
             await errorHandler(channel, msg, e);
           }
         }
-      }
+      },
+      rpcOptions?.queueOptions?.consumerOptions
     );
 
     this.registerConsumerForQueue({

@@ -26,6 +26,8 @@ const deleteRoutingKey = 'test.delete.object';
 const preExistingQueue = 'testing_queue_exists';
 const nonExistingQueue = 'testing_queue_does_no_exist';
 
+const preDefinedConsumerTag = 'predefined-consumer-tag';
+
 const createHandler = jest.fn();
 const updateHandler = jest.fn();
 const deleteHandler = jest.fn();
@@ -72,6 +74,17 @@ class SubscribeService {
   })
   handleNonExistingQueueSubscribe(message: object) {
     testHandler(message);
+  }
+
+  @RabbitSubscribe({
+    queue: nonExistingQueue,
+    queueOptions: {
+      consumerOptions: { consumerTag: preDefinedConsumerTag },
+    },
+    createQueueIfNotExists: true,
+  })
+  handlePredefinedConsumerTag(msg: object, rawMsg: any) {
+    testHandler(msg, rawMsg);
   }
 
   @RabbitSubscribe({
@@ -290,6 +303,16 @@ describe('Rabbit Subscribe', () => {
 
     expect(testHandler).toHaveBeenCalledTimes(1);
     expect(testHandler).toHaveBeenCalledWith(message);
+  });
+
+  it('should receive messages in new queue that containing the predefined consumer tag', async () => {
+    const message = '{"key2":"value2"}';
+    amqpConnection.publish(amqDefaultExchange, nonExistingQueue, message);
+
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(testHandler).toHaveBeenCalledTimes(1);
+    const msg = testHandler.mock.calls[0][1];
+    expect(msg.fields.consumerTag).toEqual(preDefinedConsumerTag);
   });
 
   it('should route messages to fanout exchange handlers with no routing key', async () => {
