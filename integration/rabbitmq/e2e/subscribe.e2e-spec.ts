@@ -26,7 +26,7 @@ const deleteRoutingKey = 'test.delete.object';
 const preExistingQueue = 'testing_queue_exists';
 const nonExistingQueue = 'testing_queue_does_no_exist';
 
-const preDefinedConsumerTag = 'prdefined-consumer-tag';
+const preDefinedConsumerTag = 'predefined-consumer-tag';
 
 const createHandler = jest.fn();
 const updateHandler = jest.fn();
