@@ -2,6 +2,7 @@ import {
   RabbitMQConfig,
   AmqpConnection,
   RabbitMQModule,
+  AmqpConnectionManager,
 } from '@golevelup/nestjs-rabbitmq';
 import { ConsoleLogger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -60,6 +61,35 @@ describe('Module Configuration', () => {
       expect(spy).toHaveBeenCalledWith(amqplibUri, undefined);
 
       expect(logSpy).toHaveBeenCalled();
+    });
+
+    it('should be able to configure RabbitMQ when config is not provided', async () => {
+      const spy = jest.spyOn(amqplib, 'connect');
+      app = await Test.createTestingModule({
+        imports: [RabbitMQModule.forRoot(RabbitMQModule)],
+      }).compile();
+      const connectionManager = app.get(AmqpConnectionManager);
+      const connection = app.get(AmqpConnection);
+
+      expect(spy).not.toHaveBeenCalled();
+      expect(app).toBeDefined();
+      expect(connectionManager).toBeDefined();
+      expect(connection).toBeUndefined();
+    });
+
+    it('should be able to add connection latter when rmq config is not provided through module', async () => {
+      const spy = jest.spyOn(amqplib, 'connect');
+      app = await Test.createTestingModule({
+        imports: [RabbitMQModule.forRoot(RabbitMQModule)],
+      }).compile();
+      const connectionManager = app.get(AmqpConnectionManager);
+      const connection = new AmqpConnection({
+        uri,
+      });
+      await connection.init();
+      connectionManager.addConnection(connection);
+      expect(spy).toHaveBeenCalled();
+      expect(spy).toHaveBeenCalledWith(amqplibUri, undefined);
     });
 
     describe('should use `createExchangeIfNotExists` flag correctly', () => {
