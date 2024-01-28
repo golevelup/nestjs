@@ -81,7 +81,7 @@ export interface IConfigurableDynamicRootModule<T, U> {
 
   moduleSubject: Subject<DynamicModule>;
 
-  forRoot(moduleCtor: Type<T>, moduleConfig: U): DynamicModule;
+  forRoot(moduleCtor: Type<T>, moduleConfig?: U): DynamicModule;
 
   forRootAsync(
     moduleCtor: Type<T>,
@@ -132,7 +132,7 @@ export function createConfigurableDynamicRootModule<T, U>(
       return dynamicModule;
     }
 
-    static forRoot(moduleCtor: Type<T>, moduleConfig: U): DynamicModule {
+    static forRoot(moduleCtor: Type<T>, moduleConfig?: U): DynamicModule {
       const dynamicModule: DynamicModule = {
         module: moduleCtor,
         imports: [...(moduleProperties.imports || [])],

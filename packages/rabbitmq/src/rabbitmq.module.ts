@@ -1,6 +1,5 @@
 import {
   DiscoveredMethod,
-  DiscoveredMethodWithMeta,
   DiscoveryModule,
   DiscoveryService,
 } from '@golevelup/nestjs-discovery';
@@ -56,7 +55,7 @@ export class RabbitMQModule
             connectionManager: AmqpConnectionManager
           ): Promise<AmqpConnection> => {
             return connectionManager.getConnection(
-              config.name || 'default'
+              config?.name || 'default'
             ) as AmqpConnection;
           },
           inject: [RABBIT_CONFIG_TOKEN, AmqpConnectionManager],
@@ -81,20 +80,28 @@ export class RabbitMQModule
     @Inject(RABBIT_CONFIG_TOKEN) config: RabbitMQConfig
   ) {
     super();
-    this.logger = config.logger || new Logger(RabbitMQModule.name);
+    this.logger = config?.logger || new Logger(RabbitMQModule.name);
   }
 
-  static async AmqpConnectionFactory(config: RabbitMQConfig) {
+  static async AmqpConnectionFactory(
+    config: RabbitMQConfig
+  ): Promise<AmqpConnection | undefined> {
+    const logger = config?.logger || new Logger(RabbitMQModule.name);
+    if (config == undefined) {
+      logger.log(
+        'Rabbitmq config is not provided, skip connection initialization.'
+      );
+      return undefined;
+    }
     const connection = new AmqpConnection(config);
     this.connectionManager.addConnection(connection);
     await connection.init();
-    const logger = config.logger || new Logger(RabbitMQModule.name);
     logger.log('Successfully connected to RabbitMQ');
     return connection;
   }
 
   public static build(config: RabbitMQConfig): DynamicModule {
-    const logger = config.logger || new Logger(RabbitMQModule.name);
+    const logger = config?.logger || new Logger(RabbitMQModule.name);
     logger.warn(
       'build() is deprecated. use forRoot() or forRootAsync() to configure RabbitMQ'
     );
@@ -103,8 +110,10 @@ export class RabbitMQModule
       providers: [
         {
           provide: AmqpConnection,
-          useFactory: async (): Promise<AmqpConnection> => {
-            return RabbitMQModule.AmqpConnectionFactory(config);
+          useFactory: async (): Promise<AmqpConnection | undefined> => {
+            return config !== undefined
+              ? RabbitMQModule.AmqpConnectionFactory(config)
+              : undefined;
           },
         },
         RabbitRpcParamsFactory,
