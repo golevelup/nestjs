@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [3.1.0](https://github.com/golevelup/nestjs/compare/rabbitmq-integration@3.0.1...rabbitmq-integration@3.1.0) (2024-02-09)
+
+### Bug Fixes
+
+- **rabbitmq:** fix library asserting queues with empty names ([#676](https://github.com/golevelup/nestjs/issues/676)) ([24757f3](https://github.com/golevelup/nestjs/commit/24757f3c226f00c8a708d9a75a098520abd19c0e))
+- **rabbitmq:** fix unawaited promises ([#674](https://github.com/golevelup/nestjs/issues/674)) ([4b54afb](https://github.com/golevelup/nestjs/commit/4b54afbb3ca6bfaf5b060e6f0ec49edf20c66238))
+
+### Features
+
+- **rabbit:** support multiple configs on the same handler ([#682](https://github.com/golevelup/nestjs/issues/682)) ([93ec23f](https://github.com/golevelup/nestjs/commit/93ec23fce4e78fac41fa09255f0141a42abd294b)), closes [#624](https://github.com/golevelup/nestjs/issues/624)
+- **rabbitmq:** add exchange-to-exchange bindings config ([#681](https://github.com/golevelup/nestjs/issues/681)) ([20cbdf9](https://github.com/golevelup/nestjs/commit/20cbdf96ff1698d68531c96f9f5ad3c5a521b490)), closes [#625](https://github.com/golevelup/nestjs/issues/625)
+
 ## [3.0.1](https://github.com/golevelup/nestjs/compare/rabbitmq-integration@3.0.0...rabbitmq-integration@3.0.1) (2023-11-21)
 
 **Note:** Version bump only for package rabbitmq-integration

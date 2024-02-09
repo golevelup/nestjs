@@ -3,6 +3,31 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [5.0.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@4.1.0...@golevelup/nestjs-rabbitmq@5.0.0) (2024-02-09)
+
+### Bug Fixes
+
+- **rabbitmq:** fix library asserting queues with empty names ([#676](https://github.com/golevelup/nestjs/issues/676)) ([24757f3](https://github.com/golevelup/nestjs/commit/24757f3c226f00c8a708d9a75a098520abd19c0e))
+- **rabbitmq:** fix unawaited promises ([#674](https://github.com/golevelup/nestjs/issues/674)) ([4b54afb](https://github.com/golevelup/nestjs/commit/4b54afbb3ca6bfaf5b060e6f0ec49edf20c66238))
+
+### Build System
+
+- **rabbitmq:** update amqp libs ([#677](https://github.com/golevelup/nestjs/issues/677)) ([83530d3](https://github.com/golevelup/nestjs/commit/83530d3444f179fdf32c07acec46d0a2871ee4dd)), closes [#542](https://github.com/golevelup/nestjs/issues/542)
+
+### Features
+
+- **rabbit:** support multiple configs on the same handler ([#682](https://github.com/golevelup/nestjs/issues/682)) ([93ec23f](https://github.com/golevelup/nestjs/commit/93ec23fce4e78fac41fa09255f0141a42abd294b)), closes [#624](https://github.com/golevelup/nestjs/issues/624)
+- **rabbitmq:** add exchange-to-exchange bindings config ([#681](https://github.com/golevelup/nestjs/issues/681)) ([20cbdf9](https://github.com/golevelup/nestjs/commit/20cbdf96ff1698d68531c96f9f5ad3c5a521b490)), closes [#625](https://github.com/golevelup/nestjs/issues/625)
+- **rabbitmq:** add persistent reply to ([#684](https://github.com/golevelup/nestjs/issues/684)) ([6dfdc1b](https://github.com/golevelup/nestjs/commit/6dfdc1b0f01f10392cb5d6bf6aefaba6a768900e))
+- **rabbitmq:** publish using ChannelWrapper ([#678](https://github.com/golevelup/nestjs/issues/678)) ([8962eed](https://github.com/golevelup/nestjs/commit/8962eed4ce527dba11fe7799de58cdf33d066e52)), closes [#673](https://github.com/golevelup/nestjs/issues/673)
+
+### BREAKING CHANGES
+
+- **rabbitmq:** This changes the behavior of throwing connection related errors
+- **rabbitmq:** We will no longer emit a disconnect event on an initial connection failure -
+  instead we now emit connectFailed on each connection failure, and only emit disconnect when we
+  transition from connected to disconnected.
+
 # [4.1.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@4.0.0...@golevelup/nestjs-rabbitmq@4.1.0) (2023-11-21)
 
 ### Bug Fixes
