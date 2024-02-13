@@ -47,7 +47,7 @@
   "peerDependencies": {
     "@nestjs/common": "^10.x",
     "@nestjs/core": "^10.x",
-    "reflect-metadata": "^0.1.0",
+    "reflect-metadata": "^0.1.0 || ^0.2.0",
     "rxjs": "^7.x"
   },
   "publishConfig": {
