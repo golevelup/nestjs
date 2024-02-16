@@ -81,6 +81,8 @@ export type ConsumerHandler<T, U> =
       ) => Promise<RpcResponse<U>>;
     });
 
+type Consumer = (msg: ConsumeMessage | null) => void | Promise<void>;
+
 const defaultConfig = {
   name: 'default',
   prefetchCount: 10,
@@ -127,6 +129,8 @@ export class AmqpConnection {
     {};
 
   private readonly config: Required<RabbitMQConfig>;
+
+  private readonly outstandingMessageProcessing = new Set<Promise<void>>();
 
   constructor(config: RabbitMQConfig) {
     this.config = {
@@ -341,7 +345,7 @@ export class AmqpConnection {
     // Set up a consumer on the Direct Reply-To queue to facilitate RPC functionality
     await channel.consume(
       DIRECT_REPLY_QUEUE,
-      async (msg) => {
+      (msg) => {
         if (msg == null) {
           return;
         }
@@ -427,6 +431,20 @@ export class AmqpConnection {
     });
   }
 
+  /**
+   * Wrap a consumer with logic that tracks the outstanding message processing to
+   * be able to wait for them on shutdown.
+   */
+  private wrapConsumer(consumer: Consumer): Consumer {
+    return (msg: ConsumeMessage | null) => {
+      const messageProcessingPromise = Promise.resolve(consumer(msg));
+      this.outstandingMessageProcessing.add(messageProcessingPromise);
+      messageProcessingPromise.finally(() =>
+        this.outstandingMessageProcessing.delete(messageProcessingPromise)
+      );
+    };
+  }
+
   private async setupSubscriberChannel<T>(
     handler: SubscriberHandler<T>,
     msgOptions: MessageHandlerOptions,
@@ -438,7 +456,7 @@ export class AmqpConnection {
 
     const { consumerTag }: { consumerTag: ConsumerTag } = await channel.consume(
       queue,
-      async (msg) => {
+      this.wrapConsumer(async (msg) => {
         try {
           if (isNull(msg)) {
             throw new Error('Received null message');
@@ -480,7 +498,7 @@ export class AmqpConnection {
             await errorHandler(channel, msg, e);
           }
         }
-      },
+      }),
       consumeOptions
     );
 
@@ -534,7 +552,7 @@ export class AmqpConnection {
 
     const { consumerTag }: { consumerTag: ConsumerTag } = await channel.consume(
       queue,
-      async (msg) => {
+      this.wrapConsumer(async (msg) => {
         try {
           if (msg == null) {
             throw new Error('Received null message');
@@ -582,7 +600,7 @@ export class AmqpConnection {
             await errorHandler(channel, msg, e);
           }
         }
-      },
+      }),
       rpcOptions?.queueOptions?.consumerOptions
     );
 
@@ -803,5 +821,26 @@ export class AmqpConnection {
     // A new consumerTag was created, remove old
     this.unregisterConsumerForQueue(consumerTag);
     return newConsumerTag;
+  }
+
+  public async close(): Promise<void> {
+    const managedChannels = Object.values(this._managedChannels);
+
+    // First cancel all consumers so they stop getting new messages
+    await Promise.all(managedChannels.map((channel) => channel.cancelAll()));
+
+    // Wait for all the outstanding messages to be processed
+    if (this.outstandingMessageProcessing.size) {
+      this.logger.log(
+        { outstandingMessageCount: this.outstandingMessageProcessing.size },
+        'Waiting for outstanding consumers'
+      );
+    }
+    await Promise.all(this.outstandingMessageProcessing);
+
+    // Close all channels
+    await Promise.all(managedChannels.map((channel) => channel.close()));
+
+    await this.managedConnection.close();
   }
 }

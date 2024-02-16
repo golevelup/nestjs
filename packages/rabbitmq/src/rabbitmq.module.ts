@@ -138,12 +138,7 @@ export class RabbitMQModule
 
   async onApplicationShutdown() {
     this.logger.verbose?.('Closing AMQP Connections');
-
-    await Promise.all(
-      this.connectionManager
-        .getConnections()
-        .map((connection) => connection.managedConnection.close())
-    );
+    await this.connectionManager.close();
 
     this.connectionManager.clearConnections();
     RabbitMQModule.bootstrapped = false;
