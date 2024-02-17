@@ -20,4 +20,8 @@ export class AmqpConnectionManager {
   clearConnections() {
     this.connections = [];
   }
+
+  async close() {
+    await Promise.all(this.connections.map((connection) => connection.close()));
+  }
 }
