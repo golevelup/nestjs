@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [5.1.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@5.0.0...@golevelup/nestjs-rabbitmq@5.1.0) (2024-02-20)
+
+### Features
+
+- **rabbitmq:** add graceful shutdown logic ([#697](https://github.com/golevelup/nestjs/issues/697)) ([b0a9aae](https://github.com/golevelup/nestjs/commit/b0a9aae8d57d2325c64859ed014303b7e50d4b1e)), closes [#688](https://github.com/golevelup/nestjs/issues/688)
+
 # [5.0.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@4.1.0...@golevelup/nestjs-rabbitmq@5.0.0) (2024-02-09)
 
 ### Bug Fixes
