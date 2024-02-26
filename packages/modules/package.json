@@ -1,6 +1,6 @@
 {
   "name": "@golevelup/nestjs-modules",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "Reusable utilties to help level up NestJS Modules",
   "author": "Jesse Carter <jesse.r.carter@gmail.com>",
   "homepage": "https://github.com/golevelup/nestjs#readme",

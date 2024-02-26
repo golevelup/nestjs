@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.7.1](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-modules@0.7.0...@golevelup/nestjs-modules@0.7.1) (2024-02-09)
+
+**Note:** Version bump only for package @golevelup/nestjs-modules
+
 # [0.7.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-modules@0.6.1...@golevelup/nestjs-modules@0.7.0) (2023-07-18)
 
 - feat(nestjs)!: add support for v10 (#617) ([817729e](https://github.com/golevelup/nestjs/commit/817729ef0fc4d63647430ddac0d011c038b0c36b)), closes [#617](https://github.com/golevelup/nestjs/issues/617)
