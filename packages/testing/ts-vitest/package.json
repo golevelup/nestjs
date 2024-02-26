@@ -5,6 +5,7 @@
   "author": "Jesse Carter <jesse.r.carter@gmail.com>",
   "homepage": "https://github.com/golevelup/nestjs#readme",
   "license": "MIT",
+  "type": "module",
   "keywords": [
     "NestJS",
     "testing",
