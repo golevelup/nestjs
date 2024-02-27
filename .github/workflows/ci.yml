@@ -48,6 +48,10 @@ jobs:
       - name: Run unit tests
         run: yarn test:ci
 
+      - name: Run vitest unit tests
+        if: matrix.node == 18
+        run: yarn test:vitest:ci
+
       - name: Publish code coverage
         if: matrix.node == env.LATEST_NODE_VERSION
         run: echo Not Implemented Yet
