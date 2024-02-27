@@ -45,10 +45,14 @@ jobs:
       - name: Build
         run: yarn build
 
+      - name: Build ts-vitest
+        if: matrix.node == 18
+        run: yarn build:vitest
+
       - name: Run unit tests
         run: yarn test:ci
 
-      - name: Run vitest unit tests
+      - name: Run Vitest unit tests
         if: matrix.node == 18
         run: yarn test:vitest:ci
 
