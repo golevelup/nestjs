@@ -44,17 +44,24 @@
     "ts-jest": "^27.1.1",
     "typescript": "^4.9.5"
   },
+  "optionalDependencies": {
+    "@vitest/coverage-v8": "^1.3.1",
+    "vitest": "^1.3.1"
+  },
   "scripts": {
     "commit": "yarn run git-cz",
     "lerna:publish": "lerna run build && yarn test && lerna publish -m 'chore: publish'",
     "lerna:prerelease": "lerna run build && yarn test && lerna publish prerelease --preid rc -m 'chore: publish prerelease'",
-    "build": " lerna run build --ignore rabbitmq-integration",
-    "build:watch": "lerna run --parallel build:watch --ignore rabbitmq-integration",
+    "build": " lerna run build --ignore rabbitmq-integration --ignore @golevelup/ts-vitest",
+    "build:watch": "lerna run --parallel build:watch --ignore rabbitmq-integration --ignore @golevelup/ts-vitest",
+    "build:vitest": " lerna run build --scope @golevelup/ts-vitest",
     "clean": "rimraf packages//lib && rimraf packages//*.tsbuildinfo",
     "test": "jest",
     "test:integration": "jest --config ./jest-e2e.json",
     "test:ci:integration": "NODE_ENV=ci jest --config ./jest-e2e.json --forceExit",
     "test:ci": "jest --coverage --coverageReporters=cobertura --coverageReporters=html",
+    "test:vitest": "vitest",
+    "test:vitest:ci": "vitest run --coverage",
     "lint": "eslint --ext ts .",
     "contributors:generate": "all-contributors generate"
   },
@@ -80,6 +87,9 @@
     "transform": {
       "^.+\\.(t)sx?$": "ts-jest"
     },
+    "testPathIgnorePatterns": [
+      "/ts-vitest/"
+    ],
     "projects": [
       "<rootDir>/packages/*"
     ],

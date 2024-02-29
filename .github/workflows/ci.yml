@@ -45,8 +45,16 @@ jobs:
       - name: Build
         run: yarn build
 
+      - name: Build ts-vitest
+        if: matrix.node == 18
+        run: yarn build:vitest
+
       - name: Run unit tests
         run: yarn test:ci
+
+      - name: Run Vitest unit tests
+        if: matrix.node == 18
+        run: yarn test:vitest:ci
 
       - name: Publish code coverage
         if: matrix.node == env.LATEST_NODE_VERSION
