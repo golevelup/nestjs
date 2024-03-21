@@ -33,6 +33,7 @@
     - [Requesting Data from an RPC](#requesting-data-from-an-rpc)
       - [Type Inference](#type-inference)
       - [Interop with other RPC Servers](#interop-with-other-rpc-servers)
+      - [In distributed systems](#in-distributed-systems)
   - [Advanced Patterns](#advanced-patterns)
     - [Competing Consumers](#competing-consumers)
     - [Handling errors](#handling-errors)
@@ -498,6 +499,26 @@ The generic parameter used with the `request` method lets you specify the _expec
 #### Interop with other RPC Servers
 
 The RPC functionality included in `@golevelup/nestjs-rabbitmq` is based on the [Direct Reply-To Queue](https://www.rabbitmq.com/direct-reply-to.html) functionality of RabbitMQ. It is possible that because of this, the client library (`AmqpConnection.request`) could be used to interact with an RPC server implemented using a different language or framework. However, this functionality has not been verified.
+
+#### In distributed systems
+
+In a distributed system, transactions must be correlated by an `X-Correlation-ID`. You can use the `X-Request-ID` in the header to separate sub-requests that are contained in the main request chain.
+
+```typescript
+// To create a transaction in the distributed system,
+// multiple request correlated by an correlationId
+const correlationId = randomUUID();
+const response = await amqpConnection.request<ExpectedReturnType>({
+  exchange: 'exchange1',
+  routingKey: 'rpc',
+  correlationId,
+  // Each request in the transaction has its own requestId
+  headers: { 'X-Request-ID': randomUUID() },
+  payload: {
+    request: 'val',
+  },
+});
+```
 
 ## Advanced Patterns
 

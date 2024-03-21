@@ -49,6 +49,7 @@ export type SubscriberHandler<T = unknown> = (
 
 export interface CorrelationMessage {
   correlationId: string;
+  requestId?: string;
   message: Record<string, unknown>;
 }
 
@@ -358,6 +359,7 @@ export class AmqpConnection {
 
         const correlationMessage: CorrelationMessage = {
           correlationId: msg.properties.correlationId.toString(),
+          requestId: msg.properties?.headers?.['X-Request-ID']?.toString(),
           message: message,
         };
 
@@ -371,11 +373,16 @@ export class AmqpConnection {
 
   public async request<T>(requestOptions: RequestOptions): Promise<T> {
     const correlationId = requestOptions.correlationId || randomUUID();
+    const requestId = requestOptions?.headers?.['X-Request-ID'];
     const timeout = requestOptions.timeout || this.config.defaultRpcTimeout;
     const payload = requestOptions.payload || {};
 
     const response$ = this.messageSubject.pipe(
-      filter((x) => x.correlationId === correlationId),
+      filter((x) =>
+        requestId
+          ? x.correlationId === correlationId && x.requestId === requestId
+          : x.correlationId === correlationId
+      ),
       map((x) => x.message as T),
       first()
     );
