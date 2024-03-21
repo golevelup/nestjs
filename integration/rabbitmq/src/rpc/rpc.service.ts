@@ -7,6 +7,12 @@ import { TransformInterceptor } from '../transform.interceptor';
 import { ReplyErrorCallback } from './reply.error.callback';
 import { RpcException } from './rpc-exception';
 
+async function delay(milliseconds = 0, returnValue) {
+  return new Promise((done) =>
+    setTimeout(() => done(returnValue), milliseconds),
+  );
+}
+
 @Injectable()
 export class RpcService {
   @RabbitRPC({
@@ -15,6 +21,19 @@ export class RpcService {
     queue: 'rpc',
   })
   rpc(message: object) {
+    return {
+      echo: message,
+    };
+  }
+
+  @RabbitRPC({
+    routingKey: 'delay-rpc',
+    exchange: 'exchange1',
+    queue: 'delay-rpc',
+  })
+  async delayRpc(message: any) {
+    await delay(message?.delay || 0, false);
+    delete message.delay;
     return {
       echo: message,
     };
