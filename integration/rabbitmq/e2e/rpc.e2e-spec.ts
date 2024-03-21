@@ -2,6 +2,7 @@ import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { AppModule } from '../src/app.module';
+import { randomUUID } from 'crypto';
 
 const nonJsonRpcRoutingKey = 'non-json-rpc';
 
@@ -37,6 +38,33 @@ describe('Rabbit RPC', () => {
     });
 
     expect(response).toEqual({ echo: { request: 'val' } });
+  });
+
+  it('multiple RPC handler should receive a valid RPC response in parallel', async () => {
+    const correlationId = randomUUID();
+    const firstResponse = await amqpConnection.request({
+      exchange: 'exchange1',
+      routingKey: 'delay-rpc',
+      correlationId,
+      headers: { 'X-Request-ID': randomUUID() },
+      payload: {
+        request: 'first request',
+        delay: 1000,
+      },
+    });
+    const secondResponse = await amqpConnection.request({
+      exchange: 'exchange1',
+      routingKey: 'delay-rpc',
+      correlationId,
+      headers: { 'X-Request-ID': randomUUID() },
+      payload: {
+        request: 'second request',
+        delay: 20,
+      },
+    });
+
+    expect(firstResponse).toEqual({ echo: { request: 'first request' } });
+    expect(secondResponse).toEqual({ echo: { request: 'second request' } });
   });
 
   it('intercepted RPC handler should receive a transformed RPC response', async () => {
