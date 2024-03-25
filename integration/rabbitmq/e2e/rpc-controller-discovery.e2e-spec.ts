@@ -155,6 +155,28 @@ describe('Rabbit Controller RPC', () => {
     expect(response).toEqual({ echo: '{a:' });
   });
 
+  it('hash wildcard RPC handler should receive a valid RPC response', async () => {
+    const response = await amqpConnection.request({
+      exchange: 'exchange2',
+      routingKey: 'hash-wildcard-rpc.some-end',
+    });
+
+    expect(response).toEqual({
+      message: 'success-hash-wildcard-rpc.#',
+    });
+  });
+
+  it('star wildcard RPC handler should receive a valid RPC response', async () => {
+    const response = await amqpConnection.request({
+      exchange: 'exchange2',
+      routingKey: 'star-wildcard-rpc.middle.end',
+    });
+
+    expect(response).toEqual({
+      message: 'success-star-wildcard-rpc.*.end',
+    });
+  });
+
   it('SUBMODULE: regular RPC handler should receive a valid RPC response', async () => {
     const response = await amqpConnection.request({
       exchange: 'exchange2',
@@ -280,5 +302,27 @@ describe('Rabbit Controller RPC', () => {
     });
 
     expect(response).toEqual({ echo: '{a:' });
+  });
+
+  it('SUBMODULE: hash wildcard RPC handler should receive a valid RPC response', async () => {
+    const response = await amqpConnection.request({
+      exchange: 'exchange2',
+      routingKey: 'hash-wildcard-rpc-submodule.some-end',
+    });
+
+    expect(response).toEqual({
+      message: 'success-hash-wildcard-rpc-submodule.#',
+    });
+  });
+
+  it('SUBMODULE: star wildcard RPC handler should receive a valid RPC response', async () => {
+    const response = await amqpConnection.request({
+      exchange: 'exchange2',
+      routingKey: 'star-wildcard-rpc-submodule.middle.end',
+    });
+
+    expect(response).toEqual({
+      message: 'success-star-wildcard-rpc-submodule.*.end',
+    });
   });
 });
