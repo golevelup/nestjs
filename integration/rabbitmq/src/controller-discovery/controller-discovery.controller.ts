@@ -121,4 +121,30 @@ export class ControllerDiscoveryController {
       echo: nonJsonMessage,
     };
   }
+
+  @RabbitRPC({
+    routingKey: 'hash-wildcard-rpc.#',
+    exchange: 'exchange2',
+    queue: 'hash-wildcard-rpc-2',
+    errorBehavior: MessageHandlerErrorBehavior.ACK,
+    errorHandler: ReplyErrorCallback,
+  })
+  hashWildcardRpc() {
+    return {
+      message: 'success-hash-wildcard-rpc.#',
+    };
+  }
+
+  @RabbitRPC({
+    routingKey: 'star-wildcard-rpc.*.end',
+    exchange: 'exchange2',
+    queue: 'star-wildcard-rpc-2',
+    errorBehavior: MessageHandlerErrorBehavior.ACK,
+    errorHandler: ReplyErrorCallback,
+  })
+  wildcardRpc() {
+    return {
+      message: 'success-star-wildcard-rpc.*.end',
+    };
+  }
 }
