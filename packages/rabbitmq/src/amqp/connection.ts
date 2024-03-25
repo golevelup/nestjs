@@ -36,6 +36,7 @@ import {
 } from './errorBehaviors';
 import { Nack, RpcResponse, SubscribeResponse } from './handlerResponses';
 import { isNull } from 'lodash';
+import { matchesRoutingKey } from './utils';
 
 const DIRECT_REPLY_QUEUE = 'amq.rabbitmq.reply-to';
 
@@ -565,8 +566,14 @@ export class AmqpConnection {
             throw new Error('Received null message');
           }
 
-          if (rpcOptions.routingKey !== msg.fields.routingKey) {
-            channel.nack(msg, false, true);
+          if (
+            !matchesRoutingKey(msg.fields.routingKey, rpcOptions.routingKey)
+          ) {
+            channel.nack(msg, false, false);
+            this.logger.error(
+              'Received message with invalid routing key: ' +
+                msg.fields.routingKey
+            );
             return;
           }
 

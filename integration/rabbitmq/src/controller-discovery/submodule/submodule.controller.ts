@@ -104,4 +104,29 @@ export class SubmoduleController {
       echo: nonJsonMessage,
     };
   }
+  @RabbitRPC({
+    routingKey: 'hash-wildcard-rpc-submodule.#',
+    exchange: 'exchange2',
+    queue: 'hash-wildcard-rpc-submodule',
+    errorBehavior: MessageHandlerErrorBehavior.ACK,
+    errorHandler: ReplyErrorCallback,
+  })
+  hashWildcardRpc() {
+    return {
+      message: 'success-hash-wildcard-rpc-submodule.#',
+    };
+  }
+
+  @RabbitRPC({
+    routingKey: 'star-wildcard-rpc-submodule.*.end',
+    exchange: 'exchange2',
+    queue: 'star-wildcard-rpc-submodule',
+    errorBehavior: MessageHandlerErrorBehavior.ACK,
+    errorHandler: ReplyErrorCallback,
+  })
+  wildcardRpc() {
+    return {
+      message: 'success-star-wildcard-rpc-submodule.*.end',
+    };
+  }
 }
