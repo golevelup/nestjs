@@ -61,7 +61,7 @@ export class DiscoveryService {
   constructor(
     private readonly modulesContainer: ModulesContainer,
     private readonly metadataScanner: MetadataScanner
-  ) {}
+  ) { }
 
   /**
    * Discovers all providers in a Nest App that match a filter
@@ -168,11 +168,9 @@ export class DiscoveryService {
 
     const prototype = Object.getPrototypeOf(instance);
 
-    return this.metadataScanner
-      .scanFromPrototype(instance, prototype, (name) =>
-        this.extractMethodMetaAtKey<T>(metaKey, component, prototype, name)
-      )
-      .filter((x) => !isNil(x.meta));
+    return this.metadataScanner.getAllMethodNames(prototype).map((name) =>
+      this.extractMethodMetaAtKey<T>(metaKey, component, prototype, name)
+    ).filter((x) => !isNil(x.meta));
   }
 
   /**
