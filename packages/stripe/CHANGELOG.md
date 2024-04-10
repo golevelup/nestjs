@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.7.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-stripe@0.6.5...@golevelup/nestjs-stripe@0.7.0) (2024-04-10)
+
+- chore!: bump stripe version to 14.19.0 (#705) ([1dc545a](https://github.com/golevelup/nestjs/commit/1dc545a8a3b266ec3efda130bc9c261b2167742c)), closes [#705](https://github.com/golevelup/nestjs/issues/705)
+
+### BREAKING CHANGES
+
+- Updates the underlying stripe dependency
+
 ## [0.6.5](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-stripe@0.6.4...@golevelup/nestjs-stripe@0.6.5) (2024-02-09)
 
 **Note:** Version bump only for package @golevelup/nestjs-stripe

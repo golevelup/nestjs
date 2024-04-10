@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.5.0](https://github.com/golevelup/nestjs/compare/@golevelup/ts-jest@0.4.0...@golevelup/ts-jest@0.5.0) (2024-04-10)
+
+### Features
+
+- **ts-vitest:** added a new package to support vitest for testing utils ([#702](https://github.com/golevelup/nestjs/issues/702)) ([0dc80e5](https://github.com/golevelup/nestjs/commit/0dc80e5b7799d187d3e436a3bc53a9b54bf0d21d)), closes [#613](https://github.com/golevelup/nestjs/issues/613)
+
 # [0.4.0](https://github.com/golevelup/nestjs/compare/@golevelup/ts-jest@0.3.8...@golevelup/ts-jest@0.4.0) (2023-07-18)
 
 ### Features

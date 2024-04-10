@@ -1,6 +1,6 @@
 {
   "name": "rabbitmq-integration",
-  "version": "3.2.0",
+  "version": "3.3.0",
   "description": "RabbitMQ integration project",
   "private": true,
   "license": "MIT",

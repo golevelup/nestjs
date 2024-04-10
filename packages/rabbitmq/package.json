@@ -1,6 +1,6 @@
 {
   "name": "@golevelup/nestjs-rabbitmq",
-  "version": "5.1.0",
+  "version": "5.2.0",
   "description": "Badass RabbitMQ addons for NestJS",
   "author": "Jesse Carter <jesse.r.carter@gmail.com>",
   "homepage": "https://github.com/golevelup/nestjs/blob/master/packages/rabbitmq/README.md",
@@ -35,7 +35,7 @@
   },
   "dependencies": {
     "@golevelup/nestjs-common": "^2.0.0",
-    "@golevelup/nestjs-discovery": "^4.0.0",
+    "@golevelup/nestjs-discovery": "^4.0.1",
     "@golevelup/nestjs-modules": "^0.7.1",
     "amqp-connection-manager": "^4.1.14",
     "amqplib": "^0.10.3",

@@ -1,6 +1,6 @@
 {
   "name": "@golevelup/ts-vitest",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Reusable utilities to help level up NestJS Testing",
   "author": "Jesse Carter <jesse.r.carter@gmail.com>",
   "homepage": "https://github.com/golevelup/nestjs#readme",

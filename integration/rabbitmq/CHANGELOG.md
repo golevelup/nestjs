@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [3.3.0](https://github.com/golevelup/nestjs/compare/rabbitmq-integration@3.2.0...rabbitmq-integration@3.3.0) (2024-04-10)
+
+### Bug Fixes
+
+- **rabbitmq:** a fix for routing key check. The check should respect wildcards ([#713](https://github.com/golevelup/nestjs/issues/713)) ([735b038](https://github.com/golevelup/nestjs/commit/735b038d7ed9d88488449eb7b568da691ba7af3b)), closes [#712](https://github.com/golevelup/nestjs/issues/712) [#712](https://github.com/golevelup/nestjs/issues/712)
+
+### Features
+
+- **rabbitmq:** handle parallel RPCs response ([#711](https://github.com/golevelup/nestjs/issues/711)) ([d6d70dc](https://github.com/golevelup/nestjs/commit/d6d70dcede095259ce1a1ba43b451163a77f3a0d))
+
 # [3.2.0](https://github.com/golevelup/nestjs/compare/rabbitmq-integration@3.1.0...rabbitmq-integration@3.2.0) (2024-02-20)
 
 ### Features
