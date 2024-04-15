@@ -404,6 +404,7 @@ export class AmqpConnection {
       requestOptions.routingKey,
       payload,
       {
+        ...requestOptions.publishOptions,
         replyTo: DIRECT_REPLY_QUEUE,
         correlationId,
         headers: requestOptions.headers,
