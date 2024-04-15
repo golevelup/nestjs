@@ -45,6 +45,10 @@ export interface RequestOptions {
   payload?: any;
   headers?: any;
   expiration?: string | number;
+  publishOptions?: Omit<
+    Options.Publish,
+    'replyTo' | 'correlationId' | 'headers' | 'expiration'
+  >;
 }
 
 export interface QueueOptions {
