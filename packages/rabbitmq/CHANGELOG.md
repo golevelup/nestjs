@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [5.3.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@5.2.0...@golevelup/nestjs-rabbitmq@5.3.0) (2024-04-15)
+
+### Features
+
+- **amqp:** add publishOptions to RequestOptions; use them in AmqpConnection.request ([#723](https://github.com/golevelup/nestjs/issues/723)) ([26e9dca](https://github.com/golevelup/nestjs/commit/26e9dcabda08f9f4a22d42baa47d9f97dd43e61e)), closes [#719](https://github.com/golevelup/nestjs/issues/719)
+
 # [5.2.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@5.1.0...@golevelup/nestjs-rabbitmq@5.2.0) (2024-04-10)
 
 ### Bug Fixes
