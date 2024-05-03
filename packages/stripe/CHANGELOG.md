@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.8.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-stripe@0.7.0...@golevelup/nestjs-stripe@0.8.0) (2024-05-03)
+
+### Features
+
+- **stripe:** extend webhook config for test mode secrets ([#732](https://github.com/golevelup/nestjs/issues/732)) ([d7bba4b](https://github.com/golevelup/nestjs/commit/d7bba4b3a4a363e1f2bafa647eb98d7fb52efd44)), closes [#731](https://github.com/golevelup/nestjs/issues/731)
+
 # [0.7.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-stripe@0.6.5...@golevelup/nestjs-stripe@0.7.0) (2024-04-10)
 
 - chore!: bump stripe version to 14.19.0 (#705) ([1dc545a](https://github.com/golevelup/nestjs/commit/1dc545a8a3b266ec3efda130bc9c261b2167742c)), closes [#705](https://github.com/golevelup/nestjs/issues/705)
