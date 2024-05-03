@@ -42,7 +42,9 @@ Import and add `StripeModule` to the `imports` section of the consuming module (
 Stripe secrets you can get from your Dashboard’s [Webhooks settings](https://dashboard.stripe.com/webhooks). Select an endpoint that you want to obtain the secret for, then click the Click to reveal button.
 
 `account` - The webhook secret registered in the Stripe Dashboard for events on your accounts  
+`account_test` - The webhook secret registered in the Stripe Dashboard for events on your accounts in test mode  
 `connect` - The webhook secret registered in the Stripe Dashboard for events on Connected accounts
+`connect_test` - The webhook secret registered in the Stripe Dashboard for events on Connected accounts in test mode
 
 ```typescript
 import { StripeModule } from '@golevelup/nestjs-stripe';
@@ -54,7 +56,9 @@ import { StripeModule } from '@golevelup/nestjs-stripe';
       webhookConfig: {
         stripeSecrets: {
           account: 'abc',
-          connect: 'cba',
+          accountTest: 'cba',
+          connect: 'foo',
+          connectTest: 'bar',
         },
       },
     }),

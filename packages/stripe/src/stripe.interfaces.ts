@@ -13,11 +13,18 @@ interface StripeSecrets {
    * The webhook secret registered in the Stripe Dashboard for events on your accounts
    */
   account?: string;
-
+  /**
+   * The webhook secret registered in the Stripe Dashboard for events on your accounts in test mode
+   */
+  accountTest?: string;
   /**
    * The webhook secret registered in the Stripe Dashboard for events on Connected accounts
    */
   connect?: string;
+  /**
+   * The webhook secret registered in the Stripe Dashboard for events on Connected accounts in test mode
+   */
+  connectTest?: string;
 }
 
 export interface StripeModuleConfig extends Partial<Stripe.StripeConfig> {

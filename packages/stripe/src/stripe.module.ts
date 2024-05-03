@@ -89,7 +89,9 @@ export class StripeModule
     const noOneSecretProvided =
       this.stripeModuleConfig.webhookConfig &&
       !this.stripeModuleConfig.webhookConfig?.stripeSecrets.account &&
-      !this.stripeModuleConfig.webhookConfig?.stripeSecrets.connect;
+      !this.stripeModuleConfig.webhookConfig?.stripeSecrets.accountTest &&
+      !this.stripeModuleConfig.webhookConfig?.stripeSecrets.connect &&
+      !this.stripeModuleConfig.webhookConfig?.stripeSecrets.connectTest;
 
     if (noOneSecretProvided) {
       const errorMessage =
