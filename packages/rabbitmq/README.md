@@ -38,6 +38,9 @@
     - [Competing Consumers](#competing-consumers)
     - [Handling errors](#handling-errors)
     - [Handling errors during queue creation](#handling-errors-during-queue-creation)
+  - [Testing](#testing)
+    - [Prevent Connection Error](#prevent-connection-error)
+    - [Mock Connection](#mock-connection)
   - [Contribute](#contribute)
   - [License](#license)
 
@@ -600,6 +603,83 @@ The default is `defaultAssertQueueErrorHandler` which just rethrows the RabbitMq
 You have the option to use `forceDeleteAssertQueueErrorHandler` which will try to delete the queue and recreate it with the provided queueOptions (if any)
 
 Obviously, you can also provide your own function and do whatever is best for you, in this case the function must return the name of the created queue.
+
+## Testing
+
+### Prevent Connection Error
+
+Normally, you would not want to setup a RabbitMq broker locally or even connect to a external one during tests. So, first we have to prevent the connection to be attempted. This can be easily achieved by passing an `undefined` config to `RabbitMQModule.forRoot`:
+
+```typescript
+import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
+
+@Module({
+  imports: [
+    RabbitMQModule.forRoot(
+      RabbitMQModule,
+      /** Not sending config object makes the connection process to be ignored */
+      process.env.NODE_ENV !== 'test'
+        ? {
+            exchanges: [
+              {
+                name: 'exchange1',
+                type: 'topic',
+              },
+            ],
+            uri: 'amqp://rabbitmq:rabbitmq@localhost:5672',
+            connectionInitOptions: { wait: false },
+          }
+        : undefined
+    ),
+  ],
+})
+export class RabbitExampleModule {}
+```
+
+In this example, when running on a `test` environment, config will be `undefined` thus connection will no happen.
+
+### Mock Connection
+
+You saw above how to prevent the connection during test, but now we'll have also to mock the `RabbitExampleModule` so it exports `AmqpConnection` to our publishers (we do not worry about the subscribers because they will be ignored along with the connection).
+
+```typescript
+// In your test setup...
+
+import { Module } from '@nestjs/common';
+import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
+import { createMock } from '@golevelup/ts-jest';
+import { Test } from '@nestjs/testing';
+import { AppModule } from 'where your root module is located';
+import { RabbitExampleModule } from 'where your rabbitmq module is located';
+
+// Create a valid mock module
+@Module({
+  providers: [
+    {
+      provide: AmqpConnection,
+      useValue: createMock<AmqpConnection>(),
+    },
+  ],
+  exports: [AmqpConnection],
+})
+class MockRabbitExampleModule {}
+
+// Then override the real `RabbitMqModule` with the mocked one
+beforeAll(async () => {
+  const moduleFixture = await Test.createTestingModule({
+    imports: [AppModule],
+  })
+    .overrideModule(RabbitExampleModule)
+    .useModule(MockRabbitExampleModule)
+    .compile();
+
+  const app = moduleFixture.createNestApplication();
+
+  await app.init();
+});
+```
+
+And now your publishers that inject `AmqpConnection` will find it very well mocked.
 
 ## Contribute
 
