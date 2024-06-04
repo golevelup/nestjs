@@ -47,7 +47,8 @@ export const createPipesRpcParamDecorator =
   ): ParameterDecorator =>
   (target, key, index) => {
     const args =
-      Reflect.getMetadata(ROUTE_ARGS_METADATA, target.constructor, key) || {};
+      Reflect.getMetadata(ROUTE_ARGS_METADATA, target.constructor, key || '') ||
+      {};
 
     const hasParamData = isString(data);
     const paramData = hasParamData ? data : undefined;
@@ -57,7 +58,7 @@ export const createPipesRpcParamDecorator =
       ROUTE_ARGS_METADATA,
       assignMetadata(args, type, index, paramData, ...paramPipes),
       target.constructor,
-      key
+      key || ''
     );
   };
 
