@@ -12,7 +12,7 @@ Interacting with the Stripe API or consuming Stripe webhooks in your NestJS appl
 
 - 💉 Injectable Stripe client for interacting with the Stripe API in Controllers and Providers
 
-- 🎉 Optionally exposes an API endpoint from your NestJS application at to be used for webhook event processing from Stripe. Defaults to `/stripe/webhook/` but can be easily configured
+- 🎉 Optionally exposes an API endpoint from your NestJS application at to be used for webhook event processing from Stripe. Defaults to `/stripe/webhook` but can be easily configured
 
 - 🔒 Automatically validates that the event payload was actually sent from Stripe using the configured webhook signing secret
 
@@ -39,7 +39,7 @@ Interacting with the Stripe API or consuming Stripe webhooks in your NestJS appl
 ### Import
 
 Import and add `StripeModule` to the `imports` section of the consuming module (most likely `AppModule`). Your Stripe API key is required, and you can optionally include a webhook configuration if you plan on consuming Stripe webhook events inside your app.  
-Stripe secrets you can get from your Dashboard’s [Webhooks settings](https://dashboard.stripe.com/webhooks). Select an endpoint that you want to obtain the secret for, then click the Click to reveal button.
+Stripe secrets you can get from your Dashboard’s [Webhooks settings](https://dashboard.stripe.com/webhooks). Select an endpoint that you want to obtain the secret for, then click the Reveal link below "Signing secret".
 
 `account` - The webhook secret registered in the Stripe Dashboard for events on your accounts  
 `account_test` - The webhook secret registered in the Stripe Dashboard for events on your accounts in test mode  
@@ -52,13 +52,13 @@ import { StripeModule } from '@golevelup/nestjs-stripe';
 @Module({
   imports: [
     StripeModule.forRoot(StripeModule, {
-      apiKey: '123',
+      apiKey: 'pk_***',
       webhookConfig: {
         stripeSecrets: {
-          account: 'abc',
-          accountTest: 'cba',
-          connect: 'foo',
-          connectTest: 'bar',
+          account: 'whsec_***',
+          accountTest: 'whsec_***',
+          connect: 'whsec_***',
+          connectTest: 'whsec_***',
         },
       },
     }),
@@ -113,9 +113,9 @@ You can then manually set up `bodyProperty` to use rawBody:
 
 ```typescript
 StripeModule.forRoot(StripeModule, {
-  apiKey: '',
+  apiKey: 'pk_***',
   webhookConfig: {
-    stripeWebhookSecret: '',
+    stripeSecrets: { ... },
     requestBodyProperty: 'rawBody', // <-- Set to 'rawBody'
   },
 });
@@ -131,7 +131,7 @@ Exposing provider/service methods to be used for processing Stripe events is eas
 @Injectable()
 class PaymentCreatedService {
   @StripeWebhookHandler('payment_intent.created')
-  handlePaymentIntentCreated(evt: StripeEvent) {
+  handlePaymentIntentCreated(evt: Stripe.PaymentIntentPaymentCreatedEvent) {
     // execute your custom business logic
   }
 }
@@ -143,9 +143,9 @@ You can also pass any class decorator to the `decorators` property of the `webho
 
 ```typescript
 StripeModule.forRoot(StripeModule, {
-  apiKey: '123',
+  apiKey: 'pk_***',
   webhookConfig: {
-    stripeWebhookSecret: 'super-secret',
+    stripeSecrets: { ... },
     decorators: [SkipThrottle()],
   },
 }),
