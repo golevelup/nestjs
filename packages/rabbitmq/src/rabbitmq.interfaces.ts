@@ -75,6 +75,9 @@ export interface QueueOptions {
   consumerOptions?: ConsumeOptions;
 }
 
+export type MessageDeserializer = (message: Buffer, msg: ConsumeMessage) => any;
+export type MessageSerializer = (value: any) => Buffer;
+
 export interface MessageHandlerOptions {
   /**
    * You can use a handler config specificied in module level.
@@ -107,6 +110,12 @@ export interface MessageHandlerOptions {
    * @default false - By default, responses are not persistent unless this is set to true.
    */
   usePersistentReplyTo?: boolean;
+
+  /**
+   * This function is used to deserialize the received message.
+   * If set, will override the module's default deserializer.
+   */
+  deserializer?: MessageDeserializer;
 }
 
 export interface ConnectionInitOptions {
@@ -160,12 +169,12 @@ export interface RabbitMQConfig {
   /**
    * This function is used to deserialize the received message.
    */
-  deserializer?: (message: Buffer, msg: ConsumeMessage) => any;
+  deserializer?: MessageDeserializer;
 
   /**
    * This function is used to serialize the message to be sent.
    */
-  serializer?: (value: any) => Buffer;
+  serializer?: MessageSerializer;
 }
 
 export type RabbitHandlerType = 'rpc' | 'subscribe';
