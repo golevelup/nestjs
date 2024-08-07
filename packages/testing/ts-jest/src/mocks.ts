@@ -133,6 +133,11 @@ export const createMock = <T extends object>(
       cache.set(prop, mockedProp);
       return mockedProp;
     },
+    set: (obj, prop, newValue) => {
+      cache.set(prop, newValue);
+
+      return Reflect.set(obj, prop, newValue);
+    },
   });
 
   return proxy as DeepMocked<T>;

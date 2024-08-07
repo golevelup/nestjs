@@ -88,6 +88,16 @@ describe('Mocks', () => {
       expect(mock.func).toHaveBeenCalledWith(42, '42');
     });
 
+    it('should allow mocked properties to be reassigned', () => {
+      const mock = createMock<TestInterface>();
+
+      mock.someNum = 42;
+      expect(mock.someNum).toBe(42);
+
+      mock.someNum = 43;
+      expect(mock.someNum).toBe(43);
+    });
+
     it('should match mocked instances', () => {
       const mock = createMock<TestInterface>();
       const mockedInstance = createMock<TestClass>({ someProperty: 42 });
