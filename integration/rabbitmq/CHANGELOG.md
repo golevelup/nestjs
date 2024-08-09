@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [3.4.0](https://github.com/golevelup/nestjs/compare/rabbitmq-integration@3.3.0...rabbitmq-integration@3.4.0) (2024-08-09)
+
+### Features
+
+- **connection.ts:** adds deserializer options to message handlers (closes [#704](https://github.com/golevelup/nestjs/issues/704)) ([#754](https://github.com/golevelup/nestjs/issues/754)) ([9441bdc](https://github.com/golevelup/nestjs/commit/9441bdc24b6a9935fc4a51612a0d8a04b86e03a1))
+
 # [3.3.0](https://github.com/golevelup/nestjs/compare/rabbitmq-integration@3.2.0...rabbitmq-integration@3.3.0) (2024-04-10)
 
 ### Bug Fixes

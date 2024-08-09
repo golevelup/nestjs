@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.5.1](https://github.com/golevelup/nestjs/compare/@golevelup/ts-jest@0.5.0...@golevelup/ts-jest@0.5.1) (2024-08-09)
+
+### Bug Fixes
+
+- **ts-sinon:** fixed match all issue of jest mocks ([#752](https://github.com/golevelup/nestjs/issues/752)) ([9e8fd47](https://github.com/golevelup/nestjs/commit/9e8fd4745f4be90d86794088f92a75bb3f070665))
+
 # [0.5.0](https://github.com/golevelup/nestjs/compare/@golevelup/ts-jest@0.4.0...@golevelup/ts-jest@0.5.0) (2024-04-10)
 
 ### Features
