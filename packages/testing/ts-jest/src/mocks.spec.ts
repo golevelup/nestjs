@@ -167,6 +167,22 @@ describe('Mocks', () => {
 
       expect(test.base).toEqual(base);
     });
+
+    it('should accept mocks returning nullables', async () => {
+      interface Test {
+        foo(): number | undefined;
+      }
+
+      const mock = createMock<Test>();
+      mock.foo.mockImplementation(() => {
+        return 0;
+      });
+      expect(mock.foo()).toEqual(0);
+      mock.foo.mockImplementation(() => {
+        return undefined;
+      });
+      expect(mock.foo()).toEqual(undefined);
+    });
   });
 
   describe('auto mocked', () => {
