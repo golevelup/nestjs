@@ -1,14 +1,14 @@
-import { Injectable, INestApplication } from '@nestjs/common';
+import { INestApplication, Injectable } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import { pick } from 'lodash';
 import * as request from 'supertest';
 import { HasuraEventHandler } from '../hasura.decorators';
 import { EventHandlerController } from '../hasura.event-handler.controller';
-import { HasuraModule } from '../hasura.module';
 import {
   HasuraModuleConfig,
   HasuraScheduledEventPayload,
 } from '../hasura.interfaces';
-import { pick } from 'lodash';
+import { HasuraModule } from '../hasura.module';
 
 const triggerBoundEventHandler = jest.fn();
 const scheduledEventHandler = jest.fn();
@@ -55,8 +55,16 @@ const eventPayloadMissingTableAndTrigger = {
   trigger: { name: 'unbound_trigger' },
 };
 
-const scheduledEventPayload: HasuraScheduledEventPayload = {
+const scheduledOneOffEventPayload: HasuraScheduledEventPayload = {
   comment: scheduled_trigger,
+  created_at: new Date(),
+  id: 'id',
+  scheduled_time: new Date(),
+  payload: {},
+};
+
+const scheduledEventPayload: HasuraScheduledEventPayload = {
+  name: scheduled_trigger,
   created_at: new Date(),
   id: 'id',
   scheduled_time: new Date(),
@@ -151,6 +159,21 @@ describe.each(cases)(
       expect(triggerBoundEventHandler).toHaveBeenCalledWith(eventPayload);
     });
 
+    it('should pass the scheduled one off event payload to the correct handler', async () => {
+      const response = await request(app.getHttpServer())
+        .post(hasuraEndpoint)
+        .set(secretHeader, secret)
+        .send(scheduledOneOffEventPayload);
+
+      expect(response.status).toEqual(202);
+      expect(scheduledEventHandler).toHaveBeenCalledTimes(1);
+      expect(scheduledEventHandler).toHaveBeenCalledWith(
+        expect.objectContaining(
+          pick(scheduledOneOffEventPayload, ['comment', 'payload'])
+        )
+      );
+    });
+
     it('should pass the scheduled event payload to the correct handler', async () => {
       const response = await request(app.getHttpServer())
         .post(hasuraEndpoint)
@@ -161,7 +184,7 @@ describe.each(cases)(
       expect(scheduledEventHandler).toHaveBeenCalledTimes(1);
       expect(scheduledEventHandler).toHaveBeenCalledWith(
         expect.objectContaining(
-          pick(scheduledEventPayload, ['comment', 'payload'])
+          pick(scheduledEventPayload, ['name', 'payload'])
         )
       );
     });

@@ -39,7 +39,7 @@ function isHasuraEvent(value: any): value is HasuraEvent {
 function isHasuraScheduledEventPayload(
   value: any
 ): value is HasuraScheduledEventPayload {
-  return ['comment', 'scheduled_time', 'payload'].every((it) => it in value);
+  return ['scheduled_time', 'payload'].every((it) => it in value);
 }
 
 @Module({
@@ -72,7 +72,8 @@ export class HasuraModule
       ],
     }
   )
-  implements OnModuleInit {
+  implements OnModuleInit
+{
   private readonly logger = new Logger(HasuraModule.name);
 
   constructor(
@@ -173,8 +174,8 @@ export class HasuraModule
       const keys = isHasuraEvent(evt)
         ? [evt.trigger?.name, `${evt?.table?.schema}-${evt?.table?.name}`]
         : isHasuraScheduledEventPayload(evt)
-          ? [evt.name || evt.comment]
-          : [evt.id];
+        ? [evt.name || evt.comment]
+        : [evt.id];
       if (!keys) throw new Error('Not a Hasura Event');
 
       // TODO: this should use a map for faster lookups
