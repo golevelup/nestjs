@@ -204,6 +204,12 @@ describe('Mocks', () => {
       expect(third.getClient).toBeDefined();
     });
 
+    it('toString should work', () => {
+      const mock = createMock<any>();
+      expect(mock.toString()).toEqual('[object Object]');
+      expect(mock.nested.toString()).toEqual('function () { [native code] }');
+    });
+
     it('should allow for mock implementation on automocked properties', () => {
       const executionContextMock = createMock<ExecutionContext>();
       const httpArgsHost = createMock<HttpArgumentsHost>({

@@ -77,7 +77,7 @@ const createRecursiveMockProxy = (name: string) => {
       const mockedProp =
         prop in obj
           ? typeof checkProp === 'function'
-            ? jest.fn()
+            ? jest.fn(checkProp)
             : checkProp
           : propName === 'then'
           ? undefined
