@@ -210,6 +210,15 @@ describe('Mocks', () => {
       expect(mock.nested.toString()).toEqual('function () { [native code] }');
     });
 
+    it('nested properties mocks should be able to set properties and override cache', () => {
+      const mock = createMock<any>();
+      const autoMockedFn = mock.nested.f;
+      expect(typeof autoMockedFn).toEqual('function');
+      const myFn = () => 5;
+      mock.nested.f = myFn;
+      expect(mock.nested.f === myFn).toBeTruthy();
+    });
+
     it('should allow for mock implementation on automocked properties', () => {
       const executionContextMock = createMock<ExecutionContext>();
       const httpArgsHost = createMock<HttpArgumentsHost>({
