@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.5.4](https://github.com/golevelup/nestjs/compare/@golevelup/ts-jest@0.5.3...@golevelup/ts-jest@0.5.4) (2024-08-15)
+
+### Bug Fixes
+
+- **ts-jest:** allow setting properties on nested values and overriding cache ([f15bb2e](https://github.com/golevelup/nestjs/commit/f15bb2eb2cc2c2800784ed1dfb25d78c942dbf6d)), closes [#765](https://github.com/golevelup/nestjs/issues/765)
+
 ## [0.5.3](https://github.com/golevelup/nestjs/compare/@golevelup/ts-jest@0.5.2...@golevelup/ts-jest@0.5.3) (2024-08-14)
 
 ### Bug Fixes
