@@ -46,10 +46,6 @@ const jestFnProps = new Set([
   'calls',
 ]);
 
-export type MockOptions = {
-  name?: string;
-};
-
 const createProxy: {
   <T extends object>(name: string, base: T): T;
   <T extends Mock<any, any> = Mock<any, any>>(name: string): T;
@@ -116,6 +112,10 @@ const createProxy: {
     };
   }
   return new Proxy(base || (jest.fn() as T), handler);
+};
+
+export type MockOptions = {
+  name?: string;
 };
 
 export const createMock = <T extends object>(
