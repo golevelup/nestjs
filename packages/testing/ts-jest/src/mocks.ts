@@ -1,4 +1,5 @@
 import { jest } from '@jest/globals';
+import { Mock } from 'jest-mock';
 
 type DeepPartial<T> = {
   [P in keyof T]?: T[P] extends Array<infer U>
@@ -45,76 +46,30 @@ const jestFnProps = new Set([
   'calls',
 ]);
 
-const createRecursiveMockProxy = (name: string) => {
-  const cache = new Map<string | number | symbol, any>();
-
-  const t = jest.fn();
-  return new Proxy(t, {
-    apply: (target, thisArg, argsArray) => {
-      const result = Reflect.apply(target, thisArg, argsArray);
-      if (target.getMockImplementation() || result) {
-        return result;
-      } else {
-        if (!cache.has('__apply')) {
-          cache.set('__apply', createRecursiveMockProxy(name));
-        }
-        return cache.get('__apply');
-      }
-    },
-    get: (obj, prop, receiver) => {
-      const propName = prop.toString();
-
-      if (jestFnProps.has(propName)) {
-        return Reflect.get(obj, prop, receiver);
-      }
-
-      if (cache.has(prop)) {
-        return cache.get(prop);
-      }
-
-      const checkProp = obj[prop];
-
-      const mockedProp =
-        prop in obj
-          ? typeof checkProp === 'function'
-            ? jest.fn(checkProp)
-            : checkProp
-          : propName === 'then'
-          ? undefined
-          : createRecursiveMockProxy(propName);
-
-      cache.set(prop, mockedProp);
-
-      return mockedProp;
-    },
-    set: (obj, prop, newValue) => {
-      cache.set(prop, newValue);
-      return Reflect.set(obj, prop, newValue);
-    },
-  });
-};
-
 export type MockOptions = {
   name?: string;
 };
 
-export const createMock = <T extends object>(
-  partial: PartialFuncReturn<T> = {},
-  options: MockOptions = {}
-): DeepMocked<T> => {
+const createProxy: {
+  <T extends object>(name: string, base: T): T;
+  <T extends Mock<any, any> = Mock<any, any>>(name: string): T;
+} = <T extends object | Mock<any, any>>(name: string, base?: T): T => {
   const cache = new Map<string | number | symbol, any>();
-  const { name = 'mock' } = options;
+  const handler: ProxyHandler<T> = {
+    get: (obj, prop, receiver) => {
+      const propName = prop.toString();
 
-  const proxy = new Proxy(partial, {
-    get: (obj, prop) => {
       if (
         prop === 'inspect' ||
         prop === 'then' ||
         prop === 'asymmetricMatch' ||
-        (typeof prop === 'symbol' &&
-          prop.toString() === 'Symbol(util.inspect.custom)')
+        (typeof prop === 'symbol' && propName === 'Symbol(util.inspect.custom)')
       ) {
         return undefined;
+      }
+
+      if (!base && jestFnProps.has(propName)) {
+        return Reflect.get(obj, prop, receiver);
       }
 
       if (cache.has(prop)) {
@@ -131,7 +86,7 @@ export const createMock = <T extends object>(
       } else if (prop === 'constructor') {
         mockedProp = () => undefined;
       } else {
-        mockedProp = createRecursiveMockProxy(`${name}.${prop.toString()}`);
+        mockedProp = createProxy(`${name}.${propName}`);
       }
 
       cache.set(prop, mockedProp);
@@ -142,7 +97,32 @@ export const createMock = <T extends object>(
 
       return Reflect.set(obj, prop, newValue);
     },
-  });
+  };
+  if (!base) {
+    (handler as ProxyHandler<Mock<any, any>>).apply = (
+      target,
+      thisArg,
+      argsArray
+    ) => {
+      const result = Reflect.apply(target, thisArg, argsArray);
+      if (target.getMockImplementation() || result) {
+        return result;
+      } else {
+        if (!cache.has('__apply')) {
+          cache.set('__apply', createProxy(name));
+        }
+        return cache.get('__apply');
+      }
+    };
+  }
+  return new Proxy(base || (jest.fn() as T), handler);
+};
 
+export const createMock = <T extends object>(
+  partial: PartialFuncReturn<T> = {},
+  options: MockOptions = {}
+): DeepMocked<T> => {
+  const { name = 'mock' } = options;
+  const proxy = createProxy<T>(name, partial as T);
   return proxy as DeepMocked<T>;
 };
