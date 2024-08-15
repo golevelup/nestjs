@@ -23,6 +23,28 @@ export type DeepMocked<T> = {
     : T[K];
 } & T;
 
+const jestFnProps = new Set([
+  '_isMockFunction',
+  'mock',
+  'mockClear',
+  'mockImplementation',
+  'mockImplementationOnce',
+  'mockName',
+  'getMockName',
+  'getMockImplementation',
+  'mockRejectedValue',
+  'mockRejectedValueOnce',
+  'mockReset',
+  'mockResolvedValue',
+  'mockResolvedValueOnce',
+  'mockRestore',
+  'mockReturnThis',
+  'mockReturnValue',
+  'mockReturnValueOnce',
+  'withImplementation',
+  'calls',
+]);
+
 const createRecursiveMockProxy = (name: string) => {
   const cache = new Map<string | number | symbol, any>();
 
@@ -34,7 +56,7 @@ const createRecursiveMockProxy = (name: string) => {
         return result;
       } else {
         if (!cache.has('__apply')) {
-          cache.set('__apply', createRecursiveMockProxy('bla'));
+          cache.set('__apply', createRecursiveMockProxy(name));
         }
         return cache.get('__apply');
       }
@@ -42,29 +64,7 @@ const createRecursiveMockProxy = (name: string) => {
     get: (obj, prop, receiver) => {
       const propName = prop.toString();
 
-      if (
-        [
-          '_isMockFunction',
-          'mock',
-          'mockClear',
-          'mockImplementation',
-          'mockImplementationOnce',
-          'mockName',
-          'getMockName',
-          'getMockImplementation',
-          'mockRejectedValue',
-          'mockRejectedValueOnce',
-          'mockReset',
-          'mockResolvedValue',
-          'mockResolvedValueOnce',
-          'mockRestore',
-          'mockReturnThis',
-          'mockReturnValue',
-          'mockReturnValueOnce',
-          'withImplementation',
-          'calls',
-        ].includes(propName)
-      ) {
+      if (jestFnProps.has(propName)) {
         return Reflect.get(obj, prop, receiver);
       }
 
@@ -86,6 +86,10 @@ const createRecursiveMockProxy = (name: string) => {
       cache.set(prop, mockedProp);
 
       return mockedProp;
+    },
+    set: (obj, prop, newValue) => {
+      cache.set(prop, newValue);
+      return Reflect.set(obj, prop, newValue);
     },
   });
 };
