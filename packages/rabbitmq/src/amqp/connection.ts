@@ -424,9 +424,8 @@ export class AmqpConnection {
     consumeOptions?: ConsumeOptions
   ): Promise<SubscriptionResult> {
     return new Promise((res) => {
-      let result: SubscriptionResult;
-      this.selectManagedChannel(msgOptions?.queueOptions?.channel)
-        .addSetup(async (channel) => {
+      this.selectManagedChannel(msgOptions?.queueOptions?.channel).addSetup(
+        async (channel) => {
           const consumerTag = await this.setupSubscriberChannel<T>(
             handler,
             msgOptions,
@@ -434,11 +433,9 @@ export class AmqpConnection {
             originalHandlerName,
             consumeOptions
           );
-          result = { consumerTag };
-        })
-        .then(() => {
-          res(result);
-        });
+          res({ consumerTag });
+        }
+      );
     });
   }
 
@@ -532,20 +529,16 @@ export class AmqpConnection {
     rpcOptions: MessageHandlerOptions
   ): Promise<SubscriptionResult> {
     return new Promise((res) => {
-      let result: SubscriptionResult;
-      this.selectManagedChannel(rpcOptions?.queueOptions?.channel)
-        .addSetup(async (channel) => {
+      this.selectManagedChannel(rpcOptions?.queueOptions?.channel).addSetup(
+        async (channel) => {
           const consumerTag = await this.setupRpcChannel<T, U>(
             handler,
             rpcOptions,
             channel
           );
-          result = { consumerTag };
           res({ consumerTag });
-        })
-        .then(() => {
-          res(result);
-        });
+        }
+      );
     });
   }
 
