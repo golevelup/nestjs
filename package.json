@@ -52,9 +52,8 @@
     "commit": "yarn run git-cz",
     "lerna:publish": "lerna run build && yarn test && lerna publish -m 'chore: publish'",
     "lerna:prerelease": "lerna run build && yarn test && lerna publish prerelease --preid rc -m 'chore: publish prerelease'",
-    "build": " lerna run build --ignore rabbitmq-integration --ignore @golevelup/ts-vitest",
-    "build:watch": "lerna run --parallel build:watch --ignore rabbitmq-integration --ignore @golevelup/ts-vitest",
-    "build:vitest": " lerna run build --scope @golevelup/ts-vitest",
+    "build": " lerna run build --ignore rabbitmq-integration",
+    "build:watch": "lerna run --parallel build:watch --ignore rabbitmq-integration",
     "clean": "rimraf packages//lib && rimraf packages//*.tsbuildinfo",
     "test": "jest",
     "test:integration": "jest --config ./jest-e2e.json",
@@ -107,6 +106,7 @@
   },
   "volta": {
     "node": "18.16.1",
-    "yarn": "1.22.21"
-  }
+    "yarn": "1.22.22"
+  },
+  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
 }
