@@ -210,6 +210,12 @@ describe('Mocks', () => {
       expect(mock.nested.toString()).toEqual('function () { [native code] }');
     });
 
+    it('asymmetricMatch should not be set', () => {
+      const mock = createMock<any>();
+      expect(mock.asymmetricMatch).toBeUndefined();
+      expect(mock.nested.asymmetricMatch).toBeUndefined();
+    });
+
     it('nested properties mocks should be able to set properties and override cache', () => {
       const mock = createMock<any>();
       const autoMockedFn = mock.nested.f;
