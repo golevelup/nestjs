@@ -45,9 +45,21 @@ const DIRECT_REPLY_QUEUE = 'amq.rabbitmq.reply-to';
 export type ConsumerTag = string;
 
 export type SubscriberHandler<T = unknown> = (
+  msg: (T | undefined) | (T | undefined)[],
+  rawMessage?: ConsumeMessage | ConsumeMessage[],
+  headers?: any | any[]
+) => Promise<SubscribeResponse>;
+
+export type SingleSubscriberHandler<T = unknown> = (
   msg: T | undefined,
   rawMessage?: ConsumeMessage,
   headers?: any
+) => Promise<SubscribeResponse>;
+
+export type BatchSubscriberHandler<T = unknown> = (
+  msg: (T | undefined)[],
+  rawMessage?: ConsumeMessage[],
+  headers?: any[]
 ) => Promise<SubscribeResponse>;
 
 export interface CorrelationMessage {
@@ -73,6 +85,15 @@ export type ConsumerHandler<T, U> =
         msg: T | undefined,
         rawMessage?: ConsumeMessage,
         headers?: any
+      ) => Promise<SubscribeResponse>;
+    })
+  | (BaseConsumerHandler & {
+      type: 'subscribe-batch';
+      msgOptions: MessageHandlerOptions;
+      handler: (
+        msg: (T | undefined)[],
+        rawMessage?: ConsumeMessage[],
+        headers?: any[]
       ) => Promise<SubscribeResponse>;
     })
   | (BaseConsumerHandler & {
@@ -460,6 +481,32 @@ export class AmqpConnection {
     originalHandlerName = 'unknown',
     consumeOptions?: ConsumeOptions
   ): Promise<ConsumerTag> {
+    if (msgOptions.batchOptions) {
+      return this.setupBatchSubscriberChannel<T>(
+        handler,
+        msgOptions,
+        channel,
+        originalHandlerName,
+        consumeOptions
+      );
+    } else {
+      return this.setupSingleSubscriberChannel<T>(
+        handler,
+        msgOptions,
+        channel,
+        originalHandlerName,
+        consumeOptions
+      );
+    }
+  }
+
+  private async setupSingleSubscriberChannel<T>(
+    handler: SingleSubscriberHandler<T>,
+    msgOptions: MessageHandlerOptions,
+    channel: ConfirmChannel,
+    originalHandlerName = 'unknown',
+    consumeOptions?: ConsumeOptions
+  ) {
     const queue = await this.setupQueue(msgOptions, channel);
 
     const { consumerTag }: { consumerTag: ConsumerTag } = await channel.consume(
@@ -511,6 +558,112 @@ export class AmqpConnection {
 
     this.registerConsumerForQueue({
       type: 'subscribe',
+      consumerTag,
+      handler,
+      msgOptions,
+      channel,
+    });
+
+    return consumerTag;
+  }
+
+  private async setupBatchSubscriberChannel<T>(
+    handler: BatchSubscriberHandler<T>,
+    msgOptions: MessageHandlerOptions,
+    channel: ConfirmChannel,
+    originalHandlerName = 'unknown',
+    consumeOptions?: ConsumeOptions
+  ): Promise<ConsumerTag> {
+    const queue = await this.setupQueue(msgOptions, channel);
+    const batchSize = msgOptions.batchOptions?.size ?? 10;
+    const batchTimeout = msgOptions.batchOptions?.timeout ?? 200;
+
+    let batchMsgs: ConsumeMessage[] = [];
+    let batchTimer: NodeJS.Timeout;
+    let inflightBatchHandler: () => Promise<void>;
+
+    const { consumerTag }: { consumerTag: ConsumerTag } = await channel.consume(
+      queue,
+      this.wrapConsumer(async (msg) => {
+        if (isNull(msg)) {
+          return;
+        }
+
+        const handleBatch = async () => {
+          const batchMsgsToProcess = batchMsgs;
+          batchMsgs = [];
+
+          try {
+            const response = await this.handleMessages(
+              handler,
+              batchMsgsToProcess,
+              {
+                allowNonJsonMessages: msgOptions.allowNonJsonMessages,
+                deserializer: msgOptions.deserializer,
+              }
+            );
+
+            if (response instanceof Nack) {
+              for (const msg of batchMsgsToProcess) {
+                channel.nack(msg, false, response.requeue);
+              }
+              return;
+            }
+
+            // developers should be responsible to avoid subscribers that return therefore
+            // the request will be acknowledged
+            if (response) {
+              this.logger.warn(
+                `Received response: [${this.config.serializer(
+                  response
+                )}] from subscribe handler [${originalHandlerName}]. Subscribe handlers should only return void`
+              );
+            }
+
+            for (const msg of batchMsgsToProcess) {
+              channel.ack(msg);
+            }
+          } catch (e) {
+            const errorHandler =
+              msgOptions.errorHandler ||
+              getHandlerForLegacyBehavior(
+                msgOptions.errorBehavior ||
+                  this.config.defaultSubscribeErrorBehavior
+              );
+
+            for (const msg of batchMsgsToProcess) {
+              await errorHandler(channel, msg, e);
+            }
+          }
+        };
+
+        batchMsgs.push(msg);
+
+        if (batchMsgs.length === 1) {
+          console.log('received first message, starting timer');
+          // Wrapped in a Promise to ensure outstanding message processing logic is aware.
+          await new Promise<void>((resolve) => {
+            const batchHandler = async () => {
+              await handleBatch();
+              resolve();
+            };
+            batchTimer = setTimeout(batchHandler, batchTimeout);
+            inflightBatchHandler = batchHandler;
+          });
+        } else if (batchMsgs.length === batchSize) {
+          console.log('processing full batch');
+          clearTimeout(batchTimer);
+          await inflightBatchHandler();
+        } else {
+          console.log('not yet full batch, refreshing timer');
+          batchTimer.refresh();
+        }
+      }),
+      consumeOptions
+    );
+
+    this.registerConsumerForQueue({
+      type: 'subscribe-batch',
       consumerTag,
       handler,
       msgOptions,
@@ -643,12 +796,7 @@ export class AmqpConnection {
     return this._managedChannel.publish(exchange, routingKey, buffer, options);
   }
 
-  private handleMessage<T, U>(
-    handler: (
-      msg: T | undefined,
-      rawMessage?: ConsumeMessage,
-      headers?: any
-    ) => Promise<U>,
+  private deserializeMessage<T>(
     msg: ConsumeMessage,
     options: {
       allowNonJsonMessages?: boolean;
@@ -676,7 +824,47 @@ export class AmqpConnection {
       headers = msg.properties.headers;
     }
 
-    return handler(message, msg, headers);
+    return { message, headers };
+  }
+
+  private handleMessage<T, U>(
+    handler: (
+      msg: T | undefined,
+      rawMessage?: ConsumeMessage,
+      headers?: any
+    ) => Promise<U>,
+    msg: ConsumeMessage,
+    options: {
+      allowNonJsonMessages?: boolean;
+      deserializer?: MessageDeserializer;
+    }
+  ) {
+    const result = this.deserializeMessage<T>(msg, options);
+    return handler(result.message, msg, result.headers);
+  }
+
+  private handleMessages<T, U>(
+    handler: (
+      msg: (T | undefined)[],
+      rawMessage?: ConsumeMessage[],
+      headers?: any[]
+    ) => Promise<U>,
+    msgs: ConsumeMessage[],
+    options: {
+      allowNonJsonMessages?: boolean;
+      deserializer?: MessageDeserializer;
+    }
+  ) {
+    const messages: (T | undefined)[] = [];
+    const headers: any[] = [];
+
+    for (const msg of msgs) {
+      const result = this.deserializeMessage<T>(msg, options);
+      messages.push(result.message);
+      headers.push(result.headers);
+    }
+
+    return handler(messages, msgs, headers);
   }
 
   private async setupQueue(
@@ -823,12 +1011,20 @@ export class AmqpConnection {
         consumer.rpcOptions,
         consumer.channel
       );
-    } else {
-      newConsumerTag = await this.setupSubscriberChannel<T>(
+    } else if (consumer.type === 'subscribe') {
+      newConsumerTag = await this.setupSingleSubscriberChannel<T>(
         consumer.handler,
         consumer.msgOptions,
         consumer.channel
       );
+    } else if (consumer.type === 'subscribe-batch') {
+      newConsumerTag = await this.setupBatchSubscriberChannel<T>(
+        consumer.handler,
+        consumer.msgOptions,
+        consumer.channel
+      );
+    } else {
+      throw new Error('Unable to resume consumer, unexpected consumer type.');
     }
     // A new consumerTag was created, remove old
     this.unregisterConsumerForQueue(consumerTag);

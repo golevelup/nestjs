@@ -116,6 +116,11 @@ export interface MessageHandlerOptions {
    * If set, will override the module's default deserializer.
    */
   deserializer?: MessageDeserializer;
+
+  /**
+   * Enables consumer-side batching.
+   */
+  batchOptions?: BatchOptions;
 }
 
 export interface ConnectionInitOptions {
@@ -194,4 +199,18 @@ export interface RabbitMQChannelConfig {
    * If no channel has been marked as default, new channel will be created.
    */
   default?: boolean;
+}
+
+interface BatchOptions {
+  /**
+   * The number of messages to accumulate before calling the message handler.
+   *
+   * This should be smaller than the channel prefetch.
+   */
+  size: number;
+
+  /**
+   * The time to wait, in milliseconds, for additional messages before returning a partial batch.
+   */
+  timeout?: number;
 }
