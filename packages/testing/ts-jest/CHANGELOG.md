@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.5.5](https://github.com/golevelup/nestjs/compare/@golevelup/ts-jest@0.5.4...@golevelup/ts-jest@0.5.5) (2024-09-03)
+
+### Bug Fixes
+
+- **ts-jest:** asymmetricMatch should be undefined for nested mocks ([3b78f75](https://github.com/golevelup/nestjs/commit/3b78f75d98066d4bc2c4c87bcc60c12a63d8ff8d)), closes [#767](https://github.com/golevelup/nestjs/issues/767)
+
 ## [0.5.4](https://github.com/golevelup/nestjs/compare/@golevelup/ts-jest@0.5.3...@golevelup/ts-jest@0.5.4) (2024-08-15)
 
 ### Bug Fixes
