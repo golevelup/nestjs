@@ -88,6 +88,16 @@ describe('Mocks', () => {
       expect(mock.func).toHaveBeenCalledWith(42, '42');
     });
 
+    it('should allow mocked properties to be reassigned', () => {
+      const mock = createMock<TestInterface>();
+
+      mock.someNum = 42;
+      expect(mock.someNum).toBe(42);
+
+      mock.someNum = 43;
+      expect(mock.someNum).toBe(43);
+    });
+
     it('should match mocked instances', () => {
       const mock = createMock<TestInterface>();
       const mockedInstance = createMock<TestClass>({ someProperty: 42 });
@@ -208,6 +218,27 @@ describe('Mocks', () => {
       expect(first.getContext).toBeDefined();
       expect(second.getContext).toBeDefined();
       expect(third.getClient).toBeDefined();
+    });
+
+    it('toString should work', () => {
+      const mock = createMock<any>();
+      expect(mock.toString()).toEqual('[object Object]');
+      expect(mock.nested.toString()).toEqual('function () { [native code] }');
+    });
+
+    it('asymmetricMatch should not be set', () => {
+      const mock = createMock<any>();
+      expect(mock.asymmetricMatch).toBeUndefined();
+      expect(mock.nested.asymmetricMatch).toBeUndefined();
+    });
+
+    it('nested properties mocks should be able to set properties and override cache', () => {
+      const mock = createMock<any>();
+      const autoMockedFn = mock.nested.f;
+      expect(typeof autoMockedFn).toEqual('function');
+      const myFn = () => 5;
+      mock.nested.f = myFn;
+      expect(mock.nested.f === myFn).toBeTruthy();
     });
 
     it('should allow for mock implementation on automocked properties', () => {

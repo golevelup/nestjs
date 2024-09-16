@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [5.4.1](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@5.4.0...@golevelup/nestjs-rabbitmq@5.4.1) (2024-09-03)
+
+### Bug Fixes
+
+- **rabbitmq:** return consumerTag when creating subscriber ([#769](https://github.com/golevelup/nestjs/issues/769)) ([5137c0f](https://github.com/golevelup/nestjs/commit/5137c0f1ea7199695d8695faec745bde2fbc5165)), closes [#755](https://github.com/golevelup/nestjs/issues/755) [#755](https://github.com/golevelup/nestjs/issues/755) [#755](https://github.com/golevelup/nestjs/issues/755)
+
 # [5.4.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@5.3.0...@golevelup/nestjs-rabbitmq@5.4.0) (2024-08-09)
 
 ### Features

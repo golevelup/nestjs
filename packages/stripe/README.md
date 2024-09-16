@@ -52,7 +52,7 @@ import { StripeModule } from '@golevelup/nestjs-stripe';
 @Module({
   imports: [
     StripeModule.forRoot(StripeModule, {
-      apiKey: 'pk_***',
+      apiKey: 'sk_***',
       webhookConfig: {
         stripeSecrets: {
           account: 'whsec_***',
@@ -113,7 +113,7 @@ You can then manually set up `bodyProperty` to use rawBody:
 
 ```typescript
 StripeModule.forRoot(StripeModule, {
-  apiKey: 'pk_***',
+  apiKey: 'sk_***',
   webhookConfig: {
     stripeSecrets: { ... },
     requestBodyProperty: 'rawBody', // <-- Set to 'rawBody'
@@ -143,7 +143,7 @@ You can also pass any class decorator to the `decorators` property of the `webho
 
 ```typescript
 StripeModule.forRoot(StripeModule, {
-  apiKey: 'pk_***',
+  apiKey: 'sk_***',
   webhookConfig: {
     stripeSecrets: { ... },
     decorators: [SkipThrottle()],

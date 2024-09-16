@@ -148,7 +148,7 @@ export class StripeModule
 
     const handleWebhook = async (webhookEvent: { type: string }) => {
       const { type } = webhookEvent;
-      const handlers = webhookHandlers.filter((x) => x.key === type);
+      const handlers = webhookHandlers.filter((x) => x.key === type || x.key === '*');
 
       if (handlers.length) {
         if (
