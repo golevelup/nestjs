@@ -624,10 +624,10 @@ export class AmqpConnection {
     return consumerTag;
   }
 
-  public publish<T = any>(
+  public publish(
     exchange: string,
     routingKey: string,
-    message: T,
+    message: any,
     options?: Options.Publish
   ): Promise<boolean> {
     let buffer: Buffer;
