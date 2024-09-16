@@ -30,7 +30,7 @@ const createRecursiveMockProxy = (name: string) => {
   return new Proxy(t, {
     apply: (target, thisArg, argsArray) => {
       const result = Reflect.apply(target, thisArg, argsArray);
-      if (target.getMockImplementation() || result) {
+      if (target.getMockImplementation() || result !== undefined) {
         return result;
       } else {
         if (!cache.has('__apply')) {

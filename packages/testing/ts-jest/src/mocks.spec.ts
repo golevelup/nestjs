@@ -173,6 +173,22 @@ describe('Mocks', () => {
       });
       expect(mock.foo()).toEqual(undefined);
     });
+
+    it('should accept nullable values using mockReturnValueOnce and allow for chaining', async () => {
+      interface Test {
+        foo(): boolean;
+      }
+      const serviceMock = createMock<Test>();
+      jest
+        .spyOn(serviceMock, 'foo')
+        .mockReturnValueOnce(true)
+        .mockReturnValueOnce(false)
+        .mockReturnValueOnce(true);
+
+      expect(serviceMock.foo()).toEqual(true);
+      expect(serviceMock.foo()).toEqual(false);
+      expect(serviceMock.foo()).toEqual(true);
+    });
   });
 
   describe('auto mocked', () => {
