@@ -169,14 +169,34 @@ export class RabbitMQModule
 
     this.logger.log(handlerDisplayName);
 
-    return config.type === 'rpc'
-      ? connection.createRpc(handler, config)
-      : connection.createSubscriber(
+    switch (config.type) {
+      case 'rpc':
+        return connection.createRpc(handler, config);
+
+      case 'subscribe':
+        if (config.batchOptions) {
+          return connection.createBatchSubscriber(
+            handler,
+            config,
+            discoveredMethod.methodName,
+            config?.queueOptions?.consumerOptions
+          );
+        }
+
+        return connection.createSubscriber(
           handler,
           config,
           discoveredMethod.methodName,
           config?.queueOptions?.consumerOptions
         );
+
+      default:
+        throw new Error(
+          `Unable to set up handler ${handlerDisplayName}. Unexpected handler type ${
+            (config as any).type
+          }.`
+        );
+    }
   }
 
   // eslint-disable-next-line sonarjs/cognitive-complexity

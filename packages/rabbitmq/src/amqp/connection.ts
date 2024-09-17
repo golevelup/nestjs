@@ -45,12 +45,6 @@ const DIRECT_REPLY_QUEUE = 'amq.rabbitmq.reply-to';
 export type ConsumerTag = string;
 
 export type SubscriberHandler<T = unknown> = (
-  msg: (T | undefined) | (T | undefined)[],
-  rawMessage?: ConsumeMessage | ConsumeMessage[],
-  headers?: any | any[]
-) => Promise<SubscribeResponse>;
-
-export type SingleSubscriberHandler<T = unknown> = (
   msg: T | undefined,
   rawMessage?: ConsumeMessage,
   headers?: any
@@ -444,16 +438,42 @@ export class AmqpConnection {
     originalHandlerName: string,
     consumeOptions?: ConsumeOptions
   ): Promise<SubscriptionResult> {
+    return this.setupChannel(msgOptions, (channel) =>
+      this.setupSubscriberChannel<T>(
+        handler,
+        msgOptions,
+        channel,
+        originalHandlerName,
+        consumeOptions
+      )
+    );
+  }
+
+  public async createBatchSubscriber<T>(
+    handler: BatchSubscriberHandler<T>,
+    msgOptions: MessageHandlerOptions,
+    originalHandlerName: string,
+    consumeOptions?: ConsumeOptions
+  ): Promise<SubscriptionResult> {
+    return this.setupChannel(msgOptions, (channel) =>
+      this.setupBatchSubscriberChannel<T>(
+        handler,
+        msgOptions,
+        channel,
+        originalHandlerName,
+        consumeOptions
+      )
+    );
+  }
+
+  private async setupChannel(
+    msgOptions: MessageHandlerOptions,
+    setupFunction: (channel: ConfirmChannel) => Promise<string>
+  ): Promise<SubscriptionResult> {
     return new Promise((res) => {
       this.selectManagedChannel(msgOptions?.queueOptions?.channel).addSetup(
-        async (channel) => {
-          const consumerTag = await this.setupSubscriberChannel<T>(
-            handler,
-            msgOptions,
-            channel,
-            originalHandlerName,
-            consumeOptions
-          );
+        async (channel: ConfirmChannel) => {
+          const consumerTag = await setupFunction(channel);
           res({ consumerTag });
         }
       );
@@ -481,32 +501,6 @@ export class AmqpConnection {
     originalHandlerName = 'unknown',
     consumeOptions?: ConsumeOptions
   ): Promise<ConsumerTag> {
-    if (msgOptions.batchOptions) {
-      return this.setupBatchSubscriberChannel<T>(
-        handler,
-        msgOptions,
-        channel,
-        originalHandlerName,
-        consumeOptions
-      );
-    } else {
-      return this.setupSingleSubscriberChannel<T>(
-        handler,
-        msgOptions,
-        channel,
-        originalHandlerName,
-        consumeOptions
-      );
-    }
-  }
-
-  private async setupSingleSubscriberChannel<T>(
-    handler: SingleSubscriberHandler<T>,
-    msgOptions: MessageHandlerOptions,
-    channel: ConfirmChannel,
-    originalHandlerName = 'unknown',
-    consumeOptions?: ConsumeOptions
-  ) {
     const queue = await this.setupQueue(msgOptions, channel);
 
     const { consumerTag }: { consumerTag: ConsumerTag } = await channel.consume(
@@ -625,15 +619,13 @@ export class AmqpConnection {
             }
           } catch (e) {
             const errorHandler =
-              msgOptions.errorHandler ||
+              msgOptions.batchOptions?.errorHandler ||
               getHandlerForLegacyBehavior(
                 msgOptions.errorBehavior ||
                   this.config.defaultSubscribeErrorBehavior
               );
 
-            for (const msg of batchMsgsToProcess) {
-              await errorHandler(channel, msg, e);
-            }
+            await errorHandler(channel, batchMsgsToProcess, e);
           }
         };
 
@@ -1012,7 +1004,7 @@ export class AmqpConnection {
         consumer.channel
       );
     } else if (consumer.type === 'subscribe') {
-      newConsumerTag = await this.setupSingleSubscriberChannel<T>(
+      newConsumerTag = await this.setupSubscriberChannel<T>(
         consumer.handler,
         consumer.msgOptions,
         consumer.channel

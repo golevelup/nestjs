@@ -49,6 +49,7 @@ const jestFnProps = new Set([
 const createProxy: {
   <T extends object>(name: string, base: T): T;
   <T extends Mock<any, any> = Mock<any, any>>(name: string): T;
+  // eslint-disable-next-line sonarjs/cognitive-complexity
 } = <T extends object | Mock<any, any>>(name: string, base?: T): T => {
   const cache = new Map<string | number | symbol, any>();
   const handler: ProxyHandler<T> = {

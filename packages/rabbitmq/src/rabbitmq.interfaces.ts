@@ -4,6 +4,7 @@ import { ConsumeMessage, Options } from 'amqplib';
 import {
   AssertQueueErrorHandler,
   MessageErrorHandler,
+  BatchMessageErrorHandler,
   MessageHandlerErrorBehavior,
 } from './amqp/errorBehaviors';
 
@@ -213,4 +214,9 @@ interface BatchOptions {
    * The time to wait, in milliseconds, for additional messages before returning a partial batch.
    */
   timeout?: number;
+
+  /**
+   * A function that will be called if an error is thrown during processing of an incoming message
+   */
+  errorHandler?: BatchMessageErrorHandler;
 }
