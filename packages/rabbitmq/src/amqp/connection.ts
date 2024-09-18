@@ -1016,7 +1016,11 @@ export class AmqpConnection {
         consumer.channel
       );
     } else {
-      throw new Error('Unable to resume consumer, unexpected consumer type.');
+      throw new Error(
+        `Unable to resume consumer tag ${consumerTag}, unexpected consumer type ${
+          (consumer as any).type
+        }.`
+      );
     }
     // A new consumerTag was created, remove old
     this.unregisterConsumerForQueue(consumerTag);
