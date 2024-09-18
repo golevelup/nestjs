@@ -207,11 +207,15 @@ interface BatchOptions {
    * The number of messages to accumulate before calling the message handler.
    *
    * This should be smaller than the channel prefetch.
+   *
+   * Defaults to 10 if provided value is less than 1.
    */
   size: number;
 
   /**
    * The time to wait, in milliseconds, for additional messages before returning a partial batch.
+   *
+   * Defaults to 200 if not provided or provided value is less than 1.
    */
   timeout?: number;
 

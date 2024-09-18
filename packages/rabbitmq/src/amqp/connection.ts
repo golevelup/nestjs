@@ -569,8 +569,16 @@ export class AmqpConnection {
     consumeOptions?: ConsumeOptions
   ): Promise<ConsumerTag> {
     const queue = await this.setupQueue(msgOptions, channel);
-    const batchSize = msgOptions.batchOptions?.size ?? 10;
-    const batchTimeout = msgOptions.batchOptions?.timeout ?? 200;
+    let batchSize = msgOptions.batchOptions?.size;
+    let batchTimeout = msgOptions.batchOptions?.timeout;
+
+    if (!batchSize || batchSize < 1) {
+      batchSize = 10;
+    }
+
+    if (!batchTimeout || batchTimeout < 1) {
+      batchTimeout = 200;
+    }
 
     let batchMsgs: ConsumeMessage[] = [];
     let batchTimer: NodeJS.Timeout;
@@ -583,71 +591,33 @@ export class AmqpConnection {
           return;
         }
 
-        const handleBatch = async () => {
-          const batchMsgsToProcess = batchMsgs;
-          batchMsgs = [];
-
-          try {
-            const response = await this.handleMessages(
-              handler,
-              batchMsgsToProcess,
-              {
-                allowNonJsonMessages: msgOptions.allowNonJsonMessages,
-                deserializer: msgOptions.deserializer,
-              }
-            );
-
-            if (response instanceof Nack) {
-              for (const msg of batchMsgsToProcess) {
-                channel.nack(msg, false, response.requeue);
-              }
-              return;
-            }
-
-            // developers should be responsible to avoid subscribers that return therefore
-            // the request will be acknowledged
-            if (response) {
-              this.logger.warn(
-                `Received response: [${this.config.serializer(
-                  response
-                )}] from subscribe handler [${originalHandlerName}]. Subscribe handlers should only return void`
-              );
-            }
-
-            for (const msg of batchMsgsToProcess) {
-              channel.ack(msg);
-            }
-          } catch (e) {
-            const errorHandler =
-              msgOptions.batchOptions?.errorHandler ||
-              getHandlerForLegacyBehavior(
-                msgOptions.errorBehavior ||
-                  this.config.defaultSubscribeErrorBehavior
-              );
-
-            await errorHandler(channel, batchMsgsToProcess, e);
-          }
-        };
-
         batchMsgs.push(msg);
 
         if (batchMsgs.length === 1) {
-          console.log('received first message, starting timer');
-          // Wrapped in a Promise to ensure outstanding message processing logic is aware.
+          // Wrapped in a Promise to ensure outstanding message logic is aware.
           await new Promise<void>((resolve) => {
             const batchHandler = async () => {
-              await handleBatch();
+              const batchMsgsToProcess = batchMsgs;
+              batchMsgs = [];
+
+              await this.handleBatchedMessages(
+                handler,
+                msgOptions,
+                channel,
+                originalHandlerName,
+                batchMsgsToProcess
+              );
+
               resolve();
             };
+
             batchTimer = setTimeout(batchHandler, batchTimeout);
             inflightBatchHandler = batchHandler;
           });
         } else if (batchMsgs.length === batchSize) {
-          console.log('processing full batch');
           clearTimeout(batchTimer);
           await inflightBatchHandler();
         } else {
-          console.log('not yet full batch, refreshing timer');
           batchTimer.refresh();
         }
       }),
@@ -663,6 +633,50 @@ export class AmqpConnection {
     });
 
     return consumerTag;
+  }
+
+  private async handleBatchedMessages<T>(
+    handler: BatchSubscriberHandler<T>,
+    msgOptions: MessageHandlerOptions,
+    channel: ConfirmChannel,
+    originalHandlerName = 'unknown',
+    batchMsgs: ConsumeMessage[]
+  ) {
+    try {
+      const response = await this.handleMessages(handler, batchMsgs, {
+        allowNonJsonMessages: msgOptions.allowNonJsonMessages,
+        deserializer: msgOptions.deserializer,
+      });
+
+      if (response instanceof Nack) {
+        for (const msg of batchMsgs) {
+          channel.nack(msg, false, response.requeue);
+        }
+        return;
+      }
+
+      // developers should be responsible to avoid subscribers that return therefore
+      // the request will be acknowledged
+      if (response) {
+        this.logger.warn(
+          `Received response: [${this.config.serializer(
+            response
+          )}] from subscribe handler [${originalHandlerName}]. Subscribe handlers should only return void`
+        );
+      }
+
+      for (const msg of batchMsgs) {
+        channel.ack(msg);
+      }
+    } catch (e) {
+      const errorHandler =
+        msgOptions.batchOptions?.errorHandler ||
+        getHandlerForLegacyBehavior(
+          msgOptions.errorBehavior || this.config.defaultSubscribeErrorBehavior
+        );
+
+      await errorHandler(channel, batchMsgs, e);
+    }
   }
 
   public async createRpc<T, U>(
