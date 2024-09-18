@@ -35,6 +35,18 @@ const deleteHandler = jest.fn();
 const FANOUT = 'fanout';
 const fanoutHandler = jest.fn();
 
+const BATCH_SIZE = 10;
+const BATCH_TIMEOUT = 200;
+const batchHandler = jest.fn();
+const batchRoutingKey = 'testSubscribeBatch';
+const batchQueue = 'testSubscribeBatchQueue';
+const batchErrorHandler = jest.fn();
+const batchErrorRoutingKey = 'testSubscribeBatchError';
+const batchErrorQueue = 'testSubscribeBatchErrorQueue';
+
+const sleep = async (ms: number) =>
+  new Promise((resolve) => setTimeout(resolve, ms));
+
 @Injectable()
 class SubscribeService {
   @RabbitSubscribe({
@@ -139,6 +151,33 @@ class SubscribeService {
   subscriberThatReturns() {
     return Promise.resolve(true);
   }
+
+  @RabbitSubscribe({
+    exchange,
+    routingKey: batchRoutingKey,
+    queue: batchQueue,
+    batchOptions: {
+      size: BATCH_SIZE,
+      timeout: BATCH_TIMEOUT,
+    },
+  })
+  batchSubscriber(messages) {
+    batchHandler(messages);
+  }
+
+  @RabbitSubscribe({
+    exchange,
+    routingKey: batchErrorRoutingKey,
+    queue: batchErrorQueue,
+    batchOptions: {
+      size: BATCH_SIZE,
+      timeout: BATCH_TIMEOUT,
+      errorHandler: batchErrorHandler,
+    },
+  })
+  batchErrorSubscriber() {
+    throw new Error();
+  }
 }
 
 describe('Rabbit Subscribe', () => {
@@ -211,7 +250,7 @@ describe('Rabbit Subscribe', () => {
       amqpConnection.publish(exchange, x, `testMessage-${i}`),
     );
 
-    await new Promise((resolve) => setTimeout(resolve, 50));
+    await sleep(50);
 
     expect(testHandler).toHaveBeenCalledTimes(3);
     expect(testHandler).toHaveBeenCalledWith(`testMessage-0`);
@@ -222,7 +261,7 @@ describe('Rabbit Subscribe', () => {
   it('should receive messages when subscribed via handler name', async () => {
     await amqpConnection.publish(exchange, routingKey3, 'testMessage');
 
-    await new Promise((resolve) => setTimeout(resolve, 50));
+    await sleep(50);
 
     expect(testHandler).toHaveBeenCalledTimes(1);
     expect(testHandler).toHaveBeenCalledWith(`testMessage`);
@@ -232,7 +271,7 @@ describe('Rabbit Subscribe', () => {
     await amqpConnection.publish(exchange, routingKey4, 'testMessage');
     await amqpConnection.publish(exchange, routingKey5, 'testMessage2');
 
-    await new Promise((resolve) => setTimeout(resolve, 50));
+    await sleep(50);
 
     expect(testHandler).toHaveBeenCalledTimes(2);
     expect(testHandler).toHaveBeenCalledWith(`testMessage`);
@@ -249,7 +288,7 @@ describe('Rabbit Subscribe', () => {
     );
 
     await Promise.all(promises);
-    await new Promise((resolve) => setTimeout(resolve, 150));
+    await sleep(150);
 
     expect(createHandler).toHaveBeenCalledTimes(100);
     times(100).forEach((x) => expect(createHandler).toHaveBeenCalledWith(x));
@@ -268,7 +307,7 @@ describe('Rabbit Subscribe', () => {
       Buffer.from('{a:'),
     );
 
-    await new Promise((resolve) => setTimeout(resolve, 50));
+    await sleep(50);
 
     expect(testHandler).toHaveBeenCalledTimes(3);
     expect(testHandler).toHaveBeenNthCalledWith(1, '');
@@ -286,7 +325,7 @@ describe('Rabbit Subscribe', () => {
     amqpConnection.publish(amqDefaultExchange, preExistingQueue, message2);
     amqpConnection.publish(amqDefaultExchange, preExistingQueue, message3);
 
-    await new Promise((resolve) => setTimeout(resolve, 50));
+    await sleep(50);
 
     expect(testHandler).toHaveBeenCalledTimes(3);
     expect(testHandler).toHaveBeenCalledWith(message1);
@@ -299,7 +338,7 @@ describe('Rabbit Subscribe', () => {
     // publish to the default exchange, using the queue as routing key
     amqpConnection.publish(amqDefaultExchange, nonExistingQueue, message);
 
-    await new Promise((resolve) => setTimeout(resolve, 50));
+    await sleep(50);
 
     expect(testHandler).toHaveBeenCalledTimes(1);
     expect(testHandler).toHaveBeenCalledWith(message);
@@ -309,7 +348,7 @@ describe('Rabbit Subscribe', () => {
     const message = '{"key2":"value2"}';
     amqpConnection.publish(amqDefaultExchange, nonExistingQueue, message);
 
-    await new Promise((resolve) => setTimeout(resolve, 50));
+    await sleep(50);
     expect(testHandler).toHaveBeenCalledTimes(1);
     const msg = testHandler.mock.calls[0][1];
     expect(msg.fields.consumerTag).toEqual(preDefinedConsumerTag);
@@ -319,7 +358,7 @@ describe('Rabbit Subscribe', () => {
     const message = { message: 'message' };
     amqpConnection.publish(FANOUT, '', message);
 
-    await new Promise((resolve) => setTimeout(resolve, 50));
+    await sleep(50);
 
     expect(fanoutHandler).toHaveBeenCalledTimes(1);
     expect(fanoutHandler).toHaveBeenCalledWith(message);
@@ -331,10 +370,153 @@ describe('Rabbit Subscribe', () => {
     // publish and expect to acknowledge but not throw
     const warnSpy = jest.spyOn(customLogger, 'warn');
     amqpConnection.publish(exchange, 'infinite-loop', message);
-    await new Promise((resolve) => setTimeout(resolve, 50));
+    await sleep(50);
 
     expect(warnSpy).toHaveBeenCalledWith(
       expect.stringContaining('Subscribe handlers should only return void'),
     );
+  });
+
+  describe('Message Batching', () => {
+    const publishMessages = async (
+      size = BATCH_SIZE,
+      ex = exchange,
+      rk = batchRoutingKey,
+    ) => {
+      const messages: string[] = [];
+      for (let i = 0; i < size; i++) {
+        const testMessage = `testMessage${i}`;
+        await amqpConnection.publish(ex, rk, testMessage);
+        messages.push(testMessage);
+      }
+      return messages;
+    };
+
+    const parseMessages = (messages) => {
+      return messages.map((message) => JSON.parse(message.content.toString()));
+    };
+
+    const mockErrorHandler = (channel, messages) => {
+      for (const msg of messages) {
+        channel.ack(msg);
+      }
+    };
+
+    it('should return a full message batch immediately', async () => {
+      const testMessages = await publishMessages();
+      expect(batchHandler).toHaveBeenCalledTimes(1);
+      expect(batchHandler).toHaveBeenCalledWith(testMessages);
+    });
+
+    it('should return a partial message batch after timeout', async () => {
+      const testMessages = await publishMessages(1);
+
+      // should not have been called at this point due to batch timeout
+      await sleep(BATCH_TIMEOUT / 10);
+      expect(batchHandler).toHaveBeenCalledTimes(0);
+
+      await sleep(BATCH_TIMEOUT);
+      expect(batchHandler).toHaveBeenCalledTimes(1);
+      expect(batchHandler).toHaveBeenCalledWith(testMessages);
+    });
+
+    it('should return multiple batches of differing sizes', async () => {
+      const testMessageBatches: string[][] = [];
+
+      for (const size of [BATCH_SIZE, BATCH_SIZE, 1]) {
+        testMessageBatches.push(await publishMessages(size));
+      }
+
+      // two full batches should be immediately handled
+      expect(batchHandler).toHaveBeenCalledTimes(2);
+      for (const index of [0, 1]) {
+        expect(batchHandler).toHaveBeenNthCalledWith(
+          index + 1,
+          testMessageBatches[index],
+        );
+      }
+
+      // should still only have been called twice at this point due to batch timeout
+      await sleep(BATCH_TIMEOUT / 10);
+      expect(batchHandler).toHaveBeenCalledTimes(2);
+
+      await sleep(BATCH_TIMEOUT);
+      expect(batchHandler).toHaveBeenCalledTimes(3);
+      expect(batchHandler).toHaveBeenLastCalledWith(testMessageBatches[2]);
+    });
+
+    it('should return a full batch to the custom error handler', async () => {
+      // have to do this here because `resetAllMocks`
+      batchErrorHandler.mockImplementation(mockErrorHandler);
+
+      const testMessages = await publishMessages(
+        BATCH_SIZE,
+        exchange,
+        batchErrorRoutingKey,
+      );
+
+      // should be enough to place this after async error handling on the call stack
+      await sleep(1);
+
+      expect(batchErrorHandler).toHaveBeenCalledTimes(1);
+      expect(parseMessages(batchErrorHandler.mock.calls[0][1])).toEqual(
+        testMessages,
+      );
+    });
+
+    it('should return a partial batch to the custom error handler', async () => {
+      // have to do this here because `resetAllMocks`
+      batchErrorHandler.mockImplementation(mockErrorHandler);
+
+      const testMessages = await publishMessages(
+        1,
+        exchange,
+        batchErrorRoutingKey,
+      );
+
+      // should not have been called at this point due to batch timeout
+      await sleep(BATCH_TIMEOUT / 10);
+      expect(batchHandler).toHaveBeenCalledTimes(0);
+
+      await sleep(BATCH_TIMEOUT);
+      expect(batchErrorHandler).toHaveBeenCalledTimes(1);
+      expect(parseMessages(batchErrorHandler.mock.calls[0][1])).toEqual(
+        testMessages,
+      );
+    });
+
+    it('should return multiple batches of differing sizes to the custom error handler', async () => {
+      // have to do this here because `resetAllMocks`
+      batchErrorHandler.mockImplementation(mockErrorHandler);
+
+      const testMessageBatches: string[][] = [];
+
+      for (const size of [BATCH_SIZE, BATCH_SIZE, 1]) {
+        testMessageBatches.push(
+          await publishMessages(size, exchange, batchErrorRoutingKey),
+        );
+      }
+
+      // should be enough to place this after async error handling on the call stack
+      await sleep(1);
+
+      // two full batches should be immediately handled
+      expect(batchErrorHandler).toHaveBeenCalledTimes(2);
+      for (const index of [0, 1]) {
+        expect(parseMessages(batchErrorHandler.mock.calls[index][1])).toEqual(
+          testMessageBatches[index],
+        );
+      }
+
+      // should still only have been called twice at this point due to batch timeout
+      await sleep(BATCH_TIMEOUT / 10);
+      expect(batchErrorHandler).toHaveBeenCalledTimes(2);
+
+      await sleep(BATCH_TIMEOUT);
+      expect(batchErrorHandler).toHaveBeenCalledTimes(3);
+      expect(parseMessages(batchErrorHandler.mock.calls[2][1])).toEqual(
+        testMessageBatches[2],
+      );
+    });
   });
 });
