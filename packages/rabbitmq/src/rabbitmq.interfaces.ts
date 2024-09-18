@@ -208,7 +208,7 @@ interface BatchOptions {
    *
    * This should be smaller than the channel prefetch.
    *
-   * Defaults to 10 if provided value is less than 1.
+   * Defaults to 10 if provided value is less than 2.
    */
   size: number;
 

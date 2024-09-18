@@ -572,7 +572,7 @@ export class AmqpConnection {
     let batchSize = msgOptions.batchOptions?.size;
     let batchTimeout = msgOptions.batchOptions?.timeout;
 
-    if (!batchSize || batchSize < 1) {
+    if (!batchSize || batchSize < 2) {
       batchSize = 10;
     }
 
