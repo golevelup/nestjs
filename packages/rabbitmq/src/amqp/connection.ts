@@ -56,6 +56,12 @@ export type BatchSubscriberHandler<T = unknown> = (
   headers?: any[]
 ) => Promise<SubscribeResponse>;
 
+export type RpcSubscriberHandler<T = unknown, U = unknown> = (
+  msg: T | undefined,
+  rawMessage?: ConsumeMessage,
+  headers?: any
+) => Promise<RpcResponse<U>>;
+
 export interface CorrelationMessage {
   correlationId: string;
   requestId?: string;
@@ -69,35 +75,21 @@ export interface SubscriptionResult {
 export type BaseConsumerHandler = {
   consumerTag: string;
   channel: ConfirmChannel;
+  msgOptions: MessageHandlerOptions;
 };
 
 export type ConsumerHandler<T, U> =
   | (BaseConsumerHandler & {
       type: 'subscribe';
-      msgOptions: MessageHandlerOptions;
-      handler: (
-        msg: T | undefined,
-        rawMessage?: ConsumeMessage,
-        headers?: any
-      ) => Promise<SubscribeResponse>;
+      handler: SubscriberHandler<T>;
     })
   | (BaseConsumerHandler & {
       type: 'subscribe-batch';
-      msgOptions: MessageHandlerOptions;
-      handler: (
-        msg: (T | undefined)[],
-        rawMessage?: ConsumeMessage[],
-        headers?: any[]
-      ) => Promise<SubscribeResponse>;
+      handler: BatchSubscriberHandler<T>;
     })
   | (BaseConsumerHandler & {
       type: 'rpc';
-      rpcOptions: MessageHandlerOptions;
-      handler: (
-        msg: T | undefined,
-        rawMessage?: ConsumeMessage,
-        headers?: any
-      ) => Promise<RpcResponse<U>>;
+      handler: RpcSubscriberHandler<T, U>;
     });
 
 type Consumer = (msg: ConsumeMessage | null) => void | Promise<void>;
@@ -680,11 +672,7 @@ export class AmqpConnection {
   }
 
   public async createRpc<T, U>(
-    handler: (
-      msg: T | undefined,
-      rawMessage?: ConsumeMessage,
-      headers?: any
-    ) => Promise<RpcResponse<U>>,
+    handler: RpcSubscriberHandler<T, U>,
     rpcOptions: MessageHandlerOptions
   ): Promise<SubscriptionResult> {
     return new Promise((res) => {
@@ -702,11 +690,7 @@ export class AmqpConnection {
   }
 
   public async setupRpcChannel<T, U>(
-    handler: (
-      msg: T | undefined,
-      rawMessage?: ConsumeMessage,
-      headers?: any
-    ) => Promise<RpcResponse<U>>,
+    handler: RpcSubscriberHandler<T, U>,
     rpcOptions: MessageHandlerOptions,
     channel: ConfirmChannel
   ): Promise<ConsumerTag> {
@@ -775,7 +759,7 @@ export class AmqpConnection {
       type: 'rpc',
       consumerTag,
       handler,
-      rpcOptions,
+      msgOptions: rpcOptions,
       channel,
     });
 
@@ -1014,7 +998,7 @@ export class AmqpConnection {
     if (consumer.type === 'rpc') {
       newConsumerTag = await this.setupRpcChannel<T, U>(
         consumer.handler,
-        consumer.rpcOptions,
+        consumer.msgOptions,
         consumer.channel
       );
     } else if (consumer.type === 'subscribe') {
@@ -1031,7 +1015,7 @@ export class AmqpConnection {
       );
     } else {
       throw new Error(
-        `Unable to resume consumer tag ${consumerTag}, unexpected consumer type ${
+        `Unable to resume consumer tag ${consumerTag}. Unexpected consumer type ${
           (consumer as any).type
         }.`
       );

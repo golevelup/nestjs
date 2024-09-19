@@ -192,9 +192,7 @@ export class RabbitMQModule
 
       default:
         throw new Error(
-          `Unable to set up handler ${handlerDisplayName}. Unexpected handler type ${
-            (config as any).type
-          }.`
+          `Unable to set up handler ${handlerDisplayName}. Unexpected handler type ${config.type}.`
         );
     }
   }
