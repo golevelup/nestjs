@@ -378,11 +378,7 @@ describe('Rabbit Subscribe', () => {
   });
 
   describe('Message Batching', () => {
-    const publishMessages = async (
-      size = BATCH_SIZE,
-      ex = exchange,
-      rk = batchRoutingKey,
-    ) => {
+    const publishMessages = async (size: number, ex: string, rk: string) => {
       const messages: string[] = [];
       for (let i = 0; i < size; i++) {
         const testMessage = `testMessage${i}`;
@@ -403,17 +399,18 @@ describe('Rabbit Subscribe', () => {
     };
 
     it('should return a full message batch immediately', async () => {
-      const testMessages = await publishMessages();
+      const testMessages = await publishMessages(
+        BATCH_SIZE,
+        exchange,
+        batchRoutingKey,
+      );
+
       expect(batchHandler).toHaveBeenCalledTimes(1);
       expect(batchHandler).toHaveBeenCalledWith(testMessages);
     });
 
     it('should return a partial message batch after timeout', async () => {
-      const testMessages = await publishMessages(1);
-
-      // should not have been called at this point due to batch timeout
-      await sleep(BATCH_TIMEOUT / 10);
-      expect(batchHandler).toHaveBeenCalledTimes(0);
+      const testMessages = await publishMessages(1, exchange, batchRoutingKey);
 
       await sleep(BATCH_TIMEOUT);
       expect(batchHandler).toHaveBeenCalledTimes(1);
@@ -424,7 +421,9 @@ describe('Rabbit Subscribe', () => {
       const testMessageBatches: string[][] = [];
 
       for (const size of [BATCH_SIZE, BATCH_SIZE, 1]) {
-        testMessageBatches.push(await publishMessages(size));
+        testMessageBatches.push(
+          await publishMessages(size, exchange, batchRoutingKey),
+        );
       }
 
       // two full batches should be immediately handled
@@ -435,10 +434,6 @@ describe('Rabbit Subscribe', () => {
           testMessageBatches[index],
         );
       }
-
-      // should still only have been called twice at this point due to batch timeout
-      await sleep(BATCH_TIMEOUT / 10);
-      expect(batchHandler).toHaveBeenCalledTimes(2);
 
       await sleep(BATCH_TIMEOUT);
       expect(batchHandler).toHaveBeenCalledTimes(3);
@@ -474,10 +469,6 @@ describe('Rabbit Subscribe', () => {
         batchErrorRoutingKey,
       );
 
-      // should not have been called at this point due to batch timeout
-      await sleep(BATCH_TIMEOUT / 10);
-      expect(batchHandler).toHaveBeenCalledTimes(0);
-
       await sleep(BATCH_TIMEOUT);
       expect(batchErrorHandler).toHaveBeenCalledTimes(1);
       expect(parseMessages(batchErrorHandler.mock.calls[0][1])).toEqual(
@@ -508,15 +499,79 @@ describe('Rabbit Subscribe', () => {
         );
       }
 
-      // should still only have been called twice at this point due to batch timeout
-      await sleep(BATCH_TIMEOUT / 10);
-      expect(batchErrorHandler).toHaveBeenCalledTimes(2);
-
       await sleep(BATCH_TIMEOUT);
       expect(batchErrorHandler).toHaveBeenCalledTimes(3);
       expect(parseMessages(batchErrorHandler.mock.calls[2][1])).toEqual(
         testMessageBatches[2],
       );
+    });
+
+    it('should not return another full batch after batch timeout', async () => {
+      await publishMessages(BATCH_SIZE, exchange, batchRoutingKey);
+      expect(batchHandler).toHaveBeenCalledTimes(1);
+
+      await sleep(BATCH_TIMEOUT);
+      expect(batchHandler).toHaveBeenCalledTimes(1);
+    });
+
+    it('should not return a partial batch before batch timeout', async () => {
+      await publishMessages(1, exchange, batchRoutingKey);
+
+      await sleep(BATCH_TIMEOUT * 0.9);
+      expect(batchHandler).toHaveBeenCalledTimes(0);
+
+      await sleep(BATCH_TIMEOUT * 0.2);
+      expect(batchHandler).toHaveBeenCalledTimes(1);
+    });
+
+    it('should not return another partial batch after first batch timeout', async () => {
+      await publishMessages(1, exchange, batchRoutingKey);
+
+      await sleep(BATCH_TIMEOUT);
+      expect(batchHandler).toHaveBeenCalledTimes(1);
+
+      await sleep(BATCH_TIMEOUT);
+      expect(batchHandler).toHaveBeenCalledTimes(1);
+    });
+
+    it('should not return another full batch after batch timeout to the custom error handler', async () => {
+      // have to do this here because `resetAllMocks`
+      batchErrorHandler.mockImplementation(mockErrorHandler);
+
+      await publishMessages(BATCH_SIZE, exchange, batchErrorRoutingKey);
+
+      // should be enough to place this after async error handling on the call stack
+      await sleep(1);
+      expect(batchErrorHandler).toHaveBeenCalledTimes(1);
+
+      await sleep(BATCH_TIMEOUT);
+      expect(batchErrorHandler).toHaveBeenCalledTimes(1);
+    });
+
+    it('should not return a partial batch before batch timeout to the custom error handler', async () => {
+      // have to do this here because `resetAllMocks`
+      batchErrorHandler.mockImplementation(mockErrorHandler);
+
+      await publishMessages(1, exchange, batchErrorRoutingKey);
+
+      await sleep(BATCH_TIMEOUT * 0.9);
+      expect(batchErrorHandler).toHaveBeenCalledTimes(0);
+
+      await sleep(BATCH_TIMEOUT * 0.2);
+      expect(batchErrorHandler).toHaveBeenCalledTimes(1);
+    });
+
+    it('should not return another partial batch after first batch timeout to the custom error handler', async () => {
+      // have to do this here because `resetAllMocks`
+      batchErrorHandler.mockImplementation(mockErrorHandler);
+
+      await publishMessages(1, exchange, batchErrorRoutingKey);
+
+      await sleep(BATCH_TIMEOUT);
+      expect(batchErrorHandler).toHaveBeenCalledTimes(1);
+
+      await sleep(BATCH_TIMEOUT);
+      expect(batchErrorHandler).toHaveBeenCalledTimes(1);
     });
   });
 });
