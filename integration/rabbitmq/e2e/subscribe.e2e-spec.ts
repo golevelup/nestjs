@@ -191,7 +191,7 @@ describe('Rabbit Subscribe', () => {
     process.env.NODE_ENV === 'ci' ? process.env.RABBITMQ_HOST : 'localhost';
   const rabbitPort =
     process.env.NODE_ENV === 'ci' ? process.env.RABBITMQ_PORT : '5672';
-  const uri = `amqp://guest:guest@${rabbitHost}:${rabbitPort}`;
+  const uri = `amqp://rabbitmq:rabbitmq@${rabbitHost}:${rabbitPort}`;
 
   beforeAll(async () => {
     const moduleFixture = await Test.createTestingModule({
