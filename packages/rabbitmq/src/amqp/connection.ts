@@ -661,13 +661,21 @@ export class AmqpConnection {
         channel.ack(msg);
       }
     } catch (e) {
-      const errorHandler =
-        msgOptions.batchOptions?.errorHandler ||
-        getHandlerForLegacyBehavior(
-          msgOptions.errorBehavior || this.config.defaultSubscribeErrorBehavior
-        );
+      const batchErrorHandler = msgOptions.batchOptions?.errorHandler;
+      const errorHandler = msgOptions.errorHandler;
+      const defaultErrorHandler = getHandlerForLegacyBehavior(
+        msgOptions.errorBehavior || this.config.defaultSubscribeErrorBehavior
+      );
 
-      await errorHandler(channel, batchMsgs, e);
+      if (batchErrorHandler) {
+        await batchErrorHandler(channel, batchMsgs, e);
+      } else if (errorHandler) {
+        for (const msg of batchMsgs) {
+          await errorHandler(channel, msg, e);
+        }
+      } else {
+        await defaultErrorHandler(channel, batchMsgs, e);
+      }
     }
   }
 
