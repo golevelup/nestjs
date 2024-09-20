@@ -558,9 +558,11 @@ export class AmqpConnection {
     originalHandlerName = 'unknown',
     consumeOptions?: ConsumeOptions
   ): Promise<ConsumerTag> {
-    const queue = await this.setupQueue(msgOptions, channel);
     let batchSize = msgOptions.batchOptions?.size;
     let batchTimeout = msgOptions.batchOptions?.timeout;
+    let batchMsgs: ConsumeMessage[] = [];
+    let batchTimer: NodeJS.Timeout;
+    let inflightBatchHandler: () => Promise<void>;
 
     if (!batchSize || batchSize < 2) {
       batchSize = 10;
@@ -570,9 +572,7 @@ export class AmqpConnection {
       batchTimeout = 200;
     }
 
-    let batchMsgs: ConsumeMessage[] = [];
-    let batchTimer: NodeJS.Timeout;
-    let inflightBatchHandler: () => Promise<void>;
+    const queue = await this.setupQueue(msgOptions, channel);
 
     const { consumerTag }: { consumerTag: ConsumerTag } = await channel.consume(
       queue,

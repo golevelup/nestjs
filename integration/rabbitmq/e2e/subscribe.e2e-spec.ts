@@ -191,7 +191,7 @@ describe('Rabbit Subscribe', () => {
     process.env.NODE_ENV === 'ci' ? process.env.RABBITMQ_HOST : 'localhost';
   const rabbitPort =
     process.env.NODE_ENV === 'ci' ? process.env.RABBITMQ_PORT : '5672';
-  const uri = `amqp://rabbitmq:rabbitmq@${rabbitHost}:${rabbitPort}`;
+  const uri = `amqp://guest:guest@${rabbitHost}:${rabbitPort}`;
 
   beforeAll(async () => {
     const moduleFixture = await Test.createTestingModule({
@@ -378,10 +378,15 @@ describe('Rabbit Subscribe', () => {
   });
 
   describe('Message Batching', () => {
-    const publishMessages = async (size: number, ex: string, rk: string) => {
+    const publishMessages = async (
+      size: number,
+      ex: string,
+      rk: string,
+      prefix = '',
+    ) => {
       const messages: string[] = [];
       for (let i = 0; i < size; i++) {
-        const testMessage = `testMessage${i}`;
+        const testMessage = `${prefix}testMessage${i}`;
         await amqpConnection.publish(ex, rk, testMessage);
         messages.push(testMessage);
       }
@@ -420,9 +425,14 @@ describe('Rabbit Subscribe', () => {
     it('should return multiple batches of differing sizes', async () => {
       const testMessageBatches: string[][] = [];
 
-      for (const size of [BATCH_SIZE, BATCH_SIZE, 1]) {
+      for (const [index, size] of [BATCH_SIZE, BATCH_SIZE, 1].entries()) {
         testMessageBatches.push(
-          await publishMessages(size, exchange, batchRoutingKey),
+          await publishMessages(
+            size,
+            exchange,
+            batchRoutingKey,
+            `batch${index}-`,
+          ),
         );
       }
 
@@ -482,9 +492,14 @@ describe('Rabbit Subscribe', () => {
 
       const testMessageBatches: string[][] = [];
 
-      for (const size of [BATCH_SIZE, BATCH_SIZE, 1]) {
+      for (const [index, size] of [BATCH_SIZE, BATCH_SIZE, 1].entries()) {
         testMessageBatches.push(
-          await publishMessages(size, exchange, batchErrorRoutingKey),
+          await publishMessages(
+            size,
+            exchange,
+            batchErrorRoutingKey,
+            `batch${index}-`,
+          ),
         );
       }
 
