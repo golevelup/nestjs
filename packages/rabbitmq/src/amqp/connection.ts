@@ -503,10 +503,8 @@ export class AmqpConnection {
             throw new Error('Received null message');
           }
 
-          const response = await this.handleMessage(handler, msg, {
-            allowNonJsonMessages: msgOptions.allowNonJsonMessages,
-            deserializer: msgOptions.deserializer,
-          });
+          const result = this.deserializeMessage<T>(msg, msgOptions);
+          const response = await handler(result.message, msg, result.headers);
 
           if (response instanceof Nack) {
             channel.nack(msg, false, response.requeue);
@@ -635,10 +633,16 @@ export class AmqpConnection {
     batchMsgs: ConsumeMessage[]
   ) {
     try {
-      const response = await this.handleMessages(handler, batchMsgs, {
-        allowNonJsonMessages: msgOptions.allowNonJsonMessages,
-        deserializer: msgOptions.deserializer,
-      });
+      const messages: (T | undefined)[] = [];
+      const headers: any[] = [];
+
+      for (const msg of batchMsgs) {
+        const result = this.deserializeMessage<T>(msg, msgOptions);
+        messages.push(result.message);
+        headers.push(result.headers);
+      }
+
+      const response = await handler(messages, batchMsgs, headers);
 
       if (response instanceof Nack) {
         for (const msg of batchMsgs) {
@@ -723,10 +727,8 @@ export class AmqpConnection {
             return;
           }
 
-          const response = await this.handleMessage(handler, msg, {
-            allowNonJsonMessages: rpcOptions.allowNonJsonMessages,
-            deserializer: rpcOptions.deserializer,
-          });
+          const result = this.deserializeMessage<T>(msg, rpcOptions);
+          const response = await handler(result.message, msg, result.headers);
 
           if (response instanceof Nack) {
             channel.nack(msg, false, response.requeue);
@@ -823,46 +825,6 @@ export class AmqpConnection {
     }
 
     return { message, headers };
-  }
-
-  private handleMessage<T, U>(
-    handler: (
-      msg: T | undefined,
-      rawMessage?: ConsumeMessage,
-      headers?: any
-    ) => Promise<U>,
-    msg: ConsumeMessage,
-    options: {
-      allowNonJsonMessages?: boolean;
-      deserializer?: MessageDeserializer;
-    }
-  ) {
-    const result = this.deserializeMessage<T>(msg, options);
-    return handler(result.message, msg, result.headers);
-  }
-
-  private handleMessages<T, U>(
-    handler: (
-      msg: (T | undefined)[],
-      rawMessage?: ConsumeMessage[],
-      headers?: any[]
-    ) => Promise<U>,
-    msgs: ConsumeMessage[],
-    options: {
-      allowNonJsonMessages?: boolean;
-      deserializer?: MessageDeserializer;
-    }
-  ) {
-    const messages: (T | undefined)[] = [];
-    const headers: any[] = [];
-
-    for (const msg of msgs) {
-      const result = this.deserializeMessage<T>(msg, options);
-      messages.push(result.message);
-      headers.push(result.headers);
-    }
-
-    return handler(messages, msgs, headers);
   }
 
   private async setupQueue(
