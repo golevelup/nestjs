@@ -100,7 +100,6 @@ export const forceDeleteAssertQueueErrorHandler: AssertQueueErrorHandler =
     error: any
   ) => {
     if (error.code == PRECONDITION_FAILED_CODE) {
-      //406 == preconditions failed
       await channel.deleteQueue(queueName);
       const { queue } = await channel.assertQueue(queueName, queueOptions);
       return queue;
