@@ -168,6 +168,12 @@ export interface RabbitMQConfig {
   handlers?: RabbitMQHandlers;
 
   /**
+   * You can set this property to define the default handler configuration to use
+   * when using handlers.
+   */
+  defaultHandler?: string
+
+  /**
    * You can pass your implementation of the Nestjs LoggerService.
    */
   logger?: LoggerService;

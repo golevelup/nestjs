@@ -261,7 +261,7 @@ export class RabbitMQModule
             );
 
             const moduleHandlerConfigRaw =
-              connection.configuration.handlers[config.name || ''];
+              connection.configuration.handlers[config.name || connection.configuration.defaultHandler || ''];
 
             const moduleHandlerConfigs = Array.isArray(moduleHandlerConfigRaw)
               ? moduleHandlerConfigRaw
