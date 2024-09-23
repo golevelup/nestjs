@@ -430,7 +430,7 @@ export class AmqpConnection {
     originalHandlerName: string,
     consumeOptions?: ConsumeOptions
   ): Promise<SubscriptionResult> {
-    return this.setupChannel(msgOptions, (channel) =>
+    return this.consumerFactory(msgOptions, (channel) =>
       this.setupSubscriberChannel<T>(
         handler,
         msgOptions,
@@ -444,21 +444,19 @@ export class AmqpConnection {
   public async createBatchSubscriber<T>(
     handler: BatchSubscriberHandler<T>,
     msgOptions: MessageHandlerOptions,
-    originalHandlerName: string,
     consumeOptions?: ConsumeOptions
   ): Promise<SubscriptionResult> {
-    return this.setupChannel(msgOptions, (channel) =>
+    return this.consumerFactory(msgOptions, (channel) =>
       this.setupBatchSubscriberChannel<T>(
         handler,
         msgOptions,
         channel,
-        originalHandlerName,
         consumeOptions
       )
     );
   }
 
-  private async setupChannel(
+  private async consumerFactory(
     msgOptions: MessageHandlerOptions,
     setupFunction: (channel: ConfirmChannel) => Promise<string>
   ): Promise<SubscriptionResult> {
@@ -555,7 +553,6 @@ export class AmqpConnection {
     handler: BatchSubscriberHandler<T>,
     msgOptions: MessageHandlerOptions,
     channel: ConfirmChannel,
-    originalHandlerName = 'unknown',
     consumeOptions?: ConsumeOptions
   ): Promise<ConsumerTag> {
     let batchSize = msgOptions.batchOptions?.size;
@@ -594,7 +591,6 @@ export class AmqpConnection {
                 handler,
                 msgOptions,
                 channel,
-                originalHandlerName,
                 batchMsgsToProcess
               );
 
@@ -629,7 +625,6 @@ export class AmqpConnection {
     handler: BatchSubscriberHandler<T>,
     msgOptions: MessageHandlerOptions,
     channel: ConfirmChannel,
-    originalHandlerName = 'unknown',
     batchMsgs: ConsumeMessage[]
   ) {
     try {
@@ -649,16 +644,6 @@ export class AmqpConnection {
           channel.nack(msg, false, response.requeue);
         }
         return;
-      }
-
-      // developers should be responsible to avoid subscribers that return therefore
-      // the request will be acknowledged
-      if (response) {
-        this.logger.warn(
-          `Received response: [${this.config.serializer(
-            response
-          )}] from subscribe handler [${originalHandlerName}]. Subscribe handlers should only return void`
-        );
       }
 
       for (const msg of batchMsgs) {
@@ -687,7 +672,7 @@ export class AmqpConnection {
     handler: RpcSubscriberHandler<T, U>,
     rpcOptions: MessageHandlerOptions
   ): Promise<SubscriptionResult> {
-    return this.setupChannel(rpcOptions, (channel) =>
+    return this.consumerFactory(rpcOptions, (channel) =>
       this.setupRpcChannel<T, U>(handler, rpcOptions, channel)
     );
   }

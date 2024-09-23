@@ -1,6 +1,8 @@
 import { Channel, ConsumeMessage } from 'amqplib';
 import { QueueOptions } from '../rabbitmq.interfaces';
 
+export const PRECONDITION_FAILED_CODE = 406;
+
 export enum MessageHandlerErrorBehavior {
   ACK = 'ACK',
   NACK = 'NACK',
@@ -97,7 +99,7 @@ export const forceDeleteAssertQueueErrorHandler: AssertQueueErrorHandler =
     queueOptions: QueueOptions | undefined,
     error: any
   ) => {
-    if (error.code == 406) {
+    if (error.code == PRECONDITION_FAILED_CODE) {
       //406 == preconditions failed
       await channel.deleteQueue(queueName);
       const { queue } = await channel.assertQueue(queueName, queueOptions);

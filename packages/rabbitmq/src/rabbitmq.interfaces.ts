@@ -209,6 +209,8 @@ interface BatchOptions {
    * This should be smaller than the channel prefetch.
    *
    * Defaults to 10 if provided value is less than 2.
+   *
+   * @default 10
    */
   size: number;
 
@@ -216,6 +218,8 @@ interface BatchOptions {
    * The time to wait, in milliseconds, for additional messages before returning a partial batch.
    *
    * Defaults to 200 if not provided or provided value is less than 1.
+   *
+   * @default 200
    */
   timeout?: number;
 

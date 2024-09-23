@@ -178,7 +178,6 @@ export class RabbitMQModule
           return connection.createBatchSubscriber(
             handler,
             config,
-            discoveredMethod.methodName,
             config?.queueOptions?.consumerOptions
           );
         }
