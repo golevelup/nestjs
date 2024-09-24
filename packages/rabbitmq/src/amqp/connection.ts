@@ -50,6 +50,18 @@ export type SubscriberHandler<T = unknown> = (
   headers?: any
 ) => Promise<SubscribeResponse>;
 
+export type BatchSubscriberHandler<T = unknown> = (
+  msg: (T | undefined)[],
+  rawMessage?: ConsumeMessage[],
+  headers?: any[]
+) => Promise<SubscribeResponse>;
+
+export type RpcSubscriberHandler<T = unknown, U = unknown> = (
+  msg: T | undefined,
+  rawMessage?: ConsumeMessage,
+  headers?: any
+) => Promise<RpcResponse<U>>;
+
 export interface CorrelationMessage {
   correlationId: string;
   requestId?: string;
@@ -63,26 +75,21 @@ export interface SubscriptionResult {
 export type BaseConsumerHandler = {
   consumerTag: string;
   channel: ConfirmChannel;
+  msgOptions: MessageHandlerOptions;
 };
 
 export type ConsumerHandler<T, U> =
   | (BaseConsumerHandler & {
       type: 'subscribe';
-      msgOptions: MessageHandlerOptions;
-      handler: (
-        msg: T | undefined,
-        rawMessage?: ConsumeMessage,
-        headers?: any
-      ) => Promise<SubscribeResponse>;
+      handler: SubscriberHandler<T>;
+    })
+  | (BaseConsumerHandler & {
+      type: 'subscribe-batch';
+      handler: BatchSubscriberHandler<T>;
     })
   | (BaseConsumerHandler & {
       type: 'rpc';
-      rpcOptions: MessageHandlerOptions;
-      handler: (
-        msg: T | undefined,
-        rawMessage?: ConsumeMessage,
-        headers?: any
-      ) => Promise<RpcResponse<U>>;
+      handler: RpcSubscriberHandler<T, U>;
     });
 
 type Consumer = (msg: ConsumeMessage | null) => void | Promise<void>;
@@ -424,16 +431,40 @@ export class AmqpConnection {
     originalHandlerName: string,
     consumeOptions?: ConsumeOptions
   ): Promise<SubscriptionResult> {
+    return this.consumerFactory(msgOptions, (channel) =>
+      this.setupSubscriberChannel<T>(
+        handler,
+        msgOptions,
+        channel,
+        originalHandlerName,
+        consumeOptions
+      )
+    );
+  }
+
+  public async createBatchSubscriber<T>(
+    handler: BatchSubscriberHandler<T>,
+    msgOptions: MessageHandlerOptions,
+    consumeOptions?: ConsumeOptions
+  ): Promise<SubscriptionResult> {
+    return this.consumerFactory(msgOptions, (channel) =>
+      this.setupBatchSubscriberChannel<T>(
+        handler,
+        msgOptions,
+        channel,
+        consumeOptions
+      )
+    );
+  }
+
+  private async consumerFactory(
+    msgOptions: MessageHandlerOptions,
+    setupFunction: (channel: ConfirmChannel) => Promise<string>
+  ): Promise<SubscriptionResult> {
     return new Promise((res) => {
       this.selectManagedChannel(msgOptions?.queueOptions?.channel).addSetup(
-        async (channel) => {
-          const consumerTag = await this.setupSubscriberChannel<T>(
-            handler,
-            msgOptions,
-            channel,
-            originalHandlerName,
-            consumeOptions
-          );
+        async (channel: ConfirmChannel) => {
+          const consumerTag = await setupFunction(channel);
           res({ consumerTag });
         }
       );
@@ -471,10 +502,8 @@ export class AmqpConnection {
             throw new Error('Received null message');
           }
 
-          const response = await this.handleMessage(handler, msg, {
-            allowNonJsonMessages: msgOptions.allowNonJsonMessages,
-            deserializer: msgOptions.deserializer,
-          });
+          const result = this.deserializeMessage<T>(msg, msgOptions);
+          const response = await handler(result.message, msg, result.headers);
 
           if (response instanceof Nack) {
             channel.nack(msg, false, response.requeue);
@@ -521,34 +550,136 @@ export class AmqpConnection {
     return consumerTag;
   }
 
+  private async setupBatchSubscriberChannel<T>(
+    handler: BatchSubscriberHandler<T>,
+    msgOptions: MessageHandlerOptions,
+    channel: ConfirmChannel,
+    consumeOptions?: ConsumeOptions
+  ): Promise<ConsumerTag> {
+    let batchSize = msgOptions.batchOptions?.size;
+    let batchTimeout = msgOptions.batchOptions?.timeout;
+    let batchMsgs: ConsumeMessage[] = [];
+    let batchTimer: NodeJS.Timeout;
+    let inflightBatchHandler: () => Promise<void>;
+
+    if (!batchSize || batchSize < 2) {
+      batchSize = 10;
+    }
+
+    if (!batchTimeout || batchTimeout < 1) {
+      batchTimeout = 200;
+    }
+
+    const queue = await this.setupQueue(msgOptions, channel);
+
+    const { consumerTag }: { consumerTag: ConsumerTag } = await channel.consume(
+      queue,
+      this.wrapConsumer(async (msg) => {
+        if (isNull(msg)) {
+          return;
+        }
+
+        batchMsgs.push(msg);
+
+        if (batchMsgs.length === 1) {
+          // Wrapped in a Promise to ensure outstanding message logic is aware.
+          await new Promise<void>((resolve) => {
+            const batchHandler = async () => {
+              const batchMsgsToProcess = batchMsgs;
+              batchMsgs = [];
+
+              await this.handleBatchedMessages(
+                handler,
+                msgOptions,
+                channel,
+                batchMsgsToProcess
+              );
+
+              resolve();
+            };
+
+            batchTimer = setTimeout(batchHandler, batchTimeout);
+            inflightBatchHandler = batchHandler;
+          });
+        } else if (batchMsgs.length === batchSize) {
+          clearTimeout(batchTimer);
+          await inflightBatchHandler();
+        } else {
+          batchTimer.refresh();
+        }
+      }),
+      consumeOptions
+    );
+
+    this.registerConsumerForQueue({
+      type: 'subscribe-batch',
+      consumerTag,
+      handler,
+      msgOptions,
+      channel,
+    });
+
+    return consumerTag;
+  }
+
+  private async handleBatchedMessages<T>(
+    handler: BatchSubscriberHandler<T>,
+    msgOptions: MessageHandlerOptions,
+    channel: ConfirmChannel,
+    batchMsgs: ConsumeMessage[]
+  ) {
+    try {
+      const messages: (T | undefined)[] = [];
+      const headers: any[] = [];
+
+      for (const msg of batchMsgs) {
+        const result = this.deserializeMessage<T>(msg, msgOptions);
+        messages.push(result.message);
+        headers.push(result.headers);
+      }
+
+      const response = await handler(messages, batchMsgs, headers);
+
+      if (response instanceof Nack) {
+        for (const msg of batchMsgs) {
+          channel.nack(msg, false, response.requeue);
+        }
+        return;
+      }
+
+      for (const msg of batchMsgs) {
+        channel.ack(msg);
+      }
+    } catch (e) {
+      const batchErrorHandler = msgOptions.batchOptions?.errorHandler;
+      const errorHandler = msgOptions.errorHandler;
+      const defaultErrorHandler = getHandlerForLegacyBehavior(
+        msgOptions.errorBehavior || this.config.defaultSubscribeErrorBehavior
+      );
+
+      if (batchErrorHandler) {
+        await batchErrorHandler(channel, batchMsgs, e);
+      } else if (errorHandler) {
+        for (const msg of batchMsgs) {
+          await errorHandler(channel, msg, e);
+        }
+      } else {
+        await defaultErrorHandler(channel, batchMsgs, e);
+      }
+    }
+  }
+
   public async createRpc<T, U>(
-    handler: (
-      msg: T | undefined,
-      rawMessage?: ConsumeMessage,
-      headers?: any
-    ) => Promise<RpcResponse<U>>,
+    handler: RpcSubscriberHandler<T, U>,
     rpcOptions: MessageHandlerOptions
   ): Promise<SubscriptionResult> {
-    return new Promise((res) => {
-      this.selectManagedChannel(rpcOptions?.queueOptions?.channel).addSetup(
-        async (channel) => {
-          const consumerTag = await this.setupRpcChannel<T, U>(
-            handler,
-            rpcOptions,
-            channel
-          );
-          res({ consumerTag });
-        }
-      );
-    });
+    return this.consumerFactory(rpcOptions, (channel) =>
+      this.setupRpcChannel<T, U>(handler, rpcOptions, channel)
+    );
   }
 
   public async setupRpcChannel<T, U>(
-    handler: (
-      msg: T | undefined,
-      rawMessage?: ConsumeMessage,
-      headers?: any
-    ) => Promise<RpcResponse<U>>,
+    handler: RpcSubscriberHandler<T, U>,
     rpcOptions: MessageHandlerOptions,
     channel: ConfirmChannel
   ): Promise<ConsumerTag> {
@@ -573,10 +704,8 @@ export class AmqpConnection {
             return;
           }
 
-          const response = await this.handleMessage(handler, msg, {
-            allowNonJsonMessages: rpcOptions.allowNonJsonMessages,
-            deserializer: rpcOptions.deserializer,
-          });
+          const result = this.deserializeMessage<T>(msg, rpcOptions);
+          const response = await handler(result.message, msg, result.headers);
 
           if (response instanceof Nack) {
             channel.nack(msg, false, response.requeue);
@@ -617,7 +746,7 @@ export class AmqpConnection {
       type: 'rpc',
       consumerTag,
       handler,
-      rpcOptions,
+      msgOptions: rpcOptions,
       channel,
     });
 
@@ -644,12 +773,7 @@ export class AmqpConnection {
     return this._managedChannel.publish(exchange, routingKey, buffer, options);
   }
 
-  private handleMessage<T, U>(
-    handler: (
-      msg: T | undefined,
-      rawMessage?: ConsumeMessage,
-      headers?: any
-    ) => Promise<U>,
+  private deserializeMessage<T>(
     msg: ConsumeMessage,
     options: {
       allowNonJsonMessages?: boolean;
@@ -677,7 +801,7 @@ export class AmqpConnection {
       headers = msg.properties.headers;
     }
 
-    return handler(message, msg, headers);
+    return { message, headers };
   }
 
   private async setupQueue(
@@ -821,14 +945,26 @@ export class AmqpConnection {
     if (consumer.type === 'rpc') {
       newConsumerTag = await this.setupRpcChannel<T, U>(
         consumer.handler,
-        consumer.rpcOptions,
+        consumer.msgOptions,
         consumer.channel
       );
-    } else {
+    } else if (consumer.type === 'subscribe') {
       newConsumerTag = await this.setupSubscriberChannel<T>(
         consumer.handler,
         consumer.msgOptions,
         consumer.channel
+      );
+    } else if (consumer.type === 'subscribe-batch') {
+      newConsumerTag = await this.setupBatchSubscriberChannel<T>(
+        consumer.handler,
+        consumer.msgOptions,
+        consumer.channel
+      );
+    } else {
+      throw new Error(
+        `Unable to resume consumer tag ${consumerTag}. Unexpected consumer type ${
+          (consumer as any).type
+        }.`
       );
     }
     // A new consumerTag was created, remove old
