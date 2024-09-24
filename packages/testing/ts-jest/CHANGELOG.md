@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.5.6](https://github.com/golevelup/nestjs/compare/@golevelup/ts-jest@0.5.5...@golevelup/ts-jest@0.5.6) (2024-09-24)
+
+### Bug Fixes
+
+- fixed nullable mocks issue ([#787](https://github.com/golevelup/nestjs/issues/787)) ([e9560d7](https://github.com/golevelup/nestjs/commit/e9560d7f5f6da3ff215327127733e2d02e89002c)), closes [#757](https://github.com/golevelup/nestjs/issues/757) [#778](https://github.com/golevelup/nestjs/issues/778)
+
 ## [0.5.5](https://github.com/golevelup/nestjs/compare/@golevelup/ts-jest@0.5.4...@golevelup/ts-jest@0.5.5) (2024-09-03)
 
 ### Bug Fixes
