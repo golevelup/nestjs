@@ -401,6 +401,8 @@ describe('Rabbit Subscribe', () => {
       }
     };
 
+    const paddedBatchTimeout = BATCH_TIMEOUT + 10;
+
     it('should return a full message batch immediately', async () => {
       const testMessages = await publishMessages(
         BATCH_SIZE,
@@ -415,7 +417,7 @@ describe('Rabbit Subscribe', () => {
     it('should return a partial message batch after timeout', async () => {
       const testMessages = await publishMessages(1, exchange, batchRoutingKey);
 
-      await setTimeout(BATCH_TIMEOUT);
+      await setTimeout(paddedBatchTimeout);
       expect(batchHandler).toHaveBeenCalledTimes(1);
       expect(batchHandler).toHaveBeenCalledWith(testMessages);
     });
@@ -443,7 +445,7 @@ describe('Rabbit Subscribe', () => {
         );
       }
 
-      await setTimeout(BATCH_TIMEOUT);
+      await setTimeout(paddedBatchTimeout);
       expect(batchHandler).toHaveBeenCalledTimes(3);
       expect(batchHandler).toHaveBeenLastCalledWith(testMessageBatches[2]);
     });
@@ -477,7 +479,7 @@ describe('Rabbit Subscribe', () => {
         batchErrorRoutingKey,
       );
 
-      await setTimeout(BATCH_TIMEOUT);
+      await setTimeout(paddedBatchTimeout);
       expect(batchErrorHandler).toHaveBeenCalledTimes(1);
       expect(parseMessages(batchErrorHandler.mock.calls[0][1])).toEqual(
         testMessages,
@@ -512,7 +514,7 @@ describe('Rabbit Subscribe', () => {
         );
       }
 
-      await setTimeout(BATCH_TIMEOUT);
+      await setTimeout(paddedBatchTimeout);
       expect(batchErrorHandler).toHaveBeenCalledTimes(3);
       expect(parseMessages(batchErrorHandler.mock.calls[2][1])).toEqual(
         testMessageBatches[2],
@@ -523,27 +525,27 @@ describe('Rabbit Subscribe', () => {
       await publishMessages(BATCH_SIZE, exchange, batchRoutingKey);
       expect(batchHandler).toHaveBeenCalledTimes(1);
 
-      await setTimeout(BATCH_TIMEOUT);
+      await setTimeout(paddedBatchTimeout);
       expect(batchHandler).toHaveBeenCalledTimes(1);
     });
 
     it('should not return a partial batch before batch timeout', async () => {
       await publishMessages(1, exchange, batchRoutingKey);
 
-      await setTimeout(BATCH_TIMEOUT * 0.9);
+      await setTimeout(paddedBatchTimeout * 0.9);
       expect(batchHandler).toHaveBeenCalledTimes(0);
 
-      await setTimeout(BATCH_TIMEOUT * 0.2);
+      await setTimeout(paddedBatchTimeout * 0.2);
       expect(batchHandler).toHaveBeenCalledTimes(1);
     });
 
     it('should not return another partial batch after first batch timeout', async () => {
       await publishMessages(1, exchange, batchRoutingKey);
 
-      await setTimeout(BATCH_TIMEOUT);
+      await setTimeout(paddedBatchTimeout);
       expect(batchHandler).toHaveBeenCalledTimes(1);
 
-      await setTimeout(BATCH_TIMEOUT);
+      await setTimeout(paddedBatchTimeout);
       expect(batchHandler).toHaveBeenCalledTimes(1);
     });
 
@@ -557,7 +559,7 @@ describe('Rabbit Subscribe', () => {
       await setTimeout(1);
       expect(batchErrorHandler).toHaveBeenCalledTimes(1);
 
-      await setTimeout(BATCH_TIMEOUT);
+      await setTimeout(paddedBatchTimeout);
       expect(batchErrorHandler).toHaveBeenCalledTimes(1);
     });
 
@@ -567,10 +569,10 @@ describe('Rabbit Subscribe', () => {
 
       await publishMessages(1, exchange, batchErrorRoutingKey);
 
-      await setTimeout(BATCH_TIMEOUT * 0.9);
+      await setTimeout(paddedBatchTimeout * 0.9);
       expect(batchErrorHandler).toHaveBeenCalledTimes(0);
 
-      await setTimeout(BATCH_TIMEOUT * 0.2);
+      await setTimeout(paddedBatchTimeout * 0.2);
       expect(batchErrorHandler).toHaveBeenCalledTimes(1);
     });
 
@@ -580,10 +582,10 @@ describe('Rabbit Subscribe', () => {
 
       await publishMessages(1, exchange, batchErrorRoutingKey);
 
-      await setTimeout(BATCH_TIMEOUT);
+      await setTimeout(paddedBatchTimeout);
       expect(batchErrorHandler).toHaveBeenCalledTimes(1);
 
-      await setTimeout(BATCH_TIMEOUT);
+      await setTimeout(paddedBatchTimeout);
       expect(batchErrorHandler).toHaveBeenCalledTimes(1);
     });
   });
