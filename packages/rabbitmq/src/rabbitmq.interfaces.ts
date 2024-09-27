@@ -4,6 +4,7 @@ import { ConsumeMessage, Options } from 'amqplib';
 import {
   AssertQueueErrorHandler,
   MessageErrorHandler,
+  BatchMessageErrorHandler,
   MessageHandlerErrorBehavior,
 } from './amqp/errorBehaviors';
 
@@ -116,6 +117,11 @@ export interface MessageHandlerOptions {
    * If set, will override the module's default deserializer.
    */
   deserializer?: MessageDeserializer;
+
+  /**
+   * Enables consumer-side batching.
+   */
+  batchOptions?: BatchOptions;
 }
 
 export interface ConnectionInitOptions {
@@ -200,4 +206,31 @@ export interface RabbitMQChannelConfig {
    * If no channel has been marked as default, new channel will be created.
    */
   default?: boolean;
+}
+
+interface BatchOptions {
+  /**
+   * The number of messages to accumulate before calling the message handler.
+   *
+   * This should be smaller than the channel prefetch.
+   *
+   * Defaults to 10 if provided value is less than 2.
+   *
+   * @default 10
+   */
+  size: number;
+
+  /**
+   * The time to wait, in milliseconds, for additional messages before returning a partial batch.
+   *
+   * Defaults to 200 if not provided or provided value is less than 1.
+   *
+   * @default 200
+   */
+  timeout?: number;
+
+  /**
+   * A function that will be called if an error is thrown during processing of an incoming message
+   */
+  errorHandler?: BatchMessageErrorHandler;
 }

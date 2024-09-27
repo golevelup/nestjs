@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [5.5.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@5.4.1...@golevelup/nestjs-rabbitmq@5.5.0) (2024-09-24)
+
+### Features
+
+- add support for named default handler ([#785](https://github.com/golevelup/nestjs/issues/785)) ([b5dec74](https://github.com/golevelup/nestjs/commit/b5dec74549921979b715f1c4a09515172170d19e))
+
 ## [5.4.1](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@5.4.0...@golevelup/nestjs-rabbitmq@5.4.1) (2024-09-03)
 
 ### Bug Fixes

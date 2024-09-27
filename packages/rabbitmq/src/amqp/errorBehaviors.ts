@@ -1,37 +1,60 @@
 import { Channel, ConsumeMessage } from 'amqplib';
 import { QueueOptions } from '../rabbitmq.interfaces';
 
+export const PRECONDITION_FAILED_CODE = 406;
+
 export enum MessageHandlerErrorBehavior {
   ACK = 'ACK',
   NACK = 'NACK',
   REQUEUE = 'REQUEUE',
 }
 
-export type MessageErrorHandler = (
+type BaseMessageErrorHandler<T extends ConsumeMessage | ConsumeMessage[]> = (
   channel: Channel,
-  msg: ConsumeMessage,
+  msg: T,
   error: any
 ) => Promise<void> | void;
 
+export type MessageErrorHandler = BaseMessageErrorHandler<ConsumeMessage>;
+
+export type BatchMessageErrorHandler = BaseMessageErrorHandler<
+  ConsumeMessage[]
+>;
+
+export type LegacyMessageErrorHandler = BaseMessageErrorHandler<
+  ConsumeMessage | ConsumeMessage[]
+>;
 /**
  * An error handler that will ack the message which caused an error during processing
  */
-export const ackErrorHandler: MessageErrorHandler = (channel, msg) => {
-  channel.ack(msg);
+export const ackErrorHandler: LegacyMessageErrorHandler = (channel, msg) => {
+  for (const m of Array.isArray(msg) ? msg : [msg]) {
+    channel.ack(m);
+  }
 };
 
 /**
  * An error handler that will nack and requeue a message which created an error during processing
  */
-export const requeueErrorHandler: MessageErrorHandler = (channel, msg) => {
-  channel.nack(msg, false, true);
+export const requeueErrorHandler: LegacyMessageErrorHandler = (
+  channel,
+  msg
+) => {
+  for (const m of Array.isArray(msg) ? msg : [msg]) {
+    channel.nack(m, false, true);
+  }
 };
 
 /**
  * An error handler that will nack a message which created an error during processing
  */
-export const defaultNackErrorHandler: MessageErrorHandler = (channel, msg) => {
-  channel.nack(msg, false, false);
+export const defaultNackErrorHandler: LegacyMessageErrorHandler = (
+  channel,
+  msg
+) => {
+  for (const m of Array.isArray(msg) ? msg : [msg]) {
+    channel.nack(m, false, false);
+  }
 };
 
 export const getHandlerForLegacyBehavior = (
@@ -69,17 +92,17 @@ export const defaultAssertQueueErrorHandler: AssertQueueErrorHandler = (
 /**
  * Tries to delete the queue and to redeclare it with the provided options
  */
-export const forceDeleteAssertQueueErrorHandler: AssertQueueErrorHandler = async (
-  channel: Channel,
-  queueName: string,
-  queueOptions: QueueOptions | undefined,
-  error: any
-) => {
-  if (error.code == 406) {
-    //406 == preconditions failed
-    await channel.deleteQueue(queueName);
-    const { queue } = await channel.assertQueue(queueName, queueOptions);
-    return queue;
-  }
-  throw error;
-};
+export const forceDeleteAssertQueueErrorHandler: AssertQueueErrorHandler =
+  async (
+    channel: Channel,
+    queueName: string,
+    queueOptions: QueueOptions | undefined,
+    error: any
+  ) => {
+    if (error.code == PRECONDITION_FAILED_CODE) {
+      await channel.deleteQueue(queueName);
+      const { queue } = await channel.assertQueue(queueName, queueOptions);
+      return queue;
+    }
+    throw error;
+  };
