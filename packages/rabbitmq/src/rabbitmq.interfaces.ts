@@ -81,7 +81,7 @@ export type MessageSerializer = (value: any) => Buffer;
 
 export interface MessageHandlerOptions {
   /**
-   * You can use a handler config specificied in module level.
+   * You can use a handler config specified in module level.
    * Just use the same key name defined there.
    */
   name?: string;
@@ -171,7 +171,7 @@ export interface RabbitMQConfig {
    * You can set this property to define the default handler configuration to use
    * when using handlers.
    */
-  defaultHandler?: string
+  defaultHandler?: string;
 
   /**
    * You can pass your implementation of the Nestjs LoggerService.

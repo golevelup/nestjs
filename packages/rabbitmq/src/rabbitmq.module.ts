@@ -3,10 +3,7 @@ import {
   DiscoveryModule,
   DiscoveryService,
 } from '@golevelup/nestjs-discovery';
-import {
-  createConfigurableDynamicRootModule,
-  IConfigurableDynamicRootModule,
-} from '@golevelup/nestjs-modules';
+import { createConfigurableDynamicRootModule } from '@golevelup/nestjs-modules';
 import {
   DynamicModule,
   Module,
@@ -21,14 +18,13 @@ import { ExternalContextCreator } from '@nestjs/core/helpers/external-context-cr
 import { groupBy } from 'lodash';
 import { AmqpConnection } from './amqp/connection';
 import { AmqpConnectionManager } from './amqp/connectionManager';
-import { RABBIT_CONFIG_TOKEN, RABBIT_HANDLER } from './rabbitmq.constants';
+import {
+  RABBIT_CONFIG_TOKEN,
+  RABBIT_CONTEXT_TYPE_KEY,
+  RABBIT_HANDLER,
+} from './rabbitmq.constants';
 import { RabbitRpcParamsFactory } from './rabbitmq.factory';
 import { RabbitHandlerConfig, RabbitMQConfig } from './rabbitmq.interfaces';
-
-declare const placeholder: IConfigurableDynamicRootModule<
-  RabbitMQModule,
-  RabbitMQConfig
->;
 
 @Module({
   imports: [DiscoveryModule],
@@ -89,7 +85,7 @@ export class RabbitMQModule
     const logger = config?.logger || new Logger(RabbitMQModule.name);
     if (config == undefined) {
       logger.log(
-        'Rabbitmq config is not provided, skip connection initialization.'
+        'RabbitMQ config not provided, skipping connection initialization.'
       );
       return undefined;
     }
@@ -98,28 +94,6 @@ export class RabbitMQModule
     await connection.init();
     logger.log('Successfully connected to RabbitMQ');
     return connection;
-  }
-
-  public static build(config: RabbitMQConfig): DynamicModule {
-    const logger = config?.logger || new Logger(RabbitMQModule.name);
-    logger.warn(
-      'build() is deprecated. use forRoot() or forRootAsync() to configure RabbitMQ'
-    );
-    return {
-      module: RabbitMQModule,
-      providers: [
-        {
-          provide: AmqpConnection,
-          useFactory: async (): Promise<AmqpConnection | undefined> => {
-            return config !== undefined
-              ? RabbitMQModule.AmqpConnectionFactory(config)
-              : undefined;
-          },
-        },
-        RabbitRpcParamsFactory,
-      ],
-      exports: [AmqpConnection],
-    };
   }
 
   public static attach(connection: AmqpConnection): DynamicModule {
@@ -257,11 +231,13 @@ export class RabbitMQModule
               undefined, // contextId
               undefined, // inquirerId
               undefined, // options
-              'rmq' // contextType
+              RABBIT_CONTEXT_TYPE_KEY // contextType
             );
 
             const moduleHandlerConfigRaw =
-              connection.configuration.handlers[config.name || connection.configuration.defaultHandler || ''];
+              connection.configuration.handlers[
+                config.name || connection.configuration.defaultHandler || ''
+              ];
 
             const moduleHandlerConfigs = Array.isArray(moduleHandlerConfigRaw)
               ? moduleHandlerConfigRaw
