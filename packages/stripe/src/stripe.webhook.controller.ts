@@ -10,7 +10,7 @@ export class StripeWebhookController {
 
   constructor(
     @InjectStripeModuleConfig()
-    private readonly config: StripeModuleConfig,
+    config: StripeModuleConfig,
     private readonly stripePayloadService: StripePayloadService,
     private readonly stripeWebhookService: StripeWebhookService
   ) {
