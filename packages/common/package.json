@@ -34,7 +34,7 @@
   },
   "dependencies": {
     "lodash": "^4.17.21",
-    "nanoid": "^3.3.6"
+    "nanoid": "^3.3.7"
   },
   "peerDependencies": {
     "@nestjs/common": "^10.x"

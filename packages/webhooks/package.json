@@ -42,7 +42,7 @@
     "@golevelup/nestjs-modules": "^0.7.1"
   },
   "peerDependencies": {
-    "body-parser": "^1.19.0"
+    "body-parser": "^1.20.3"
   },
   "jest": {
     "moduleFileExtensions": [
