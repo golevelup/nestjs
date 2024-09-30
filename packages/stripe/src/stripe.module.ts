@@ -48,7 +48,7 @@ export class StripeModule
           useFactory: ({
             apiKey,
             typescript = true,
-            apiVersion = '2023-10-16',
+            apiVersion = '2024-06-20',
             webhookConfig,
             ...options
           }: StripeModuleConfig): Stripe => {
@@ -148,7 +148,9 @@ export class StripeModule
 
     const handleWebhook = async (webhookEvent: { type: string }) => {
       const { type } = webhookEvent;
-      const handlers = webhookHandlers.filter((x) => x.key === type || x.key === '*');
+      const handlers = webhookHandlers.filter(
+        (x) => x.key === type || x.key === '*'
+      );
 
       if (handlers.length) {
         if (
