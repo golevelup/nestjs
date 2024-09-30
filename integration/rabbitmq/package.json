@@ -20,7 +20,7 @@
     "test:e2e": "jest --config ../../jest-e2e.json"
   },
   "dependencies": {
-    "rimraf": "^3.0.2"
+    "rimraf": "^5.0.0"
   },
   "devDependencies": {
     "@nestjs/testing": "^10.4.4",
