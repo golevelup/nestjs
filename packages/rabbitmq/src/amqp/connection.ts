@@ -562,11 +562,18 @@ export class AmqpConnection {
     let batchTimer: NodeJS.Timeout;
     let inflightBatchHandler: () => Promise<void>;
 
+    // Normalize batch values but warn consumer about this adjusts
     if (!batchSize || batchSize < 2) {
+      this.logger.warn(
+        `batch size too low/not defined, received: ${batchSize}. Adjusting to 10`
+      );
       batchSize = 10;
     }
 
     if (!batchTimeout || batchTimeout < 1) {
+      this.logger.warn(
+        `batch timeout too low/not defined, received: ${batchTimeout}. Setting timeout to 200ms`
+      );
       batchTimeout = 200;
     }
 
@@ -879,7 +886,7 @@ export class AmqpConnection {
     );
 
     channel.on('error', (err, { name }) =>
-      this.logger.log(
+      this.logger.error(
         `Failed to setup a RabbitMQ channel - name: ${name} / error: ${err.message} ${err.stack}`
       )
     );
@@ -901,7 +908,7 @@ export class AmqpConnection {
     const channel = this._managedChannels[name];
     if (!channel) {
       this.logger.warn(
-        `Channel "${name}" does not exist, using default channel.`
+        `Channel "${name}" does not exist, using default channel: ${this._managedChannel.name}.`
       );
 
       return this._managedChannel;
@@ -930,6 +937,7 @@ export class AmqpConnection {
   public async cancelConsumer(consumerTag: ConsumerTag) {
     const consumer = this.getConsumer(consumerTag);
     if (consumer && consumer.channel) {
+      this.logger.log(`Canceling consumer with tag: ${consumerTag}`);
       await consumer.channel.cancel(consumerTag);
     }
   }
@@ -981,8 +989,7 @@ export class AmqpConnection {
     // Wait for all the outstanding messages to be processed
     if (this.outstandingMessageProcessing.size) {
       this.logger.log(
-        { outstandingMessageCount: this.outstandingMessageProcessing.size },
-        'Waiting for outstanding consumers'
+        `Waiting for outstanding consumers, outstanding message count: ${this.outstandingMessageProcessing.size}`
       );
     }
     await Promise.all(this.outstandingMessageProcessing);

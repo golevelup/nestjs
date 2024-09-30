@@ -1,7 +1,6 @@
 import { Channel, ConsumeMessage } from 'amqplib';
 import { QueueOptions } from '../rabbitmq.interfaces';
-
-export const PRECONDITION_FAILED_CODE = 406;
+import { PRECONDITION_FAILED_CODE } from '../rabbitmq.constants';
 
 export enum MessageHandlerErrorBehavior {
   ACK = 'ACK',

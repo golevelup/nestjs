@@ -1,27 +1,29 @@
 import { AmqpConnection } from './connection';
 
 export class AmqpConnectionManager {
-  private connections: AmqpConnection[] = [];
+  private connections: Map<string, AmqpConnection> = new Map();
 
   addConnection(connection: AmqpConnection) {
-    this.connections.push(connection);
+    this.connections.set(connection.configuration.name, connection);
   }
 
   getConnection(name: string) {
-    return this.connections.find(
-      (connection) => connection.configuration.name === name
-    );
+    return this.connections.get(name);
   }
 
   getConnections() {
-    return this.connections;
+    return Array.from(this.connections.values());
   }
 
   clearConnections() {
-    this.connections = [];
+    this.connections.clear();
   }
 
   async close() {
-    await Promise.all(this.connections.map((connection) => connection.close()));
+    await Promise.all(
+      Array.from(this.connections.values()).map((connection) =>
+        connection.close()
+      )
+    );
   }
 }
