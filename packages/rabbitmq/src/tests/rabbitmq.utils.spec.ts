@@ -41,7 +41,7 @@ describe(matchesRoutingKey.name, () => {
       ['event.#', 'user.#'],
       true,
     ],
-    ['should return true with pattern as an empty string', '', '', false], //both are equal (empty strings) which is valid for an exact match
+    ['should return true with pattern as an empty string', '', '', true], //both are equal (empty strings) which is valid for an exact match
     [
       'should return false when routing key does not match any pattern in the array',
       'user.updated',
