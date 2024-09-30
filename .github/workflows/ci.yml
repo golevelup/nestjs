@@ -7,7 +7,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  LATEST_NODE_VERSION: 18
+  LATEST_NODE_VERSION: 20
 
 jobs:
   ci:
@@ -15,7 +15,7 @@ jobs:
 
     strategy:
       matrix:
-        node: [18, 20, 22]
+        node: [20, 22]
       fail-fast: false
 
     services:
