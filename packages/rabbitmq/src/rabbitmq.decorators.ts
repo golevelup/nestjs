@@ -24,7 +24,7 @@ export const makeRabbitDecorator =
     config: Pick<
       RabbitHandlerConfig,
       Exclude<keyof RabbitHandlerConfig, keyof T>
-    >
+    >,
   ) =>
     applyDecorators(SetMetadata(RABBIT_HANDLER, { ...input, ...config }));
 
@@ -46,6 +46,10 @@ export const createPipesRpcParamDecorator =
     ...pipes: (Type<PipeTransform> | PipeTransform)[]
   ): ParameterDecorator =>
   (target, key, index) => {
+    if (!key) {
+      throw new Error(`Failed creating rpc pipes param, received key: ${key}`);
+    }
+
     const args =
       Reflect.getMetadata(ROUTE_ARGS_METADATA, target.constructor, key) || {};
 
@@ -57,7 +61,7 @@ export const createPipesRpcParamDecorator =
       ROUTE_ARGS_METADATA,
       assignMetadata(args, type, index, paramData, ...paramPipes),
       target.constructor,
-      key
+      key,
     );
   };
 
@@ -76,7 +80,7 @@ export function RabbitPayload(
   return createPipesRpcParamDecorator(
     propertyOrPipe,
     RABBIT_PARAM_TYPE,
-    ...pipes
+    ...pipes,
   );
 }
 
@@ -95,7 +99,7 @@ export function RabbitHeader(
   return createPipesRpcParamDecorator(
     propertyOrPipe,
     RABBIT_HEADER_TYPE,
-    ...pipes
+    ...pipes,
   );
 }
 
@@ -114,6 +118,6 @@ export function RabbitRequest(
   return createPipesRpcParamDecorator(
     propertyOrPipe,
     RABBIT_REQUEST_TYPE,
-    ...pipes
+    ...pipes,
   );
 }

@@ -1,5 +1,4 @@
 /// <reference types="vitest" />
-import { report } from 'process'
 import { defineConfig } from 'vite'
 
 export default defineConfig({

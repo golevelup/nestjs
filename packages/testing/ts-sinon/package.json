@@ -34,11 +34,11 @@
     "url": "https://github.com/golevelup/nestjs/issues"
   },
   "peerDependencies": {
-    "sinon": "^14.x"
+    "sinon": "^19.x"
   },
   "devDependencies": {
-    "@types/sinon": "^10.0.15",
-    "sinon": "^14.x"
+    "@types/sinon": "^7.0.3",
+    "sinon": "^19.x"
   },
   "publishConfig": {
     "access": "public"
