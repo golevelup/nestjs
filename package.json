@@ -64,7 +64,8 @@
     "test:vitest": "vitest",
     "test:vitest:ci": "vitest run --coverage",
     "lint": "eslint .",
-    "contributors:generate": "all-contributors generate"
+    "contributors:generate": "all-contributors generate",
+    "prepare": "husky"
   },
   "lint-staged": {
     "*.ts": [
