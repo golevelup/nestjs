@@ -24,7 +24,7 @@
     "@nestjs/testing": "^10.4.4",
     "@types/jest": "^27.0.3",
     "@types/lodash": "^4.17.10",
-    "@types/mime": "4.0.0",
+    "@types/mime": "3.0.4",
     "@types/node": "^20.16.10",
     "@types/supertest": "^6.0.2",
     "@typescript-eslint/eslint-plugin": "^8.8.0",
