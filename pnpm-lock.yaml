@@ -120,7 +120,7 @@ importers:
         version: 7.0.0
       ts-jest:
         specifier: ^27.1.1
-        version: 27.1.5(@babel/core@7.25.7)(@types/jest@27.5.2)(babel-jest@27.5.1(@babel/core@7.25.7))(jest@27.5.1)(typescript@4.9.5)
+        version: 27.1.5(@babel/core@7.25.7)(@types/jest@27.5.2)(babel-jest@27.5.1(@babel/core@7.25.7))(jest@27.5.1(ts-node@10.9.2(@types/node@20.16.10)(typescript@4.9.5)))(typescript@4.9.5)
       typescript:
         specifier: 4.9.5
         version: 4.9.5
@@ -149,6 +149,9 @@ importers:
       '@types/supertest':
         specifier: 6.0.2
         version: 6.0.2
+      amqplib:
+        specifier: 0.10.4
+        version: 0.10.4
       jest:
         specifier: ^27.4.3
         version: 27.5.1(ts-node@10.9.2(@types/node@20.16.10)(typescript@4.9.5))
@@ -163,7 +166,7 @@ importers:
         version: 7.0.0
       ts-jest:
         specifier: 27.1.5
-        version: 27.1.5(@babel/core@7.25.7)(@types/jest@27.5.2)(babel-jest@27.5.1(@babel/core@7.25.7))(jest@27.5.1)(typescript@4.9.5)
+        version: 27.1.5(@babel/core@7.25.7)(@types/jest@27.5.2)(babel-jest@27.5.1(@babel/core@7.25.7))(jest@27.5.1(ts-node@10.9.2(@types/node@20.16.10)(typescript@4.9.5)))(typescript@4.9.5)
       ts-node:
         specifier: 10.9.2
         version: 10.9.2(@types/node@20.16.10)(typescript@4.9.5)
@@ -10647,7 +10650,7 @@ snapshots:
     dependencies:
       typescript: 4.9.5
 
-  ts-jest@27.1.5(@babel/core@7.25.7)(@types/jest@27.5.2)(babel-jest@27.5.1(@babel/core@7.25.7))(jest@27.5.1)(typescript@4.9.5):
+  ts-jest@27.1.5(@babel/core@7.25.7)(@types/jest@27.5.2)(babel-jest@27.5.1(@babel/core@7.25.7))(jest@27.5.1(ts-node@10.9.2(@types/node@20.16.10)(typescript@4.9.5)))(typescript@4.9.5):
     dependencies:
       bs-logger: 0.2.6
       fast-json-stable-stringify: 2.1.0
