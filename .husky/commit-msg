@@ -1,0 +1,1 @@
+commitlint -E $1
