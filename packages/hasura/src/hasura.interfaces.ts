@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const exampleEvent = {
   id: 'ecd5fe4a-7113-4243-bb0e-6177c78a0033',
   table: { schema: 'public', name: 'user' },

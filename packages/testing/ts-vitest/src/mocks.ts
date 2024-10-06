@@ -1,13 +1,13 @@
-import { ArgumentsType, MockInstance, vi, Mock } from 'vitest';
+import { ArgumentsType, MockInstance, vi } from 'vitest';
 
 type DeepPartial<T> = {
   [P in keyof T]?: T[P] extends Array<infer U>
     ? Array<DeepPartial<U>>
     : T[P] extends ReadonlyArray<infer U>
-    ? ReadonlyArray<DeepPartial<U>>
-    : unknown extends T[P]
-    ? T[P]
-    : DeepPartial<T[P]>;
+      ? ReadonlyArray<DeepPartial<U>>
+      : unknown extends T[P]
+        ? T[P]
+        : DeepPartial<T[P]>;
 };
 
 export type PartialFuncReturn<T> = {
@@ -23,7 +23,8 @@ export type DeepMocked<T> = {
     : T[K];
 } & T;
 
-const createRecursiveMockProxy = (name: string) => {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const createRecursiveMockProxy = (_name: string) => {
   const cache = new Map<string | number | symbol, any>();
 
   const proxy = new Proxy(
@@ -43,14 +44,14 @@ const createRecursiveMockProxy = (name: string) => {
               ? vi.fn()
               : checkProp
             : propName === 'then'
-            ? undefined
-            : createRecursiveMockProxy(propName);
+              ? undefined
+              : createRecursiveMockProxy(propName);
 
         cache.set(prop, mockedProp);
 
         return mockedProp;
       },
-    }
+    },
   );
 
   return vi.fn(() => proxy);
@@ -62,7 +63,7 @@ export type MockOptions = {
 
 export const createMock = <T extends object>(
   partial: PartialFuncReturn<T> = {},
-  options: MockOptions = {}
+  options: MockOptions = {},
 ): DeepMocked<T> => {
   const cache = new Map<string | number | symbol, any>();
   const { name = 'mock' } = options;

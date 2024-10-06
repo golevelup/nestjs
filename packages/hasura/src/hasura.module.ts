@@ -37,7 +37,7 @@ function isHasuraEvent(value: any): value is HasuraEvent {
 }
 
 function isHasuraScheduledEventPayload(
-  value: any
+  value: any,
 ): value is HasuraScheduledEventPayload {
   return ['scheduled_time', 'payload'].every((it) => it in value);
 }
@@ -59,7 +59,7 @@ export class HasuraModule
             Reflect.defineMetadata(
               PATH_METADATA,
               controllerPrefix,
-              EventHandlerController
+              EventHandlerController,
             );
             config.decorators?.forEach((deco) => {
               deco(EventHandlerController);
@@ -70,7 +70,7 @@ export class HasuraModule
         EventHandlerService,
         HasuraEventHandlerHeaderGuard,
       ],
-    }
+    },
   )
   implements OnModuleInit
 {
@@ -80,18 +80,17 @@ export class HasuraModule
     private readonly discover: DiscoveryService,
     private readonly externalContextCreator: ExternalContextCreator,
     @InjectHasuraConfig()
-    private readonly hasuraModuleConfig: HasuraModuleConfig
+    private readonly hasuraModuleConfig: HasuraModuleConfig,
   ) {
     super();
   }
 
-  // eslint-disable-next-line sonarjs/cognitive-complexity
   public async onModuleInit() {
     this.logger.log('Initializing Hasura Module');
 
     const eventHandlerMeta =
       await this.discover.providerMethodsWithMetaAtKey<HasuraEventHandlerConfig>(
-        HASURA_EVENT_HANDLER
+        HASURA_EVENT_HANDLER,
       );
 
     const trackedEventHandlerMeta =
@@ -101,7 +100,7 @@ export class HasuraModule
 
     const trackedScheduledEventHandlerMeta =
       await this.discover.providerMethodsWithMetaAtKey<TrackedHasuraScheduledEventHandlerConfig>(
-        HASURA_SCHEDULED_EVENT_HANDLER
+        HASURA_SCHEDULED_EVENT_HANDLER,
       );
 
     if (!eventHandlerMeta.length) {
@@ -110,32 +109,32 @@ export class HasuraModule
     }
 
     this.logger.log(
-      `Discovered ${eventHandlerMeta.length} hasura event handlers`
+      `Discovered ${eventHandlerMeta.length} hasura event handlers`,
     );
 
     if (this.hasuraModuleConfig.managedMetaDataConfig) {
       this.logger.log(
-        'Automatically syncing hasura metadata based on discovered event handlers. Remember to apply any changes to your Hasura instance using the CLI'
+        'Automatically syncing hasura metadata based on discovered event handlers. Remember to apply any changes to your Hasura instance using the CLI',
       );
 
       updateEventTriggerMeta(
         this.hasuraModuleConfig,
         trackedEventHandlerMeta
           .filter((x) => isTrackedHasuraEventHandlerConfig(x.meta))
-          .map((x) => x.meta as TrackedHasuraEventHandlerConfig)
+          .map((x) => x.meta as TrackedHasuraEventHandlerConfig),
       );
 
       if (trackedScheduledEventHandlerMeta.length) {
         updateScheduledEventTriggerMeta(
           this.hasuraModuleConfig,
-          trackedScheduledEventHandlerMeta.map((x) => x.meta)
+          trackedScheduledEventHandlerMeta.map((x) => x.meta),
         );
       }
     }
 
     const grouped = groupBy(
       eventHandlerMeta,
-      (x) => x.discoveredMethod.parentClass.name
+      (x) => x.discoveredMethod.parentClass.name,
     );
 
     const eventHandlers = flatten(
@@ -154,11 +153,11 @@ export class HasuraModule
               undefined, // contextId
               undefined, // inquirerId
               undefined, // options
-              'hasura_event' // contextType
+              'hasura_event', // contextType
             ),
           };
         });
-      })
+      }),
     );
 
     const [eventHandlerServiceInstance] = await (
@@ -169,13 +168,13 @@ export class HasuraModule
       eventHandlerServiceInstance as EventHandlerService;
 
     const handleEvent = (
-      evt: Partial<HasuraEvent> | HasuraScheduledEventPayload
+      evt: Partial<HasuraEvent> | HasuraScheduledEventPayload,
     ) => {
       const keys = isHasuraEvent(evt)
         ? [evt.trigger?.name, `${evt?.table?.schema}-${evt?.table?.name}`]
         : isHasuraScheduledEventPayload(evt)
-        ? [evt.name || evt.comment]
-        : [evt.id];
+          ? [evt.name || evt.comment]
+          : [evt.id];
       if (!keys) throw new Error('Not a Hasura Event');
 
       // TODO: this should use a map for faster lookups

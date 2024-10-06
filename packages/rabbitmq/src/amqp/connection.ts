@@ -30,7 +30,6 @@ import {
   RabbitMQChannelConfig,
   ConsumeOptions,
   MessageDeserializer,
-  MessageSerializer,
 } from '../rabbitmq.interfaces';
 import {
   getHandlerForLegacyBehavior,
@@ -47,19 +46,19 @@ export type ConsumerTag = string;
 export type SubscriberHandler<T = unknown> = (
   msg: T | undefined,
   rawMessage?: ConsumeMessage,
-  headers?: any
+  headers?: any,
 ) => Promise<SubscribeResponse>;
 
 export type BatchSubscriberHandler<T = unknown> = (
   msg: (T | undefined)[],
   rawMessage?: ConsumeMessage[],
-  headers?: any[]
+  headers?: any[],
 ) => Promise<SubscribeResponse>;
 
 export type RpcSubscriberHandler<T = unknown, U = unknown> = (
   msg: T | undefined,
   rawMessage?: ConsumeMessage,
-  headers?: any
+  headers?: any,
 ) => Promise<RpcResponse<U>>;
 
 export interface CorrelationMessage {
@@ -99,7 +98,7 @@ const defaultConfig = {
   prefetchCount: 10,
   defaultExchangeType: 'topic',
   defaultRpcErrorHandler: getHandlerForLegacyBehavior(
-    MessageHandlerErrorBehavior.REQUEUE
+    MessageHandlerErrorBehavior.REQUEUE,
   ),
   defaultSubscribeErrorBehavior: MessageHandlerErrorBehavior.REQUEUE,
   exchanges: [],
@@ -210,43 +209,43 @@ export class AmqpConnection {
             throwError(
               () =>
                 new Error(
-                  `Failed to connect to a RabbitMQ broker within a timeout of ${timeoutInterval}ms`
-                )
+                  `Failed to connect to a RabbitMQ broker within a timeout of ${timeoutInterval}ms`,
+                ),
             ),
         }),
-        catchError((err) => (reject ? throwError(() => err) : EMPTY))
-      )
+        catchError((err) => (reject ? throwError(() => err) : EMPTY)),
+      ),
     );
   }
 
   private async initCore(): Promise<void> {
     this.logger.log(
-      `Trying to connect to RabbitMQ broker (${this.config.name})`
+      `Trying to connect to RabbitMQ broker (${this.config.name})`,
     );
 
     this._managedConnection = connect(
       Array.isArray(this.config.uri) ? this.config.uri : [this.config.uri],
-      this.config.connectionManagerOptions
+      this.config.connectionManagerOptions,
     );
 
     this._managedConnection.on('connect', ({ connection }) => {
       this._connection = connection;
       this.logger.log(
-        `Successfully connected to RabbitMQ broker (${this.config.name})`
+        `Successfully connected to RabbitMQ broker (${this.config.name})`,
       );
     });
 
     this._managedConnection.on('disconnect', ({ err }) => {
       this.logger.error(
         `Disconnected from RabbitMQ broker (${this.config.name})`,
-        err?.stack
+        err?.stack,
       );
     });
 
     this._managedConnection.on('connectFailed', ({ err }) => {
       this.logger.error(
         `Failed to connect to RabbitMQ broker (${this.config.name})`,
-        err?.stack
+        err?.stack,
       );
     });
 
@@ -274,7 +273,7 @@ export class AmqpConnection {
             ...config,
             default: false,
           });
-        })
+        }),
       ),
       this.setupManagedChannel(defaultChannel.name, defaultChannel.config),
     ]);
@@ -283,7 +282,7 @@ export class AmqpConnection {
   private async setupInitChannel(
     channel: ConfirmChannel,
     name: string,
-    config: RabbitMQChannelConfig
+    config: RabbitMQChannelConfig,
   ): Promise<void> {
     this._channels[name] = channel;
 
@@ -301,11 +300,11 @@ export class AmqpConnection {
             return channel.assertExchange(
               x.name,
               x.type || this.config.defaultExchangeType,
-              x.options
+              x.options,
             );
           }
           return channel.checkExchange(x.name);
-        })
+        }),
       );
 
       await Promise.all(
@@ -314,9 +313,9 @@ export class AmqpConnection {
             exchangeBinding.destination,
             exchangeBinding.source,
             exchangeBinding.pattern,
-            exchangeBinding.args
-          )
-        )
+            exchangeBinding.args,
+          ),
+        ),
       );
 
       await this.setupQueuesWithBindings(channel, this.config.queues);
@@ -331,7 +330,7 @@ export class AmqpConnection {
 
   private async setupQueuesWithBindings(
     channel: ConfirmChannel,
-    queues: RabbitMQQueueConfig[]
+    queues: RabbitMQQueueConfig[],
   ) {
     await Promise.all(
       queues.map(async (configuredQueue) => {
@@ -347,9 +346,9 @@ export class AmqpConnection {
             ...(name !== undefined && { queue: name }),
             queueOptions,
           },
-          channel
+          channel,
         );
-      })
+      }),
     );
   }
 
@@ -378,7 +377,7 @@ export class AmqpConnection {
       },
       {
         noAck: true,
-      }
+      },
     );
   }
 
@@ -392,19 +391,19 @@ export class AmqpConnection {
       filter((x) =>
         requestId
           ? x.correlationId === correlationId && x.requestId === requestId
-          : x.correlationId === correlationId
+          : x.correlationId === correlationId,
       ),
       map((x) => x.message as T),
-      first()
+      first(),
     );
 
     const timeout$ = interval(timeout).pipe(
       first(),
       map(() => {
         throw new Error(
-          `Failed to receive response within timeout of ${timeout}ms for exchange "${requestOptions.exchange}" and routing key "${requestOptions.routingKey}"`
+          `Failed to receive response within timeout of ${timeout}ms for exchange "${requestOptions.exchange}" and routing key "${requestOptions.routingKey}"`,
         );
-      })
+      }),
     );
 
     const result = lastValueFrom(race(response$, timeout$));
@@ -419,7 +418,7 @@ export class AmqpConnection {
         correlationId,
         headers: requestOptions.headers,
         expiration: requestOptions.expiration,
-      }
+      },
     );
 
     return result;
@@ -429,7 +428,7 @@ export class AmqpConnection {
     handler: SubscriberHandler<T>,
     msgOptions: MessageHandlerOptions,
     originalHandlerName: string,
-    consumeOptions?: ConsumeOptions
+    consumeOptions?: ConsumeOptions,
   ): Promise<SubscriptionResult> {
     return this.consumerFactory(msgOptions, (channel) =>
       this.setupSubscriberChannel<T>(
@@ -437,36 +436,36 @@ export class AmqpConnection {
         msgOptions,
         channel,
         originalHandlerName,
-        consumeOptions
-      )
+        consumeOptions,
+      ),
     );
   }
 
   public async createBatchSubscriber<T>(
     handler: BatchSubscriberHandler<T>,
     msgOptions: MessageHandlerOptions,
-    consumeOptions?: ConsumeOptions
+    consumeOptions?: ConsumeOptions,
   ): Promise<SubscriptionResult> {
     return this.consumerFactory(msgOptions, (channel) =>
       this.setupBatchSubscriberChannel<T>(
         handler,
         msgOptions,
         channel,
-        consumeOptions
-      )
+        consumeOptions,
+      ),
     );
   }
 
   private async consumerFactory(
     msgOptions: MessageHandlerOptions,
-    setupFunction: (channel: ConfirmChannel) => Promise<string>
+    setupFunction: (channel: ConfirmChannel) => Promise<string>,
   ): Promise<SubscriptionResult> {
     return new Promise((res) => {
       this.selectManagedChannel(msgOptions?.queueOptions?.channel).addSetup(
         async (channel: ConfirmChannel) => {
           const consumerTag = await setupFunction(channel);
           res({ consumerTag });
-        }
+        },
       );
     });
   }
@@ -480,7 +479,7 @@ export class AmqpConnection {
       const messageProcessingPromise = Promise.resolve(consumer(msg));
       this.outstandingMessageProcessing.add(messageProcessingPromise);
       messageProcessingPromise.finally(() =>
-        this.outstandingMessageProcessing.delete(messageProcessingPromise)
+        this.outstandingMessageProcessing.delete(messageProcessingPromise),
       );
     };
   }
@@ -490,7 +489,7 @@ export class AmqpConnection {
     msgOptions: MessageHandlerOptions,
     channel: ConfirmChannel,
     originalHandlerName = 'unknown',
-    consumeOptions?: ConsumeOptions
+    consumeOptions?: ConsumeOptions,
   ): Promise<ConsumerTag> {
     const queue = await this.setupQueue(msgOptions, channel);
 
@@ -515,8 +514,8 @@ export class AmqpConnection {
           if (response) {
             this.logger.warn(
               `Received response: [${this.config.serializer(
-                response
-              )}] from subscribe handler [${originalHandlerName}]. Subscribe handlers should only return void`
+                response,
+              )}] from subscribe handler [${originalHandlerName}]. Subscribe handlers should only return void`,
             );
           }
 
@@ -529,14 +528,14 @@ export class AmqpConnection {
               msgOptions.errorHandler ||
               getHandlerForLegacyBehavior(
                 msgOptions.errorBehavior ||
-                  this.config.defaultSubscribeErrorBehavior
+                  this.config.defaultSubscribeErrorBehavior,
               );
 
             await errorHandler(channel, msg, e);
           }
         }
       }),
-      consumeOptions
+      consumeOptions,
     );
 
     this.registerConsumerForQueue({
@@ -554,7 +553,7 @@ export class AmqpConnection {
     handler: BatchSubscriberHandler<T>,
     msgOptions: MessageHandlerOptions,
     channel: ConfirmChannel,
-    consumeOptions?: ConsumeOptions
+    consumeOptions?: ConsumeOptions,
   ): Promise<ConsumerTag> {
     let batchSize = msgOptions.batchOptions?.size;
     let batchTimeout = msgOptions.batchOptions?.timeout;
@@ -565,14 +564,14 @@ export class AmqpConnection {
     // Normalize batch values but warn consumer about this adjusts
     if (!batchSize || batchSize < 2) {
       this.logger.warn(
-        `batch size too low/not defined, received: ${batchSize}. Adjusting to 10`
+        `batch size too low/not defined, received: ${batchSize}. Adjusting to 10`,
       );
       batchSize = 10;
     }
 
     if (!batchTimeout || batchTimeout < 1) {
       this.logger.warn(
-        `batch timeout too low/not defined, received: ${batchTimeout}. Setting timeout to 200ms`
+        `batch timeout too low/not defined, received: ${batchTimeout}. Setting timeout to 200ms`,
       );
       batchTimeout = 200;
     }
@@ -599,7 +598,7 @@ export class AmqpConnection {
                 handler,
                 msgOptions,
                 channel,
-                batchMsgsToProcess
+                batchMsgsToProcess,
               );
 
               resolve();
@@ -615,7 +614,7 @@ export class AmqpConnection {
           batchTimer.refresh();
         }
       }),
-      consumeOptions
+      consumeOptions,
     );
 
     this.registerConsumerForQueue({
@@ -633,7 +632,7 @@ export class AmqpConnection {
     handler: BatchSubscriberHandler<T>,
     msgOptions: MessageHandlerOptions,
     channel: ConfirmChannel,
-    batchMsgs: ConsumeMessage[]
+    batchMsgs: ConsumeMessage[],
   ) {
     try {
       const messages: (T | undefined)[] = [];
@@ -661,7 +660,7 @@ export class AmqpConnection {
       const batchErrorHandler = msgOptions.batchOptions?.errorHandler;
       const errorHandler = msgOptions.errorHandler;
       const defaultErrorHandler = getHandlerForLegacyBehavior(
-        msgOptions.errorBehavior || this.config.defaultSubscribeErrorBehavior
+        msgOptions.errorBehavior || this.config.defaultSubscribeErrorBehavior,
       );
 
       if (batchErrorHandler) {
@@ -678,17 +677,17 @@ export class AmqpConnection {
 
   public async createRpc<T, U>(
     handler: RpcSubscriberHandler<T, U>,
-    rpcOptions: MessageHandlerOptions
+    rpcOptions: MessageHandlerOptions,
   ): Promise<SubscriptionResult> {
     return this.consumerFactory(rpcOptions, (channel) =>
-      this.setupRpcChannel<T, U>(handler, rpcOptions, channel)
+      this.setupRpcChannel<T, U>(handler, rpcOptions, channel),
     );
   }
 
   public async setupRpcChannel<T, U>(
     handler: RpcSubscriberHandler<T, U>,
     rpcOptions: MessageHandlerOptions,
-    channel: ConfirmChannel
+    channel: ConfirmChannel,
   ): Promise<ConsumerTag> {
     const queue = await this.setupQueue(rpcOptions, channel);
 
@@ -706,7 +705,7 @@ export class AmqpConnection {
             channel.nack(msg, false, false);
             this.logger.error(
               'Received message with invalid routing key: ' +
-                msg.fields.routingKey
+                msg.fields.routingKey,
             );
             return;
           }
@@ -739,14 +738,14 @@ export class AmqpConnection {
               this.config.defaultRpcErrorHandler ||
               getHandlerForLegacyBehavior(
                 rpcOptions.errorBehavior ||
-                  this.config.defaultSubscribeErrorBehavior
+                  this.config.defaultSubscribeErrorBehavior,
               );
 
             await errorHandler(channel, msg, e);
           }
         }
       }),
-      rpcOptions?.queueOptions?.consumerOptions
+      rpcOptions?.queueOptions?.consumerOptions,
     );
 
     this.registerConsumerForQueue({
@@ -764,7 +763,7 @@ export class AmqpConnection {
     exchange: string,
     routingKey: string,
     message: any,
-    options?: Options.Publish
+    options?: Options.Publish,
   ): Promise<boolean> {
     let buffer: Buffer;
     if (message instanceof Buffer) {
@@ -785,7 +784,7 @@ export class AmqpConnection {
     options: {
       allowNonJsonMessages?: boolean;
       deserializer?: MessageDeserializer;
-    }
+    },
   ) {
     let message: T | undefined = undefined;
     let headers: any = undefined;
@@ -813,7 +812,7 @@ export class AmqpConnection {
 
   private async setupQueue(
     subscriptionOptions: MessageHandlerOptions,
-    channel: ConfirmChannel
+    channel: ConfirmChannel,
   ): Promise<string> {
     const {
       exchange,
@@ -835,12 +834,12 @@ export class AmqpConnection {
           channel,
           queueName,
           queueOptions,
-          error
+          error,
         );
       }
     } else {
       const { queue } = await channel.checkQueue(
-        subscriptionOptions.queue || ''
+        subscriptionOptions.queue || '',
       );
       actualQueue = queue;
     }
@@ -860,10 +859,10 @@ export class AmqpConnection {
               actualQueue as string,
               exchange,
               routingKey,
-              bindQueueArguments
+              bindQueueArguments,
             );
           }
-        })
+        }),
       );
     }
 
@@ -882,17 +881,17 @@ export class AmqpConnection {
     }
 
     channel.on('connect', () =>
-      this.logger.log(`Successfully connected a RabbitMQ channel "${name}"`)
+      this.logger.log(`Successfully connected a RabbitMQ channel "${name}"`),
     );
 
     channel.on('error', (err, { name }) =>
       this.logger.error(
-        `Failed to setup a RabbitMQ channel - name: ${name} / error: ${err.message} ${err.stack}`
-      )
+        `Failed to setup a RabbitMQ channel - name: ${name} / error: ${err.message} ${err.stack}`,
+      ),
     );
 
     channel.on('close', () =>
-      this.logger.log(`Successfully closed a RabbitMQ channel "${name}"`)
+      this.logger.log(`Successfully closed a RabbitMQ channel "${name}"`),
     );
 
     return channel.addSetup((c) => this.setupInitChannel(c, name, config));
@@ -908,7 +907,7 @@ export class AmqpConnection {
     const channel = this._managedChannels[name];
     if (!channel) {
       this.logger.warn(
-        `Channel "${name}" does not exist, using default channel: ${this._managedChannel.name}.`
+        `Channel "${name}" does not exist, using default channel: ${this._managedChannel.name}.`,
       );
 
       return this._managedChannel;
@@ -943,7 +942,7 @@ export class AmqpConnection {
   }
 
   public async resumeConsumer<T, U>(
-    consumerTag: ConsumerTag
+    consumerTag: ConsumerTag,
   ): Promise<ConsumerTag | null> {
     const consumer = this.getConsumer(consumerTag) as ConsumerHandler<T, U>;
     if (!consumer) {
@@ -954,25 +953,25 @@ export class AmqpConnection {
       newConsumerTag = await this.setupRpcChannel<T, U>(
         consumer.handler,
         consumer.msgOptions,
-        consumer.channel
+        consumer.channel,
       );
     } else if (consumer.type === 'subscribe') {
       newConsumerTag = await this.setupSubscriberChannel<T>(
         consumer.handler,
         consumer.msgOptions,
-        consumer.channel
+        consumer.channel,
       );
     } else if (consumer.type === 'subscribe-batch') {
       newConsumerTag = await this.setupBatchSubscriberChannel<T>(
         consumer.handler,
         consumer.msgOptions,
-        consumer.channel
+        consumer.channel,
       );
     } else {
       throw new Error(
         `Unable to resume consumer tag ${consumerTag}. Unexpected consumer type ${
           (consumer as any).type
-        }.`
+        }.`,
       );
     }
     // A new consumerTag was created, remove old
@@ -989,7 +988,7 @@ export class AmqpConnection {
     // Wait for all the outstanding messages to be processed
     if (this.outstandingMessageProcessing.size) {
       this.logger.log(
-        `Waiting for outstanding consumers, outstanding message count: ${this.outstandingMessageProcessing.size}`
+        `Waiting for outstanding consumers, outstanding message count: ${this.outstandingMessageProcessing.size}`,
       );
     }
     await Promise.all(this.outstandingMessageProcessing);

@@ -26,14 +26,16 @@ const defaultHasuraRetryConfig: ScheduledEventRetryConfig = {
 };
 
 export const isTrackedHasuraEventHandlerConfig = (
-  eventHandlerConfig: HasuraEventHandlerConfig | TrackedHasuraEventHandlerConfig
+  eventHandlerConfig:
+    | HasuraEventHandlerConfig
+    | TrackedHasuraEventHandlerConfig,
 ): eventHandlerConfig is TrackedHasuraEventHandlerConfig => {
   return 'definition' in eventHandlerConfig;
 };
 
 const updateEventTriggerMetaV2 = (
   moduleConfig: HasuraModuleConfig,
-  eventHandlerConfigs: TrackedHasuraEventHandlerConfig[]
+  eventHandlerConfigs: TrackedHasuraEventHandlerConfig[],
 ) => {
   const { managedMetaDataConfig } = moduleConfig;
 
@@ -53,12 +55,12 @@ const updateEventTriggerMetaV2 = (
     const { schema = 'public', tableName } = config;
 
     const matchingTable = tableEntries.find(
-      (x) => x.table.schema === schema && x.table.name === tableName
+      (x) => x.table.schema === schema && x.table.name === tableName,
     );
 
     if (!matchingTable) {
       throw new Error(
-        `Table '${tableName}' from schema '${schema}' not found in tables metadata`
+        `Table '${tableName}' from schema '${schema}' not found in tables metadata`,
       );
     }
 
@@ -66,7 +68,7 @@ const updateEventTriggerMetaV2 = (
       config,
       moduleConfig,
       defaultRetryConfig,
-      matchingTable
+      matchingTable,
     );
   });
 
@@ -76,7 +78,7 @@ const updateEventTriggerMetaV2 = (
 
 const updateEventTriggerMetaV3 = (
   moduleConfig: HasuraModuleConfig,
-  eventHandlerConfigs: TrackedHasuraEventHandlerConfig[]
+  eventHandlerConfigs: TrackedHasuraEventHandlerConfig[],
 ) => {
   const { managedMetaDataConfig } = moduleConfig;
 
@@ -98,7 +100,7 @@ const updateEventTriggerMetaV3 = (
       config,
       moduleConfig,
       defaultRetryConfig,
-      tableEntry
+      tableEntry,
     );
 
     const yamlString = dump(tableEntry);
@@ -108,10 +110,10 @@ const updateEventTriggerMetaV3 = (
 
 export const updateEventTriggerMeta = (
   moduleConfig: HasuraModuleConfig,
-  eventHandlerConfigs: TrackedHasuraEventHandlerConfig[]
+  eventHandlerConfigs: TrackedHasuraEventHandlerConfig[],
 ) => {
   const { managedMetaDataConfig } = moduleConfig;
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+
   const { metadataVersion = 'v2' } = moduleConfig.managedMetaDataConfig!;
 
   if (!managedMetaDataConfig) {
@@ -129,7 +131,7 @@ export const updateEventTriggerMeta = (
 
 export const updateScheduledEventTriggerMeta = (
   moduleConfig: HasuraModuleConfig,
-  scheduledEventHandlerConfigs: TrackedHasuraScheduledEventHandlerConfig[]
+  scheduledEventHandlerConfigs: TrackedHasuraScheduledEventHandlerConfig[],
 ) => {
   const { managedMetaDataConfig } = moduleConfig;
 
@@ -143,7 +145,7 @@ export const updateScheduledEventTriggerMeta = (
   const cronEntries = (load(cronTriggersMeta) ?? []) as CronTrigger[];
 
   const managedCronTriggerNames = scheduledEventHandlerConfigs.map(
-    (x) => x.name
+    (x) => x.name,
   );
 
   const defaultRetryConfig =
@@ -177,7 +179,7 @@ export const updateScheduledEventTriggerMeta = (
         ],
         comment,
       };
-    }
+    },
   );
 
   const newCronEntries: CronTrigger[] = [

@@ -35,7 +35,7 @@ export class StripeModule
             Reflect.defineMetadata(
               PATH_METADATA,
               controllerPrefix,
-              StripeWebhookController
+              StripeWebhookController,
             );
             config.webhookConfig?.decorators?.forEach((deco) => {
               deco(StripeWebhookController);
@@ -49,6 +49,7 @@ export class StripeModule
             apiKey,
             typescript = true,
             apiVersion = '2024-06-20',
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             webhookConfig,
             ...options
           }: StripeModuleConfig): Stripe => {
@@ -64,7 +65,7 @@ export class StripeModule
         StripePayloadService,
       ],
       exports: [STRIPE_MODULE_CONFIG_TOKEN, STRIPE_CLIENT_TOKEN],
-    }
+    },
   )
   implements OnModuleInit
 {
@@ -74,7 +75,7 @@ export class StripeModule
     private readonly discover: DiscoveryService,
     private readonly externalContextCreator: ExternalContextCreator,
     @InjectStripeModuleConfig()
-    private readonly stripeModuleConfig: StripeModuleConfig
+    private readonly stripeModuleConfig: StripeModuleConfig,
   ) {
     super();
   }
@@ -104,7 +105,7 @@ export class StripeModule
 
     const [stripeWebhookService] = (
       (await this.discover.providersWithMetaAtKey<boolean>(
-        STRIPE_WEBHOOK_SERVICE
+        STRIPE_WEBHOOK_SERVICE,
       )) || []
     ).map((x) => x.discoveredClass.instance);
 
@@ -117,12 +118,12 @@ export class StripeModule
 
     const eventHandlerMeta =
       await this.discover.providerMethodsWithMetaAtKey<string>(
-        STRIPE_WEBHOOK_HANDLER
+        STRIPE_WEBHOOK_HANDLER,
       );
 
     const grouped = groupBy(
       eventHandlerMeta,
-      (x) => x.discoveredMethod.parentClass.name
+      (x) => x.discoveredMethod.parentClass.name,
     );
 
     const webhookHandlers = flatten(
@@ -140,16 +141,16 @@ export class StripeModule
             undefined, // contextId
             undefined, // inquirerId
             undefined, // options
-            'stripe_webhook' // contextType
+            'stripe_webhook', // contextType
           ),
         }));
-      })
+      }),
     );
 
     const handleWebhook = async (webhookEvent: { type: string }) => {
       const { type } = webhookEvent;
       const handlers = webhookHandlers.filter(
-        (x) => x.key === type || x.key === '*'
+        (x) => x.key === type || x.key === '*',
       );
 
       if (handlers.length) {
@@ -158,7 +159,7 @@ export class StripeModule
             ?.logMatchingEventHandlers
         ) {
           this.logger.log(
-            `Received webhook event for ${type}. Forwarding to ${handlers.length} event handlers`
+            `Received webhook event for ${type}. Forwarding to ${handlers.length} event handlers`,
           );
         }
         await Promise.all(handlers.map((x) => x.handler(webhookEvent)));

@@ -6,7 +6,7 @@ import {
 import { Controller, Get, Injectable, Module } from '@nestjs/common';
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
-import request = require('supertest');
+import request from 'supertest';
 
 const rabbitHost =
   process.env.NODE_ENV === 'ci' ? process.env.RABBITMQ_HOST : 'localhost';

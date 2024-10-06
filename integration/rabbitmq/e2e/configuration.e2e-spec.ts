@@ -493,7 +493,6 @@ describe('Module Configuration', () => {
         app = await Test.createTestingModule({
           imports: [
             RabbitMQModule.forRootAsync(RabbitMQModule, {
-              // eslint-disable-next-line
               useFactory: async () => {
                 return {
                   exchanges: [
