@@ -35,7 +35,7 @@
     "eslint-plugin-sonarjs": "^2.0.0",
     "husky": "^1.3.1",
     "jest": "^27.4.3",
-    "lerna": "^6.0.0",
+    "lerna": "^8.0.0",
     "lint-staged": "^15.2.10",
     "prettier": "^3.3.3",
     "rimraf": "^5.0.0",
