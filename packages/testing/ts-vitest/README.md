@@ -36,6 +36,12 @@ or
 yarn add @golevelup/ts-vitest --dev
 ```
 
+or
+
+```sh
+pnpm add @golevelup/ts-vitest -D
+```
+
 ### Creating Mocks
 
 Here is where the fun begins. As a heads up, this function **does** require you to be using Typescript, as it takes advantage of some advanced Typescript features under the hood, like `Proxies`.

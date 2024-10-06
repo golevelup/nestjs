@@ -51,9 +51,9 @@
     "vitest": "^1.6.0"
   },
   "scripts": {
-    "commit": "yarn run git-cz",
-    "lerna:publish": "lerna run build && yarn test && lerna publish -m 'chore: publish'",
-    "lerna:prerelease": "lerna run build && yarn test && lerna publish prerelease --preid rc -m 'chore: publish prerelease'",
+    "commit": "pnpm git-cz",
+    "lerna:publish": "lerna run build && pnpm test && lerna publish -m 'chore: publish'",
+    "lerna:prerelease": "lerna run build && pnpm test && lerna publish prerelease --preid rc -m 'chore: publish prerelease'",
     "build": " lerna run build --ignore rabbitmq-integration",
     "build:watch": "lerna run --parallel build:watch --ignore rabbitmq-integration",
     "clean": "rimraf packages//lib && rimraf packages//*.tsbuildinfo",
@@ -69,12 +69,12 @@
   },
   "lint-staged": {
     "*.ts": [
-      "yarn run prettier --write",
-      "yarn lint",
+      "pnpm prettier --write",
+      "pnpm lint",
       "git add"
     ],
     "*.md": [
-      "yarn run prettier --write",
+      "pnpm prettier --write",
       "git add"
     ]
   },
@@ -85,7 +85,6 @@
     }
   },
   "volta": {
-    "node": "20.18.0",
-    "yarn": "1.22.22"
+    "node": "20.18.0"
   }
 }
