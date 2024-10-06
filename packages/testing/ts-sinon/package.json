@@ -37,7 +37,7 @@
     "sinon": "^19.x"
   },
   "devDependencies": {
-    "@types/sinon": "^7.0.3",
+    "@types/sinon": "^17.0.0",
     "sinon": "^19.x"
   },
   "publishConfig": {
