@@ -7,7 +7,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "start": "ts-node -r tsconfig-paths/register src/main.ts",
+    "start": "tsx src/main.ts",
     "start:dev": "nodemon",
     "start:debug": "nodemon --config nodemon-debug.json",
     "prestart:prod": "rimraf dist && npm run build",
@@ -15,28 +15,28 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
-    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
+    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r tsx node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ../../jest-e2e.json"
   },
   "dependencies": {
     "rimraf": "^5.0.0"
   },
   "devDependencies": {
+    "@golevelup/nestjs-rabbitmq": "workspace:^",
     "@nestjs/testing": "^10.4.4",
     "@types/express": "5.0.0",
     "@types/jest": "^27.0.3",
     "@types/node": "^20.16.10",
     "@types/supertest": "6.0.2",
+    "amqplib": "0.10.4",
     "jest": "^27.4.3",
     "nodemon": "3.1.7",
     "prettier": "3.3.3",
     "supertest": "7.0.0",
     "ts-jest": "27.1.5",
-    "ts-node": "10.9.2",
     "tsconfig-paths": "4.2.0",
-    "typescript": "4.9.5",
-    "@golevelup/nestjs-rabbitmq": "workspace:^",
-    "amqplib": "0.10.4"
+    "tsx": "^4.19.1",
+    "typescript": "4.9.5"
   },
   "jest": {
     "moduleFileExtensions": [
