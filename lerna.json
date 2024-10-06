@@ -1,7 +1,6 @@
 {
-  "packages": ["packages/*", "packages/testing/*"],
   "version": "independent",
-  "npmClient": "yarn",
+  "npmClient": "pnpm",
   "command": {
     "publish": {
       "conventionalCommits": true
