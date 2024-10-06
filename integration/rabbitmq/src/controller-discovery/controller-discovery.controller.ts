@@ -78,7 +78,6 @@ export class ControllerDiscoveryController {
     errorBehavior: MessageHandlerErrorBehavior.ACK,
     errorHandler: ReplyErrorCallback,
   })
-  // eslint-disable-next-line sonarjs/no-identical-functions
   pipedParamRpc(@RabbitPayload(ValidationPipe) message: number) {
     return {
       message,

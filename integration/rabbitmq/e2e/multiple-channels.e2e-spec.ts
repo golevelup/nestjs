@@ -218,7 +218,6 @@ describe('Rabbit Multiple Channels', () => {
     const payload = { message: 'hi' };
     amqpConnection.publish(exchange, `${routePrefix}3`, payload);
 
-    // eslint-disable-next-line sonarjs/no-identical-functions
     setTimeout(() => {
       expect(pubsubMessageHandler).toHaveBeenCalledTimes(1);
       expect(pubsubMessageHandler).toHaveBeenCalledWith(payload);
@@ -245,7 +244,6 @@ describe('Rabbit Multiple Channels', () => {
     const payload = { message: 'guten tag' };
     amqpConnection.publish(exchange, `${routePrefix}5`, payload);
 
-    // eslint-disable-next-line sonarjs/no-identical-functions
     setTimeout(() => {
       expect(pubsubMessageHandler).toHaveBeenCalledTimes(1);
       expect(pubsubMessageHandler).toHaveBeenCalledWith(payload);

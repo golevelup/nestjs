@@ -5,10 +5,10 @@ type DeepPartial<T> = {
   [P in keyof T]?: T[P] extends Array<infer U>
     ? Array<DeepPartial<U>>
     : T[P] extends ReadonlyArray<infer U>
-    ? ReadonlyArray<DeepPartial<U>>
-    : unknown extends T[P]
-    ? T[P]
-    : DeepPartial<T[P]>;
+      ? ReadonlyArray<DeepPartial<U>>
+      : unknown extends T[P]
+        ? T[P]
+        : DeepPartial<T[P]>;
 };
 
 export type PartialFuncReturn<T> = {
@@ -49,7 +49,6 @@ const jestFnProps = new Set([
 const createProxy: {
   <T extends object>(name: string, base: T): T;
   <T extends Mock<any, any> = Mock<any, any>>(name: string): T;
-  // eslint-disable-next-line sonarjs/cognitive-complexity
 } = <T extends object | Mock<any, any>>(name: string, base?: T): T => {
   const cache = new Map<string | number | symbol, any>();
   const handler: ProxyHandler<T> = {
@@ -99,7 +98,7 @@ const createProxy: {
     (handler as ProxyHandler<Mock<any, any>>).apply = (
       target,
       thisArg,
-      argsArray
+      argsArray,
     ) => {
       const result = Reflect.apply(target, thisArg, argsArray);
       if (target.getMockImplementation() || result !== undefined) {
@@ -121,7 +120,7 @@ export type MockOptions = {
 
 export const createMock = <T extends object>(
   partial: PartialFuncReturn<T> = {},
-  options: MockOptions = {}
+  options: MockOptions = {},
 ): DeepMocked<T> => {
   const { name = 'mock' } = options;
   const proxy = createProxy<T>(name, partial as T);

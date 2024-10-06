@@ -37,7 +37,7 @@ export class RabbitMQModule
         {
           provide: AmqpConnectionManager,
           useFactory: async (
-            config: RabbitMQConfig
+            config: RabbitMQConfig,
           ): Promise<AmqpConnectionManager> => {
             await RabbitMQModule.AmqpConnectionFactory(config);
             return RabbitMQModule.connectionManager;
@@ -48,10 +48,10 @@ export class RabbitMQModule
           provide: AmqpConnection,
           useFactory: async (
             config: RabbitMQConfig,
-            connectionManager: AmqpConnectionManager
+            connectionManager: AmqpConnectionManager,
           ): Promise<AmqpConnection> => {
             return connectionManager.getConnection(
-              config?.name || 'default'
+              config?.name || 'default',
             ) as AmqpConnection;
           },
           inject: [RABBIT_CONFIG_TOKEN, AmqpConnectionManager],
@@ -59,7 +59,7 @@ export class RabbitMQModule
         RabbitRpcParamsFactory,
       ],
       exports: [AmqpConnectionManager, AmqpConnection],
-    }
+    },
   )
   implements OnApplicationBootstrap, OnApplicationShutdown
 {
@@ -73,19 +73,19 @@ export class RabbitMQModule
     private readonly externalContextCreator: ExternalContextCreator,
     private readonly rpcParamsFactory: RabbitRpcParamsFactory,
     private readonly connectionManager: AmqpConnectionManager,
-    @Inject(RABBIT_CONFIG_TOKEN) config: RabbitMQConfig
+    @Inject(RABBIT_CONFIG_TOKEN) config: RabbitMQConfig,
   ) {
     super();
     this.logger = config?.logger || new Logger(RabbitMQModule.name);
   }
 
   static async AmqpConnectionFactory(
-    config: RabbitMQConfig
+    config: RabbitMQConfig,
   ): Promise<AmqpConnection | undefined> {
     const logger = config?.logger || new Logger(RabbitMQModule.name);
     if (config == undefined) {
       logger.log(
-        'RabbitMQ config not provided, skipping connection initialization.'
+        'RabbitMQ config not provided, skipping connection initialization.',
       );
       return undefined;
     }
@@ -122,12 +122,11 @@ export class RabbitMQModule
     connection: AmqpConnection,
     discoveredMethod: DiscoveredMethod,
     config: RabbitHandlerConfig,
-    handler: (...args: any[]) => Promise<any>
+    handler: (...args: any[]) => Promise<any>,
   ) {
     const handlerDisplayName = `${discoveredMethod.parentClass.name}.${
       discoveredMethod.methodName
     } {${config.type}} -> ${
-      // eslint-disable-next-line sonarjs/no-nested-template-literals
       config.queueOptions?.channel ? `${config.queueOptions.channel}::` : ''
     }${config.exchange}::${config.routingKey}::${config.queue || 'amqpgen'}`;
 
@@ -136,7 +135,7 @@ export class RabbitMQModule
       !connection.configuration.enableDirectReplyTo
     ) {
       this.logger.warn(
-        `Direct Reply-To Functionality is disabled. RPC handler ${handlerDisplayName} will not be registered`
+        `Direct Reply-To Functionality is disabled. RPC handler ${handlerDisplayName} will not be registered`,
       );
       return;
     }
@@ -152,7 +151,7 @@ export class RabbitMQModule
           return connection.createBatchSubscriber(
             handler,
             config,
-            config?.queueOptions?.consumerOptions
+            config?.queueOptions?.consumerOptions,
           );
         }
 
@@ -160,17 +159,16 @@ export class RabbitMQModule
           handler,
           config,
           discoveredMethod.methodName,
-          config?.queueOptions?.consumerOptions
+          config?.queueOptions?.consumerOptions,
         );
 
       default:
         throw new Error(
-          `Unable to set up handler ${handlerDisplayName}. Unexpected handler type ${config.type}.`
+          `Unable to set up handler ${handlerDisplayName}. Unexpected handler type ${config.type}.`,
         );
     }
   }
 
-  // eslint-disable-next-line sonarjs/cognitive-complexity
   public async onApplicationBootstrap() {
     if (RabbitMQModule.bootstrapped) {
       return;
@@ -180,7 +178,7 @@ export class RabbitMQModule
     for (const connection of this.connectionManager.getConnections()) {
       if (!connection.configuration.registerHandlers) {
         this.logger.log(
-          'Skipping RabbitMQ Handlers due to configuration. This application instance will not receive messages over RabbitMQ'
+          'Skipping RabbitMQ Handlers due to configuration. This application instance will not receive messages over RabbitMQ',
         );
 
         continue;
@@ -190,23 +188,23 @@ export class RabbitMQModule
 
       let rabbitMeta =
         await this.discover.providerMethodsWithMetaAtKey<RabbitHandlerConfig>(
-          RABBIT_HANDLER
+          RABBIT_HANDLER,
         );
 
       if (connection.configuration.enableControllerDiscovery) {
         this.logger.log(
-          'Searching for RabbitMQ Handlers in Controllers. You can not use NestJS HTTP-Requests in these controllers!'
+          'Searching for RabbitMQ Handlers in Controllers. You can not use NestJS HTTP-Requests in these controllers!',
         );
         rabbitMeta = rabbitMeta.concat(
           await this.discover.controllerMethodsWithMetaAtKey<RabbitHandlerConfig>(
-            RABBIT_HANDLER
-          )
+            RABBIT_HANDLER,
+          ),
         );
       }
 
       const grouped = groupBy(
         rabbitMeta,
-        (x) => x.discoveredMethod.parentClass.name
+        (x) => x.discoveredMethod.parentClass.name,
       );
 
       const providerKeys = Object.keys(grouped);
@@ -231,7 +229,7 @@ export class RabbitMQModule
               undefined, // contextId
               undefined, // inquirerId
               undefined, // options
-              RABBIT_CONTEXT_TYPE_KEY // contextType
+              RABBIT_CONTEXT_TYPE_KEY, // contextType
             );
 
             const moduleHandlerConfigRaw =
@@ -254,11 +252,11 @@ export class RabbitMQModule
                   connection,
                   discoveredMethod,
                   mergedConfig,
-                  handler
+                  handler,
                 );
-              })
+              }),
             );
-          })
+          }),
         );
       }
     }
