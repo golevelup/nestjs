@@ -22,6 +22,7 @@
     "@types/mime": "3.0.4",
     "@types/node": "^20.16.10",
     "@types/supertest": "^6.0.2",
+    "@types/express": "5.0.0",
     "@typescript-eslint/eslint-plugin": "^8.8.0",
     "@typescript-eslint/parser": "8.8.0",
     "all-contributors-cli": "^6.26.1",
