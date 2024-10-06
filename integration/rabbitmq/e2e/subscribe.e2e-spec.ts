@@ -364,7 +364,6 @@ describe('Rabbit Subscribe', () => {
 
   it('should go into infite lopo', async () => {
     const message = '{"key":"value"}';
-    // tslint:disable-next-line:no-console
     // publish and expect to acknowledge but not throw
     const warnSpy = jest.spyOn(customLogger, 'warn');
     amqpConnection.publish(exchange, 'infinite-loop', message);

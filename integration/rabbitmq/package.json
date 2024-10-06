@@ -12,7 +12,6 @@
     "start:debug": "nodemon --config nodemon-debug.json",
     "prestart:prod": "rimraf dist && npm run build",
     "start:prod": "node dist/main.js",
-    "lint": "tslint -p tsconfig.json -c tslint.json",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
@@ -35,7 +34,6 @@
     "ts-jest": "27.1.5",
     "ts-node": "10.9.2",
     "tsconfig-paths": "4.2.0",
-    "tslint": "6.1.3",
     "typescript": "4.9.5"
   },
   "jest": {
