@@ -2,11 +2,6 @@
   "name": "root",
   "private": true,
   "license": "MIT",
-  "workspaces": [
-    "packages/*",
-    "packages/testing/*",
-    "integration/*"
-  ],
   "dependencies": {
     "@nestjs/common": "^10.4.4",
     "@nestjs/core": "^10.4.4",
@@ -27,6 +22,7 @@
     "@types/mime": "3.0.4",
     "@types/node": "^20.16.10",
     "@types/supertest": "^6.0.2",
+    "@types/express": "5.0.0",
     "@typescript-eslint/eslint-plugin": "^8.8.0",
     "@typescript-eslint/parser": "8.8.0",
     "all-contributors-cli": "^6.26.1",
@@ -38,7 +34,7 @@
     "globals": "^15.10.0",
     "husky": "^9.1.6",
     "jest": "^27.4.3",
-    "lerna": "^7.4.2",
+    "lerna": "^8.1.8",
     "lint-staged": "^15.2.10",
     "prettier": "^3.3.3",
     "rimraf": "^5.0.0",
@@ -51,9 +47,9 @@
     "vitest": "^1.6.0"
   },
   "scripts": {
-    "commit": "yarn run git-cz",
-    "lerna:publish": "lerna run build && yarn test && lerna publish -m 'chore: publish'",
-    "lerna:prerelease": "lerna run build && yarn test && lerna publish prerelease --preid rc -m 'chore: publish prerelease'",
+    "commit": "pnpm git-cz",
+    "lerna:publish": "lerna run build && pnpm test && lerna publish -m 'chore: publish'",
+    "lerna:prerelease": "lerna run build && pnpm test && lerna publish prerelease --preid rc -m 'chore: publish prerelease'",
     "build": " lerna run build --ignore rabbitmq-integration",
     "build:watch": "lerna run --parallel build:watch --ignore rabbitmq-integration",
     "clean": "rimraf packages//lib && rimraf packages//*.tsbuildinfo",
@@ -69,12 +65,12 @@
   },
   "lint-staged": {
     "*.ts": [
-      "yarn run prettier --write",
-      "yarn lint",
+      "pnpm prettier --write",
+      "pnpm lint",
       "git add"
     ],
     "*.md": [
-      "yarn run prettier --write",
+      "pnpm prettier --write",
       "git add"
     ]
   },
@@ -85,7 +81,6 @@
     }
   },
   "volta": {
-    "node": "20.18.0",
-    "yarn": "1.22.22"
+    "node": "20.18.0"
   }
 }

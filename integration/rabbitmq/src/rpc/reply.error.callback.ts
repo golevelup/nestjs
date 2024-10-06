@@ -1,8 +1,8 @@
-import * as amqplib from 'amqplib';
+import type { Channel, ConsumeMessage } from 'amqplib';
 
 export function ReplyErrorCallback(
-  channel: amqplib.Channel,
-  msg: amqplib.ConsumeMessage,
+  channel: Channel,
+  msg: ConsumeMessage,
   error: any,
 ) {
   const { replyTo, correlationId } = msg.properties;

@@ -22,10 +22,10 @@ jobs:
       rabbitmq:
         image: rabbitmq:management
         env:
-          RABBITMQ_ERLANG_COOKIE: "SWQOKODSQALRPCLNMEQG"
-          RABBITMQ_DEFAULT_USER: "rabbitmq"
-          RABBITMQ_DEFAULT_PASS: "rabbitmq"
-          RABBITMQ_DEFAULT_VHOST: "/"
+          RABBITMQ_ERLANG_COOKIE: 'SWQOKODSQALRPCLNMEQG'
+          RABBITMQ_DEFAULT_USER: 'rabbitmq'
+          RABBITMQ_DEFAULT_PASS: 'rabbitmq'
+          RABBITMQ_DEFAULT_VHOST: '/'
         ports:
           - 5672/tcp
 
@@ -33,23 +33,29 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node.js ${{ matrix.node }}
+      - uses: actions/checkout@v4
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node }}
-          cache: 'yarn'
+          node-version: ${{ matrix.node-version }}
+          cache: 'pnpm'
 
       - name: Install dependencies
-        run: yarn install
+        run: pnpm i --prefer-offline
 
       - name: Build
-        run: yarn build
+        run: pnpm build --concurrency=12
 
       - name: Run unit tests
-        run: yarn test:ci
+        run: pnpm test:ci
 
       - name: Run Vitest unit tests
-        run: yarn test:vitest:ci
+        run: pnpm test:vitest:ci
 
       - name: Publish code coverage
         if: matrix.node == env.LATEST_NODE_VERSION
@@ -57,8 +63,7 @@ jobs:
 
       - name: Run integration tests
         run: |
-          yarn --cwd ./integration/rabbitmq
-          yarn test:ci:integration
+          pnpm test:ci:integration
         env:
           NODE_ENV: ci
           RABBITMQ_HOST: localhost

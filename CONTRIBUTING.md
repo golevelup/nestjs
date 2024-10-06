@@ -33,9 +33,9 @@ Pick a good branch name. Try something that summarizes what you're doing in a de
 - `docs/improve-readme`
 - `fix/{number}some-bug`
 
-## 4. Install Dependencies with Yarn
+## 4. Install Dependencies with PNPM
 
-Make sure that before you start writing code you run `yarn` at the root of the repo in order to make sure that all githooks are registered and packages are installed. This will help to ensure that when it's time to commit your changes that everything is in order.
+Make sure that before you start writing code you run `pnpm i` at the root of the repo in order to make sure that all githooks are registered and packages are installed. This will help to ensure that when it's time to commit your changes that everything is in order.
 
 ## 5. Make your change
 
@@ -46,7 +46,7 @@ Write some awesome code that makes Go Level Up better! :muscle:
 This part is easy, just use the included scripts to guide you through a prompt to generate your commit message.
 
 ```
-yarn commit
+pnpm commit
 ```
 
 Be sure to include a reference to the issue number when prompted using `#{number}` syntax eg:
