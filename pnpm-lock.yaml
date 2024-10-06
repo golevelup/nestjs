@@ -309,8 +309,8 @@ importers:
         version: 0.7.1(@nestjs/common@10.4.4(reflect-metadata@0.2.2)(rxjs@7.8.1))(rxjs@7.8.1)
     devDependencies:
       stripe:
-        specifier: ^16.12.0
-        version: 16.12.0
+        specifier: ^17.1.0
+        version: 17.1.0
 
   packages/testing/ts-jest:
     devDependencies:
@@ -4673,8 +4673,8 @@ packages:
   strip-literal@2.1.0:
     resolution: {integrity: sha512-Op+UycaUt/8FbN/Z2TWPBLge3jWrP3xj10f3fnYxf052bKuS3EKs1ZQcVGjnEMdsNVAM+plXRdmjrZ/KgG3Skw==}
 
-  stripe@16.12.0:
-    resolution: {integrity: sha512-H7eFVLDxeTNNSn4JTRfL2//LzCbDrMSZ+2q1c7CanVWgK2qIW5TwS+0V7N9KcKZZNpYh/uCqK0PyZh/2UsaAtQ==}
+  stripe@17.1.0:
+    resolution: {integrity: sha512-sNRsJx7LPP2Gg6cBJoHJqhr+UoBVZZRes2BDqbrg+1FDBxJc4Yn+LkrpJ/VnL3XQ3+6I5GrOUnSSFfE/joDFjw==}
     engines: {node: '>=12.*'}
 
   strong-log-transformer@2.1.0:
@@ -10497,7 +10497,7 @@ snapshots:
       js-tokens: 9.0.0
     optional: true
 
-  stripe@16.12.0:
+  stripe@17.1.0:
     dependencies:
       '@types/node': 20.16.10
       qs: 6.13.0

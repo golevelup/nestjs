@@ -3,7 +3,7 @@ import { createConfigurableDynamicRootModule } from '@golevelup/nestjs-modules';
 import { Logger, Module, OnModuleInit } from '@nestjs/common';
 import { PATH_METADATA } from '@nestjs/common/constants';
 import { ExternalContextCreator } from '@nestjs/core/helpers/external-context-creator';
-import { flatten, groupBy } from 'lodash';
+import { flatten, groupBy, omit } from 'lodash';
 import Stripe from 'stripe';
 import {
   STRIPE_CLIENT_TOKEN,
@@ -48,15 +48,13 @@ export class StripeModule
           useFactory: ({
             apiKey,
             typescript = true,
-            apiVersion = '2024-06-20',
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            webhookConfig,
+            apiVersion = '2024-09-30.acacia',
             ...options
           }: StripeModuleConfig): Stripe => {
             return new Stripe(apiKey, {
               typescript,
               apiVersion,
-              ...options,
+              ...omit(options, ['webhookConfig']),
             });
           },
           inject: [STRIPE_MODULE_CONFIG_TOKEN],
