@@ -35,6 +35,10 @@
   "publishConfig": {
     "access": "public"
   },
+  "devDependencies": {
+    "jest": "^27.4.3",
+    "jest-mock": "27.5.1"
+  },
   "jest": {
     "moduleFileExtensions": [
       "js",
