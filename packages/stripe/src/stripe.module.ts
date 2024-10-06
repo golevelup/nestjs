@@ -48,7 +48,7 @@ export class StripeModule
           useFactory: ({
             apiKey,
             typescript = true,
-            apiVersion = '2024-06-20',
+            apiVersion = '2024-09-30.acacia',
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             webhookConfig,
             ...options
