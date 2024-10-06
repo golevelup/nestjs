@@ -49,7 +49,7 @@ jobs:
         run: pnpm i --prefer-offline
 
       - name: Build
-        run: pnpm build
+        run: pnpm build --concurrency=12
 
       - name: Run unit tests
         run: pnpm test:ci
