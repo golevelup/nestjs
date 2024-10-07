@@ -1,4 +1,4 @@
-import { matchesRoutingKey } from '../amqp/utils';
+import { assertRabbitMqUri, matchesRoutingKey } from '../amqp/utils';
 
 describe(matchesRoutingKey.name, () => {
   const userCreated = 'user.created';
@@ -57,5 +57,32 @@ describe(matchesRoutingKey.name, () => {
   ])('%s', (_, routingKey, pattern, expectedResult) => {
     const result = matchesRoutingKey(routingKey, pattern);
     expect(result).toBe(expectedResult);
+  });
+
+  describe(assertRabbitMqUri.name, () => {
+    it('should not throw with valid uris', () => {
+      expect(() =>
+        assertRabbitMqUri('amqp://rabbitmq:rabbitmq@localhost:4444'),
+      ).not.toThrowError();
+
+      expect(() =>
+        assertRabbitMqUri([
+          'amqp://rabbitmq:rabbitmq@localhost:4444',
+          'amqp://rabbitmq:rabbitmq@localhost:1234',
+        ]),
+      ).not.toThrowError();
+    });
+
+    it('should throw when malformed uris are provided', () => {
+      expect(() =>
+        assertRabbitMqUri('xamqp://rabbitmq:rabbitmq@localhost:4444'),
+      ).toThrowError();
+      expect(() =>
+        assertRabbitMqUri([
+          'amqp://rabbitmq:rabbitmq@localhost:hello',
+          'superbawl://rabbitmq:rabbitmq@localhost:4444',
+        ]),
+      ).toThrowError();
+    });
   });
 });

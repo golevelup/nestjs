@@ -18,6 +18,7 @@ import { ExternalContextCreator } from '@nestjs/core/helpers/external-context-cr
 import { groupBy } from 'lodash';
 import { AmqpConnection } from './amqp/connection';
 import { AmqpConnectionManager } from './amqp/connectionManager';
+import { assertRabbitMqUri } from './amqp/utils';
 import {
   RABBIT_CONFIG_TOKEN,
   RABBIT_CONTEXT_TYPE_KEY,
@@ -89,6 +90,9 @@ export class RabbitMQModule
       );
       return undefined;
     }
+
+    assertRabbitMqUri(config.uri);
+
     const connection = new AmqpConnection(config);
     this.connectionManager.addConnection(connection);
     await connection.init();
