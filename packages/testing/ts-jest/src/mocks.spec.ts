@@ -9,6 +9,7 @@ interface TestInterface {
   optional: string | undefined;
   func: (num: number, str: string) => boolean;
   func2: (entity: TestClass) => void;
+  func3: () => Promise<{ prop: number }>;
 }
 
 class TestClass {
@@ -224,6 +225,25 @@ describe('Mocks', () => {
       const mock = createMock<any>();
       expect(mock.toString()).toEqual('[object Object]');
       expect(mock.nested.toString()).toEqual('function () { [native code] }');
+    });
+    it('nested properties can be implictly casted to string', () => {
+      const mock = createMock<{ nested: any }>();
+
+      const testFnNumber = () => mock.nested > 0;
+      const testFnString = () => `${mock.nested}`;
+
+      expect(testFnNumber).not.toThrowError();
+      expect(testFnString).not.toThrowError();
+    });
+    it('mocked functions returned values can be implictly casted to string', async () => {
+      const mock = createMock<TestInterface>();
+      const result = await mock.func3();
+
+      const testFnNumber = () => result.prop > 0;
+      const testFnString = () => `${result.prop}`;
+
+      expect(testFnNumber).not.toThrowError();
+      expect(testFnString).not.toThrowError();
     });
 
     it('asymmetricMatch should not be set', () => {
