@@ -310,7 +310,7 @@ importers:
     devDependencies:
       stripe:
         specifier: ^17.1.0
-        version: 17.1.0
+        version: 17.2.0
 
   packages/testing/ts-jest:
     devDependencies:
@@ -4831,8 +4831,8 @@ packages:
   strip-literal@2.1.0:
     resolution: {integrity: sha512-Op+UycaUt/8FbN/Z2TWPBLge3jWrP3xj10f3fnYxf052bKuS3EKs1ZQcVGjnEMdsNVAM+plXRdmjrZ/KgG3Skw==}
 
-  stripe@17.1.0:
-    resolution: {integrity: sha512-sNRsJx7LPP2Gg6cBJoHJqhr+UoBVZZRes2BDqbrg+1FDBxJc4Yn+LkrpJ/VnL3XQ3+6I5GrOUnSSFfE/joDFjw==}
+  stripe@17.2.0:
+    resolution: {integrity: sha512-KuDplY9WrNKi07+uEFeguis/Mh+HC+hfEMy8P5snhQzCXUv01o+4KcIJ9auFxpv4Odp2R2krs9rZ9PhQl8+Sdw==}
     engines: {node: '>=12.*'}
 
   strong-log-transformer@2.1.0:
@@ -10883,7 +10883,7 @@ snapshots:
       js-tokens: 9.0.0
     optional: true
 
-  stripe@17.1.0:
+  stripe@17.2.0:
     dependencies:
       '@types/node': 22.7.5
       qs: 6.13.0
