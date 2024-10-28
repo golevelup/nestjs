@@ -488,10 +488,10 @@ export class AppController {
 If you just want to publish a message onto a RabbitMQ exchange, use the `publish` method of the `AmqpConnection` which has the following signature:
 
 ```typescript
-public publish<T = any>(
+public publish(
   exchange: string,
   routingKey: string,
-  message: T,
+  message: any,
   options?: amqplib.Options.Publish
 )
 ```
@@ -500,14 +500,6 @@ For example:
 
 ```typescript
 amqpConnection.publish('some-exchange', 'routing-key', { msg: 'hello world' });
-
-// optionally specify a type for generic type checking support
-interface CustomModel {
-  foo: string;
-  bar: string;
-}
-amqpConnection.publish<CustomModel>('some-exchange', 'routing-key', {});
-// this will now show an error that you are missing properties: foo, bar
 ```
 
 ### Requesting Data from an RPC
