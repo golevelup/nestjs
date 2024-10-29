@@ -204,14 +204,14 @@ importers:
   packages/graphql-request:
     dependencies:
       '@golevelup/nestjs-common':
-        specifier: ^2.0.0
-        version: 2.0.0(@nestjs/common@10.4.4(reflect-metadata@0.2.2)(rxjs@7.8.1))
+        specifier: workspace:^
+        version: link:../common
       '@golevelup/nestjs-discovery':
-        specifier: ^4.0.1
-        version: 4.0.1(@nestjs/common@10.4.4(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@10.4.4)
+        specifier: workspace:^
+        version: link:../discovery
       '@golevelup/nestjs-modules':
-        specifier: ^0.7.1
-        version: 0.7.1(@nestjs/common@10.4.4(reflect-metadata@0.2.2)(rxjs@7.8.1))(rxjs@7.8.1)
+        specifier: workspace:^
+        version: link:../modules
       graphql:
         specifier: ^16.8.1
         version: 16.9.0
@@ -222,14 +222,14 @@ importers:
   packages/hasura:
     dependencies:
       '@golevelup/nestjs-common':
-        specifier: ^2.0.0
-        version: 2.0.0(@nestjs/common@10.4.4(reflect-metadata@0.2.2)(rxjs@7.8.1))
+        specifier: workspace:^
+        version: link:../common
       '@golevelup/nestjs-discovery':
-        specifier: ^4.0.1
-        version: 4.0.1(@nestjs/common@10.4.4(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@10.4.4)
+        specifier: workspace:^
+        version: link:../discovery
       '@golevelup/nestjs-modules':
-        specifier: ^0.7.1
-        version: 0.7.1(@nestjs/common@10.4.4(reflect-metadata@0.2.2)(rxjs@7.8.1))(rxjs@7.8.1)
+        specifier: workspace:^
+        version: link:../modules
       '@hasura/metadata':
         specifier: ^1.0.2
         version: 1.0.2
@@ -262,14 +262,14 @@ importers:
   packages/rabbitmq:
     dependencies:
       '@golevelup/nestjs-common':
-        specifier: ^2.0.0
-        version: 2.0.0(@nestjs/common@10.4.4(reflect-metadata@0.2.2)(rxjs@7.8.1))
+        specifier: workspace:^
+        version: link:../common
       '@golevelup/nestjs-discovery':
-        specifier: ^4.0.1
-        version: 4.0.1(@nestjs/common@10.4.4(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@10.4.4)
+        specifier: workspace:^
+        version: link:../discovery
       '@golevelup/nestjs-modules':
-        specifier: ^0.7.1
-        version: 0.7.1(@nestjs/common@10.4.4(reflect-metadata@0.2.2)(rxjs@7.8.1))(rxjs@7.8.1)
+        specifier: workspace:^
+        version: link:../modules
       '@nestjs/common':
         specifier: ^10.x
         version: 10.4.4(reflect-metadata@0.2.2)(rxjs@7.8.1)
@@ -299,14 +299,14 @@ importers:
   packages/stripe:
     dependencies:
       '@golevelup/nestjs-common':
-        specifier: ^2.0.0
-        version: 2.0.0(@nestjs/common@10.4.4(reflect-metadata@0.2.2)(rxjs@7.8.1))
+        specifier: workspace:^
+        version: link:../common
       '@golevelup/nestjs-discovery':
-        specifier: ^4.0.1
-        version: 4.0.1(@nestjs/common@10.4.4(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@10.4.4)
+        specifier: workspace:^
+        version: link:../discovery
       '@golevelup/nestjs-modules':
-        specifier: ^0.7.1
-        version: 0.7.1(@nestjs/common@10.4.4(reflect-metadata@0.2.2)(rxjs@7.8.1))(rxjs@7.8.1)
+        specifier: workspace:^
+        version: link:../modules
     devDependencies:
       stripe:
         specifier: ^17.1.0
@@ -338,11 +338,11 @@ importers:
   packages/webhooks:
     dependencies:
       '@golevelup/nestjs-common':
-        specifier: ^2.0.0
-        version: 2.0.0(@nestjs/common@10.4.4(reflect-metadata@0.2.2)(rxjs@7.8.1))
+        specifier: workspace:^
+        version: link:../common
       '@golevelup/nestjs-modules':
-        specifier: ^0.7.1
-        version: 0.7.1(@nestjs/common@10.4.4(reflect-metadata@0.2.2)(rxjs@7.8.1))(rxjs@7.8.1)
+        specifier: workspace:^
+        version: link:../modules
       body-parser:
         specifier: ^1.20.3
         version: 1.20.3
@@ -925,23 +925,6 @@ packages:
   '@eslint/plugin-kit@0.2.0':
     resolution: {integrity: sha512-vH9PiIMMwvhCx31Af3HiGzsVNULDbyVkHXwlemn/B0TFj/00ho3y55efXrUZTfQipxoHC5u4xq6zblww1zm1Ig==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
-
-  '@golevelup/nestjs-common@2.0.0':
-    resolution: {integrity: sha512-D9RLXgkqn9SDLnZ2VoMER9l/+g5CM9Z7sZXa+10+0rZs6yevMepoiWmMVsFoUXLzYG2GwfixHLExwUr3XBCHFw==}
-    peerDependencies:
-      '@nestjs/common': ^10.x
-
-  '@golevelup/nestjs-discovery@4.0.1':
-    resolution: {integrity: sha512-HFXBJayEkYcU/bbxOztozONdWaZR34ZeJ2zRbZIWY8d5K26oPZQTvJ4L0STW3XVRGWtoE0WBpmx2YPNgYvcmJQ==}
-    peerDependencies:
-      '@nestjs/common': ^10.x
-      '@nestjs/core': ^10.x
-
-  '@golevelup/nestjs-modules@0.7.1':
-    resolution: {integrity: sha512-L5hBuU57ujl73IAyyZYkT+41tbo+9BggLzze7AMSWJhNUJBhvifFvtfSNRy2aTTPsLYuHLH2tmerjjOQkEdgDg==}
-    peerDependencies:
-      '@nestjs/common': ^10.x
-      rxjs: ^7.x
 
   '@graphql-typed-document-node/core@3.2.0':
     resolution: {integrity: sha512-mB9oAsNCm9aM3/SOv4YtBMqZbYj10R7dkq8byBqxGY/ncFwhf2oQzMV+LCRlWoDSEBJ3COiR1yeDvMtsoOsuFQ==}
@@ -5971,24 +5954,6 @@ snapshots:
   '@eslint/plugin-kit@0.2.0':
     dependencies:
       levn: 0.4.1
-
-  '@golevelup/nestjs-common@2.0.0(@nestjs/common@10.4.4(reflect-metadata@0.2.2)(rxjs@7.8.1))':
-    dependencies:
-      '@nestjs/common': 10.4.4(reflect-metadata@0.2.2)(rxjs@7.8.1)
-      lodash: 4.17.21
-      nanoid: 3.3.7
-
-  '@golevelup/nestjs-discovery@4.0.1(@nestjs/common@10.4.4(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@10.4.4)':
-    dependencies:
-      '@nestjs/common': 10.4.4(reflect-metadata@0.2.2)(rxjs@7.8.1)
-      '@nestjs/core': 10.4.4(@nestjs/common@10.4.4(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/platform-express@10.4.4)(encoding@0.1.13)(reflect-metadata@0.2.2)(rxjs@7.8.1)
-      lodash: 4.17.21
-
-  '@golevelup/nestjs-modules@0.7.1(@nestjs/common@10.4.4(reflect-metadata@0.2.2)(rxjs@7.8.1))(rxjs@7.8.1)':
-    dependencies:
-      '@nestjs/common': 10.4.4(reflect-metadata@0.2.2)(rxjs@7.8.1)
-      lodash: 4.17.21
-      rxjs: 7.8.1
 
   '@graphql-typed-document-node/core@3.2.0(graphql@16.9.0)':
     dependencies:
