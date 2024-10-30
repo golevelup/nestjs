@@ -702,9 +702,9 @@ export class AmqpConnection {
           if (
             !matchesRoutingKey(msg.fields.routingKey, rpcOptions.routingKey)
           ) {
-            channel.nack(msg, false, false);
+            channel.nack(msg, false, true);
             this.logger.error(
-              'Received message with invalid routing key: ' +
+              'Received message with invalid routing keyy: ' +
                 msg.fields.routingKey,
             );
             return;
