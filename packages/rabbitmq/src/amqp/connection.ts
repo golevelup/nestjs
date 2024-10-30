@@ -704,7 +704,7 @@ export class AmqpConnection {
           ) {
             channel.nack(msg, false, true);
             this.logger.error(
-              'Received message with invalid routing keyy: ' +
+              'Received message with invalid routing key: ' +
                 msg.fields.routingKey,
             );
             return;
