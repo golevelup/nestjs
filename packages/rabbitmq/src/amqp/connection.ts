@@ -147,7 +147,7 @@ export class AmqpConnection {
     this.config = {
       deserializer: (message) => JSON.parse(message.toString()),
       serializer: (value) => Buffer.from(JSON.stringify(value)),
-      logger: config.logger || new Logger(AmqpConnection.name),
+      logger: config?.logger || new Logger(AmqpConnection.name),
       ...defaultConfig,
       ...config,
     };
