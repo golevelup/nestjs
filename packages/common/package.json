@@ -1,6 +1,6 @@
 {
   "name": "@golevelup/nestjs-common",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Common module and utility building blocks for badass NestJS applications",
   "author": "Jesse Carter <jesse.r.carter@gmail.com>",
   "homepage": "https://github.com/golevelup/nestjs#readme",

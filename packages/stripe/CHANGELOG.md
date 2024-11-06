@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.9.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-stripe@0.8.2...@golevelup/nestjs-stripe@0.9.0) (2024-11-06)
+
+### Bug Fixes
+
+- **deps:** fix pnpm dependency issue ([#868](https://github.com/golevelup/nestjs/issues/868)) ([9a02e8b](https://github.com/golevelup/nestjs/commit/9a02e8b31f467d211e333e056a4c4374023a966a)), closes [#817](https://github.com/golevelup/nestjs/issues/817)
+
+### Features
+
+- stripe upgrade to v16 ([#796](https://github.com/golevelup/nestjs/issues/796)) ([6d7063b](https://github.com/golevelup/nestjs/commit/6d7063bc4f6c8b7b01f3f84d3ecb9ea02a1b16ad))
+- stripe v17 ([#834](https://github.com/golevelup/nestjs/issues/834)) ([226d32d](https://github.com/golevelup/nestjs/commit/226d32d4b34f3e52c49edf7bebd8691068228f25))
+
 ## [0.8.2](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-stripe@0.8.1...@golevelup/nestjs-stripe@0.8.2) (2024-09-03)
 
 **Note:** Version bump only for package @golevelup/nestjs-stripe

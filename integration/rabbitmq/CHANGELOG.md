@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [3.5.0](https://github.com/golevelup/nestjs/compare/rabbitmq-integration@3.4.0...rabbitmq-integration@3.5.0) (2024-11-06)
+
+### Features
+
+- **rabbitmq:** adds a message batching mechanism for RabbitMQ handlers ([#781](https://github.com/golevelup/nestjs/issues/781)) ([ce44d4d](https://github.com/golevelup/nestjs/commit/ce44d4dfaad05333cacd916c95dbf20089c91790))
+
 # [3.4.0](https://github.com/golevelup/nestjs/compare/rabbitmq-integration@3.3.0...rabbitmq-integration@3.4.0) (2024-08-09)
 
 ### Features

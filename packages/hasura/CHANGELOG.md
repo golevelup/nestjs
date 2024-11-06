@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.0.8](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-hasura@3.0.7...@golevelup/nestjs-hasura@3.0.8) (2024-11-06)
+
+### Bug Fixes
+
+- **deps:** fix pnpm dependency issue ([#868](https://github.com/golevelup/nestjs/issues/868)) ([9a02e8b](https://github.com/golevelup/nestjs/commit/9a02e8b31f467d211e333e056a4c4374023a966a)), closes [#817](https://github.com/golevelup/nestjs/issues/817)
+
 ## [3.0.7](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-hasura@3.0.6...@golevelup/nestjs-hasura@3.0.7) (2024-08-15)
 
 ### Bug Fixes

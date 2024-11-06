@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [5.6.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@5.5.0...@golevelup/nestjs-rabbitmq@5.6.0) (2024-11-06)
+
+### Bug Fixes
+
+- **deps:** fix pnpm dependency issue ([#868](https://github.com/golevelup/nestjs/issues/868)) ([9a02e8b](https://github.com/golevelup/nestjs/commit/9a02e8b31f467d211e333e056a4c4374023a966a)), closes [#817](https://github.com/golevelup/nestjs/issues/817)
+- **rmq:** allow pattern to contain empty strings for exact/literal matching ([#794](https://github.com/golevelup/nestjs/issues/794)) ([506cd6d](https://github.com/golevelup/nestjs/commit/506cd6d16d5b678dd5031df567a6383f34206831))
+
+### Features
+
+- add validation for amq connection uri ([#844](https://github.com/golevelup/nestjs/issues/844)) ([af3ac52](https://github.com/golevelup/nestjs/commit/af3ac52045e6893aa4e82f2a16964d4826641c87))
+- **rabbitmq:** adds a message batching mechanism for RabbitMQ handlers ([#781](https://github.com/golevelup/nestjs/issues/781)) ([ce44d4d](https://github.com/golevelup/nestjs/commit/ce44d4dfaad05333cacd916c95dbf20089c91790))
+- small performance improvement using Map over array ([#795](https://github.com/golevelup/nestjs/issues/795)) ([1b46383](https://github.com/golevelup/nestjs/commit/1b46383766083ac33a0ace970c7d456ebeb2949c))
+
 # [5.5.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@5.4.1...@golevelup/nestjs-rabbitmq@5.5.0) (2024-09-24)
 
 ### Features

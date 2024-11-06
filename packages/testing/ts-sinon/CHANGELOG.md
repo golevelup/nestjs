@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.1.1](https://github.com/golevelup/nestjs/compare/@golevelup/ts-sinon@0.1.0...@golevelup/ts-sinon@0.1.1) (2024-11-06)
+
+**Note:** Version bump only for package @golevelup/ts-sinon
+
 # 0.1.0 (2023-07-18)
 
 ### Features

@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.6.0](https://github.com/golevelup/nestjs/compare/@golevelup/ts-jest@0.5.6...@golevelup/ts-jest@0.6.0) (2024-11-06)
+
+### Bug Fixes
+
+- **ts-jest:** ensures auto mocked properties can be casted to primitive types ([#850](https://github.com/golevelup/nestjs/issues/850)) ([60cc5f8](https://github.com/golevelup/nestjs/commit/60cc5f8f96086ee4621d32a68b7fbaab49733c38)), closes [#843](https://github.com/golevelup/nestjs/issues/843)
+
+### Features
+
+- **rabbitmq:** adds a message batching mechanism for RabbitMQ handlers ([#781](https://github.com/golevelup/nestjs/issues/781)) ([ce44d4d](https://github.com/golevelup/nestjs/commit/ce44d4dfaad05333cacd916c95dbf20089c91790))
+
 ## [0.5.6](https://github.com/golevelup/nestjs/compare/@golevelup/ts-jest@0.5.5...@golevelup/ts-jest@0.5.6) (2024-09-24)
 
 ### Bug Fixes
