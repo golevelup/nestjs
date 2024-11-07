@@ -69,6 +69,9 @@ describe(matchesRoutingKey.name, () => {
         assertRabbitMqUri([
           'amqp://rabbitmq:rabbitmq@localhost:4444',
           'amqp://rabbitmq:rabbitmq@localhost:1234',
+          'amqps://rabbitmq:rabbitmq@localhost:2345',
+          'amqp://rabbitmq:rabbitmq@localhost:3456/',
+          'amqps://rabbitmq:rabbitmq@localhost:4567/',
         ]),
       ).not.toThrowError();
     });
