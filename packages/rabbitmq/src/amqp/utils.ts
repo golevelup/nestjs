@@ -29,7 +29,7 @@ export function matchesRoutingKey(
 }
 
 const rabbitMQRegex =
-  /^amqp:\/\/(([^:]+):([^@]+)@)?([^:/]+)(:[0-9]+)?(\/[^\/]+)?$/;
+  /^amqps?:\/\/(([^:]+):([^@]+)@)?([^:/]+)(:[0-9]+)?(\/[^\/]*)?$/;
 
 /**
  * Validates a rabbitmq uri
