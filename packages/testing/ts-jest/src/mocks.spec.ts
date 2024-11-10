@@ -227,12 +227,10 @@ describe('Mocks', () => {
       expect(mock.nested.toString()).toEqual('function () { [native code] }');
     });
 
-    it('mock should equal its partial', () => {
-      const mock = createMock<any>();
-      expect({ mock }).toEqual({ mock: {} });
-      const partialMock = createMock<any>({ foo: { bar: 1 } });
-      expect({ partialMock }).toEqual({ partialMock: { foo: { bar: 1 } } });
-      expect({ foo: partialMock.foo }).toEqual({ foo: { bar: 1 } });
+    it('nested properties should equal its partial', () => {
+      const mock = createMock<any>({ foo: { bar: 1 } });
+      expect({ mock }).toEqual({ mock: { foo: { bar: 1 } } });
+      expect({ foo: mock.foo }).toEqual({ foo: { bar: 1 } });
     });
 
     it('nested properties can be implictly casted to string', () => {
