@@ -46,7 +46,7 @@ const jestFnProps = new Set([
   'calls',
 ]);
 
-const toPrimitive = (hint: string) => {
+const toPrimitive = (hint: 'string' | 'number' | 'default') => {
   if (hint === 'string') {
     return 'mocked';
   }
