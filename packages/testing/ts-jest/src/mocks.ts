@@ -46,6 +46,16 @@ const jestFnProps = new Set([
   'calls',
 ]);
 
+const toPrimitive = (hint) => {
+  if (hint === 'string') {
+    return 'mocked';
+  }
+  if (hint === 'number') {
+    return 0;
+  }
+  throw new TypeError();
+};
+
 const createProxy: {
   <T extends object>(name: string, base: T): T;
   <T extends Mock<any, any> = Mock<any, any>>(name: string): T;
@@ -68,6 +78,10 @@ const createProxy: {
         return Reflect.get(obj, prop, receiver);
       }
 
+      if (!(prop in obj) && prop == Symbol.toPrimitive) {
+        return toPrimitive;
+      }
+
       if (cache.has(prop)) {
         return cache.get(prop);
       }
@@ -83,19 +97,6 @@ const createProxy: {
         mockedProp = () => undefined;
       } else {
         mockedProp = createProxy(`${name}.${propName}`);
-      }
-
-      // Add Symbol.toPrimitive to preserve implicit conversion to primitive types
-      if (typeof mockedProp === 'object' || typeof mockedProp === 'function') {
-        mockedProp[Symbol.toPrimitive] = (hint) => {
-          if (hint === 'string') {
-            return 'mocked';
-          }
-          if (hint === 'number') {
-            return 0;
-          }
-          throw new TypeError();
-        };
       }
 
       cache.set(prop, mockedProp);
