@@ -226,6 +226,15 @@ describe('Mocks', () => {
       expect(mock.toString()).toEqual('[object Object]');
       expect(mock.nested.toString()).toEqual('function () { [native code] }');
     });
+
+    it('mock should equal its partial', () => {
+      const mock = createMock<any>();
+      expect({ mock }).toEqual({ mock: {} });
+      const partialMock = createMock<any>({ foo: { bar: 1 } });
+      expect({ partialMock }).toEqual({ partialMock: { foo: { bar: 1 } } });
+      expect({ foo: partialMock.foo }).toEqual({ foo: { bar: 1 } });
+    });
+
     it('nested properties can be implictly casted to string', () => {
       const mock = createMock<{ nested: any }>();
 
@@ -377,7 +386,7 @@ describe('Mocks', () => {
 
       mockedProvider = module.get<DeepMocked<ExecutionContext>>(diToken);
       dependentProvider = module.get<{ dependent: () => string }>(
-        dependentToken
+        dependentToken,
       );
     });
 
@@ -389,7 +398,7 @@ describe('Mocks', () => {
       mockedProvider.switchToHttp.mockReturnValueOnce(
         createMock<HttpArgumentsHost>({
           getRequest: () => request,
-        })
+        }),
       );
 
       const mockResult = mockedProvider.switchToHttp().getRequest();
