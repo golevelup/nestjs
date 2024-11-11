@@ -46,16 +46,6 @@ const jestFnProps = new Set([
   'calls',
 ]);
 
-const toPrimitive = (hint: 'string' | 'number' | 'default') => {
-  if (hint === 'string') {
-    return 'mocked';
-  }
-  if (hint === 'number') {
-    return 0;
-  }
-  throw new TypeError();
-};
-
 const createProxy: {
   <T extends object>(name: string, base: T): T;
   <T extends Mock<any, any> = Mock<any, any>>(name: string): T;
@@ -76,10 +66,6 @@ const createProxy: {
 
       if (!base && jestFnProps.has(propName)) {
         return Reflect.get(obj, prop, receiver);
-      }
-
-      if (!(prop in obj) && prop == Symbol.toPrimitive) {
-        return toPrimitive;
       }
 
       if (cache.has(prop)) {

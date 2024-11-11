@@ -233,24 +233,25 @@ describe('Mocks', () => {
       expect({ foo: mock.foo }).toEqual({ foo: { bar: 1 } });
     });
 
-    it('nested properties can be implictly casted to string', () => {
+    it('nested properties can not be implictly casted to string/number', () => {
       const mock = createMock<{ nested: any }>();
 
       const testFnNumber = () => mock.nested > 0;
       const testFnString = () => `${mock.nested}`;
 
-      expect(testFnNumber).not.toThrowError();
-      expect(testFnString).not.toThrowError();
+      expect(testFnNumber).toThrowError();
+      expect(testFnString).toThrowError();
     });
-    it('mocked functions returned values can be implictly casted to string', async () => {
+
+    it('mocked functions returned values can not be implictly casted to string/number', async () => {
       const mock = createMock<TestInterface>();
       const result = await mock.func3();
 
       const testFnNumber = () => result.prop > 0;
       const testFnString = () => `${result.prop}`;
 
-      expect(testFnNumber).not.toThrowError();
-      expect(testFnString).not.toThrowError();
+      expect(testFnNumber).toThrowError();
+      expect(testFnString).toThrowError();
     });
 
     it('asymmetricMatch should not be set', () => {
