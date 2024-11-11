@@ -85,19 +85,6 @@ const createProxy: {
         mockedProp = createProxy(`${name}.${propName}`);
       }
 
-      // Add Symbol.toPrimitive to preserve implicit conversion to primitive types
-      if (typeof mockedProp === 'object' || typeof mockedProp === 'function') {
-        mockedProp[Symbol.toPrimitive] = (hint) => {
-          if (hint === 'string') {
-            return 'mocked';
-          }
-          if (hint === 'number') {
-            return 0;
-          }
-          throw new TypeError();
-        };
-      }
-
       cache.set(prop, mockedProp);
       return mockedProp;
     },
