@@ -72,6 +72,8 @@ describe(matchesRoutingKey.name, () => {
           'amqps://rabbitmq:rabbitmq@localhost:2345',
           'amqp://rabbitmq:rabbitmq@localhost:3456/',
           'amqps://rabbitmq:rabbitmq@localhost:4567/',
+          'amqps://rabbitmq:rabbitmq@localhost:4567/vhost',
+          'amqps://rabbitmq:rabbitmq@localhost:4567/v/h(o&s*t_',
         ]),
       ).not.toThrowError();
     });
