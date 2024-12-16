@@ -21,7 +21,7 @@ export type DeepMocked<T> = {
   [K in keyof T]: Required<T>[K] extends (...args: any[]) => infer U
     ? jest.MockInstance<ReturnType<Required<T>[K]>, jest.ArgsType<T[K]>> &
         ((...args: jest.ArgsType<T[K]>) => DeepMocked<U>)
-    : T[K];
+    : DeepMocked<T[K]>;
 } & T;
 
 const jestFnProps = new Set([
