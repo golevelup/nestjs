@@ -20,7 +20,7 @@
     "@types/jest": "^27.0.3",
     "@types/lodash": "^4.17.10",
     "@types/mime": "3.0.4",
-    "@types/node": "^20.16.10",
+    "@types/node": "^22.0.0",
     "@types/supertest": "^6.0.2",
     "@types/express": "5.0.0",
     "@typescript-eslint/eslint-plugin": "^8.8.0",
@@ -81,6 +81,6 @@
     }
   },
   "volta": {
-    "node": "20.18.0"
+    "node": "22.12.0"
   }
 }
