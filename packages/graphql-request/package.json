@@ -42,7 +42,7 @@
     "@golevelup/nestjs-discovery": "workspace:^",
     "@golevelup/nestjs-modules": "workspace:^",
     "graphql": "^16.8.1",
-    "graphql-request": "^6.1.0"
+    "graphql-request": "^7.0.0"
   },
   "jest": {
     "moduleFileExtensions": [
