@@ -31,7 +31,7 @@
     "amqplib": "0.10.4",
     "jest": "^27.4.3",
     "nodemon": "3.1.9",
-    "prettier": "3.3.3",
+    "prettier": "3.4.2",
     "supertest": "7.0.0",
     "ts-jest": "27.1.5",
     "tsconfig-paths": "4.2.0",
