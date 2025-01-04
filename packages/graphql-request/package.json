@@ -38,9 +38,6 @@
     "access": "public"
   },
   "dependencies": {
-    "@golevelup/nestjs-common": "workspace:^",
-    "@golevelup/nestjs-discovery": "workspace:^",
-    "@golevelup/nestjs-modules": "workspace:^",
     "graphql": "^16.10.0",
     "graphql-request": "^6.1.0"
   },
