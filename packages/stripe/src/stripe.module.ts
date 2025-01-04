@@ -48,7 +48,7 @@ export class StripeModule
           useFactory: ({
             apiKey,
             typescript = true,
-            apiVersion = '2024-09-30.acacia',
+            apiVersion = '2024-12-18.acacia',
             ...options
           }: StripeModuleConfig): Stripe => {
             return new Stripe(apiKey, {

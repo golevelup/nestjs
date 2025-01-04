@@ -41,10 +41,10 @@
     "@golevelup/nestjs-modules": "workspace:^"
   },
   "devDependencies": {
-    "stripe": "^17.1.0"
+    "stripe": "^17.5.0"
   },
   "peerDependencies": {
-    "stripe": "^17.1.0"
+    "stripe": "^17.5.0"
   },
   "jest": {
     "moduleFileExtensions": [

@@ -41,7 +41,7 @@
     "@golevelup/nestjs-modules": "workspace:^",
     "@hasura/metadata": "^1.0.2",
     "js-yaml": "^4.1.0",
-    "zod": "^3.23.8"
+    "zod": "^3.24.1"
   },
   "jest": {
     "moduleFileExtensions": [
