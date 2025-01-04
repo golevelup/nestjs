@@ -150,8 +150,8 @@ importers:
         specifier: 6.0.2
         version: 6.0.2
       amqplib:
-        specifier: 0.10.4
-        version: 0.10.4
+        specifier: 0.10.5
+        version: 0.10.5
       jest:
         specifier: ^27.4.3
         version: 27.5.1(ts-node@10.9.2(@types/node@22.7.5)(typescript@4.9.5))
@@ -1759,6 +1759,10 @@ packages:
 
   amqplib@0.10.4:
     resolution: {integrity: sha512-DMZ4eCEjAVdX1II2TfIUpJhfKAuoCeDIo/YyETbfAqehHTXxxs7WOOd+N1Xxr4cKhx12y23zk8/os98FxlZHrw==}
+    engines: {node: '>=10'}
+
+  amqplib@0.10.5:
+    resolution: {integrity: sha512-Dx5zmy0Ur+Q7LPPdhz+jx5IzmJBoHd15tOeAfQ8SuvEtyPJ20hBemhOBA4b1WeORCRa0ENM/kHCzmem1w/zHvQ==}
     engines: {node: '>=10'}
 
   ansi-colors@4.1.3:
@@ -5462,7 +5466,7 @@ snapshots:
   '@acuminous/bitsyntax@0.1.2':
     dependencies:
       buffer-more-ints: 1.0.0
-      debug: 4.3.7
+      debug: 4.4.0(supports-color@5.5.0)
       safe-buffer: 5.1.2
     transitivePeerDependencies:
       - supports-color
@@ -7152,6 +7156,14 @@ snapshots:
       '@acuminous/bitsyntax': 0.1.2
       buffer-more-ints: 1.0.0
       readable-stream: 1.1.14
+      url-parse: 1.5.10
+    transitivePeerDependencies:
+      - supports-color
+
+  amqplib@0.10.5:
+    dependencies:
+      '@acuminous/bitsyntax': 0.1.2
+      buffer-more-ints: 1.0.0
       url-parse: 1.5.10
     transitivePeerDependencies:
       - supports-color
