@@ -93,7 +93,7 @@ importers:
         version: 9.1.0(eslint@9.17.0(jiti@2.4.2))
       eslint-plugin-prettier:
         specifier: ^5.2.1
-        version: 5.2.1(eslint-config-prettier@9.1.0(eslint@9.17.0(jiti@2.4.2)))(eslint@9.17.0(jiti@2.4.2))(prettier@3.3.3)
+        version: 5.2.1(eslint-config-prettier@9.1.0(eslint@9.17.0(jiti@2.4.2)))(eslint@9.17.0(jiti@2.4.2))(prettier@3.4.2)
       globals:
         specifier: ^15.10.0
         version: 15.11.0
@@ -111,7 +111,7 @@ importers:
         version: 15.2.11
       prettier:
         specifier: ^3.3.3
-        version: 3.3.3
+        version: 3.4.2
       rimraf:
         specifier: ^5.0.0
         version: 5.0.10
@@ -4344,11 +4344,6 @@ packages:
     engines: {node: '>=10.13.0'}
     hasBin: true
 
-  prettier@3.3.3:
-    resolution: {integrity: sha512-i2tDNA0O5IrMO757lfrdQZCc2jPNDVntV0m/+4whiDfWaTKfMNgR7Qz0NAeGz/nRqF4m5/6CLzbP4/liHt12Ew==}
-    engines: {node: '>=14'}
-    hasBin: true
-
   prettier@3.4.2:
     resolution: {integrity: sha512-e9MewbtFo+Fevyuxn/4rrcDAaq0IYxPGLvObpQjiZBMAzB9IGmzlnG9RZy3FFas+eBMu2vA0CszMeduow5dIuQ==}
     engines: {node: '>=14'}
@@ -8000,10 +7995,10 @@ snapshots:
     dependencies:
       eslint: 9.17.0(jiti@2.4.2)
 
-  eslint-plugin-prettier@5.2.1(eslint-config-prettier@9.1.0(eslint@9.17.0(jiti@2.4.2)))(eslint@9.17.0(jiti@2.4.2))(prettier@3.3.3):
+  eslint-plugin-prettier@5.2.1(eslint-config-prettier@9.1.0(eslint@9.17.0(jiti@2.4.2)))(eslint@9.17.0(jiti@2.4.2))(prettier@3.4.2):
     dependencies:
       eslint: 9.17.0(jiti@2.4.2)
-      prettier: 3.3.3
+      prettier: 3.4.2
       prettier-linter-helpers: 1.0.0
       synckit: 0.9.1
     optionalDependencies:
@@ -10293,8 +10288,6 @@ snapshots:
 
   prettier@2.8.8:
     optional: true
-
-  prettier@3.3.3: {}
 
   prettier@3.4.2: {}
 
