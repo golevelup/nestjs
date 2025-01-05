@@ -76,7 +76,7 @@ import { HasuraModule } from '@golevelup/nestjs-hasura';
 
 @Module({
   imports: [
-    HasuraModule.forRoot(HasuraModule, {
+    HasuraModule.forRoot({
       webhookConfig: {
         secretFactory: secret,
         secretHeader: secretHeader,

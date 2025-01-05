@@ -35,12 +35,12 @@ export const yamlFileToJson = (filePath: string) => {
 };
 
 export const getVersionedMetadataPathAndConfig = (
-  v: string
+  v: string,
 ): [string, HasuraModuleConfig] => {
   const version = metadataVersion.parse(v);
   const metadataPath = path.join(
     __dirname,
-    `../../test/__fixtures__/hasura/${version}/metadata`
+    `../../test/__fixtures__/hasura/${version}/metadata`,
   );
 
   const { managedMetaDataConfig } = baseConfig;

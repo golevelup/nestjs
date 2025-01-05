@@ -27,7 +27,7 @@ export type AsyncModuleConfig<T> = Pick<ModuleMetadata, 'imports' | 'exports'> &
 
 export function createModuleConfigProvider<T>(
   provide: InjectionToken,
-  options: AsyncModuleConfig<T>
+  options: AsyncModuleConfig<T>,
 ): Provider[] {
   if ('useFactory' in options) {
     return [
@@ -40,7 +40,7 @@ export function createModuleConfigProvider<T>(
   }
 
   const optionsProviderGenerator = (
-    inject: InjectionToken | OptionalFactoryDependency
+    inject: InjectionToken | OptionalFactoryDependency,
   ): Provider => ({
     provide,
     useFactory: async (moduleConfigFactory: ModuleConfigFactory<T>) => {
@@ -62,7 +62,7 @@ export function createModuleConfigProvider<T>(
     return [
       optionsProviderGenerator(
         options.useExisting.provide ??
-          options.useExisting.value.constructor.name
+          options.useExisting.value.constructor.name,
       ),
       {
         provide:
@@ -85,15 +85,22 @@ export interface IConfigurableDynamicRootModule<T, U> {
 
   forRootAsync(
     moduleCtor: Type<T>,
-    asyncModuleConfig: AsyncModuleConfig<U>
+    asyncModuleConfig: AsyncModuleConfig<U>,
   ): DynamicModule;
 
   externallyConfigured(
     moduleCtor: Type<T>,
-    wait: number
+    wait: number,
   ): Promise<DynamicModule>;
 }
 
+/**
+ *
+ * @deprecated Please use Nestjs Configurable Module {@see https://docs.nestjs.com/fundamentals/dynamic-modules#configurable-module-builder}
+ * @param moduleConfigToken
+ * @param moduleProperties
+ * @returns
+ */
 export function createConfigurableDynamicRootModule<T, U>(
   moduleConfigToken: InjectionToken,
   moduleProperties: Partial<
@@ -102,14 +109,14 @@ export function createConfigurableDynamicRootModule<T, U>(
     imports: [],
     exports: [],
     providers: [],
-  }
+  },
 ) {
   abstract class DynamicRootModule {
     static moduleSubject = new Subject<DynamicModule>();
 
     static forRootAsync(
       moduleCtor: Type<T>,
-      asyncModuleConfig: AsyncModuleConfig<U>
+      asyncModuleConfig: AsyncModuleConfig<U>,
     ): DynamicModule {
       const dynamicModule = {
         module: moduleCtor,
@@ -154,19 +161,19 @@ export function createConfigurableDynamicRootModule<T, U>(
 
     static async externallyConfigured(
       moduleCtor: Type<T>,
-      wait: number
+      wait: number,
     ): Promise<DynamicModule> {
       const timeout$ = interval(wait).pipe(
         first(),
         map(() => {
           throw new Error(
-            `Expected ${moduleCtor.name} to be configured by at last one Module but it was not configured within ${wait}ms`
+            `Expected ${moduleCtor.name} to be configured by at last one Module but it was not configured within ${wait}ms`,
           );
-        })
+        }),
       );
 
       return lastValueFrom(
-        race(timeout$, DynamicRootModule.moduleSubject.pipe(first()))
+        race(timeout$, DynamicRootModule.moduleSubject.pipe(first())),
       );
     }
   }
