@@ -252,15 +252,9 @@ importers:
 
   packages/rabbitmq:
     dependencies:
-      '@golevelup/nestjs-common':
-        specifier: workspace:^
-        version: link:../common
       '@golevelup/nestjs-discovery':
         specifier: workspace:^
         version: link:../discovery
-      '@golevelup/nestjs-modules':
-        specifier: workspace:^
-        version: link:../modules
       '@nestjs/common':
         specifier: ^10.x
         version: 10.4.4(reflect-metadata@0.2.2)(rxjs@7.8.1)
@@ -277,7 +271,7 @@ importers:
         specifier: ^4.17.21
         version: 4.17.21
       reflect-metadata:
-        specifier: ^0.1.0 || ^0.2.0
+        specifier: ^0.2.2
         version: 0.2.2
       rxjs:
         specifier: ^7.x

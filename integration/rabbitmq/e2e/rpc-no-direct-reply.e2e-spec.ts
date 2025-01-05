@@ -39,7 +39,7 @@ describe('Rabbit Direct Reply To', () => {
     const moduleFixture = await Test.createTestingModule({
       providers: [RpcService],
       imports: [
-        RabbitMQModule.forRoot(RabbitMQModule, {
+        RabbitMQModule.forRoot({
           exchanges: [
             {
               name: exchange,
