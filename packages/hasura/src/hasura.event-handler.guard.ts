@@ -1,5 +1,5 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
-import { Request } from 'express';
+import type { Request } from 'express';
 import { Observable } from 'rxjs';
 import { InjectHasuraConfig } from './hasura.decorators';
 import { HasuraModuleConfig } from './hasura.interfaces';
@@ -9,7 +9,7 @@ export class HasuraEventHandlerHeaderGuard implements CanActivate {
   private readonly apiSecret: string;
   constructor(
     @InjectHasuraConfig()
-    private readonly hasuraConfig: HasuraModuleConfig
+    private readonly hasuraConfig: HasuraModuleConfig,
   ) {
     this.apiSecret =
       typeof hasuraConfig.webhookConfig.secretFactory === 'function'
@@ -18,7 +18,7 @@ export class HasuraEventHandlerHeaderGuard implements CanActivate {
   }
 
   canActivate(
-    context: ExecutionContext
+    context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
     const request = context.switchToHttp().getRequest<Request>();
 

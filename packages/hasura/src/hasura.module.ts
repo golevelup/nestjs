@@ -1,5 +1,4 @@
 import { DiscoveryModule, DiscoveryService } from '@golevelup/nestjs-discovery';
-import { createConfigurableDynamicRootModule } from '@golevelup/nestjs-modules';
 import {
   BadRequestException,
   Logger,
@@ -10,8 +9,11 @@ import { PATH_METADATA } from '@nestjs/common/constants';
 import { ExternalContextCreator } from '@nestjs/core/helpers/external-context-creator';
 import { flatten, groupBy } from 'lodash';
 import {
+  ConfigurableModuleClass,
+  MODULE_OPTIONS_TOKEN,
+} from './hasura-module-definition';
+import {
   HASURA_EVENT_HANDLER,
-  HASURA_MODULE_CONFIG,
   HASURA_SCHEDULED_EVENT_HANDLER,
 } from './hasura.constants';
 import { InjectHasuraConfig } from './hasura.decorators';
@@ -44,34 +46,30 @@ function isHasuraScheduledEventPayload(
 
 @Module({
   imports: [DiscoveryModule],
+  providers: [
+    {
+      provide: Symbol('CONTROLLER_HACK'),
+      inject: [MODULE_OPTIONS_TOKEN],
+      useFactory: (config: HasuraModuleConfig) => {
+        const controllerPrefix = config.controllerPrefix || 'hasura';
+
+        Reflect.defineMetadata(
+          PATH_METADATA,
+          controllerPrefix,
+          EventHandlerController,
+        );
+        config.decorators?.forEach((deco) => {
+          deco(EventHandlerController);
+        });
+      },
+    },
+    EventHandlerService,
+    HasuraEventHandlerHeaderGuard,
+  ],
   controllers: [EventHandlerController],
 })
 export class HasuraModule
-  extends createConfigurableDynamicRootModule<HasuraModule, HasuraModuleConfig>(
-    HASURA_MODULE_CONFIG,
-    {
-      providers: [
-        {
-          provide: Symbol('CONTROLLER_HACK'),
-          useFactory: (config: HasuraModuleConfig) => {
-            const controllerPrefix = config.controllerPrefix || 'hasura';
-
-            Reflect.defineMetadata(
-              PATH_METADATA,
-              controllerPrefix,
-              EventHandlerController,
-            );
-            config.decorators?.forEach((deco) => {
-              deco(EventHandlerController);
-            });
-          },
-          inject: [HASURA_MODULE_CONFIG],
-        },
-        EventHandlerService,
-        HasuraEventHandlerHeaderGuard,
-      ],
-    },
-  )
+  extends ConfigurableModuleClass
   implements OnModuleInit
 {
   private readonly logger = new Logger(HasuraModule.name);

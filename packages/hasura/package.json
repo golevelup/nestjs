@@ -36,9 +36,7 @@
     "access": "public"
   },
   "dependencies": {
-    "@golevelup/nestjs-common": "workspace:^",
     "@golevelup/nestjs-discovery": "workspace:^",
-    "@golevelup/nestjs-modules": "workspace:^",
     "@hasura/metadata": "^1.0.2",
     "js-yaml": "^4.1.0",
     "zod": "^3.24.1"

@@ -106,10 +106,10 @@ describe.each(cases)(
     beforeEach(async () => {
       const moduleImport =
         moduleType === 'forRootAsync'
-          ? HasuraModule.forRootAsync(HasuraModule, {
+          ? HasuraModule.forRootAsync({
               useFactory: () => moduleConfig,
             })
-          : HasuraModule.forRoot(HasuraModule, moduleConfig);
+          : HasuraModule.forRoot(moduleConfig);
 
       const moduleFixture: TestingModule = await Test.createTestingModule({
         imports: [moduleImport],
@@ -169,8 +169,8 @@ describe.each(cases)(
       expect(scheduledEventHandler).toHaveBeenCalledTimes(1);
       expect(scheduledEventHandler).toHaveBeenCalledWith(
         expect.objectContaining(
-          pick(scheduledOneOffEventPayload, ['comment', 'payload'])
-        )
+          pick(scheduledOneOffEventPayload, ['comment', 'payload']),
+        ),
       );
     });
 
@@ -184,18 +184,18 @@ describe.each(cases)(
       expect(scheduledEventHandler).toHaveBeenCalledTimes(1);
       expect(scheduledEventHandler).toHaveBeenCalledWith(
         expect.objectContaining(
-          pick(scheduledEventPayload, ['name', 'payload'])
-        )
+          pick(scheduledEventPayload, ['name', 'payload']),
+        ),
       );
     });
-  }
+  },
 );
 
 describe('HasuraModule with Custom Decorator', () => {
   it('should call the decorator and set metadata for the controller', async () => {
     await Test.createTestingModule({
       imports: [
-        HasuraModule.forRoot(HasuraModule, {
+        HasuraModule.forRoot({
           decorators: [SetMetadata()],
           webhookConfig: {
             secretHeader,
@@ -206,7 +206,7 @@ describe('HasuraModule with Custom Decorator', () => {
     }).compile();
     const controllerMeta = Reflect.getMetadata(
       'TEST:METADATA',
-      EventHandlerController
+      EventHandlerController,
     );
     expect(controllerMeta).toBe('metadata');
   });
