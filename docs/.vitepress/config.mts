@@ -5,6 +5,7 @@ export default defineConfig({
   title: 'Golevelup Documentation',
   description:
     'A collection of badass modules and utilities to help you level up your NestJS applications',
+  base: '/nestjs/',
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     nav: [
