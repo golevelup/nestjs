@@ -292,9 +292,6 @@ importers:
       '@golevelup/nestjs-discovery':
         specifier: workspace:^
         version: link:../discovery
-      '@golevelup/nestjs-modules':
-        specifier: workspace:^
-        version: link:../modules
     devDependencies:
       stripe:
         specifier: ^17.5.0

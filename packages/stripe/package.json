@@ -36,8 +36,7 @@
     "access": "public"
   },
   "dependencies": {
-    "@golevelup/nestjs-discovery": "workspace:^",
-    "@golevelup/nestjs-modules": "workspace:^"
+    "@golevelup/nestjs-discovery": "workspace:^"
   },
   "devDependencies": {
     "stripe": "^17.5.0"
