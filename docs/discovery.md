@@ -1,32 +1,32 @@
-# @golevelup/nestjs-discovery
-
-<p align="center">
-<a href="https://www.npmjs.com/package/@golevelup/nestjs-discovery"><img src="https://img.shields.io/npm/v/@golevelup/nestjs-discovery.svg?style=flat" alt="version" /></a>
-<a href="https://www.npmjs.com/package/@golevelup/nestjs-discovery"><img alt="downloads" src="https://img.shields.io/npm/dt/@golevelup/nestjs-discovery.svg?style=flat"></a>
-<img alt="license" src="https://img.shields.io/npm/l/@golevelup/nestjs-discovery.svg">
-</p>
-
-## Description
+# Discovery
 
 This module provides access to the `DiscoveryService` which can be used to query the various modules, providers, controllers and handlers that make up your NestJS application.
 
-## Motivation
+<div style="display: flex; gap: 10px;">
+<a href="https://www.npmjs.com/package/@golevelup/nestjs-discovery"><img src="https://img.shields.io/npm/v/@golevelup/nestjs-discovery.svg?style=flat" alt="version" /></a>
+<a href="https://www.npmjs.com/package/@golevelup/nestjs-discovery"><img alt="downloads" src="https://img.shields.io/npm/dt/@golevelup/nestjs-discovery.svg?style=flat"></a>
+<img alt="license" src="https://img.shields.io/npm/l/@golevelup/nestjs-discovery.svg">
+</div>
 
-When building modules that extend NestJS functionality, it's common to use custom `Decorators` to attach metadata to different parts of the application. Once metdata is attached, the module will then need to be able to "discover" all the metadata to be able to connect it's functionality. For example, the official `@nestjs/graphql` package needs to be able to discover all the `@Mutation` and `@Resolver` decorated classes in order to properly build the GraphQL schema.
+## Getting Started
 
-NestJS provides the `MetadataScanner` class to be able to retrieve this data but doesn't expose a friendly API to be able to easily and quickly find the components in question. The `DiscoveryService` fills this gap by exposing common discovery patterns that can be used when building module extensions to NestJS
+::: code-group
 
-## Usage
+```bash [npm]
+npm install ---save @golevelup/nestjs-discovery
+```
 
-### Install
+```bash [yarn]
+yarn add @golevelup/nestjs-discovery
+```
 
-`npm install ---save @golevelup/nestjs-discovery`
+```bash [pnpm]
+pnpm add @golevelup/nestjs-discovery
+```
 
-or
+:::
 
-`yarn add @golevelup/nestjs-discovery`
-
-### Import
+## Import
 
 Import and add `DiscoveryModule` to the `imports` section of the module you wish to implement Discovery features in. It's common to inject it directly into consuming Module's contructor so that it can be used during the `onModuleInit` lifecycle hook at application startup.
 
@@ -46,7 +46,7 @@ export class ExampleModule implements OnModuleInit {
 }
 ```
 
-### Discover
+## Discover
 
 The `DiscoveryService` exposes several different querying patterns for your app's components that are [well documented with comments](src/discovery.service.ts). This will also provide intellisense for querying in a TypeScript compatible IDE.
 
@@ -99,7 +99,7 @@ export interface DiscoveredClassWithMeta<T> {
 }
 ```
 
-### Example
+## Example
 
 Assuming you were using a custom decorator in your application that attached metadata at a key called `exampleKey`:
 
@@ -110,15 +110,6 @@ const ExampleDecorator = (meta: string) => SetMetadata('exampleKey', meta);
 Find all controller methods that have been decorated with `@ExampleDecorator` and retrieve the value they set for meta:
 
 ```typescript
-const exampleMethodsMeta = await this.discover.controllerMethodsWithMetaAtKey<
-  string
->('exampleKey');
+const exampleMethodsMeta =
+  await this.discover.controllerMethodsWithMetaAtKey<string>('exampleKey');
 ```
-
-## Contribute
-
-Contributions welcome! Read the [contribution guidelines](../../CONTRIBUTING.md) first.
-
-## License
-
-[MIT License](../../LICENSE)

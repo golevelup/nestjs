@@ -1,14 +1,31 @@
-# @golevelup/ts-jest
+# Jest Mocking (ts-jest)
 
-<p align="center">
+With `@golevelup/ts-jest` `createMock` utility function, you can easily generate deeply nested mock objects for unit
+testing, especially useful for mocking complex types like those found in NestJS.
+
+<div style="display: flex; gap: 10px;">
 <a href="https://www.npmjs.com/package/@golevelup/ts-jest"><img src="https://img.shields.io/npm/v/@golevelup/ts-jest.svg?style=flat" alt="version" /></a>
 <a href="https://www.npmjs.com/package/@golevelup/ts-jest"><img alt="downloads" src="https://img.shields.io/npm/dt/@golevelup/ts-jest.svg?style=flat"></a>
 <img alt="license" src="https://img.shields.io/npm/l/@golevelup/ts-jest.svg">
-</p>
+</div>
 
-## Description
+## Getting Started
 
-Utilities for making testing [NestJS](https://docs.nestjs.com) applications easier. Currently supports Jest.
+::: code-group
+
+```bash [npm]
+npm install @golevelup/ts-jest -D
+```
+
+```bash [yarn]
+yarn add @golevelup/ts-jest -D
+```
+
+```bash [pnpm]
+pnpm add @golevelup/ts-jest -D
+```
+
+:::
 
 ## Motivation
 
@@ -21,20 +38,6 @@ This package and utility function was derived out of a want to help those unit t
 ## Usage
 
 For examples we'll show how well it works with NestJS' [ExecutionContext](https://github.com/nestjs/nest/blob/master/packages/common/interfaces/features/execution-context.interface.ts) which extends NestJS' [ArgumentHost](https://github.com/nestjs/nest/blob/master/packages/common/interfaces/features/arguments-host.interface.ts#L60).
-
-### Installation
-
-Pretty standard installation, nothing too crazy
-
-```sh
-npm i @golevelup/ts-jest --save-dev
-```
-
-or
-
-```sh
-yarn add @golevelup/ts-jest --dev
-```
 
 ### Creating Mocks
 
@@ -109,16 +112,10 @@ describe('Mocked Execution Context', () => {
 });
 ```
 
-> **Note**: Be aware that when providing your own mocks, if you asserting how many times you called a parent mock function, the number will be equal to the number of times the function was called in your `expects` _plus_ the number of times the function had to be called to set your mocks. In the above case, we had to call `switchToHttp()` once to set the mock for `getResponse()` and twice for the `expect` calls, so it was called in a total of three times.
+::: warning Note
+Be aware that when providing your own mocks, if you asserting how many times you called a parent mock function, the number will be equal to the number of times the function was called in your `expects` _plus_ the number of times the function had to be called to set your mocks. In the above case, we had to call `switchToHttp()` once to set the mock for `getResponse()` and twice for the `expect` calls, so it was called in a total of three times.
+:::
 
 The above case shows how well the `createMock` utility can take in user provided values as well as returning **type safe** mocks that can easily be chained and modified as needed.
 
 For a few more examples on what can be done [the mock.spec](src/mocks.spec.ts) file has some really cool examples that show pretty well just what is doable with this utility.
-
-## Contribute
-
-Contributions welcome! Read the [contribution guidelines](../../../CONTRIBUTING.md) first.
-
-## License
-
-[MIT License](../../../LICENSE)

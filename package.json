@@ -17,12 +17,12 @@
     "@eslint/eslintrc": "^3.2.0",
     "@eslint/js": "^9.17.0",
     "@nestjs/testing": "^10.4.4",
+    "@types/express": "5.0.0",
     "@types/jest": "^27.0.3",
     "@types/lodash": "^4.17.14",
     "@types/mime": "3.0.4",
     "@types/node": "^22.0.0",
     "@types/supertest": "^6.0.2",
-    "@types/express": "5.0.0",
     "@typescript-eslint/eslint-plugin": "^8.8.0",
     "@typescript-eslint/parser": "8.18.2",
     "all-contributors-cli": "^6.26.1",
@@ -40,7 +40,8 @@
     "rimraf": "^6.0.1",
     "supertest": "^7.0.0",
     "ts-jest": "^27.1.1",
-    "typescript": "4.9.5"
+    "typescript": "4.9.5",
+    "vitepress": "^1.5.0"
   },
   "optionalDependencies": {
     "@vitest/coverage-v8": "^1.6.0",
@@ -61,7 +62,10 @@
     "test:vitest:ci": "vitest run --coverage",
     "lint": "eslint .",
     "contributors:generate": "all-contributors generate",
-    "prepare": "husky"
+    "prepare": "husky",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs"
   },
   "lint-staged": {
     "*.ts": [

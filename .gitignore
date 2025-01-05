@@ -7,3 +7,7 @@ packages/testing/*/lib
 coverage/
 tsconfig.build.tsbuildinfo
 integration/rabbitmq/dist
+
+# doc ignored directories
+docs/.vitepress/dist
+docs/.vitepress/cache
