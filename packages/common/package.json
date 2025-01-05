@@ -33,7 +33,7 @@
     "access": "public"
   },
   "dependencies": {
-    "lodash": "^4.4.2"
+    "lodash": "^4.17.21"
   },
   "peerDependencies": {
     "@nestjs/common": "^10.x"

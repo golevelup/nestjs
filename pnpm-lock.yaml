@@ -186,7 +186,7 @@ importers:
         specifier: ^10.x
         version: 10.4.4(reflect-metadata@0.2.2)(rxjs@7.8.1)
       lodash:
-        specifier: ^4.4.2
+        specifier: ^4.17.21
         version: 4.17.21
 
   packages/discovery:
@@ -289,9 +289,6 @@ importers:
 
   packages/stripe:
     dependencies:
-      '@golevelup/nestjs-common':
-        specifier: workspace:^
-        version: link:../common
       '@golevelup/nestjs-discovery':
         specifier: workspace:^
         version: link:../discovery
