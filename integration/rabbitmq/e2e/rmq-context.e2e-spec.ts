@@ -50,7 +50,7 @@ describe('RMQ Context in Global interceptor', () => {
     const moduleFixture = await Test.createTestingModule({
       providers: [SubscribeService, TestInterceptor],
       imports: [
-        RabbitMQModule.forRoot(RabbitMQModule, {
+        RabbitMQModule.forRoot({
           exchanges: [
             {
               name: exchange,

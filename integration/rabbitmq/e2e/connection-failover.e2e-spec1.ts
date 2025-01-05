@@ -63,7 +63,7 @@ export class RestController {
 
 @Module({
   imports: [
-    RabbitMQModule.forRoot(RabbitMQModule, {
+    RabbitMQModule.forRoot({
       exchanges: [
         {
           name: exchange,

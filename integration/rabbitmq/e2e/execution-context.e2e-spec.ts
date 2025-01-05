@@ -52,7 +52,7 @@ describe('Rabbit Subscribe Without Register Handlers', () => {
     const moduleFixture = await Test.createTestingModule({
       providers: [SubscribeService, TestInterceptor],
       imports: [
-        RabbitMQModule.forRoot(RabbitMQModule, {
+        RabbitMQModule.forRoot({
           exchanges: [
             {
               name: exchange,

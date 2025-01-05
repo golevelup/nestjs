@@ -1,4 +1,3 @@
-import { makeInjectableDecorator } from '@golevelup/nestjs-common';
 import 'reflect-metadata';
 import {
   applyDecorators,
@@ -6,6 +5,7 @@ import {
   PipeTransform,
   Type,
   assignMetadata,
+  Inject,
 } from '@nestjs/common';
 import { ROUTE_ARGS_METADATA } from '@nestjs/common/constants';
 import { isString } from 'lodash';
@@ -36,8 +36,7 @@ export const RabbitSubscribe = makeRabbitDecorator({ type: 'subscribe' });
 
 export const RabbitRPC = makeRabbitDecorator({ type: 'rpc' });
 
-export const InjectRabbitMQConfig =
-  makeInjectableDecorator(RABBIT_CONFIG_TOKEN);
+export const InjectRabbitMQConfig = () => Inject(RABBIT_CONFIG_TOKEN);
 
 export const createPipesRpcParamDecorator =
   (

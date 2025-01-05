@@ -71,7 +71,7 @@ import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
 
 @Module({
   imports: [
-    RabbitMQModule.forRoot(RabbitMQModule, {
+    RabbitMQModule.forRoot({
       exchanges: [
         {
           name: 'exchange1',
@@ -116,7 +116,7 @@ import { MessagingService } from './messaging/messaging.service';
 
 @Module({
   imports: [
-    RabbitMQModule.forRoot(RabbitMQModule, {
+    RabbitMQModule.forRoot({
       exchanges: [
         {
           name: 'exchange1',
@@ -149,13 +149,16 @@ This library is built using an underlying NestJS concept called `External Contex
 You can identify RabbitMQ contexts by their context type, `'rmq'`:
 
 ```typescript
+import { RABBIT_CONTEXT_TYPE_KEY } from '@golevelup/nestjs-rabbitmq';
 @Injectable()
 class ExampleInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler<any>) {
-    const contextType = context.getType<'http' | 'rmq'>();
+    const contextType = context.getType<
+      'http' | typeof RABBIT_CONTEXT_TYPE_KEY
+    >();
 
     // Do nothing if this is a RabbitMQ event
-    if (contextType === 'rmq') {
+    if (contextType === RABBIT_CONTEXT_TYPE_KEY) {
       return next.handle();
     }
 
@@ -199,7 +202,7 @@ import { MessagingService } from './messaging/messaging.service';
 
 @Module({
   imports: [
-    RabbitMQModule.forRoot(RabbitMQModule, {
+    RabbitMQModule.forRoot({
       exchanges: [
         {
           name: 'exchange1',
@@ -312,12 +315,12 @@ import { ConsumeMessage } from 'amqplib';
 
 @Module({
   imports: [
-    RabbitMQModule.forRoot(RabbitMQModule, {
+    RabbitMQModule.forRoot({
       // ...
       deserializer: (message: Buffer, msg: ConsumeMessage) => {
         const decodedMessage = myCustomDeserializer(
           msg.toString(),
-          msg.properties.headers
+          msg.properties.headers,
         );
         return decodedMessage;
       },
@@ -654,7 +657,7 @@ import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
             uri: 'amqp://rabbitmq:rabbitmq@localhost:5672',
             connectionInitOptions: { wait: false },
           }
-        : undefined
+        : undefined,
     ),
   ],
 })

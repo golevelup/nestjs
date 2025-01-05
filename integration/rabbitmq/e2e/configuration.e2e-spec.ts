@@ -4,7 +4,8 @@ import {
   RabbitMQModule,
   AmqpConnectionManager,
 } from '@golevelup/nestjs-rabbitmq';
-import { ConsoleLogger } from '@nestjs/common';
+import { createMock } from '@golevelup/ts-jest';
+import { Logger, Provider } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as amqplib from 'amqplib';
 
@@ -14,7 +15,11 @@ const rabbitPort =
   process.env.NODE_ENV === 'ci' ? process.env.RABBITMQ_PORT : '5672';
 const uri = `amqp://rabbitmq:rabbitmq@${rabbitHost}:${rabbitPort}`;
 const amqplibUri = `${uri}?heartbeat=5`;
-const logger = new ConsoleLogger('Custom logger');
+const customLogger = createMock<Logger>({
+  log: jest.fn(),
+  error: jest.fn(),
+  warn: jest.fn(),
+});
 
 const nonExistingExchange = 'non-existing-exchange';
 const nonExistingQueue = 'non-existing-queue';
@@ -22,7 +27,7 @@ const nonExistingQueue = 'non-existing-queue';
 const testRoutingKey = 'test';
 
 class RabbitConfig {
-  createModuleConfig(): RabbitMQConfig {
+  create(): RabbitMQConfig {
     return {
       uri,
       connectionManagerOptions: { heartbeatIntervalInSeconds: 5 },
@@ -30,6 +35,14 @@ class RabbitConfig {
     };
   }
 }
+const silentLoggerProvider: Provider = {
+  provide: Logger,
+  useValue: {
+    log: jest.fn(),
+    error: jest.fn(),
+    warn: jest.fn(),
+  },
+};
 
 describe('Module Configuration', () => {
   let app: TestingModule;
@@ -43,14 +56,14 @@ describe('Module Configuration', () => {
   describe('forRoot', () => {
     it('should configure RabbitMQ', async () => {
       const spy = jest.spyOn(amqplib, 'connect');
-      const logSpy = jest.spyOn(logger, 'log');
+      const logSpy = jest.spyOn(customLogger, 'log');
 
       app = await Test.createTestingModule({
         imports: [
-          RabbitMQModule.forRoot(RabbitMQModule, {
+          RabbitMQModule.forRoot({
             uri,
             connectionInitOptions: { wait: true, reject: true, timeout: 3000 },
-            logger,
+            logger: customLogger,
           }),
         ],
       }).compile();
@@ -63,24 +76,11 @@ describe('Module Configuration', () => {
       expect(logSpy).toHaveBeenCalled();
     });
 
-    it('should be able to configure RabbitMQ when config is not provided', async () => {
-      const spy = jest.spyOn(amqplib, 'connect');
-      app = await Test.createTestingModule({
-        imports: [RabbitMQModule.forRoot(RabbitMQModule)],
-      }).compile();
-      const connectionManager = app.get(AmqpConnectionManager);
-      const connection = app.get(AmqpConnection);
-
-      expect(spy).not.toHaveBeenCalled();
-      expect(app).toBeDefined();
-      expect(connectionManager).toBeDefined();
-      expect(connection).toBeUndefined();
-    });
-
     it('should be able to add connection latter when rmq config is not provided through module', async () => {
       const spy = jest.spyOn(amqplib, 'connect');
       app = await Test.createTestingModule({
-        imports: [RabbitMQModule.forRoot(RabbitMQModule)],
+        providers: [silentLoggerProvider],
+        imports: [RabbitMQModule.forRoot({ uri })],
       }).compile();
       const connectionManager = app.get(AmqpConnectionManager);
       const connection = new AmqpConnection({
@@ -97,7 +97,7 @@ describe('Module Configuration', () => {
         try {
           app = await Test.createTestingModule({
             imports: [
-              RabbitMQModule.forRoot(RabbitMQModule, {
+              RabbitMQModule.forRoot({
                 exchanges: [
                   {
                     name: nonExistingExchange,
@@ -111,7 +111,7 @@ describe('Module Configuration', () => {
                   reject: true,
                   timeout: 3000,
                 },
-                logger,
+                logger: customLogger,
               }),
             ],
           }).compile();
@@ -129,7 +129,7 @@ describe('Module Configuration', () => {
 
         app = await Test.createTestingModule({
           imports: [
-            RabbitMQModule.forRoot(RabbitMQModule, {
+            RabbitMQModule.forRoot({
               exchanges: [
                 {
                   name: nonExistingExchange,
@@ -143,7 +143,7 @@ describe('Module Configuration', () => {
                 reject: true,
                 timeout: 3000,
               },
-              logger,
+              logger: customLogger,
             }),
           ],
         }).compile();
@@ -166,7 +166,7 @@ describe('Module Configuration', () => {
 
         app = await Test.createTestingModule({
           imports: [
-            RabbitMQModule.forRoot(RabbitMQModule, {
+            RabbitMQModule.forRoot({
               exchanges: [
                 {
                   name: nonExistingExchange,
@@ -180,7 +180,7 @@ describe('Module Configuration', () => {
                 reject: true,
                 timeout: 3000,
               },
-              logger,
+              logger: customLogger,
             }),
           ],
         }).compile();
@@ -199,7 +199,7 @@ describe('Module Configuration', () => {
         try {
           app = await Test.createTestingModule({
             imports: [
-              RabbitMQModule.forRoot(RabbitMQModule, {
+              RabbitMQModule.forRoot({
                 queues: [
                   {
                     name: nonExistingQueue,
@@ -212,7 +212,7 @@ describe('Module Configuration', () => {
                   reject: true,
                   timeout: 3000,
                 },
-                logger,
+                logger: customLogger,
               }),
             ],
           }).compile();
@@ -230,7 +230,7 @@ describe('Module Configuration', () => {
 
         app = await Test.createTestingModule({
           imports: [
-            RabbitMQModule.forRoot(RabbitMQModule, {
+            RabbitMQModule.forRoot({
               queues: [
                 {
                   name: nonExistingQueue,
@@ -243,7 +243,7 @@ describe('Module Configuration', () => {
                 reject: true,
                 timeout: 3000,
               },
-              logger,
+              logger: customLogger,
             }),
           ],
         }).compile();
@@ -285,8 +285,9 @@ describe('Module Configuration', () => {
           });
 
         app = await Test.createTestingModule({
+          providers: [silentLoggerProvider],
           imports: [
-            RabbitMQModule.forRootAsync(RabbitMQModule, {
+            RabbitMQModule.forRootAsync({
               useFactory: async () => {
                 return {
                   queues: [
@@ -330,8 +331,9 @@ describe('Module Configuration', () => {
       const spy = jest.spyOn(amqplib, 'connect');
 
       app = await Test.createTestingModule({
+        providers: [silentLoggerProvider],
         imports: [
-          RabbitMQModule.forRootAsync(RabbitMQModule, {
+          RabbitMQModule.forRootAsync({
             useFactory: async () => {
               return {
                 uri,
@@ -356,52 +358,10 @@ describe('Module Configuration', () => {
       const spy = jest.spyOn(amqplib, 'connect');
 
       app = await Test.createTestingModule({
+        providers: [silentLoggerProvider],
         imports: [
-          RabbitMQModule.forRootAsync(RabbitMQModule, {
+          RabbitMQModule.forRootAsync({
             useClass: RabbitConfig,
-          }),
-        ],
-      }).compile();
-
-      expect(app).toBeDefined();
-
-      expect(spy).toHaveBeenCalledTimes(1);
-      expect(spy).toHaveBeenCalledWith(amqplibUri, undefined);
-    });
-
-    it('should configure RabbitMQ with useExisting explicit provide', async () => {
-      const spy = jest.spyOn(amqplib, 'connect');
-
-      const instance = new RabbitConfig();
-
-      app = await Test.createTestingModule({
-        imports: [
-          RabbitMQModule.forRootAsync(RabbitMQModule, {
-            useExisting: {
-              provide: RabbitConfig,
-              value: instance,
-            },
-          }),
-        ],
-      }).compile();
-
-      expect(app).toBeDefined();
-
-      expect(spy).toHaveBeenCalledTimes(1);
-      expect(spy).toHaveBeenCalledWith(amqplibUri, undefined);
-    });
-
-    it('should configure RabbitMQ with useExisting implicit provide', async () => {
-      const spy = jest.spyOn(amqplib, 'connect');
-
-      const instance = new RabbitConfig();
-
-      app = await Test.createTestingModule({
-        imports: [
-          RabbitMQModule.forRootAsync(RabbitMQModule, {
-            useExisting: {
-              value: instance,
-            },
           }),
         ],
       }).compile();
@@ -416,8 +376,9 @@ describe('Module Configuration', () => {
       it("should throw an error if exchange doesn't exist and `createExchangeIfNotExists` is false", async () => {
         try {
           app = await Test.createTestingModule({
+            providers: [silentLoggerProvider],
             imports: [
-              RabbitMQModule.forRootAsync(RabbitMQModule, {
+              RabbitMQModule.forRootAsync({
                 useFactory: async () => {
                   return {
                     exchanges: [
@@ -451,8 +412,9 @@ describe('Module Configuration', () => {
         const spy = jest.spyOn(amqplib, 'connect');
 
         app = await Test.createTestingModule({
+          providers: [silentLoggerProvider],
           imports: [
-            RabbitMQModule.forRootAsync(RabbitMQModule, {
+            RabbitMQModule.forRootAsync({
               useFactory: async () => {
                 return {
                   exchanges: [
@@ -491,8 +453,9 @@ describe('Module Configuration', () => {
         const spy = jest.spyOn(amqplib, 'connect');
 
         app = await Test.createTestingModule({
+          providers: [silentLoggerProvider],
           imports: [
-            RabbitMQModule.forRootAsync(RabbitMQModule, {
+            RabbitMQModule.forRootAsync({
               useFactory: async () => {
                 return {
                   exchanges: [
@@ -568,8 +531,9 @@ describe('Module Configuration', () => {
           });
 
         app = await Test.createTestingModule({
+          providers: [silentLoggerProvider],
           imports: [
-            RabbitMQModule.forRootAsync(RabbitMQModule, {
+            RabbitMQModule.forRootAsync({
               useFactory: async () => {
                 return {
                   exchanges: [
@@ -638,8 +602,9 @@ describe('Module Configuration', () => {
       const otherExchangeName = 'otherExchange';
 
       app = await Test.createTestingModule({
+        providers: [silentLoggerProvider],
         imports: [
-          RabbitMQModule.forRootAsync(RabbitMQModule, {
+          RabbitMQModule.forRootAsync({
             useFactory: async () => {
               return {
                 exchanges: [

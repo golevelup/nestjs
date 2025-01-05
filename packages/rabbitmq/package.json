@@ -34,9 +34,7 @@
     "url": "https://github.com/golevelup/nestjs/issues"
   },
   "dependencies": {
-    "@golevelup/nestjs-common": "workspace:^",
     "@golevelup/nestjs-discovery": "workspace:^",
-    "@golevelup/nestjs-modules": "workspace:^",
     "amqp-connection-manager": "^4.1.14",
     "amqplib": "^0.10.5",
     "lodash": "^4.17.21"
@@ -47,7 +45,7 @@
   "peerDependencies": {
     "@nestjs/common": "^10.x",
     "@nestjs/core": "^10.x",
-    "reflect-metadata": "^0.1.0 || ^0.2.0",
+    "reflect-metadata": "^0.2.2",
     "rxjs": "^7.x"
   },
   "publishConfig": {
