@@ -29,7 +29,7 @@ import { GraphQLRequestModule } from '@golevelup/nestjs-graphql-request';
 
 @Module({
   imports: [
-    GraphQLRequestModule.forRoot(GraphQLRequestModule, {
+    GraphQLRequestModule.forRoot({
       // Exposes configuration options based on the graphql-request package
       endpoint: config.get('endpoint'),
       options: {
@@ -75,7 +75,7 @@ import { getSdk } from './your-codegen-location';
 
 @Module({
   imports: [
-    GraphQLRequestModule.forRoot(GraphQLRequestModule, {
+    GraphQLRequestModule.forRoot({
       // Exposes configuration options based on the graphql-request package
       endpoint: config.get('endpoint'),
       options: {

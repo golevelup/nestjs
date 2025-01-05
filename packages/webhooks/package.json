@@ -37,10 +37,6 @@
   "publishConfig": {
     "access": "public"
   },
-  "dependencies": {
-    "@golevelup/nestjs-common": "workspace:^",
-    "@golevelup/nestjs-modules": "workspace:^"
-  },
   "peerDependencies": {
     "body-parser": "^1.20.3"
   },

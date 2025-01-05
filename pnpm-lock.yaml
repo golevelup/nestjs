@@ -331,12 +331,6 @@ importers:
 
   packages/webhooks:
     dependencies:
-      '@golevelup/nestjs-common':
-        specifier: workspace:^
-        version: link:../common
-      '@golevelup/nestjs-modules':
-        specifier: workspace:^
-        version: link:../modules
       body-parser:
         specifier: ^1.20.3
         version: 1.20.3
