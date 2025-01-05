@@ -51,7 +51,7 @@ import { StripeModule } from '@golevelup/nestjs-stripe';
 
 @Module({
   imports: [
-    StripeModule.forRoot(StripeModule, {
+    StripeModule.forRoot({
       apiKey: 'sk_***',
       webhookConfig: {
         stripeSecrets: {
@@ -112,7 +112,7 @@ const app = await NestFactory.create<NestExpressApplication>(AppModule, {
 You can then manually set up `bodyProperty` to use rawBody:
 
 ```typescript
-StripeModule.forRoot(StripeModule, {
+StripeModule.forRoot({
   apiKey: 'sk_***',
   webhookConfig: {
     stripeSecrets: { ... },
@@ -142,7 +142,7 @@ class PaymentCreatedService {
 You can also pass any class decorator to the `decorators` property of the `webhookConfig` object as a part of the module configuration. This could be used in situations like when using the `@nestjs/throttler` package and needing to apply the `@SkipThrottle()` decorator, or when you have a global guard but need to skip routes with certain metadata.
 
 ```typescript
-StripeModule.forRoot(StripeModule, {
+StripeModule.forRoot({
   apiKey: 'sk_***',
   webhookConfig: {
     stripeSecrets: { ... },
@@ -158,13 +158,17 @@ This library is built using an underlying NestJS concept called `External Contex
 You can identify Stripe webhook contexts by their context type, `'stripe_webhook'`:
 
 ```typescript
+import { STRIPE_WEBHOOK_CONTEXT_TYPE } from '@golevelup/stripe';
+
 @Injectable()
 class ExampleInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler<any>) {
-    const contextType = context.getType<'http' | 'stripe_webhook'>();
+    const contextType = context.getType<
+      'http' | typeof STRIPE_WEBHOOK_CONTEXT_TYPE
+    >();
 
     // Do nothing if this is a Stripe webhook event
-    if (contextType === 'stripe_webhook') {
+    if (contextType === STRIPE_WEBHOOK_CONTEXT_TYPE) {
       return next.handle();
     }
 

@@ -22,7 +22,7 @@ describe('Stripe Module', () => {
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [
-        StripeModule.forRoot(StripeModule, {
+        StripeModule.forRoot({
           apiKey: '123',
         }),
       ],
@@ -39,10 +39,11 @@ describe('Stripe Module', () => {
     const client = testReceiveStripeFn.mock.calls[0][0];
     expect(client).toBeInstanceOf(Stripe);
   });
+
   it('should apply the decorator to the controller', async () => {
     await Test.createTestingModule({
       imports: [
-        StripeModule.forRoot(StripeModule, {
+        StripeModule.forRoot({
           apiKey: '123',
           webhookConfig: {
             stripeSecrets: {
@@ -54,7 +55,7 @@ describe('Stripe Module', () => {
       ],
     }).compile();
     expect(Reflect.getMetadata('TEST:METADATA', StripeWebhookController)).toBe(
-      'metadata'
+      'metadata',
     );
   });
 });

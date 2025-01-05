@@ -64,8 +64,8 @@ describe.each(cases)(
     beforeEach(async () => {
       const moduleImport =
         moduleType === 'forRoot'
-          ? StripeModule.forRoot(StripeModule, moduleConfig)
-          : StripeModule.forRootAsync(StripeModule, {
+          ? StripeModule.forRoot(moduleConfig)
+          : StripeModule.forRootAsync({
               useFactory: () => moduleConfig,
             });
 
@@ -106,12 +106,12 @@ describe.each(cases)(
           expect(hydratePayloadFn).toHaveBeenCalledTimes(1);
           expect(hydratePayloadFn).toHaveBeenCalledWith(
             stripeSig,
-            expectedEvent
+            expectedEvent,
           );
           expect(testReceiveStripeFn).toHaveBeenCalledWith(expectedEvent);
         });
     });
 
     afterEach(() => jest.resetAllMocks());
-  }
+  },
 );
