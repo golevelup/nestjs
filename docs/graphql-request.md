@@ -1,26 +1,32 @@
-# @golevelup/nestjs-graphql-request
-
-<p align="center">
-<a href="https://www.npmjs.com/package/@golevelup/nestjs-graphql-request"><img src="https://img.shields.io/npm/v/@golevelup/nestjs-graphql-request.svg?style=flat" alt="version" /></a>
-<a href="https://www.npmjs.com/package/@golevelup/nestjs-graphql-request"><img alt="downloads" src="https://img.shields.io/npm/dt/@golevelup/nestjs-graphql-request.svg?style=flat"></a>
-<img alt="license" src="https://img.shields.io/npm/l/@golevelup/nestjs-graphql-request.svg">
-</p>
-
-## Description
+# GraphQL Request
 
 This library provides the `GraphQLRequestModule` which makes it easy to initialize an instance of `GraphQLClient` for use in Depdendency Injection. This can be combined with automatic codegen for type safe access to third party GQL APIs from your Nest services
 
-## Usage
+<div style="display: flex; gap: 10px;">
+<a href="https://www.npmjs.com/package/@golevelup/nestjs-graphql-request"><img src="https://img.shields.io/npm/v/@golevelup/nestjs-graphql-request.svg?style=flat" alt="version" /></a>
+<a href="https://www.npmjs.com/package/@golevelup/nestjs-graphql-request"><img alt="downloads" src="https://img.shields.io/npm/dt/@golevelup/nestjs-graphql-request.svg?style=flat"></a>
+<img alt="license" src="https://img.shields.io/npm/l/@golevelup/nestjs-graphql-request.svg">
+</div>
 
-### Install
+## Getting Started
 
-`npm install ---save @golevelup/nestjs-graphql-request`
+::: code-group
 
-or
+```bash [npm]
+npm install ---save @golevelup/nestjs-graphql-request
+```
 
-`yarn add @golevelup/nestjs-graphql-request`
+```bash [yarn]
+yarn add @golevelup/nestjs-graphql-request
+```
 
-### Import
+```bash [pnpm]
+pnpm add @golevelup/nestjs-graphql-request
+```
+
+:::
+
+## Import
 
 Import and add `GraphQLRequestModule` to the `imports` section of the consuming module.
 
@@ -46,7 +52,7 @@ export class AppModule {
 }
 ```
 
-### Inject the GraphQLClient
+## Inject the GraphQLClient
 
 To make GraphQL requests from your controllers or services use the provided decorator `@InjectGraphQLClient`.
 
@@ -60,7 +66,7 @@ export class ExampleService {
 }
 ```
 
-### Typesafe GraphQL Access
+## Typesafe GraphQL Access
 
 The GraphQL client works best when combined with GraphQL code generation tools for communicating to a GraphQL endpoint. Follow the [GraphQL Code Generator GraphQL Request Plugin Instructions](https://graphql-code-generator.com/docs/plugins/typescript-graphql-request).
 
@@ -99,11 +105,3 @@ export class AppModule {
   // ...
 }
 ```
-
-## Contribute
-
-Contributions welcome! Read the [contribution guidelines](../../CONTRIBUTING.md) first.
-
-## License
-
-[MIT License](../../LICENSE)
