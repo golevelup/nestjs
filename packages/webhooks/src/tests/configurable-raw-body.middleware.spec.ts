@@ -36,7 +36,7 @@ class ApiController {
 
 @Module({
   imports: [
-    WebhooksModule.forRoot(WebhooksModule, {
+    WebhooksModule.forRoot({
       requestRawBodyProperty: rawBodyPropertyName,
     }),
   ],
