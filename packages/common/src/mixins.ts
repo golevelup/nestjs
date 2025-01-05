@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { nanoid } from 'nanoid';
+import { randomUUID } from 'crypto';
 
 export const makeInjectableMixin = (name: string) => (mixinClass) => {
   Object.defineProperty(mixinClass, 'name', {
-    value: `${name}-${nanoid()}`,
+    value: `${name}-${randomUUID()}`,
   });
   Injectable()(mixinClass);
   return mixinClass;

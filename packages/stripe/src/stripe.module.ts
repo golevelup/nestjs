@@ -1,13 +1,16 @@
 import { DiscoveryModule, DiscoveryService } from '@golevelup/nestjs-discovery';
-import { createConfigurableDynamicRootModule } from '@golevelup/nestjs-modules';
 import { Logger, Module, OnModuleInit } from '@nestjs/common';
 import { PATH_METADATA } from '@nestjs/common/constants';
 import { ExternalContextCreator } from '@nestjs/core/helpers/external-context-creator';
 import { flatten, groupBy, omit } from 'lodash';
 import Stripe from 'stripe';
 import {
+  ConfigurableModuleClass,
+  MODULE_OPTIONS_TOKEN,
+} from './stripe-module-definition';
+import {
   STRIPE_CLIENT_TOKEN,
-  STRIPE_MODULE_CONFIG_TOKEN,
+  STRIPE_WEBHOOK_CONTEXT_TYPE,
   STRIPE_WEBHOOK_HANDLER,
   STRIPE_WEBHOOK_SERVICE,
 } from './stripe.constants';
@@ -19,52 +22,48 @@ import { StripeWebhookService } from './stripe.webhook.service';
 
 @Module({
   controllers: [StripeWebhookController],
+  imports: [DiscoveryModule],
+  providers: [
+    {
+      provide: Symbol('CONTROLLER_HACK'),
+      inject: [MODULE_OPTIONS_TOKEN],
+      useFactory: (config: StripeModuleConfig) => {
+        const controllerPrefix =
+          config.webhookConfig?.controllerPrefix || 'stripe';
+
+        Reflect.defineMetadata(
+          PATH_METADATA,
+          controllerPrefix,
+          StripeWebhookController,
+        );
+        config.webhookConfig?.decorators?.forEach((deco) => {
+          deco(StripeWebhookController);
+        });
+      },
+    },
+    {
+      provide: STRIPE_CLIENT_TOKEN,
+      inject: [MODULE_OPTIONS_TOKEN],
+      useFactory: ({
+        apiKey,
+        typescript = true,
+        apiVersion = '2024-12-18.acacia',
+        ...options
+      }: StripeModuleConfig): Stripe => {
+        return new Stripe(apiKey, {
+          typescript,
+          apiVersion,
+          ...omit(options, ['webhookConfig']),
+        });
+      },
+    },
+    StripeWebhookService,
+    StripePayloadService,
+  ],
+  exports: [STRIPE_CLIENT_TOKEN],
 })
 export class StripeModule
-  extends createConfigurableDynamicRootModule<StripeModule, StripeModuleConfig>(
-    STRIPE_MODULE_CONFIG_TOKEN,
-    {
-      imports: [DiscoveryModule],
-      providers: [
-        {
-          provide: Symbol('CONTROLLER_HACK'),
-          useFactory: (config: StripeModuleConfig) => {
-            const controllerPrefix =
-              config.webhookConfig?.controllerPrefix || 'stripe';
-
-            Reflect.defineMetadata(
-              PATH_METADATA,
-              controllerPrefix,
-              StripeWebhookController,
-            );
-            config.webhookConfig?.decorators?.forEach((deco) => {
-              deco(StripeWebhookController);
-            });
-          },
-          inject: [STRIPE_MODULE_CONFIG_TOKEN],
-        },
-        {
-          provide: STRIPE_CLIENT_TOKEN,
-          useFactory: ({
-            apiKey,
-            typescript = true,
-            apiVersion = '2024-12-18.acacia',
-            ...options
-          }: StripeModuleConfig): Stripe => {
-            return new Stripe(apiKey, {
-              typescript,
-              apiVersion,
-              ...omit(options, ['webhookConfig']),
-            });
-          },
-          inject: [STRIPE_MODULE_CONFIG_TOKEN],
-        },
-        StripeWebhookService,
-        StripePayloadService,
-      ],
-      exports: [STRIPE_MODULE_CONFIG_TOKEN, STRIPE_CLIENT_TOKEN],
-    },
-  )
+  extends ConfigurableModuleClass
   implements OnModuleInit
 {
   private readonly logger = new Logger(StripeModule.name);
@@ -139,7 +138,7 @@ export class StripeModule
             undefined, // contextId
             undefined, // inquirerId
             undefined, // options
-            'stripe_webhook', // contextType
+            STRIPE_WEBHOOK_CONTEXT_TYPE, // contextType
           ),
         }));
       }),

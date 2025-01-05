@@ -188,9 +188,6 @@ importers:
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
-      nanoid:
-        specifier: ^3.3.7
-        version: 3.3.8
 
   packages/discovery:
     dependencies:
@@ -292,15 +289,9 @@ importers:
 
   packages/stripe:
     dependencies:
-      '@golevelup/nestjs-common':
-        specifier: workspace:^
-        version: link:../common
       '@golevelup/nestjs-discovery':
         specifier: workspace:^
         version: link:../discovery
-      '@golevelup/nestjs-modules':
-        specifier: workspace:^
-        version: link:../modules
     devDependencies:
       stripe:
         specifier: ^17.5.0
@@ -9797,7 +9788,8 @@ snapshots:
 
   mute-stream@1.0.0: {}
 
-  nanoid@3.3.8: {}
+  nanoid@3.3.8:
+    optional: true
 
   natural-compare@1.4.0: {}
 
