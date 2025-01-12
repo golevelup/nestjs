@@ -125,9 +125,50 @@ export interface MessageHandlerOptions {
 }
 
 export interface ConnectionInitOptions {
+  /**
+   * Determines whether the application should wait for a healthy connection to be established
+   * before proceeding with operations.
+   *
+   * - When set to `true` (default), the application will block until a connection to the RabbitMQ broker
+   *   is successfully established or a timeout occurs. The `timeout` value specifies the maximum
+   *   time (in milliseconds) the application will wait before giving up.
+   * - When set to `false`, the application will not wait for a connection and will proceed
+   *   regardless of the connection state. Health checks will be skipped in this case.
+   *
+   * @default true - The application will wait for a healthy connection by default.
+   */
   wait?: boolean;
+
+  /**
+   * Specifies how long (in milliseconds) the application should wait for a healthy connection
+   * to be established when `wait` is set to `true`. If the connection is not established within
+   * this time frame, an error will be thrown or suppressed based on the `reject` option.
+   *
+   * @default 5000 - The application will wait for up to N milliseconds before timing out.
+   */
   timeout?: number;
+  /**
+   * Determines the behavior when a connection fails within the specified `timeout` period.
+   *
+   * - When set to `true` (default), the application will throw an error if a connection
+   *   cannot be established within the timeout period.
+   * - When set to `false`, the application will suppress the error and continue running,
+   *   treating the failed connection as a non-blocking issue.
+   *
+   * @default true - The application will throw an error on timeout by default.
+   */
   reject?: boolean;
+
+  /**
+   * When set to `true`, suppresses logging for connection failure events.
+   *
+   * Use this flag to prevent connection failure logs from being written,
+   * which can be useful in non-critical environments or during specific operations
+   * where connection issues are expected and do not require logging.
+   *
+   * @default false - Connection failure logs will be written by default.
+   */
+  skipConnectionFailedLogging?: boolean;
 }
 
 export type RabbitMQChannels = Record<string, RabbitMQChannelConfig>;
