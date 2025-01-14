@@ -20,7 +20,6 @@
     "@types/express": "5.0.0",
     "@types/jest": "^27.0.3",
     "@types/lodash": "^4.17.14",
-    "@types/mime": "3.0.4",
     "@types/node": "^22.0.0",
     "@types/supertest": "^6.0.2",
     "@typescript-eslint/eslint-plugin": "^8.8.0",
