@@ -223,7 +223,7 @@ export class DiscoveryService {
     return {
       name: wrapper.name as string,
       instance: instanceHost.instance,
-      injectType: wrapper.metatype,
+      injectType: wrapper.metatype ?? undefined,
       dependencyType: get(instanceHost, 'instance.constructor'),
       parentModule: {
         name: nestModule.metatype.name,
