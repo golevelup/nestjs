@@ -223,6 +223,7 @@ export class DiscoveryService {
     return {
       name: wrapper.name as string,
       instance: instanceHost.instance,
+      // TODO: remove nullish coalescing operator to return undefined when dropping NestJS 10 support
       injectType: wrapper.metatype ?? undefined,
       dependencyType: get(instanceHost, 'instance.constructor'),
       parentModule: {
