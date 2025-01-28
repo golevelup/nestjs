@@ -62,7 +62,7 @@ importers:
         specifier: ^4.17.14
         version: 4.17.14
       '@types/node':
-        specifier: ^22.0.0
+        specifier: ^22.12.0
         version: 22.12.0
       '@types/supertest':
         specifier: ^6.0.2
