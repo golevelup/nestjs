@@ -47,7 +47,7 @@ import { StripeWebhookService } from './stripe.webhook.service';
       useFactory: ({
         apiKey,
         typescript = true,
-        apiVersion = '2024-12-18.acacia',
+        apiVersion = '2025-01-27.acacia',
         ...options
       }: StripeModuleConfig): Stripe => {
         return new Stripe(apiKey, {
