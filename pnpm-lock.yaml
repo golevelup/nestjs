@@ -282,7 +282,7 @@ importers:
         version: link:../discovery
     devDependencies:
       stripe:
-        specifier: ^17.5.0
+        specifier: ^17.6.0
         version: 17.6.0
 
   packages/testing/ts-jest:
