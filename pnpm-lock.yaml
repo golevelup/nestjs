@@ -26,13 +26,6 @@ importers:
       rxjs:
         specifier: ^7.8.1
         version: 7.8.1
-    optionalDependencies:
-      '@vitest/coverage-v8':
-        specifier: ^1.6.0
-        version: 1.6.0(vitest@1.6.0(@types/node@22.12.0)(jsdom@16.7.0))
-      vitest:
-        specifier: ^1.6.0
-        version: 1.6.0(@types/node@22.12.0)(jsdom@16.7.0)
     devDependencies:
       '@commitlint/cli':
         specifier: ^19.6.1
@@ -124,6 +117,13 @@ importers:
       vitepress:
         specifier: ^1.6.3
         version: 1.6.3(@algolia/client-search@5.18.0)(@types/node@22.12.0)(axios@1.7.9)(postcss@8.4.49)(search-insights@2.17.3)(typescript@4.9.5)
+    optionalDependencies:
+      '@vitest/coverage-v8':
+        specifier: ^1.6.0
+        version: 1.6.0(vitest@1.6.0(@types/node@22.12.0)(jsdom@16.7.0))
+      vitest:
+        specifier: ^1.6.0
+        version: 1.6.0(@types/node@22.12.0)(jsdom@16.7.0)
 
   integration/rabbitmq:
     dependencies:
@@ -162,8 +162,8 @@ importers:
         specifier: 3.1.9
         version: 3.1.9
       prettier:
-        specifier: 3.4.2
-        version: 3.4.2
+        specifier: 3.5.1
+        version: 3.5.1
       supertest:
         specifier: 7.0.0
         version: 7.0.0
@@ -4765,6 +4765,11 @@ packages:
 
   prettier@3.4.2:
     resolution: {integrity: sha512-e9MewbtFo+Fevyuxn/4rrcDAaq0IYxPGLvObpQjiZBMAzB9IGmzlnG9RZy3FFas+eBMu2vA0CszMeduow5dIuQ==}
+    engines: {node: '>=14'}
+    hasBin: true
+
+  prettier@3.5.1:
+    resolution: {integrity: sha512-hPpFQvHwL3Qv5AdRvBFMhnKo4tYxp0ReXiPn2bxkiohEX6mBeBwEpBSQTkD458RaaDKQMYSp4hX4UtfUTA5wDw==}
     engines: {node: '>=14'}
     hasBin: true
 
@@ -11483,6 +11488,8 @@ snapshots:
     optional: true
 
   prettier@3.4.2: {}
+
+  prettier@3.5.1: {}
 
   pretty-format@27.5.1:
     dependencies:
