@@ -27,7 +27,7 @@
     "@nestjs/testing": "^11.0.0",
     "@types/express": "5.0.0",
     "@types/jest": "^27.0.3",
-    "@types/node": "^22.0.0",
+    "@types/node": "^22.13.4",
     "@types/supertest": "6.0.2",
     "amqplib": "0.10.5",
     "jest": "^27.4.3",
