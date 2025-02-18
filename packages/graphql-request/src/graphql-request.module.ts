@@ -17,5 +17,6 @@ import { GraphQLClientInject } from './graphql-request.constants';
       },
     },
   ],
+  exports: [GraphQLClientInject],
 })
 export class GraphQLRequestModule extends ConfigurableModuleClass {}

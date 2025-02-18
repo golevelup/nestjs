@@ -35,4 +35,33 @@ describe('GraphQL Request Module', () => {
 
     expect(client).toBeInstanceOf(GraphQLClient);
   });
+
+  it('builds an sdk with graphql client inject', async () => {
+    class MockedSdk {
+      constructor(private readonly client: GraphQLClient) {}
+    }
+
+    const MOCKED_SDK_TOKEN = 'MockedSdk';
+
+    const moduleFixture = await Test.createTestingModule({
+      imports: [
+        GraphQLRequestModule.forRootAsync({
+          useFactory: () => ({
+            endpoint: 'test',
+          }),
+        }),
+      ],
+      providers: [
+        {
+          provide: MOCKED_SDK_TOKEN,
+          inject: [GraphQLClientInject],
+          useFactory: (client: GraphQLClient) => new MockedSdk(client),
+        },
+      ],
+    }).compile();
+
+    const app = moduleFixture.createNestApplication();
+
+    expect(app.get(MOCKED_SDK_TOKEN)).toBeInstanceOf(MockedSdk);
+  });
 });
