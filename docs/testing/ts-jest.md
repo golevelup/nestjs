@@ -119,3 +119,31 @@ Be aware that when providing your own mocks, if you asserting how many times you
 The above case shows how well the `createMock` utility can take in user provided values as well as returning **type safe** mocks that can easily be chained and modified as needed.
 
 For a few more examples on what can be done [the mock.spec](src/mocks.spec.ts) file has some really cool examples that show pretty well just what is doable with this utility.
+
+### Strict Mode
+
+The `createMock` function supports a strict mode option that can be enabled by passing `{ strict: true }` in the options parameter. When strict mode is enabled, any attempt to call a method that hasn't been explicitly stubbed will throw an error. This is useful for ensuring that all method calls in your tests are intentional and properly mocked.
+
+Example:
+
+```ts
+import { createMock } from '@golevelup/ts-jest';
+import { ExecutionContext } from '@nestjs/common';
+
+describe('Strict Mode', () => {
+  it('should throw error when calling unstubbed method in strict mode', () => {
+    const mock = createMock<ExecutionContext>({}, { strict: true });
+
+    // This will throw an error because switchToHttp hasn't been stubbed
+    expect(() => mock.switchToHttp()).toThrow('Method mock.switchToHttp was called without being explicitly stubbed');
+
+    // After stubbing the method, it works as expected
+    mock.switchToHttp.mockReturnValue({
+      getRequest: () => ({ headers: { authorization: 'auth' } })
+    });
+    expect(mock.switchToHttp().getRequest()).toEqual({
+      headers: { authorization: 'auth' }
+    });
+  });
+});
+```
