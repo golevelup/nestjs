@@ -355,6 +355,17 @@ describe('Mocks', () => {
         expect([comparable]).toEqual([comparable]);
       });
     });
+
+    describe('strict mode', () => {
+      it('should throw error when calling unstubbed method in strict mode', () => {
+        const mock = createMock<TestInterface>({}, { strict: true });
+
+        expect(() => mock.func(1, 'test')).toThrow('Method mock.func was called without being explicitly stubbed');
+
+        mock.func.mockReturnValue(true);
+        expect(mock.func(1, 'test')).toBe(true);
+      });
+    });
   });
 
   describe('Nest DI', () => {
