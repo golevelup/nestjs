@@ -37,7 +37,7 @@
   },
   "peerDependencies": {
     "@nestjs/common": "^11.0.20",
-    "rxjs": "^7.x"
+    "rxjs": "^7.8.1"
   },
   "jest": {
     "moduleFileExtensions": [
