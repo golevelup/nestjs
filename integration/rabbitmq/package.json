@@ -24,7 +24,7 @@
   "devDependencies": {
     "@golevelup/nestjs-rabbitmq": "workspace:^",
     "@golevelup/ts-jest": "workspace:^",
-    "@nestjs/testing": "^11.0.0",
+    "@nestjs/testing": "^11.0.20",
     "@types/express": "5.0.0",
     "@types/jest": "^27.0.3",
     "@types/node": "^22.14.1",

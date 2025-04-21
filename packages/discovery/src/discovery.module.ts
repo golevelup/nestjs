@@ -1,6 +1,6 @@
 import { Global, Module } from '@nestjs/common';
-import { MetadataScanner } from '@nestjs/core/metadata-scanner';
 import { DiscoveryService } from './discovery.service';
+import { MetadataScanner } from '@nestjs/core';
 
 /**
  * Exposes a query API over top of the NestJS Module container

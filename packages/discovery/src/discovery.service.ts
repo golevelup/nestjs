@@ -4,8 +4,6 @@ import { PATH_METADATA } from '@nestjs/common/constants';
 import { STATIC_CONTEXT } from '@nestjs/core/injector/constants';
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 import { Module } from '@nestjs/core/injector/module';
-import { ModulesContainer } from '@nestjs/core/injector/modules-container';
-import { MetadataScanner } from '@nestjs/core/metadata-scanner';
 import { flatMap, get, isNil, some, uniqBy } from 'lodash';
 import {
   DiscoveredClass,
@@ -14,6 +12,7 @@ import {
   Filter,
   MetaKey,
 } from './discovery.interfaces';
+import { MetadataScanner, ModulesContainer } from '@nestjs/core';
 
 /**
  * Attempts to retrieve meta information from a Nest DiscoveredClass component

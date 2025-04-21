@@ -36,17 +36,17 @@
   "dependencies": {
     "@golevelup/nestjs-discovery": "workspace:^",
     "amqp-connection-manager": "^4.1.14",
-    "amqplib": "^0.10.5",
+    "amqplib": "^0.10.7",
     "lodash": "^4.17.21"
   },
   "devDependencies": {
-    "@types/amqplib": "^0.10.6"
+    "@types/amqplib": "^0.10.7"
   },
   "peerDependencies": {
-    "@nestjs/common": "^10.x || ^11.0.0",
-    "@nestjs/core": "^10.x || ^11.0.0",
+    "@nestjs/common": "11.0.20",
+    "@nestjs/core": "11.0.20",
     "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.x"
+    "rxjs": "^7.8.2"
   },
   "publishConfig": {
     "access": "public"
