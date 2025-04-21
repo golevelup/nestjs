@@ -44,7 +44,7 @@ describe('Hasura Metadata', () => {
 
     beforeAll(async () => {
       const moduleFixture: TestingModule = await Test.createTestingModule({
-        imports: [HasuraModule.forRoot(HasuraModule, moduleConfig)],
+        imports: [HasuraModule.forRoot(moduleConfig)],
         providers: [TestEventHandlerService],
       }).compile();
 
@@ -70,7 +70,7 @@ describe('Hasura Metadata', () => {
 
     beforeAll(async () => {
       const moduleFixture: TestingModule = await Test.createTestingModule({
-        imports: [HasuraModule.forRoot(HasuraModule, moduleConfig)],
+        imports: [HasuraModule.forRoot(moduleConfig)],
         providers: [TestEventHandlerService],
       }).compile();
 
@@ -97,7 +97,7 @@ describe('Hasura Metadata', () => {
 
     beforeAll(async () => {
       const moduleFixture: TestingModule = await Test.createTestingModule({
-        imports: [HasuraModule.forRoot(HasuraModule, moduleConfig)],
+        imports: [HasuraModule.forRoot(moduleConfig)],
         providers: [TestEventHandlerService],
       }).compile();
 

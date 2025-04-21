@@ -1,60 +1,36 @@
-# @golevelup/nestjs-rabbitmq
-
-<p align="center">
-<a href="https://www.npmjs.com/package/@golevelup/nestjs-rabbitmq"><img src="https://img.shields.io/npm/v/@golevelup/nestjs-rabbitmq.svg?style=flat" alt="version" /></a>
-<a href="https://www.npmjs.com/package/@golevelup/nestjs-rabbitmq"><img alt="downloads" src="https://img.shields.io/npm/dt/@golevelup/nestjs-rabbitmq.svg?style=flat"></a>
-<img alt="license" src="https://img.shields.io/npm/l/@golevelup/nestjs-rabbitmq.svg">
-</p>
-
-# Table of Contents
-
-- [@golevelup/nestjs-rabbitmq](#golevelupnestjs-rabbitmq)
-- [Table of Contents](#table-of-contents)
-  - [Description](#description)
-  - [Motivation](#motivation)
-  - [Connection Management](#connection-management)
-  - [Usage](#usage)
-    - [Install](#install)
-    - [Module Initialization](#module-initialization)
-  - [Usage with Interceptors, Guards and Filters](#usage-with-interceptors-guards-and-filters)
-  - [Usage with Controllers](#usage-with-controllers)
-    - [Interceptors, Guards, Pipes](#interceptors-guards-pipes)
-  - [Receiving Messages](#receiving-messages)
-    - [Exposing RPC Handlers](#exposing-rpc-handlers)
-    - [Exposing Pub/Sub Handlers](#exposing-pubsub-handlers)
-    - [Handling messages with format different than JSON](#handling-messages-with-format-different-than-json)
-    - [Message Handling](#message-handling)
-    - [Conditional Handler Registration](#conditional-handler-registration)
-    - [Dealing with the amqp original message](#dealing-with-the-amqp-original-message)
-    - [Selecting channel for handler](#selecting-channel-for-handler)
-  - [Sending Messages](#sending-messages)
-    - [Inject the AmqpConnection](#inject-the-amqpconnection)
-    - [Publishing Messages (Fire and Forget)](#publishing-messages-fire-and-forget)
-    - [Requesting Data from an RPC](#requesting-data-from-an-rpc)
-      - [Type Inference](#type-inference)
-      - [Interop with other RPC Servers](#interop-with-other-rpc-servers)
-      - [In distributed systems](#in-distributed-systems)
-  - [Advanced Patterns](#advanced-patterns)
-    - [Competing Consumers](#competing-consumers)
-    - [Handling errors](#handling-errors)
-    - [Handling errors during queue creation](#handling-errors-during-queue-creation)
-  - [Testing](#testing)
-    - [Prevent Connection Error](#prevent-connection-error)
-    - [Mock Connection](#mock-connection)
-  - [Contribute](#contribute)
-  - [License](#license)
-
-## Description
+# RabbitMQ
 
 This module features an opinionated set of decorators for common RabbitMQ patterns including Publish/Subscribe and RPC using Rabbit's [Direct Reply-To Queue](https://www.rabbitmq.com/direct-reply-to.html) for optimal performance.
 
 It allows you to expose normal NestJS service methods as messaging handlers that can be configured to support a variety of messaging patterns.
 
+<div style="display: flex; gap: 10px;">
+<a href="https://www.npmjs.com/package/@golevelup/nestjs-rabbitmq">
+<img alt="downloads" src="https://img.shields.io/npm/dt/@golevelup/nestjs-rabbitmq.svg?style=flat"></a>
+<img alt="license" src="https://img.shields.io/npm/l/@golevelup/nestjs-rabbitmq.svg">
+</div>
+
+## Getting Started
+
+::: code-group
+
+```bash [npm]
+npm install ---save @golevelup/nestjs-rabbitmq
+```
+
+```bash [yarn]
+yarn add @golevelup/nestjs-rabbitmq
+```
+
+```bash [pnpm]
+pnpm add @golevelup/nestjs-rabbitmq
+```
+
+:::
+
 ## Motivation
 
 NestJS offers an out of the box microservices experience with support for a variety of transports. However, because NestJS microservices strives to work with a variety of transport mechanisms in a generic way, it misses out on some of the powerful functionality offered by individual transport layers.
-
-Some of the most notable missing functionality includes common messaging patterns like publish/subscribe and competing consumers.
 
 ## Connection Management
 
@@ -71,7 +47,7 @@ import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
 
 @Module({
   imports: [
-    RabbitMQModule.forRoot(RabbitMQModule, {
+    RabbitMQModule.forRoot({
       exchanges: [
         {
           name: 'exchange1',
@@ -90,16 +66,6 @@ With the new behavior in place, unavailability of a RabbitMQ broker still allows
 
 The same principle applies to when a connection is lost. In such cases, the module tries to reconnect and set up everything again once it is reconnected.
 
-## Usage
-
-### Install
-
-`npm install ---save @golevelup/nestjs-rabbitmq`
-
-or
-
-`yarn add @golevelup/nestjs-rabbitmq`
-
 ### Module Initialization
 
 Import and add `RabbitMQModule` it to the `imports` array of module for which you would like to discover handlers. It may make sense for your application to do this in a shared module or to re-export it so it can be used across modules more easily. [Refer to the NestJS docs on modules for more information.](https://docs.nestjs.com/modules)
@@ -116,7 +82,7 @@ import { MessagingService } from './messaging/messaging.service';
 
 @Module({
   imports: [
-    RabbitMQModule.forRoot(RabbitMQModule, {
+    RabbitMQModule.forRoot({
       exchanges: [
         {
           name: 'exchange1',
@@ -149,13 +115,16 @@ This library is built using an underlying NestJS concept called `External Contex
 You can identify RabbitMQ contexts by their context type, `'rmq'`:
 
 ```typescript
+import { RABBIT_CONTEXT_TYPE_KEY } from '@golevelup/nestjs-rabbitmq';
 @Injectable()
 class ExampleInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler<any>) {
-    const contextType = context.getType<'http' | 'rmq'>();
+    const contextType = context.getType<
+      'http' | typeof RABBIT_CONTEXT_TYPE_KEY
+    >();
 
     // Do nothing if this is a RabbitMQ event
-    if (contextType === 'rmq') {
+    if (contextType === RABBIT_CONTEXT_TYPE_KEY) {
       return next.handle();
     }
 
@@ -199,7 +168,7 @@ import { MessagingService } from './messaging/messaging.service';
 
 @Module({
   imports: [
-    RabbitMQModule.forRoot(RabbitMQModule, {
+    RabbitMQModule.forRoot({
       exchanges: [
         {
           name: 'exchange1',
@@ -312,12 +281,12 @@ import { ConsumeMessage } from 'amqplib';
 
 @Module({
   imports: [
-    RabbitMQModule.forRoot(RabbitMQModule, {
+    RabbitMQModule.forRoot({
       // ...
       deserializer: (message: Buffer, msg: ConsumeMessage) => {
         const decodedMessage = myCustomDeserializer(
           msg.toString(),
-          msg.properties.headers
+          msg.properties.headers,
         );
         return decodedMessage;
       },
@@ -654,7 +623,7 @@ import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
             uri: 'amqp://rabbitmq:rabbitmq@localhost:5672',
             connectionInitOptions: { wait: false },
           }
-        : undefined
+        : undefined,
     ),
   ],
 })
@@ -705,11 +674,3 @@ beforeAll(async () => {
 ```
 
 And now your publishers that inject `AmqpConnection` will find it very well mocked.
-
-## Contribute
-
-Contributions welcome! Read the [contribution guidelines](../../CONTRIBUTING.md) first.
-
-## License
-
-[MIT License](../../LICENSE)

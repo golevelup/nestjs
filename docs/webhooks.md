@@ -1,28 +1,36 @@
-# @golevelup/nestjs-webhooks
+# Webhooks
 
-<p align="center">
+Make it easier to build NestJS applications that consume webhooks from third party services
+
+<div style="display: flex; gap: 10px;">
 <a href="https://www.npmjs.com/package/@golevelup/nestjs-webhooks"><img src="https://img.shields.io/npm/v/@golevelup/nestjs-webhooks.svg?style=flat" alt="version" /></a>
 <a href="https://www.npmjs.com/package/@golevelup/nestjs-webhooks"><img alt="downloads" src="https://img.shields.io/npm/dt/@golevelup/nestjs-webhooks.svg?style=flat"></a>
 <img alt="license" src="https://img.shields.io/npm/l/@golevelup/nestjs-webhooks.svg">
-</p>
+</div>
 
-## Motivation
+## Getting Started
 
-Make it easier to build NestJS applications that consume webhooks from third party services
+::: code-group
+
+```bash [npm]
+npm install ---save @golevelup/nestjs-webhooks
+```
+
+```bash [yarn]
+yarn add @golevelup/nestjs-webhooks
+```
+
+```bash [pnpm]
+pnpm add @golevelup/nestjs-webhooks
+```
+
+:::
 
 ## Features
 
 - ✅ Simple utilities and middleware for enabling a request's raw body to be unmodified on specified routes
 - ✅ Control raw body parsing so that you can copy the raw body onto a new configurable property on the Request object
 - ✅ Provide a reusable foundation for building more specific webhook integrations
-
-### Install
-
-`npm install ---save @golevelup/nestjs-webhooks`
-
-or
-
-`yarn add @golevelup/nestjs-webhooks`
 
 ## Techniques
 
@@ -60,11 +68,3 @@ class AppModule implements NestModule {
   }
 }
 ```
-
-## Contribute
-
-Contributions welcome! Read the [contribution guidelines](../../CONTRIBUTING.md) first.
-
-## License
-
-[MIT License](../../LICENSE)

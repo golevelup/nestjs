@@ -1,6 +1,6 @@
 {
   "name": "@golevelup/nestjs-modules",
-  "version": "0.7.1",
+  "version": "0.7.2",
   "description": "Reusable utilties to help level up NestJS Modules",
   "author": "Jesse Carter <jesse.r.carter@gmail.com>",
   "homepage": "https://github.com/golevelup/nestjs#readme",
@@ -36,8 +36,8 @@
     "lodash": "^4.17.21"
   },
   "peerDependencies": {
-    "@nestjs/common": "^10.x",
-    "rxjs": "^7.x"
+    "@nestjs/common": "^11.0.20",
+    "rxjs": "^7.8.1"
   },
   "jest": {
     "moduleFileExtensions": [

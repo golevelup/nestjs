@@ -11,7 +11,7 @@ This project enforces good Git Tree management through awesome open source tools
 Don't worry, you don't have to go figure out how these tools work under the hood if you don't want to. As a contributor they're actually incredibly easy to work with! Just understand that this unlocks some cool super powers for the community.
 
 - [x] Super clean git tree history so that it's easy to pinpoint why and where changes happened :evergreen_tree:
-- [x] [Automatic Changelog generation](CHANGELOG.md) :rocket:
+- [x] Automatic Changelog generation :rocket:
 
 # Instructions
 

@@ -1,29 +1,67 @@
-import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { GraphQLClient } from 'graphql-request';
 import { GraphQLRequestModule } from '../graphql-request.module';
 import { GraphQLClientInject } from './../graphql-request.constants';
 
 describe('GraphQL Request Module', () => {
-  let app: INestApplication;
-  let client: GraphQLClient;
-
-  beforeEach(async () => {
+  it('provides a graphql client', async () => {
     const moduleFixture = await Test.createTestingModule({
       imports: [
-        GraphQLRequestModule.forRoot(GraphQLRequestModule, {
+        GraphQLRequestModule.forRoot({
           endpoint: 'some-graphql-endpoint',
         }),
       ],
     }).compile();
 
-    app = moduleFixture.createNestApplication();
-    await app.init();
+    const app = moduleFixture.createNestApplication();
+    const client = app.get<GraphQLClient>(GraphQLClientInject);
 
-    client = app.get<GraphQLClient>(GraphQLClientInject);
+    expect(client).toBeInstanceOf(GraphQLClient);
   });
 
-  it('provides a graphql client', () => {
+  it('provides a graphql client with async factory', async () => {
+    const moduleFixture = await Test.createTestingModule({
+      imports: [
+        GraphQLRequestModule.forRootAsync({
+          useFactory: () => ({
+            endpoint: 'test',
+          }),
+        }),
+      ],
+    }).compile();
+
+    const app = moduleFixture.createNestApplication();
+    const client = app.get<GraphQLClient>(GraphQLClientInject);
+
     expect(client).toBeInstanceOf(GraphQLClient);
+  });
+
+  it('builds an sdk with graphql client inject', async () => {
+    class MockedSdk {
+      constructor(private readonly client: GraphQLClient) {}
+    }
+
+    const MOCKED_SDK_TOKEN = 'MockedSdk';
+
+    const moduleFixture = await Test.createTestingModule({
+      imports: [
+        GraphQLRequestModule.forRootAsync({
+          useFactory: () => ({
+            endpoint: 'test',
+          }),
+        }),
+      ],
+      providers: [
+        {
+          provide: MOCKED_SDK_TOKEN,
+          inject: [GraphQLClientInject],
+          useFactory: (client: GraphQLClient) => new MockedSdk(client),
+        },
+      ],
+    }).compile();
+
+    const app = moduleFixture.createNestApplication();
+
+    expect(app.get(MOCKED_SDK_TOKEN)).toBeInstanceOf(MockedSdk);
   });
 });

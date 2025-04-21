@@ -54,7 +54,7 @@ describe('Rabbit Graceful Shutdown', () => {
     const moduleFixture = await Test.createTestingModule({
       providers: [SubscribeService],
       imports: [
-        RabbitMQModule.forRoot(RabbitMQModule, {
+        RabbitMQModule.forRoot({
           uri,
           connectionInitOptions: { wait: true, reject: true, timeout: 3000 },
         }),

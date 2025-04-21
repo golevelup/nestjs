@@ -1,33 +1,22 @@
-import { createConfigurableDynamicRootModule } from '@golevelup/nestjs-modules';
 import { Module } from '@nestjs/common';
 import { GraphQLClient } from 'graphql-request';
 import {
-  GraphQLClientConfigInject,
-  GraphQLClientInject,
-} from './graphql-request.constants';
+  ConfigurableModuleClass,
+  MODULE_OPTIONS_TOKEN,
+} from './graphql-request-module-definition';
+import { GraphQLRequestModuleConfig } from './graphql-request-types';
+import { GraphQLClientInject } from './graphql-request.constants';
 
-type GraphQLClientConstructorParams = ConstructorParameters<
-  typeof GraphQLClient
->;
-
-export interface GraphQLRequestModuleConfig {
-  endpoint: GraphQLClientConstructorParams[0];
-  options?: GraphQLClientConstructorParams[1];
-}
-
-@Module({})
-export class GraphQLRequestModule extends createConfigurableDynamicRootModule<
-  GraphQLRequestModule,
-  GraphQLRequestModuleConfig
->(GraphQLClientConfigInject, {
+@Module({
   providers: [
     {
       provide: GraphQLClientInject,
+      inject: [MODULE_OPTIONS_TOKEN],
       useFactory: ({ endpoint, options }: GraphQLRequestModuleConfig) => {
         return new GraphQLClient(endpoint, options);
       },
-      inject: [GraphQLClientConfigInject],
     },
   ],
   exports: [GraphQLClientInject],
-}) {}
+})
+export class GraphQLRequestModule extends ConfigurableModuleClass {}

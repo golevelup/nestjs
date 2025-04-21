@@ -19,13 +19,13 @@ export interface AsyncOptionsFactoryProvider<T>
 
 export function createAsyncOptionsProvider<T>(
   provide: string | symbol | Type<any>,
-  options: AsyncOptionsFactoryProvider<T>
+  options: AsyncOptionsFactoryProvider<T>,
 ): Provider {
   if (options.useFactory) {
     return {
       provide,
       useFactory: options.useFactory,
-      inject: options.inject || []
+      inject: options.inject || [],
     };
   }
 
@@ -39,8 +39,8 @@ export function createAsyncOptionsProvider<T>(
         get(
           options,
           'useExisting.provide',
-          (options.useExisting as any).value.constructor.name
-        )
-    ]
+          (options.useExisting as any).value.constructor.name,
+        ),
+    ],
   };
 }

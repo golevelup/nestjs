@@ -1,6 +1,6 @@
 {
   "name": "rabbitmq-integration",
-  "version": "3.5.1",
+  "version": "3.5.3",
   "description": "RabbitMQ integration project",
   "private": true,
   "license": "MIT",
@@ -19,23 +19,24 @@
     "test:e2e": "jest --config ../../jest-e2e.json"
   },
   "dependencies": {
-    "rimraf": "^5.0.0"
+    "rimraf": "^6.0.1"
   },
   "devDependencies": {
     "@golevelup/nestjs-rabbitmq": "workspace:^",
-    "@nestjs/testing": "^10.4.4",
-    "@types/express": "5.0.0",
+    "@golevelup/ts-jest": "workspace:^",
+    "@nestjs/testing": "^11.0.20",
+    "@types/express": "5.0.1",
     "@types/jest": "^27.0.3",
-    "@types/node": "^20.16.10",
-    "@types/supertest": "6.0.2",
-    "amqplib": "0.10.4",
+    "@types/node": "^22.14.1",
+    "@types/supertest": "6.0.3",
+    "amqplib": "0.10.7",
     "jest": "^27.4.3",
-    "nodemon": "3.1.7",
-    "prettier": "3.3.3",
-    "supertest": "7.0.0",
+    "nodemon": "3.1.9",
+    "prettier": "3.5.3",
+    "supertest": "7.1.0",
     "ts-jest": "27.1.5",
     "tsconfig-paths": "4.2.0",
-    "tsx": "^4.19.1",
+    "tsx": "^4.19.3",
     "typescript": "4.9.5"
   },
   "jest": {
@@ -51,8 +52,5 @@
     },
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
-  },
-  "volta": {
-    "node": "20.18.0"
   }
 }

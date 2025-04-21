@@ -109,6 +109,7 @@ const defaultConfig = {
     wait: true,
     timeout: 5000,
     reject: true,
+    skipConnectionFailedLogging: false,
   },
   connectionManagerOptions: {},
   registerHandlers: true,
@@ -195,10 +196,22 @@ export class AmqpConnection {
       ...this.config.connectionInitOptions,
     };
 
-    const { wait, timeout: timeoutInterval, reject } = options;
+    const {
+      skipConnectionFailedLogging,
+      wait,
+      timeout: timeoutInterval,
+      reject,
+    } = options;
 
-    const p = this.initCore();
-    if (!wait) return p;
+    const p = this.initCore(wait, skipConnectionFailedLogging);
+
+    if (!wait) {
+      this.logger.log(
+        `Skipping connection health checks as 'wait' is disabled. The application will proceed without verifying a healthy RabbitMQ connection.`,
+      );
+
+      return p;
+    }
 
     return lastValueFrom(
       this.initialized.pipe(
@@ -218,7 +231,10 @@ export class AmqpConnection {
     );
   }
 
-  private async initCore(): Promise<void> {
+  private async initCore(
+    wait = false,
+    skipConnectionFailedLogging = false,
+  ): Promise<void> {
     this.logger.log(
       `Trying to connect to RabbitMQ broker (${this.config.name})`,
     );
@@ -242,12 +258,24 @@ export class AmqpConnection {
       );
     });
 
-    this._managedConnection.on('connectFailed', ({ err }) => {
-      this.logger.error(
-        `Failed to connect to RabbitMQ broker (${this.config.name})`,
-        err?.stack,
-      );
-    });
+    // Certain consumers might want to skip "connectionFailed" logging
+    // therefore this option will allow us to conditionally register this event consumption
+    if (!skipConnectionFailedLogging) {
+      this._managedConnection.on('connectFailed', ({ err }) => {
+        const message = `Connection Failed: Unable to establish a connection to the broker (${this.config.name}). Check the broker's availability, network connectivity, and configuration.`;
+
+        if (!wait) {
+          // Lower the log severity if 'wait' is disabled, as the application continues to function.
+          this.logger.warn(message);
+          if (err?.stack) {
+            this.logger.debug?.(`Stack trace: ${err.stack}`);
+          }
+        } else {
+          // Log as an error if 'wait' is enabled, as this impacts the connection health.
+          this.logger.error(message, err?.stack);
+        }
+      });
+    }
 
     const defaultChannel: { name: string; config: RabbitMQChannelConfig } = {
       name: AmqpConnection.name,
@@ -893,7 +921,6 @@ export class AmqpConnection {
     channel.on('close', () =>
       this.logger.log(`Successfully closed a RabbitMQ channel "${name}"`),
     );
-
     return channel.addSetup((c) => this.setupInitChannel(c, name, config));
   }
 

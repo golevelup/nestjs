@@ -3,14 +3,12 @@ import {
   DiscoveryModule,
   DiscoveryService,
 } from '@golevelup/nestjs-discovery';
-import { createConfigurableDynamicRootModule } from '@golevelup/nestjs-modules';
 import {
   DynamicModule,
   Module,
   Logger,
   OnApplicationBootstrap,
   OnApplicationShutdown,
-  Inject,
   LoggerService,
 } from '@nestjs/common';
 import { ROUTE_ARGS_METADATA } from '@nestjs/common/constants';
@@ -19,49 +17,47 @@ import { groupBy } from 'lodash';
 import { AmqpConnection } from './amqp/connection';
 import { AmqpConnectionManager } from './amqp/connectionManager';
 import { assertRabbitMqUri } from './amqp/utils';
+import { ConfigurableModuleClass } from './rabbitmq-module-definition';
 import {
   RABBIT_CONFIG_TOKEN,
   RABBIT_CONTEXT_TYPE_KEY,
   RABBIT_HANDLER,
 } from './rabbitmq.constants';
+import { InjectRabbitMQConfig } from './rabbitmq.decorators';
 import { RabbitRpcParamsFactory } from './rabbitmq.factory';
 import { RabbitHandlerConfig, RabbitMQConfig } from './rabbitmq.interfaces';
 
 @Module({
   imports: [DiscoveryModule],
+  providers: [
+    {
+      provide: AmqpConnectionManager,
+      useFactory: async (
+        config: RabbitMQConfig,
+      ): Promise<AmqpConnectionManager> => {
+        await RabbitMQModule.AmqpConnectionFactory(config);
+        return RabbitMQModule.connectionManager;
+      },
+      inject: [RABBIT_CONFIG_TOKEN],
+    },
+    {
+      provide: AmqpConnection,
+      useFactory: async (
+        config: RabbitMQConfig,
+        connectionManager: AmqpConnectionManager,
+      ): Promise<AmqpConnection> => {
+        return connectionManager.getConnection(
+          config?.name || 'default',
+        ) as AmqpConnection;
+      },
+      inject: [RABBIT_CONFIG_TOKEN, AmqpConnectionManager],
+    },
+    RabbitRpcParamsFactory,
+  ],
+  exports: [AmqpConnectionManager, AmqpConnection],
 })
 export class RabbitMQModule
-  extends createConfigurableDynamicRootModule<RabbitMQModule, RabbitMQConfig>(
-    RABBIT_CONFIG_TOKEN,
-    {
-      providers: [
-        {
-          provide: AmqpConnectionManager,
-          useFactory: async (
-            config: RabbitMQConfig,
-          ): Promise<AmqpConnectionManager> => {
-            await RabbitMQModule.AmqpConnectionFactory(config);
-            return RabbitMQModule.connectionManager;
-          },
-          inject: [RABBIT_CONFIG_TOKEN],
-        },
-        {
-          provide: AmqpConnection,
-          useFactory: async (
-            config: RabbitMQConfig,
-            connectionManager: AmqpConnectionManager,
-          ): Promise<AmqpConnection> => {
-            return connectionManager.getConnection(
-              config?.name || 'default',
-            ) as AmqpConnection;
-          },
-          inject: [RABBIT_CONFIG_TOKEN, AmqpConnectionManager],
-        },
-        RabbitRpcParamsFactory,
-      ],
-      exports: [AmqpConnectionManager, AmqpConnection],
-    },
-  )
+  extends ConfigurableModuleClass
   implements OnApplicationBootstrap, OnApplicationShutdown
 {
   private readonly logger: LoggerService;
@@ -74,7 +70,7 @@ export class RabbitMQModule
     private readonly externalContextCreator: ExternalContextCreator,
     private readonly rpcParamsFactory: RabbitRpcParamsFactory,
     private readonly connectionManager: AmqpConnectionManager,
-    @Inject(RABBIT_CONFIG_TOKEN) config: RabbitMQConfig,
+    @InjectRabbitMQConfig() config: RabbitMQConfig,
   ) {
     super();
     this.logger = config?.logger || new Logger(RabbitMQModule.name);

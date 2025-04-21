@@ -1,12 +1,30 @@
-# @golevelup/nestjs-stripe
+# Stripe
 
 Interacting with the Stripe API or consuming Stripe webhooks in your NestJS applications is now easy as pie 🥧
 
-<p align="center">
+<div style="display: flex; gap: 10px;">
 <a href="https://www.npmjs.com/package/@golevelup/nestjs-stripe"><img src="https://img.shields.io/npm/v/@golevelup/nestjs-stripe.svg?style=flat" alt="version" /></a>
 <a href="https://www.npmjs.com/package/@golevelup/nestjs-stripe"><img alt="downloads" src="https://img.shields.io/npm/dt/@golevelup/nestjs-stripe.svg?style=flat"></a>
 <img alt="license" src="https://img.shields.io/npm/l/@golevelup/nestjs-stripe.svg">
-</p>
+</div>
+
+## Getting Started
+
+::: code-group
+
+```bash [npm]
+npm install ---save @golevelup/nestjs-stripe stripe
+```
+
+```bash [yarn]
+yarn add @golevelup/nestjs-stripe stripe
+```
+
+```bash [pnpm]
+pnpm add @golevelup/nestjs-stripe stripe
+```
+
+:::
 
 ## Features
 
@@ -20,23 +38,7 @@ Interacting with the Stripe API or consuming Stripe webhooks in your NestJS appl
 
 - 🧭 Route events to logical services easily simply by providing the Stripe webhook event type
 
-## Getting Started
-
-### Install
-
-#### NPM
-
-- Install the package along with the stripe peer dependency
-
-  `npm install --save @golevelup/nestjs-stripe stripe`
-
-#### YARN
-
-- Install the package using yarn with the stripe peer dependency
-
-  `yarn add @golevelup/nestjs-stripe stripe`
-
-### Import
+## Import
 
 Import and add `StripeModule` to the `imports` section of the consuming module (most likely `AppModule`). Your Stripe API key is required, and you can optionally include a webhook configuration if you plan on consuming Stripe webhook events inside your app.  
 Stripe secrets you can get from your Dashboard’s [Webhooks settings](https://dashboard.stripe.com/webhooks). Select an endpoint that you want to obtain the secret for, then click the Reveal link below "Signing secret".
@@ -51,7 +53,7 @@ import { StripeModule } from '@golevelup/nestjs-stripe';
 
 @Module({
   imports: [
-    StripeModule.forRoot(StripeModule, {
+    StripeModule.forRoot({
       apiKey: 'sk_***',
       webhookConfig: {
         stripeSecrets: {
@@ -112,7 +114,7 @@ const app = await NestFactory.create<NestExpressApplication>(AppModule, {
 You can then manually set up `bodyProperty` to use rawBody:
 
 ```typescript
-StripeModule.forRoot(StripeModule, {
+StripeModule.forRoot({
   apiKey: 'sk_***',
   webhookConfig: {
     stripeSecrets: { ... },
@@ -142,7 +144,7 @@ class PaymentCreatedService {
 You can also pass any class decorator to the `decorators` property of the `webhookConfig` object as a part of the module configuration. This could be used in situations like when using the `@nestjs/throttler` package and needing to apply the `@SkipThrottle()` decorator, or when you have a global guard but need to skip routes with certain metadata.
 
 ```typescript
-StripeModule.forRoot(StripeModule, {
+StripeModule.forRoot({
   apiKey: 'sk_***',
   webhookConfig: {
     stripeSecrets: { ... },
@@ -158,13 +160,17 @@ This library is built using an underlying NestJS concept called `External Contex
 You can identify Stripe webhook contexts by their context type, `'stripe_webhook'`:
 
 ```typescript
+import { STRIPE_WEBHOOK_CONTEXT_TYPE } from '@golevelup/stripe';
+
 @Injectable()
 class ExampleInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler<any>) {
-    const contextType = context.getType<'http' | 'stripe_webhook'>();
+    const contextType = context.getType<
+      'http' | typeof STRIPE_WEBHOOK_CONTEXT_TYPE
+    >();
 
     // Do nothing if this is a Stripe webhook event
-    if (contextType === 'stripe_webhook') {
+    if (contextType === STRIPE_WEBHOOK_CONTEXT_TYPE) {
       return next.handle();
     }
 
@@ -177,11 +183,3 @@ class ExampleInterceptor implements NestInterceptor {
 ### Configure Webhooks in the Stripe Dashboard
 
 Follow the instructions from the [Stripe Documentation](https://stripe.com/docs/webhooks) for remaining integration steps such as testing your integration with the CLI before you go live and properly configuring the endpoint from the Stripe dashboard so that the correct events are sent to your NestJS app.
-
-## Contribute
-
-Contributions welcome! Read the [contribution guidelines](../../CONTRIBUTING.md) first.
-
-## License
-
-[MIT License](../../LICENSE)

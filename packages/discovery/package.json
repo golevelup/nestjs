@@ -1,6 +1,6 @@
 {
   "name": "@golevelup/nestjs-discovery",
-  "version": "4.0.2",
+  "version": "4.0.3",
   "description": "A Badass NestJS module for querying your app's controllers, providers and handlers",
   "keywords": [
     "NestJS",
@@ -35,8 +35,8 @@
     "lodash": "^4.17.21"
   },
   "peerDependencies": {
-    "@nestjs/common": "^10.x",
-    "@nestjs/core": "^10.x"
+    "@nestjs/common": "^11.0.20",
+    "@nestjs/core": "^11.0.20"
   },
   "bugs": {
     "url": "https://github.com/golevelup/nestjs/issues"

@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [5.7.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@5.6.1...@golevelup/nestjs-rabbitmq@5.7.0) (2025-01-24)
+
+### Bug Fixes
+
+- **discovery:** support NestJS 11 ([#945](https://github.com/golevelup/nestjs/issues/945)) ([7617ac1](https://github.com/golevelup/nestjs/commit/7617ac1b603ae6f941d44fdff773c24970bb009a)), closes [#944](https://github.com/golevelup/nestjs/issues/944)
+- **rabbitmq:** allow more valid `vhost` names in `assertRabbitMqUri` ([6ca2d16](https://github.com/golevelup/nestjs/commit/6ca2d162ac6c293b7c620a9e493bd2032df8f64b)), closes [#880](https://github.com/golevelup/nestjs/issues/880)
+
+### Features
+
+- improve connection failed error and jsdoc ([#928](https://github.com/golevelup/nestjs/issues/928)) ([862ae3e](https://github.com/golevelup/nestjs/commit/862ae3e4868dc7c711277e5cd620eab1283ccad3))
+
 ## [5.6.1](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@5.6.0...@golevelup/nestjs-rabbitmq@5.6.1) (2024-11-12)
 
 **Note:** Version bump only for package @golevelup/nestjs-rabbitmq

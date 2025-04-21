@@ -150,7 +150,7 @@ describe('Rabbit Multiple Channels', () => {
     const moduleFixture = await Test.createTestingModule({
       providers: [SubscribeToMultipleChannelsService],
       imports: [
-        RabbitMQModule.forRoot(RabbitMQModule, {
+        RabbitMQModule.forRoot({
           exchanges: [
             {
               name: exchange,

@@ -1,4 +1,4 @@
-import { makeInjectableDecorator } from '@golevelup/nestjs-common';
+import { Inject } from '@nestjs/common';
 import {
   GraphQLClientConfigInject,
   GraphQLClientInject,
@@ -7,11 +7,9 @@ import {
 /**
  * Injects the GraphQL client configuration from this module into a service/controller
  */
-export const InjectGraphQLConfig = makeInjectableDecorator(
-  GraphQLClientConfigInject
-);
+export const InjectGraphQLConfig = () => Inject(GraphQLClientConfigInject);
 
 /**
  * Injects the GraphQL client provided by this module into a service/controller
  */
-export const InjectGraphQLClient = makeInjectableDecorator(GraphQLClientInject);
+export const InjectGraphQLClient = () => Inject(GraphQLClientInject);

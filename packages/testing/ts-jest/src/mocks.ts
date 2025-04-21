@@ -47,9 +47,9 @@ const jestFnProps = new Set([
 ]);
 
 const createProxy: {
-  <T extends object>(name: string, base: T): T;
-  <T extends Mock<any, any> = Mock<any, any>>(name: string): T;
-} = <T extends object | Mock<any, any>>(name: string, base?: T): T => {
+  <T extends object>(name: string, strict: boolean, base: T): T;
+  <T extends Mock<any, any> = Mock<any, any>>(name: string, strict: boolean): T;
+} = <T extends object | Mock<any, any>>(name: string, strict: boolean, base?: T): T => {
   const cache = new Map<string | number | symbol, any>();
   const handler: ProxyHandler<T> = {
     get: (obj, prop, receiver) => {
@@ -82,7 +82,7 @@ const createProxy: {
       } else if (prop === 'constructor') {
         mockedProp = () => undefined;
       } else {
-        mockedProp = createProxy(`${name}.${propName}`);
+        mockedProp = createProxy(`${name}.${propName}`, strict);
       }
 
       cache.set(prop, mockedProp);
@@ -104,8 +104,11 @@ const createProxy: {
       if (target.getMockImplementation() || result !== undefined) {
         return result;
       } else {
+        if (strict) {
+          throw new Error(`Method ${name} was called without being explicitly stubbed`);
+        }
         if (!cache.has('__apply')) {
-          cache.set('__apply', createProxy(name));
+          cache.set('__apply', createProxy(name, strict));
         }
         return cache.get('__apply');
       }
@@ -116,13 +119,14 @@ const createProxy: {
 
 export type MockOptions = {
   name?: string;
+  strict?: boolean;
 };
 
 export const createMock = <T extends object>(
   partial: PartialFuncReturn<T> = {},
   options: MockOptions = {},
 ): DeepMocked<T> => {
-  const { name = 'mock' } = options;
-  const proxy = createProxy<T>(name, partial as T);
+  const { name = 'mock', strict = false } = options;
+  const proxy = createProxy<T>(name, strict, partial as T);
   return proxy as DeepMocked<T>;
 };

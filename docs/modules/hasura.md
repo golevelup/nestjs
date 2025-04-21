@@ -1,33 +1,30 @@
-# @golevelup/nestjs-hasura
+# Hasura
 
 Leverage NestJS to make incorporating business logic and event processing easier with Hasura. 🚀
 
-<p align="center">
+<div style="display: flex; gap: 10px;">
 <a href="https://www.npmjs.com/package/@golevelup/nestjs-hasura"><img src="https://img.shields.io/npm/v/@golevelup/nestjs-hasura.svg?style=flat" alt="version" /></a>
 <a href="https://www.npmjs.com/package/@golevelup/nestjs-hasura"><img alt="downloads" src="https://img.shields.io/npm/dt/@golevelup/nestjs-hasura.svg?style=flat"></a>
 <img alt="license" src="https://img.shields.io/npm/l/@golevelup/nestjs-hasura.svg">
-</p>
+</div>
 
-- [@golevelup/nestjs-hasura](#golevelupnestjs-hasura)
-  - [Features](#features)
-  - [Usage](#usage)
-    - [Install](#install)
-    - [Import](#import)
-    - [Configuration](#configuration)
-    - [Usage](#usage-1)
-      - [Integrating with your NestJS app](#integrating-with-your-nestjs-app)
-      - [Automatically Synchronize Hasura Metadata](#automatically-synchronize-hasura-metadata)
-      - [Opting Out](#opting-out)
-      - [Registering Table Event Handlers](#registering-table-event-handlers)
-      - [Registering Scheduled Event Handlers](#registering-scheduled-event-handlers)
-      - [Retry Configuration](#retry-configuration)
-      - [Configuring Hasura Environment Variables](#configuring-hasura-environment-variables)
-      - [Usage with Interceptors, Guards and Filters](#usage-with-interceptors-guards-and-filters)
-    - [Related Hasura Documentation](#related-hasura-documentation)
-      - [Concepts](#concepts)
-      - [Tutorials](#tutorials)
-  - [Contribute](#contribute)
-  - [License](#license)
+## Getting Started
+
+::: code-group
+
+```bash [npm]
+npm install ---save @golevelup/nestjs-hasura
+```
+
+```bash [yarn]
+yarn add @golevelup/nestjs-hasura
+```
+
+```bash [pnpm]
+pnpm add @golevelup/nestjs-hasura
+```
+
+:::
 
 ## Features
 
@@ -41,17 +38,7 @@ Leverage NestJS to make incorporating business logic and event processing easier
 
 - 🔌 Optionally supports automatic management of your Hasura metadata files which means that your application code can be the source of truth for configuration of events. This reduces a ton of boilerplate and developer overhead
 
-## Usage
-
-### Install
-
-`npm install ---save @golevelup/nestjs-hasura`
-
-or
-
-`yarn add @golevelup/nestjs-hasura`
-
-### Import
+## Import
 
 Import and add `HasuraModule` to the `imports` section of the consuming module (most likely `AppModule`). In order to ensure that your Hasura events webhook endpoint is secure, the module requires configuration for an HTTP header name and value that will be used to verify that the event actually came from Hasura.
 
@@ -59,9 +46,7 @@ Import and add `HasuraModule` to the `imports` section of the consuming module (
 
 The Hasura Module supports both the `forRoot` and `forRootAsync` patterns for configuration, so you can easily retrieve the necessary config values from a `ConfigService` or other provider.
 
-### Usage
-
-#### Integrating with your NestJS app
+## Integrating with your NestJS app
 
 The `HasuraModule` makes it easy to reuse the same events API endpoint for all events that you create in Hasura. The internal routing mechanism on the NestJS side ensures that the all events coming in through the endpoint will be sent to the correct handler. The endpoint provided defaults to `/hasura/events`. This can be overriden with the module by specifying an alternative `controllerPrefix` so for example you could set this to `webhooks` and the resulting endpoint would be available at `/webhooks/events`.
 
@@ -76,7 +61,7 @@ import { HasuraModule } from '@golevelup/nestjs-hasura';
 
 @Module({
   imports: [
-    HasuraModule.forRoot(HasuraModule, {
+    HasuraModule.forRoot({
       webhookConfig: {
         secretFactory: secret,
         secretHeader: secretHeader,
@@ -104,7 +89,7 @@ It is recommended that you conditionally add this configuration based on the Nod
 
 After generating changes to these files you should make sure they are applied against your Hasura instance using the CLI command:
 
-```
+```bash
 hasura metadata apply
 ```
 
@@ -204,11 +189,3 @@ https://hasura.io/docs/1.0/graphql/manual/event-triggers/index.html#event-trigge
 
 https://hasura.io/docs/1.0/graphql/manual/getting-started/first-event-trigger.html
 https://hasura.io/event-triggers
-
-## Contribute
-
-Contributions welcome! Read the [contribution guidelines](../../CONTRIBUTING.md) first.
-
-## License
-
-[MIT License](../../LICENSE)

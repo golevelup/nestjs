@@ -3,8 +3,9 @@ import { Type } from '@nestjs/common';
 export interface DiscoveredModule<T = object> {
   name: string;
   instance: T;
+  // TODO: remove undefined from injectType when dropping NestJS 10 support
   // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
-  injectType?: Function | Type<any>;
+  injectType: Function | Type<any> | undefined | null;
   dependencyType: Type<T>;
 }
 

@@ -1,4 +1,7 @@
 export interface WebhooksModuleProvidedConfig {
+  /**
+   * @default 'rawBody'
+   */
   requestRawBodyProperty?: string;
 }
 

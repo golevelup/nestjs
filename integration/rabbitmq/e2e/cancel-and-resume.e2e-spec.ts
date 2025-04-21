@@ -24,7 +24,7 @@ describe('Rabbit Cancel and Resume', () => {
     const moduleFixture = await Test.createTestingModule({
       providers: [],
       imports: [
-        RabbitMQModule.forRoot(RabbitMQModule, {
+        RabbitMQModule.forRoot({
           exchanges: [
             {
               name: exchange,

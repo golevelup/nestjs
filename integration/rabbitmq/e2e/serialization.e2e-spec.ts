@@ -77,7 +77,7 @@ describe('Rabbit Subscribe', () => {
         SubscribeHandlerSerializationService,
       ],
       imports: [
-        RabbitMQModule.forRoot(RabbitMQModule, {
+        RabbitMQModule.forRoot({
           exchanges: [
             {
               name: exchange,

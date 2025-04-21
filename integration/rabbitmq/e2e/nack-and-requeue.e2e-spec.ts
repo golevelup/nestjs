@@ -60,7 +60,7 @@ describe('Nack and Requeue', () => {
     const moduleFixture = await Test.createTestingModule({
       providers: [SubscribeService],
       imports: [
-        RabbitMQModule.forRootAsync(RabbitMQModule, {
+        RabbitMQModule.forRootAsync({
           useFactory: () => ({
             exchanges: [
               {
