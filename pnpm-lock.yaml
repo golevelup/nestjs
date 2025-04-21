@@ -26,13 +26,6 @@ importers:
       rxjs:
         specifier: ^7.8.1
         version: 7.8.2
-    optionalDependencies:
-      '@vitest/coverage-v8':
-        specifier: ^1.6.1
-        version: 1.6.1(vitest@1.6.1(@types/node@22.14.1)(jsdom@16.7.0))
-      vitest:
-        specifier: ^1.6.1
-        version: 1.6.1(@types/node@22.14.1)(jsdom@16.7.0)
     devDependencies:
       '@commitlint/cli':
         specifier: ^19.7.1
@@ -124,6 +117,13 @@ importers:
       vitepress:
         specifier: ^1.6.3
         version: 1.6.3(@algolia/client-search@5.18.0)(@types/node@22.14.1)(axios@1.7.9)(postcss@8.4.49)(search-insights@2.17.3)(typescript@4.9.5)
+    optionalDependencies:
+      '@vitest/coverage-v8':
+        specifier: ^1.6.1
+        version: 1.6.1(vitest@1.6.1(@types/node@22.14.1)(jsdom@16.7.0))
+      vitest:
+        specifier: ^1.6.1
+        version: 1.6.1(@types/node@22.14.1)(jsdom@16.7.0)
 
   integration/rabbitmq:
     dependencies:
@@ -153,8 +153,8 @@ importers:
         specifier: 6.0.3
         version: 6.0.3
       amqplib:
-        specifier: 0.10.5
-        version: 0.10.5
+        specifier: 0.10.7
+        version: 0.10.7
       jest:
         specifier: ^27.4.3
         version: 27.5.1(ts-node@10.9.2(@types/node@22.14.1)(typescript@4.9.5))
@@ -162,8 +162,8 @@ importers:
         specifier: 3.1.9
         version: 3.1.9
       prettier:
-        specifier: 3.4.2
-        version: 3.4.2
+        specifier: 3.5.3
+        version: 3.5.3
       supertest:
         specifier: 7.1.0
         version: 7.1.0
@@ -315,10 +315,6 @@ importers:
         version: 1.20.3
 
 packages:
-
-  '@acuminous/bitsyntax@0.1.2':
-    resolution: {integrity: sha512-29lUK80d1muEQqiUsSo+3A0yP6CdspgC95EnKBMi22Xlwt79i/En4Vr67+cXhU+cZjbti3TgGGC5wy1stIywVQ==}
-    engines: {node: '>=0.8'}
 
   '@algolia/autocomplete-core@1.17.7':
     resolution: {integrity: sha512-BjiPOW6ks90UKl7TwMv7oNQMnzU+t/wk9mgIDi6b1tXpUek7MW0lbNOUHpvam9pe3lVCf4xPFT+lK7s+e+fs7Q==}
@@ -1989,10 +1985,6 @@ packages:
     engines: {node: '>=10.0.0', npm: '>5.0.0'}
     peerDependencies:
       amqplib: '*'
-
-  amqplib@0.10.5:
-    resolution: {integrity: sha512-Dx5zmy0Ur+Q7LPPdhz+jx5IzmJBoHd15tOeAfQ8SuvEtyPJ20hBemhOBA4b1WeORCRa0ENM/kHCzmem1w/zHvQ==}
-    engines: {node: '>=10'}
 
   amqplib@0.10.7:
     resolution: {integrity: sha512-7xPSYKSX2kj/bT6iHZ3MlctzxdCW1Ds9xyN0EmuRi2DZxHztwwoG1YkZrgmLyuPNjfxlRiMdWJPQscmoa3Vgdg==}
@@ -4747,11 +4739,6 @@ packages:
     engines: {node: '>=10.13.0'}
     hasBin: true
 
-  prettier@3.4.2:
-    resolution: {integrity: sha512-e9MewbtFo+Fevyuxn/4rrcDAaq0IYxPGLvObpQjiZBMAzB9IGmzlnG9RZy3FFas+eBMu2vA0CszMeduow5dIuQ==}
-    engines: {node: '>=14'}
-    hasBin: true
-
   prettier@3.5.3:
     resolution: {integrity: sha512-QQtaxnoDJeAkDvDKWCLiwIXkTgRhwYDEQCghU9Z6q03iyek/rxRh/2lC3HB7P8sWT2xC/y5JDctPLBIGzHKbhw==}
     engines: {node: '>=14'}
@@ -5969,14 +5956,6 @@ packages:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
 
 snapshots:
-
-  '@acuminous/bitsyntax@0.1.2':
-    dependencies:
-      buffer-more-ints: 1.0.0
-      debug: 4.4.0(supports-color@5.5.0)
-      safe-buffer: 5.1.2
-    transitivePeerDependencies:
-      - supports-color
 
   '@algolia/autocomplete-core@1.17.7(@algolia/client-search@5.18.0)(algoliasearch@5.18.0)(search-insights@2.17.3)':
     dependencies:
@@ -7973,14 +7952,6 @@ snapshots:
     dependencies:
       amqplib: 0.10.7
       promise-breaker: 6.0.0
-
-  amqplib@0.10.5:
-    dependencies:
-      '@acuminous/bitsyntax': 0.1.2
-      buffer-more-ints: 1.0.0
-      url-parse: 1.5.10
-    transitivePeerDependencies:
-      - supports-color
 
   amqplib@0.10.7:
     dependencies:
@@ -11308,8 +11279,6 @@ snapshots:
 
   prettier@2.8.8:
     optional: true
-
-  prettier@3.4.2: {}
 
   prettier@3.5.3: {}
 
