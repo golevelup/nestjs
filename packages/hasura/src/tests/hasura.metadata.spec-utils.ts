@@ -7,10 +7,9 @@ import { CommonCronSchedules, HasuraModuleConfig } from '../hasura.interfaces';
 import * as path from 'path';
 import * as fs from 'fs';
 
-import { z } from 'zod';
 import { load } from 'js-yaml';
 
-export const metadataVersion = z.enum(['v2', 'v3']);
+const possibleMetadataVersions = ['v2', 'v3'];
 
 export const baseConfig = {
   webhookConfig: {
@@ -35,9 +34,15 @@ export const yamlFileToJson = (filePath: string) => {
 };
 
 export const getVersionedMetadataPathAndConfig = (
-  v: string,
+  version: string,
 ): [string, HasuraModuleConfig] => {
-  const version = metadataVersion.parse(v);
+  const isValidVersion = possibleMetadataVersions.includes(version);
+  if (!isValidVersion) {
+    throw new Error(
+      `Invalid metadata version: ${version}. Expected one of: ${possibleMetadataVersions.join(', ')}`,
+    );
+  }
+
   const metadataPath = path.join(
     __dirname,
     `../../test/__fixtures__/hasura/${version}/metadata`,
@@ -50,7 +55,7 @@ export const getVersionedMetadataPathAndConfig = (
       ...baseConfig,
       managedMetaDataConfig: {
         dirPath: metadataPath,
-        metadataVersion: version,
+        metadataVersion: version as 'v2' | 'v3',
         ...managedMetaDataConfig,
       },
     },

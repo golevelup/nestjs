@@ -38,8 +38,7 @@
   "dependencies": {
     "@golevelup/nestjs-discovery": "workspace:^",
     "@hasura/metadata": "^1.0.2",
-    "js-yaml": "^4.1.0",
-    "zod": "^3.24.2"
+    "js-yaml": "^4.1.0"
   },
   "jest": {
     "moduleFileExtensions": [
