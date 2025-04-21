@@ -44,7 +44,7 @@ importers:
         version: 9.25.1
       '@nestjs/testing':
         specifier: ^11.0.0
-        version: 11.0.3(@nestjs/common@11.0.20(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.0.20)(@nestjs/platform-express@11.0.20)
+        version: 11.0.20(@nestjs/common@11.0.20(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.0.20)(@nestjs/platform-express@11.0.20)
       '@types/express':
         specifier: 5.0.1
         version: 5.0.1
@@ -207,8 +207,8 @@ importers:
         specifier: ^16.10.0
         version: 16.10.0
       graphql-request:
-        specifier: ^6.1.0
-        version: 6.1.0(encoding@0.1.13)(graphql@16.10.0)
+        specifier: ^7.0.0
+        version: 7.1.2(graphql@16.10.0)
 
   packages/hasura:
     dependencies:
@@ -1184,19 +1184,6 @@ packages:
 
   '@nestjs/testing@11.0.20':
     resolution: {integrity: sha512-3o+HWsVfA46tt81ctKuNj5ufL9srfmp3dQBCAIx9fzvjooEKwWl5L69AcvDh6JhdB79jhhM1lkSSU+1fBGbxgw==}
-    peerDependencies:
-      '@nestjs/common': ^11.0.0
-      '@nestjs/core': ^11.0.0
-      '@nestjs/microservices': ^11.0.0
-      '@nestjs/platform-express': ^11.0.0
-    peerDependenciesMeta:
-      '@nestjs/microservices':
-        optional: true
-      '@nestjs/platform-express':
-        optional: true
-
-  '@nestjs/testing@11.0.3':
-    resolution: {integrity: sha512-Md8fZWglj+UQ3WGrA2ivQdgjzn1nSpglLKaWgE5BL7Kyx2uVU3qksclaPjNmidwp2bNr+ZfYHzfJz4L4FO7f7w==}
     peerDependencies:
       '@nestjs/common': ^11.0.0
       '@nestjs/core': ^11.0.0
@@ -2524,9 +2511,6 @@ packages:
   create-require@1.1.1:
     resolution: {integrity: sha512-dcKFX3jn0MpIaXjisoRvexIJVEKzaq7z2rZKxf+MSr9TkdmHmsU4m2lcLojrj/FHl8mk5VxMmYA+ftRkP/3oKQ==}
 
-  cross-fetch@3.2.0:
-    resolution: {integrity: sha512-Q+xVJLoGOeIMXZmbUK4HYk+69cQH6LudR0Vu/pRm2YlU/hDV9CiS0gKUMaWY5f2NeUH9C1nV3bsTlCo0FsTV1Q==}
-
   cross-spawn@7.0.6:
     resolution: {integrity: sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==}
     engines: {node: '>= 8'}
@@ -3264,8 +3248,8 @@ packages:
   graphemer@1.4.0:
     resolution: {integrity: sha512-EtKwoO6kxCL9WO5xipiHTZlSzBm7WLT627TqC/uVRd0HKmq8NXyebnNYxDoBi7wt8eTWrUrKXCOVaFq9x1kgag==}
 
-  graphql-request@6.1.0:
-    resolution: {integrity: sha512-p+XPfS4q7aIpKVcgmnZKhMNqhltk20hfXtkaIkTfjjmiKMJ5xrt5c743cL03y/K7y1rg3WrIC49xGiEQ4mxdNw==}
+  graphql-request@7.1.2:
+    resolution: {integrity: sha512-+XE3iuC55C2di5ZUrB4pjgwe+nIQBuXVIK9J98wrVwojzDW3GMdSBZfxUk8l4j9TieIpjpggclxhNEU9ebGF8w==}
     peerDependencies:
       graphql: 14 - 16
 
@@ -6996,14 +6980,6 @@ snapshots:
     optionalDependencies:
       '@nestjs/platform-express': 11.0.20(@nestjs/common@11.0.20(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.0.20)
 
-  '@nestjs/testing@11.0.3(@nestjs/common@11.0.20(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.0.20)(@nestjs/platform-express@11.0.20)':
-    dependencies:
-      '@nestjs/common': 11.0.20(reflect-metadata@0.2.2)(rxjs@7.8.2)
-      '@nestjs/core': 11.0.20(@nestjs/common@11.0.20(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/platform-express@11.0.20)(reflect-metadata@0.2.2)(rxjs@7.8.2)
-      tslib: 2.8.1
-    optionalDependencies:
-      '@nestjs/platform-express': 11.0.20(@nestjs/common@11.0.20(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.0.20)
-
   '@nodelib/fs.scandir@2.1.5':
     dependencies:
       '@nodelib/fs.stat': 2.0.5
@@ -8559,12 +8535,6 @@ snapshots:
   create-require@1.1.1:
     optional: true
 
-  cross-fetch@3.2.0(encoding@0.1.13):
-    dependencies:
-      node-fetch: 2.7.0(encoding@0.1.13)
-    transitivePeerDependencies:
-      - encoding
-
   cross-spawn@7.0.6:
     dependencies:
       path-key: 3.1.1
@@ -9390,13 +9360,10 @@ snapshots:
 
   graphemer@1.4.0: {}
 
-  graphql-request@6.1.0(encoding@0.1.13)(graphql@16.10.0):
+  graphql-request@7.1.2(graphql@16.10.0):
     dependencies:
       '@graphql-typed-document-node/core': 3.2.0(graphql@16.10.0)
-      cross-fetch: 3.2.0(encoding@0.1.13)
       graphql: 16.10.0
-    transitivePeerDependencies:
-      - encoding
 
   graphql@16.10.0: {}
 
