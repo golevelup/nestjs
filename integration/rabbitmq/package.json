@@ -24,19 +24,19 @@
   "devDependencies": {
     "@golevelup/nestjs-rabbitmq": "workspace:^",
     "@golevelup/ts-jest": "workspace:^",
-    "@nestjs/testing": "^11.0.0",
-    "@types/express": "5.0.0",
+    "@nestjs/testing": "^11.0.20",
+    "@types/express": "5.0.1",
     "@types/jest": "^27.0.3",
-    "@types/node": "^22.13.4",
-    "@types/supertest": "6.0.2",
-    "amqplib": "0.10.5",
+    "@types/node": "^22.14.1",
+    "@types/supertest": "6.0.3",
+    "amqplib": "0.10.7",
     "jest": "^27.4.3",
     "nodemon": "3.1.9",
-    "prettier": "3.4.2",
-    "supertest": "7.0.0",
+    "prettier": "3.5.3",
+    "supertest": "7.1.0",
     "ts-jest": "27.1.5",
     "tsconfig-paths": "4.2.0",
-    "tsx": "^4.19.1",
+    "tsx": "^4.19.3",
     "typescript": "4.9.5"
   },
   "jest": {
@@ -52,8 +52,5 @@
     },
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
-  },
-  "volta": {
-    "node": "22.14.0"
   }
 }
