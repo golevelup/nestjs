@@ -38,7 +38,7 @@
     "access": "public"
   },
   "peerDependencies": {
-    "body-parser": "^1.20.3"
+    "body-parser": "^1.20.3 || ^2.0.0"
   },
   "jest": {
     "moduleFileExtensions": [
