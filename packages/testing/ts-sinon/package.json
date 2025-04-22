@@ -38,7 +38,7 @@
   },
   "devDependencies": {
     "@types/sinon": "^17.0.0",
-    "sinon": "^19.x"
+    "sinon": "^20.0.0"
   },
   "publishConfig": {
     "access": "public"
