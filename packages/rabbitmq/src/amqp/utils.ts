@@ -28,9 +28,6 @@ export function matchesRoutingKey(
   return false;
 }
 
-const rabbitMQRegex =
-  /^amqps?:\/\/(([^:]+):([^@]+)@)?([^:/]+)(:[0-9]+)?(\/.*)?$/;
-
 /**
  * Validates a rabbitmq uri
  * @see https://www.rabbitmq.com/docs/uri-spec#the-amqps-uri-scheme
@@ -45,8 +42,9 @@ export const assertRabbitMqUri = (uri: string | string[]) => {
     return;
   }
 
-  const valid = rabbitMQRegex.test(uri);
-  if (!valid) {
-    throw new Error(`Invalid RabbitMQ connection uri, received: ${uri}`);
+  const rmqUri = new URL(uri);
+
+  if (!rmqUri.protocol.startsWith('amqp')) {
+    throw new Error('RabbitMQ URI protocol must start with amqp or amqps');
   }
 };
