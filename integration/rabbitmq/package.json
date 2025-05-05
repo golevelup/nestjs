@@ -29,7 +29,7 @@
     "@types/jest": "^27.0.3",
     "@types/node": "^22.14.1",
     "@types/supertest": "6.0.3",
-    "amqplib": "0.10.7",
+    "amqplib": "0.10.8",
     "jest": "^27.4.3",
     "nodemon": "3.1.10",
     "prettier": "3.5.3",
