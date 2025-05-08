@@ -3,6 +3,34 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.0.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@5.7.0...@golevelup/nestjs-rabbitmq@6.0.0) (2025-05-08)
+
+### Bug Fixes
+
+- **rabbitmq:** improve URI assertion ([#1020](https://github.com/golevelup/nestjs/issues/1020)) ([baaa6df](https://github.com/golevelup/nestjs/commit/baaa6df4671112a3e99688e20c002a11b13e5271))
+
+### chore
+
+- **dependencies:** updates dependencies ([#1003](https://github.com/golevelup/nestjs/issues/1003)) ([4f78129](https://github.com/golevelup/nestjs/commit/4f78129e347019e63cf5db2d1b9ee0d0a42bc71a))
+
+### BREAKING CHANGES
+
+- **dependencies:** Nestjs v10 is no longer supported from now on
+
+- chore: pnpm-lock update
+
+- chore: update types/express
+
+- chore: update types/lodash
+
+- chore: update supertest
+
+- chore: revert rxjs to 7.8.1
+
+- chore: use mise and update pnpm to latest
+
+- chore: update integration amqlib version
+
 # [5.7.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@5.6.1...@golevelup/nestjs-rabbitmq@5.7.0) (2025-01-24)
 
 ### Bug Fixes

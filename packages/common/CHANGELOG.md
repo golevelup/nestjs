@@ -3,6 +3,30 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [3.0.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-common@2.0.2...@golevelup/nestjs-common@3.0.0) (2025-05-08)
+
+### chore
+
+- **dependencies:** updates dependencies ([#1003](https://github.com/golevelup/nestjs/issues/1003)) ([4f78129](https://github.com/golevelup/nestjs/commit/4f78129e347019e63cf5db2d1b9ee0d0a42bc71a))
+
+### BREAKING CHANGES
+
+- **dependencies:** Nestjs v10 is no longer supported from now on
+
+- chore: pnpm-lock update
+
+- chore: update types/express
+
+- chore: update types/lodash
+
+- chore: update supertest
+
+- chore: revert rxjs to 7.8.1
+
+- chore: use mise and update pnpm to latest
+
+- chore: update integration amqlib version
+
 ## [2.0.2](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-common@2.0.1...@golevelup/nestjs-common@2.0.2) (2025-01-24)
 
 ### Bug Fixes
