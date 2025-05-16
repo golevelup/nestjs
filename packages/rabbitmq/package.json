@@ -43,8 +43,8 @@
     "@types/amqplib": "^0.10.7"
   },
   "peerDependencies": {
-    "@nestjs/common": "11.0.20",
-    "@nestjs/core": "11.0.20",
+    "@nestjs/common": "^11.0.0",
+    "@nestjs/core": "^11.0.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1"
   },
