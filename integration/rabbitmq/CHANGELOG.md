@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.0.1](https://github.com/golevelup/nestjs/compare/rabbitmq-integration@4.0.0...rabbitmq-integration@4.0.1) (2025-05-22)
+
+**Note:** Version bump only for package rabbitmq-integration
+
 # [4.0.0](https://github.com/golevelup/nestjs/compare/rabbitmq-integration@3.5.3...rabbitmq-integration@4.0.0) (2025-05-08)
 
 ### chore

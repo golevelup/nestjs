@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [6.0.1](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@6.0.0...@golevelup/nestjs-rabbitmq@6.0.1) (2025-05-22)
+
+### Bug Fixes
+
+- **deps:** rabbitmq nestjs version ([#1037](https://github.com/golevelup/nestjs/issues/1037)) ([79efc2f](https://github.com/golevelup/nestjs/commit/79efc2fbbd35f9e5a5c9ddb6c3ebc1abda454911))
+
 # [6.0.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@5.7.0...@golevelup/nestjs-rabbitmq@6.0.0) (2025-05-08)
 
 ### Bug Fixes
