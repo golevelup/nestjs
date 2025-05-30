@@ -57,10 +57,6 @@ jobs:
       - name: Run Vitest unit tests
         run: pnpm test:vitest:ci
 
-      - name: Publish code coverage
-        if: matrix.node == env.LATEST_NODE_VERSION
-        run: echo Not Implemented Yet
-
       - name: Run integration tests
         run: |
           pnpm test:ci:integration
