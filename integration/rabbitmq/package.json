@@ -33,7 +33,7 @@
     "jest": "^27.4.3",
     "nodemon": "3.1.10",
     "prettier": "3.5.3",
-    "supertest": "7.1.0",
+    "supertest": "7.1.1",
     "ts-jest": "27.1.5",
     "tsconfig-paths": "4.2.0",
     "tsx": "^4.19.3",
