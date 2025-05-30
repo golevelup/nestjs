@@ -36,7 +36,7 @@
     "lodash": "^4.17.21"
   },
   "peerDependencies": {
-    "@nestjs/common": "^11.0.20"
+    "@nestjs/common": "^11.1.2"
   },
   "jest": {
     "moduleFileExtensions": [

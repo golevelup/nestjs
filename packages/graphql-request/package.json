@@ -38,7 +38,7 @@
     "access": "public"
   },
   "dependencies": {
-    "graphql": "^16.10.0",
+    "graphql": "^16.11.0",
     "graphql-request": "^6.1.0"
   },
   "jest": {
