@@ -3,5 +3,6 @@
   "extends": ["config:recommended"],
   "schedule": ["* * * * 0,6"],
   "description": "Every weekend",
-  "timezone": "America/New_York"
+  "timezone": "America/New_York",
+  "prConcurrentLimit": 5
 }
