@@ -25,7 +25,7 @@
     "@golevelup/nestjs-rabbitmq": "workspace:^",
     "@golevelup/ts-jest": "workspace:^",
     "@nestjs/testing": "^11.1.2",
-    "@types/express": "5.0.1",
+    "@types/express": "5.0.3",
     "@types/jest": "^27.0.3",
     "@types/node": "^22.15.29",
     "@types/supertest": "6.0.3",
