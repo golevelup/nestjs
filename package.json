@@ -17,7 +17,7 @@
     "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.27.0",
     "@nestjs/testing": "^11.1.2",
-    "@types/express": "5.0.2",
+    "@types/express": "5.0.3",
     "@types/jest": "^27.0.3",
     "@types/lodash": "^4.17.17",
     "@types/node": "^22.15.29",
