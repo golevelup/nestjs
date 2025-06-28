@@ -1,4 +1,8 @@
-import { validateRabbitMqUris, matchesRoutingKey } from '../amqp/utils';
+import {
+  validateRabbitMqUris,
+  matchesRoutingKey,
+  converUriConfigObjectsToUris,
+} from '../amqp/utils';
 
 describe(matchesRoutingKey.name, () => {
   const userCreated = 'user.created';
@@ -88,5 +92,56 @@ describe(validateRabbitMqUris.name, () => {
         'superbawl://rabbitmq:rabbitmq@localhost:4444',
       ]),
     ).toThrowError();
+  });
+});
+
+describe(converUriConfigObjectsToUris.name, () => {
+  it('should return array of uris', () => {
+    expect(
+      converUriConfigObjectsToUris([
+        'amqp://rabbitmq:rabbitmq@localhost:hello',
+      ]),
+    ).toEqual(['amqp://rabbitmq:rabbitmq@localhost:hello']);
+
+    expect(
+      converUriConfigObjectsToUris([
+        {
+          host: 'localhost',
+          username: 'rabbitmq_user',
+          password: 'rabbitmq_password',
+          port: 3,
+          frameMax: 4,
+          heartbeat: 5,
+          protocol: 'amqp',
+          locale: 'locale',
+          vhost: '/vhost',
+        },
+      ]),
+    ).toEqual([
+      'amqp://rabbitmq_user:rabbitmq_password@localhost:3/vhost?frameMax=4&heartbeat=5',
+    ]);
+  });
+
+  it('should return array when single value provided', () => {
+    expect(
+      converUriConfigObjectsToUris('amqp://rabbitmq:rabbitmq@localhost:hello'),
+    ).toEqual(['amqp://rabbitmq:rabbitmq@localhost:hello']);
+
+    expect(
+      converUriConfigObjectsToUris({
+        host: 'localhost',
+        username: 'rabbitmq_user',
+        password: 'rabbitmq_password',
+        port: 3,
+      }),
+    ).toEqual(['amqp://rabbitmq_user:rabbitmq_password@localhost:3/?']);
+  });
+
+  it("should throw when host doesn't exist in uri objecct", () => {
+    expect(() =>
+      converUriConfigObjectsToUris({
+        host: undefined,
+      }),
+    ).toThrowError(Error("Configuration object must contain a 'host' key."));
   });
 });
