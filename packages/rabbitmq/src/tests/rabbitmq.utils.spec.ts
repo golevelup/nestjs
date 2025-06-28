@@ -58,35 +58,35 @@ describe(matchesRoutingKey.name, () => {
     const result = matchesRoutingKey(routingKey, pattern);
     expect(result).toBe(expectedResult);
   });
+});
 
-  describe(validateRabbitMqUris.name, () => {
-    it('should not throw with valid uris', () => {
-      expect(() =>
-        validateRabbitMqUris([
-          'amqp://rabbitmq:rabbitmq@localhost:4444',
-          'amqp://rabbitmq:rabbitmq@localhost:1234',
-          'amqps://rabbitmq:rabbitmq@localhost:2345',
-          'amqp://rabbitmq:rabbitmq@localhost:3456/',
-          'amqps://rabbitmq:rabbitmq@localhost:4567/',
-          // with virtual host
-          'amqps://rabbitmq:rabbitmq@localhost:4567/vhost',
-          'amqps://rabbitmq:rabbitmq@localhost:4567/v/h(o&s*t_',
-          // With query parameters
-          'amqp://rabbitmq:rabbitmq@localhost:5672?vhost=%2F&frameMax=131072&heartbeat=60',
-          'amqps://rabbitmq:rabbitmq@localhost:5671/vhost?frameMax=131072&heartbeat=30',
-          'amqps://rabbitmq:rabbitmq@localhost:5671/%2F?heartbeat=10',
-          'amqps://user:pass@rabbit.example.com:5671/vhost?frameMax=65536&channelMax=2047',
-        ]),
-      ).not.toThrowError();
-    });
+describe(validateRabbitMqUris.name, () => {
+  it('should not throw with valid uris', () => {
+    expect(() =>
+      validateRabbitMqUris([
+        'amqp://rabbitmq:rabbitmq@localhost:4444',
+        'amqp://rabbitmq:rabbitmq@localhost:1234',
+        'amqps://rabbitmq:rabbitmq@localhost:2345',
+        'amqp://rabbitmq:rabbitmq@localhost:3456/',
+        'amqps://rabbitmq:rabbitmq@localhost:4567/',
+        // with virtual host
+        'amqps://rabbitmq:rabbitmq@localhost:4567/vhost',
+        'amqps://rabbitmq:rabbitmq@localhost:4567/v/h(o&s*t_',
+        // With query parameters
+        'amqp://rabbitmq:rabbitmq@localhost:5672?vhost=%2F&frameMax=131072&heartbeat=60',
+        'amqps://rabbitmq:rabbitmq@localhost:5671/vhost?frameMax=131072&heartbeat=30',
+        'amqps://rabbitmq:rabbitmq@localhost:5671/%2F?heartbeat=10',
+        'amqps://user:pass@rabbit.example.com:5671/vhost?frameMax=65536&channelMax=2047',
+      ]),
+    ).not.toThrowError();
+  });
 
-    it('should throw when malformed uris are provided', () => {
-      expect(() =>
-        validateRabbitMqUris([
-          'amqp://rabbitmq:rabbitmq@localhost:hello',
-          'superbawl://rabbitmq:rabbitmq@localhost:4444',
-        ]),
-      ).toThrowError();
-    });
+  it('should throw when malformed uris are provided', () => {
+    expect(() =>
+      validateRabbitMqUris([
+        'amqp://rabbitmq:rabbitmq@localhost:hello',
+        'superbawl://rabbitmq:rabbitmq@localhost:4444',
+      ]),
+    ).toThrowError();
   });
 });
