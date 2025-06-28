@@ -66,8 +66,8 @@ const amqplibUriConfigToUrl = ({
   password,
   frameMax,
   heartbeat,
+  vhost,
   protocol = 'amqp',
-  vhost = '/',
   port = 5672,
 }: RabbitMQUriConfigObject): string => {
   if (!host) {
@@ -83,5 +83,5 @@ const amqplibUriConfigToUrl = ({
   if (frameMax) params.set('frameMax', frameMax.toString());
   if (heartbeat) params.set('heartbeat', heartbeat.toString());
 
-  return `${protocol}://${auth}${host}:${port}${vhost}?${params.toString()}`;
+  return `${protocol}://${auth}${host}:${port}${vhost ?? ''}?${params.toString()}`;
 };
