@@ -176,10 +176,23 @@ export type RabbitMQHandlers = Record<
   string,
   MessageHandlerOptions | MessageHandlerOptions[]
 >;
+export type RabbitMQUriConfig = RabbitMQUriConfigObject | string;
+
+export interface RabbitMQUriConfigObject {
+  protocol?: string;
+  host?: string;
+  port?: number;
+  username?: string;
+  password?: string;
+  locale?: string;
+  frameMax?: number;
+  heartbeat?: number;
+  vhost?: string;
+}
 
 export interface RabbitMQConfig {
   name?: string;
-  uri: string | string[];
+  uri: RabbitMQUriConfig | RabbitMQUriConfig[];
   /**
    * Now specifies the default prefetch count for all channels.
    */

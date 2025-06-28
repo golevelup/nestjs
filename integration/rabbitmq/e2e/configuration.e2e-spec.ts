@@ -3,6 +3,7 @@ import {
   AmqpConnection,
   RabbitMQModule,
   AmqpConnectionManager,
+  RabbitMQUriConfig,
 } from '@golevelup/nestjs-rabbitmq';
 import { createMock } from '@golevelup/ts-jest';
 import { Logger, Provider } from '@nestjs/common';
@@ -12,9 +13,14 @@ import * as amqplib from 'amqplib';
 const rabbitHost =
   process.env.NODE_ENV === 'ci' ? process.env.RABBITMQ_HOST : 'localhost';
 const rabbitPort =
-  process.env.NODE_ENV === 'ci' ? process.env.RABBITMQ_PORT : '5672';
-const uri = `amqp://rabbitmq:rabbitmq@${rabbitHost}:${rabbitPort}`;
-const amqplibUri = `${uri}?heartbeat=5`;
+  process.env.NODE_ENV === 'ci' ? Number(process.env.RABBITMQ_PORT) : 5672;
+const uri: RabbitMQUriConfig = {
+  host: rabbitHost,
+  port: rabbitPort,
+  username: 'rabbitmq',
+  password: 'rabbitmq',
+};
+const amqplibUri = `amqp://rabbitmq:rabbitmq@${rabbitHost}:${rabbitPort}?heartbeat=5`;
 const customLogger = createMock<Logger>({
   log: jest.fn(),
   error: jest.fn(),
