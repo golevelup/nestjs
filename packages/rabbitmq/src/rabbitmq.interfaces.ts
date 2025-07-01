@@ -176,19 +176,7 @@ export type RabbitMQHandlers = Record<
   string,
   MessageHandlerOptions | MessageHandlerOptions[]
 >;
-export type RabbitMQUriConfig = RabbitMQUriConfigObject | string;
-
-export interface RabbitMQUriConfigObject {
-  protocol?: string;
-  host?: string;
-  port?: number;
-  username?: string;
-  password?: string;
-  locale?: string;
-  frameMax?: number;
-  heartbeat?: number;
-  vhost?: string;
-}
+export type RabbitMQUriConfig = Options.Connect | string;
 
 export interface RabbitMQConfig {
   name?: string;

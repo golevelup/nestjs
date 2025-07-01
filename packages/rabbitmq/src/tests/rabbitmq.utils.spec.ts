@@ -106,7 +106,7 @@ describe(converUriConfigObjectsToUris.name, () => {
     expect(
       converUriConfigObjectsToUris([
         {
-          host: 'localhost',
+          hostname: 'localhost',
           username: 'rabbitmq_user',
           password: 'rabbitmq_password',
           port: 3,
@@ -129,7 +129,7 @@ describe(converUriConfigObjectsToUris.name, () => {
 
     expect(
       converUriConfigObjectsToUris({
-        host: 'localhost',
+        hostname: 'localhost',
         username: 'rabbitmq_user',
         password: 'rabbitmq_password',
         port: 3,
@@ -137,11 +137,13 @@ describe(converUriConfigObjectsToUris.name, () => {
     ).toEqual(['amqp://rabbitmq_user:rabbitmq_password@localhost:3/?']);
   });
 
-  it("should throw when host doesn't exist in uri objecct", () => {
+  it("should throw when hostname doesn't exist in uri objecct", () => {
     expect(() =>
       converUriConfigObjectsToUris({
-        host: undefined,
+        hostname: undefined,
       }),
-    ).toThrowError(Error("Configuration object must contain a 'host' key."));
+    ).toThrowError(
+      Error("Configuration object must contain a 'hostname' key."),
+    );
   });
 });

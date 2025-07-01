@@ -1,7 +1,5 @@
-import {
-  RabbitMQUriConfig,
-  RabbitMQUriConfigObject,
-} from '../rabbitmq.interfaces';
+import { Options } from 'amqplib';
+import { RabbitMQUriConfig } from '../rabbitmq.interfaces';
 
 export function matchesRoutingKey(
   routingKey: string,
@@ -61,7 +59,7 @@ export const converUriConfigObjectsToUris = (
 };
 
 const amqplibUriConfigToUrl = ({
-  host,
+  hostname,
   username,
   password,
   frameMax,
@@ -69,9 +67,9 @@ const amqplibUriConfigToUrl = ({
   vhost,
   protocol = 'amqp',
   port = 5672,
-}: RabbitMQUriConfigObject): string => {
-  if (!host) {
-    throw new Error("Configuration object must contain a 'host' key.");
+}: Options.Connect): string => {
+  if (!hostname) {
+    throw new Error("Configuration object must contain a 'hostname' key.");
   }
 
   const auth =
@@ -83,5 +81,5 @@ const amqplibUriConfigToUrl = ({
   if (frameMax) params.set('frameMax', frameMax.toString());
   if (heartbeat) params.set('heartbeat', heartbeat.toString());
 
-  return `${protocol}://${auth}${host}:${port}${vhost ?? ''}?${params.toString()}`;
+  return `${protocol}://${auth}${hostname}:${port}${vhost ?? ''}?${params.toString()}`;
 };
