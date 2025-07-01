@@ -134,7 +134,7 @@ describe(converUriConfigObjectsToUris.name, () => {
         password: 'rabbitmq_password',
         port: 3,
       }),
-    ).toEqual(['amqp://rabbitmq_user:rabbitmq_password@localhost:3/?']);
+    ).toEqual(['amqp://rabbitmq_user:rabbitmq_password@localhost:3']);
   });
 
   it("should throw when hostname doesn't exist in uri objecct", () => {
