@@ -142,8 +142,6 @@ describe(converUriConfigObjectsToUris.name, () => {
       converUriConfigObjectsToUris({
         hostname: undefined,
       }),
-    ).toThrowError(
-      Error("Configuration object must contain a 'hostname' key."),
-    );
+    ).toThrowError("Configuration object must contain a 'hostname' key.");
   });
 });

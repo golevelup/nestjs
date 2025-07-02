@@ -3,19 +3,19 @@ import {
   AmqpConnection,
   RabbitMQModule,
   AmqpConnectionManager,
-  RabbitMQUriConfig,
 } from '@golevelup/nestjs-rabbitmq';
 import { createMock } from '@golevelup/ts-jest';
 import { Logger, Provider } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as amqplib from 'amqplib';
+import { Options } from 'amqplib';
 
 const rabbitHost =
   process.env.NODE_ENV === 'ci' ? process.env.RABBITMQ_HOST : 'localhost';
 const rabbitPort =
   process.env.NODE_ENV === 'ci' ? Number(process.env.RABBITMQ_PORT) : 5672;
-const uri: RabbitMQUriConfig = {
-  host: rabbitHost,
+const uri: Options.Connect = {
+  hostname: rabbitHost,
   port: rabbitPort,
   username: 'rabbitmq',
   password: 'rabbitmq',
