@@ -1,3 +1,6 @@
+import { Options } from 'amqplib';
+import { RabbitMQUriConfig } from '../rabbitmq.interfaces';
+
 export function matchesRoutingKey(
   routingKey: string,
   pattern: string[] | string | undefined,
@@ -34,17 +37,49 @@ export function matchesRoutingKey(
  * @param uri
  * @returns
  */
-export const assertRabbitMqUri = (uri: string | string[]) => {
-  if (Array.isArray(uri)) {
-    for (const u of uri) {
-      assertRabbitMqUri(u);
+export const validateRabbitMqUris = (uri: string[]) => {
+  for (const u of uri) {
+    const rmqUri = new URL(u);
+
+    if (!rmqUri.protocol.startsWith('amqp')) {
+      throw new Error('RabbitMQ URI protocol must start with amqp or amqps');
     }
-    return;
+  }
+};
+
+export const converUriConfigObjectsToUris = (
+  uri: RabbitMQUriConfig | RabbitMQUriConfig[],
+): string[] => {
+  const uris = [uri].flat();
+
+  return uris.map((u) => {
+    if (typeof u == 'string') return u;
+    return amqplibUriConfigToUrl(u);
+  });
+};
+
+const amqplibUriConfigToUrl = ({
+  hostname,
+  username,
+  password,
+  frameMax,
+  heartbeat,
+  vhost,
+  protocol = 'amqp',
+  port = 5672,
+}: Options.Connect): string => {
+  if (!hostname) {
+    throw new Error("Configuration object must contain a 'hostname' key.");
   }
 
-  const rmqUri = new URL(uri);
+  const auth =
+    username && password
+      ? `${encodeURIComponent(username)}:${encodeURIComponent(password)}@`
+      : '';
 
-  if (!rmqUri.protocol.startsWith('amqp')) {
-    throw new Error('RabbitMQ URI protocol must start with amqp or amqps');
-  }
+  const params = new URLSearchParams();
+  if (frameMax) params.set('frameMax', frameMax.toString());
+  if (heartbeat) params.set('heartbeat', heartbeat.toString());
+
+  return `${protocol}://${auth}${hostname}:${port}${vhost ?? ''}${params.size == 0 ? '' : `?${params.toString()}`}`;
 };
