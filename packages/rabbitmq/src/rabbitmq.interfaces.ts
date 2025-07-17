@@ -169,6 +169,12 @@ export interface ConnectionInitOptions {
    * @default false - Connection failure logs will be written by default.
    */
   skipConnectionFailedLogging?: boolean;
+  /**
+   * When set to `true`, suppresses logging for disconnection failure events.
+   *
+   * @default false - Disconnection failure logs will be written by default.
+   */
+  skipDisconnectFailedLogging?: boolean;
 }
 
 export type RabbitMQChannels = Record<string, RabbitMQChannelConfig>;
