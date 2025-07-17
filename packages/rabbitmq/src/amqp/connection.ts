@@ -110,6 +110,7 @@ const defaultConfig = {
     timeout: 5000,
     reject: true,
     skipConnectionFailedLogging: false,
+    skipDisconnectFailedLogging: false,
   },
   connectionManagerOptions: {},
   registerHandlers: true,
@@ -198,12 +199,17 @@ export class AmqpConnection {
 
     const {
       skipConnectionFailedLogging,
+      skipDisconnectFailedLogging,
       wait,
       timeout: timeoutInterval,
       reject,
     } = options;
 
-    const p = this.initCore(wait, skipConnectionFailedLogging);
+    const p = this.initCore(
+      wait,
+      skipConnectionFailedLogging,
+      skipDisconnectFailedLogging,
+    );
 
     if (!wait) {
       this.logger.log(
@@ -234,6 +240,7 @@ export class AmqpConnection {
   private async initCore(
     wait = false,
     skipConnectionFailedLogging = false,
+    skipDisconnectFailedLogging = false,
   ): Promise<void> {
     this.logger.log(
       `Trying to connect to RabbitMQ broker (${this.config.name})`,
@@ -251,12 +258,17 @@ export class AmqpConnection {
       );
     });
 
-    this._managedConnection.on('disconnect', ({ err }) => {
-      this.logger.error(
-        `Disconnected from RabbitMQ broker (${this.config.name})`,
-        err?.stack,
-      );
-    });
+    // Logging disconnections should only be able if consumers
+    // do not skip it. We may be able to merge with the `skipConnectionFailedLogging`
+    // option in the future.
+    if (!skipDisconnectFailedLogging) {
+      this._managedConnection.on('disconnect', ({ err }) => {
+        this.logger.error(
+          `Disconnected from RabbitMQ broker (${this.config.name})`,
+          err?.stack,
+        );
+      });
+    }
 
     // Certain consumers might want to skip "connectionFailed" logging
     // therefore this option will allow us to conditionally register this event consumption
