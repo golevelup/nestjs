@@ -110,6 +110,7 @@ const defaultConfig = {
     timeout: 5000,
     reject: true,
     skipConnectionFailedLogging: false,
+    skipDisconnectFailedLogging: false,
   },
   connectionManagerOptions: {},
   registerHandlers: true,
