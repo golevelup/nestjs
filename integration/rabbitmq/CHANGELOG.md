@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [4.1.0](https://github.com/golevelup/nestjs/compare/rabbitmq-integration@4.0.1...rabbitmq-integration@4.1.0) (2025-07-27)
+
+### Features
+
+- **rabbitmq:** provide support for connecting using a config object ([#1056](https://github.com/golevelup/nestjs/issues/1056)) ([8081b37](https://github.com/golevelup/nestjs/commit/8081b37e2ea07489ca7212a3fe523fa6e63e0dc6))
+
 ## [4.0.1](https://github.com/golevelup/nestjs/compare/rabbitmq-integration@4.0.0...rabbitmq-integration@4.0.1) (2025-05-22)
 
 **Note:** Version bump only for package rabbitmq-integration

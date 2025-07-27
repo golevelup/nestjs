@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.2.6](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-graphql-request@0.2.5...@golevelup/nestjs-graphql-request@0.2.6) (2025-07-27)
+
+**Note:** Version bump only for package @golevelup/nestjs-graphql-request
+
 ## [0.2.5](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-graphql-request@0.2.4...@golevelup/nestjs-graphql-request@0.2.5) (2025-02-18)
 
 ### Bug Fixes
