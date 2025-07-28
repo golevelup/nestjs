@@ -3,17 +3,6 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-# [6.3.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@6.0.1...@golevelup/nestjs-rabbitmq@6.3.0) (2025-07-28)
-
-### Bug Fixes
-
-- rabbitmq out of sync version ([3d2de8d](https://github.com/golevelup/nestjs/commit/3d2de8dfa4e3c43481d1fcc1d445e7ac5171b50c))
-
-### Features
-
-- add new param skipDisconnectFailedLogging to suppress unwated disconnect logs ([#1065](https://github.com/golevelup/nestjs/issues/1065)) ([30c7e3d](https://github.com/golevelup/nestjs/commit/30c7e3d0de0e360eff10e915316ba3e7d3bc7d54))
-- **rabbitmq:** provide support for connecting using a config object ([#1056](https://github.com/golevelup/nestjs/issues/1056)) ([8081b37](https://github.com/golevelup/nestjs/commit/8081b37e2ea07489ca7212a3fe523fa6e63e0dc6))
-
 ## [6.0.1](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@6.0.0...@golevelup/nestjs-rabbitmq@6.0.1) (2025-05-22)
 
 ### Bug Fixes

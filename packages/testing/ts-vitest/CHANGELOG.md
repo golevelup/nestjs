@@ -3,10 +3,6 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-## [0.6.1](https://github.com/golevelup/nestjs/compare/@golevelup/ts-vitest@0.5.2...@golevelup/ts-vitest@0.6.1) (2025-07-28)
-
-**Note:** Version bump only for package @golevelup/ts-vitest
-
 ## [0.5.2](https://github.com/golevelup/nestjs/compare/@golevelup/ts-vitest@0.5.1...@golevelup/ts-vitest@0.5.2) (2025-01-24)
 
 **Note:** Version bump only for package @golevelup/ts-vitest
