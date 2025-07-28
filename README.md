@@ -25,6 +25,12 @@ A collection of Badass modules and utilities to help you level up your NestJS ap
 
 Contributions welcome! Read the [contribution guidelines](./docs/contributing.md) first.
 
+## 📦 Publishing
+
+To ensure only relevant packages are published, version bumps must be done manually. This approach avoids relying on Git tags, which tend to result in higher conflict rates. Once the version is updated in a package’s package.json, it can be published individually.
+
+Historically, any change to a shared library would trigger a publish for all packages — even those that hadn’t changed. This manual bumping strategy prevents unnecessary publishes and keeps versioning meaningful.
+
 ## License
 
 [MIT License](LICENSE)
