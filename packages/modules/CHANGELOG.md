@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.9.1](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-modules@0.8.0...@golevelup/nestjs-modules@0.9.1) (2025-07-28)
+
+**Note:** Version bump only for package @golevelup/nestjs-modules
+
 # [0.8.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-modules@0.7.2...@golevelup/nestjs-modules@0.8.0) (2025-05-08)
 
 ### chore
