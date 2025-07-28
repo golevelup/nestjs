@@ -48,6 +48,7 @@
   },
   "scripts": {
     "commit": "pnpm git-cz",
+    "lerna:version": "lerna version --no-private",
     "lerna:publish": "lerna run build && pnpm test && lerna publish from-package --no-private -m 'chore: publish'",
     "lerna:prerelease": "lerna run build && pnpm test && lerna publish prerelease --preid rc -m 'chore: publish prerelease'",
     "build": " lerna run build --ignore rabbitmq-integration",
