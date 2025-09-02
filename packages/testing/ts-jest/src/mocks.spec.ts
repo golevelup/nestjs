@@ -10,13 +10,25 @@ interface TestInterface {
   func: (num: number, str: string) => boolean;
   func2: (entity: TestClass) => void;
   func3: () => Promise<{ prop: number }>;
+  nested: {
+    someOtherNum: number;
+    func4: () => boolean;
+  };
 }
 
 class TestClass {
   someProperty!: number;
 
+  nested = new NestedTestClass();
+
   someMethod() {
     return 42;
+  }
+}
+
+class NestedTestClass {
+  someOtherMethod() {
+    return 24;
   }
 }
 
@@ -200,6 +212,22 @@ describe('Mocks', () => {
       expect(serviceMock.foo()).toEqual(false);
       expect(serviceMock.foo()).toEqual(true);
     });
+
+    it('should work with nested properties and functions', () => {
+      const mock = createMock<TestInterface>();
+      mock.nested.someOtherNum = 99;
+      mock.nested.func4.mockReturnValueOnce(true);
+      const result = mock.nested.func4();
+      expect(mock.nested.someOtherNum).toBe(99);
+      expect(result).toBe(true);
+    });
+
+    it('should work with classes having nested properties', () => {
+      const mock = createMock<TestClass>();
+      mock.nested.someOtherMethod.mockReturnValueOnce(99);
+      const result = mock.nested.someOtherMethod();
+      expect(result).toBe(99);
+    });
   });
 
   describe('auto mocked', () => {
@@ -360,7 +388,9 @@ describe('Mocks', () => {
       it('should throw error when calling unstubbed method in strict mode', () => {
         const mock = createMock<TestInterface>({}, { strict: true });
 
-        expect(() => mock.func(1, 'test')).toThrow('Method mock.func was called without being explicitly stubbed');
+        expect(() => mock.func(1, 'test')).toThrow(
+          'Method mock.func was called without being explicitly stubbed',
+        );
 
         mock.func.mockReturnValue(true);
         expect(mock.func(1, 'test')).toBe(true);
