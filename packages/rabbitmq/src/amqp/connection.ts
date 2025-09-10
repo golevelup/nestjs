@@ -36,7 +36,7 @@ import {
   MessageHandlerErrorBehavior,
 } from './errorBehaviors';
 import { Nack, RpcResponse, SubscribeResponse } from './handlerResponses';
-import { isNull } from 'lodash';
+import { isNull, has, set, clone } from 'lodash';
 import { matchesRoutingKey } from './utils';
 
 const DIRECT_REPLY_QUEUE = 'amq.rabbitmq.reply-to';
@@ -470,7 +470,7 @@ export class AmqpConnection {
     originalHandlerName: string,
     consumeOptions?: ConsumeOptions,
   ): Promise<SubscriptionResult> {
-    return this.consumerFactory(msgOptions, (channel) =>
+    return this.consumerFactory(msgOptions, (channel, msgOptions) =>
       this.setupSubscriberChannel<T>(
         handler,
         msgOptions,
@@ -486,7 +486,7 @@ export class AmqpConnection {
     msgOptions: MessageHandlerOptions,
     consumeOptions?: ConsumeOptions,
   ): Promise<SubscriptionResult> {
-    return this.consumerFactory(msgOptions, (channel) =>
+    return this.consumerFactory(msgOptions, (channel, msgOptions) =>
       this.setupBatchSubscriberChannel<T>(
         handler,
         msgOptions,
@@ -498,12 +498,38 @@ export class AmqpConnection {
 
   private async consumerFactory(
     msgOptions: MessageHandlerOptions,
-    setupFunction: (channel: ConfirmChannel) => Promise<string>,
+    setupFunction: (
+      channel: ConfirmChannel,
+      msgOptions: MessageHandlerOptions,
+    ) => Promise<string>,
   ): Promise<SubscriptionResult> {
+    // reassign consumer tag if it has been declared as default queue
+    // property and has not been provided in msgOptions argument
+    // see https://github.com/golevelup/nestjs/issues/904
+    const _options = clone(msgOptions);
+    const optionsConsumerPropertyPath = [
+      'queueOptions',
+      'consumerOptions',
+      'consumerTag',
+    ].join('.');
+    const consumerTagPropertyName = 'consumerTag';
+
+    const queueConfig = this.config.queues.find(
+      (q) => q.name === _options.queue,
+    );
+    const needToReassignConsumerTag =
+      has(queueConfig, consumerTagPropertyName) &&
+      !has(_options, optionsConsumerPropertyPath);
+
+    if (needToReassignConsumerTag) {
+      set(_options, optionsConsumerPropertyPath, queueConfig.consumerTag);
+    }
+    // reassign logic end
+
     return new Promise((res) => {
-      this.selectManagedChannel(msgOptions?.queueOptions?.channel).addSetup(
+      this.selectManagedChannel(_options?.queueOptions?.channel).addSetup(
         async (channel: ConfirmChannel) => {
-          const consumerTag = await setupFunction(channel);
+          const consumerTag = await setupFunction(channel, _options);
           res({ consumerTag });
         },
       );
@@ -719,7 +745,7 @@ export class AmqpConnection {
     handler: RpcSubscriberHandler<T, U>,
     rpcOptions: MessageHandlerOptions,
   ): Promise<SubscriptionResult> {
-    return this.consumerFactory(rpcOptions, (channel) =>
+    return this.consumerFactory(rpcOptions, (channel, rpcOptions) =>
       this.setupRpcChannel<T, U>(handler, rpcOptions, channel),
     );
   }

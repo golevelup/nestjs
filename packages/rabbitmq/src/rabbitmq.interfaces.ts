@@ -22,6 +22,7 @@ export interface RabbitMQQueueConfig {
   exchange?: string;
   routingKey?: string | string[];
   bindQueueArguments?: any;
+  consumerTag?: string | undefined;
 }
 
 export interface RabbitMQExchangeBindingConfig {
