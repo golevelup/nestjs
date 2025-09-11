@@ -22,6 +22,14 @@ export interface RabbitMQQueueConfig {
   exchange?: string;
   routingKey?: string | string[];
   bindQueueArguments?: any;
+  /**
+   * This property can be set to define custom consumer name for the queue.
+   *
+   * Consumer tag must be unique to one channel. You shoudld properly manage
+   * channels and tags in your local space in order to avoid conflicts.
+   *
+   * More info: https://amqp-node.github.io/amqplib/channel_api.html#channel_consume
+   */
   consumerTag?: string | undefined;
 }
 
