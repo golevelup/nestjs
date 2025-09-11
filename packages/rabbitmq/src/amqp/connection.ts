@@ -36,7 +36,7 @@ import {
   MessageHandlerErrorBehavior,
 } from './errorBehaviors';
 import { Nack, RpcResponse, SubscribeResponse } from './handlerResponses';
-import { isNull, has, set, clone } from 'lodash';
+import { isNull, merge } from 'lodash';
 import { matchesRoutingKey } from './utils';
 
 const DIRECT_REPLY_QUEUE = 'amq.rabbitmq.reply-to';
@@ -503,33 +503,32 @@ export class AmqpConnection {
       msgOptions: MessageHandlerOptions,
     ) => Promise<string>,
   ): Promise<SubscriptionResult> {
-    // reassign consumer tag if it has been declared as default queue
-    // property and has not been provided in msgOptions argument
-    // see https://github.com/golevelup/nestjs/issues/904
-    const _options = clone(msgOptions);
-    const optionsConsumerPropertyPath = [
-      'queueOptions',
-      'consumerOptions',
-      'consumerTag',
-    ].join('.');
-    const consumerTagPropertyName = 'consumerTag';
-
-    const queueConfig = this.config.queues.find(
-      (q) => q.name === _options.queue,
-    );
-    const needToReassignConsumerTag =
-      has(queueConfig, consumerTagPropertyName) &&
-      !has(_options, optionsConsumerPropertyPath);
-
-    if (needToReassignConsumerTag) {
-      set(_options, optionsConsumerPropertyPath, queueConfig.consumerTag);
-    }
-    // reassign logic end
-
     return new Promise((res) => {
-      this.selectManagedChannel(_options?.queueOptions?.channel).addSetup(
+      // Use globally configured consumer tag.
+      // See https://github.com/golevelup/nestjs/issues/904
+
+      const queueConfig = this.config.queues.find(
+        (q) => q.name === msgOptions.queue,
+      );
+
+      const consumerTagConfig: Partial<MessageHandlerOptions> =
+        queueConfig?.consumerTag
+          ? {
+              queueOptions: {
+                consumerOptions: {
+                  consumerTag: queueConfig.consumerTag,
+                },
+              },
+            }
+          : {};
+
+      this.selectManagedChannel(msgOptions?.queueOptions?.channel).addSetup(
         async (channel: ConfirmChannel) => {
-          const consumerTag = await setupFunction(channel, _options);
+          const consumerTag = await setupFunction(
+            channel,
+            // msgOptions over global config
+            merge(consumerTagConfig, msgOptions),
+          );
           res({ consumerTag });
         },
       );
