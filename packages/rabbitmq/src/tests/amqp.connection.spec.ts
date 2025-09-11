@@ -15,10 +15,6 @@ const mockConfig = {
       name: 'queue_1',
       consumerTag: 'consumer_tag_1',
     },
-    {
-      name: 'queue_2',
-      consumerTag: 'consumer_tag_1',
-    },
   ],
 };
 
@@ -88,13 +84,13 @@ describe('AmqpConnection', () => {
     );
   });
 
-  it('should use provided consumer tag', async () => {
+  it('should use locally defined consumer tag', async () => {
     const mockHandler = jest.fn();
     const mockRpcOptions = {
       queue: 'queue_1',
       queueOptions: {
         consumerOptions: {
-          consumerTag: 'local_consumer_tag',
+          consumerTag: 'consumer_tag_local',
         },
       },
     };
@@ -103,7 +99,14 @@ describe('AmqpConnection', () => {
 
     expect(connection.setupRpcChannel).toHaveBeenCalledWith(
       mockHandler,
-      mockRpcOptions,
+      {
+        queue: 'queue_1',
+        queueOptions: {
+          consumerOptions: {
+            consumerTag: 'consumer_tag_local',
+          },
+        },
+      },
       mockChannel,
     );
   });
