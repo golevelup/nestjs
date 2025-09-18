@@ -526,7 +526,8 @@ export class AmqpConnection {
         async (channel: ConfirmChannel) => {
           const consumerTag = await setupFunction(
             channel,
-            // msgOptions over global config
+            // Override global configuration by merging the global/default
+            // tag configuration with the parametized msgOption.
             merge(consumerTagConfig, msgOptions),
           );
           res({ consumerTag });
