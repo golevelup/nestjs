@@ -36,7 +36,7 @@ import {
   MessageHandlerErrorBehavior,
 } from './errorBehaviors';
 import { Nack, RpcResponse, SubscribeResponse } from './handlerResponses';
-import { isNull } from 'lodash';
+import { isNull, merge } from 'lodash';
 import { matchesRoutingKey } from './utils';
 
 const DIRECT_REPLY_QUEUE = 'amq.rabbitmq.reply-to';
@@ -470,10 +470,10 @@ export class AmqpConnection {
     originalHandlerName: string,
     consumeOptions?: ConsumeOptions,
   ): Promise<SubscriptionResult> {
-    return this.consumerFactory(msgOptions, (channel) =>
+    return this.consumerFactory(msgOptions, (channel, channelMsgOptions) =>
       this.setupSubscriberChannel<T>(
         handler,
-        msgOptions,
+        channelMsgOptions,
         channel,
         originalHandlerName,
         consumeOptions,
@@ -486,10 +486,10 @@ export class AmqpConnection {
     msgOptions: MessageHandlerOptions,
     consumeOptions?: ConsumeOptions,
   ): Promise<SubscriptionResult> {
-    return this.consumerFactory(msgOptions, (channel) =>
+    return this.consumerFactory(msgOptions, (channel, channelMsgOptions) =>
       this.setupBatchSubscriberChannel<T>(
         handler,
-        msgOptions,
+        channelMsgOptions,
         channel,
         consumeOptions,
       ),
@@ -498,12 +498,38 @@ export class AmqpConnection {
 
   private async consumerFactory(
     msgOptions: MessageHandlerOptions,
-    setupFunction: (channel: ConfirmChannel) => Promise<string>,
+    setupFunction: (
+      channel: ConfirmChannel,
+      msgOptions: MessageHandlerOptions,
+    ) => Promise<string>,
   ): Promise<SubscriptionResult> {
     return new Promise((res) => {
+      // Use globally configured consumer tag.
+      // See https://github.com/golevelup/nestjs/issues/904
+
+      const queueConfig = this.config.queues.find(
+        (q) => q.name === msgOptions.queue,
+      );
+
+      const consumerTagConfig: Partial<MessageHandlerOptions> =
+        queueConfig?.consumerTag
+          ? {
+              queueOptions: {
+                consumerOptions: {
+                  consumerTag: queueConfig.consumerTag,
+                },
+              },
+            }
+          : {};
+
       this.selectManagedChannel(msgOptions?.queueOptions?.channel).addSetup(
         async (channel: ConfirmChannel) => {
-          const consumerTag = await setupFunction(channel);
+          const consumerTag = await setupFunction(
+            channel,
+            // Override global configuration by merging the global/default
+            // tag configuration with the parametized msgOption.
+            merge(consumerTagConfig, msgOptions),
+          );
           res({ consumerTag });
         },
       );
@@ -719,8 +745,8 @@ export class AmqpConnection {
     handler: RpcSubscriberHandler<T, U>,
     rpcOptions: MessageHandlerOptions,
   ): Promise<SubscriptionResult> {
-    return this.consumerFactory(rpcOptions, (channel) =>
-      this.setupRpcChannel<T, U>(handler, rpcOptions, channel),
+    return this.consumerFactory(rpcOptions, (channel, channelRpcOptions) =>
+      this.setupRpcChannel<T, U>(handler, channelRpcOptions, channel),
     );
   }
 
