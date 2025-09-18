@@ -470,10 +470,10 @@ export class AmqpConnection {
     originalHandlerName: string,
     consumeOptions?: ConsumeOptions,
   ): Promise<SubscriptionResult> {
-    return this.consumerFactory(msgOptions, (channel, msgOptions) =>
+    return this.consumerFactory(msgOptions, (channel, channelMsgOptions) =>
       this.setupSubscriberChannel<T>(
         handler,
-        msgOptions,
+        channelMsgOptions,
         channel,
         originalHandlerName,
         consumeOptions,
@@ -486,10 +486,10 @@ export class AmqpConnection {
     msgOptions: MessageHandlerOptions,
     consumeOptions?: ConsumeOptions,
   ): Promise<SubscriptionResult> {
-    return this.consumerFactory(msgOptions, (channel, msgOptions) =>
+    return this.consumerFactory(msgOptions, (channel, channelMsgOptions) =>
       this.setupBatchSubscriberChannel<T>(
         handler,
-        msgOptions,
+        channelMsgOptions,
         channel,
         consumeOptions,
       ),
@@ -744,8 +744,8 @@ export class AmqpConnection {
     handler: RpcSubscriberHandler<T, U>,
     rpcOptions: MessageHandlerOptions,
   ): Promise<SubscriptionResult> {
-    return this.consumerFactory(rpcOptions, (channel, rpcOptions) =>
-      this.setupRpcChannel<T, U>(handler, rpcOptions, channel),
+    return this.consumerFactory(rpcOptions, (channel, channelRpcOptions) =>
+      this.setupRpcChannel<T, U>(handler, channelRpcOptions, channel),
     );
   }
 
