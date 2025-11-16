@@ -8,7 +8,11 @@ import {
 import { PubsubClient, PubsubTopicConfiguration } from '../client';
 import { assertRejectsWith } from './util';
 
-describe('PubsubClient.connectAndValidateTopic()', () => {
+// These tests are skipped. They require a real Google Cloud Pub/Sub instance.
+// To run these tests locally:
+// 1. Remove '.skip' from the describe() block.
+// 2. Export the GOOGLE_APPLICATION_CREDENTIALS environment variable.
+describe.skip('PubsubClient.connectAndValidateTopic()', () => {
   jest.setTimeout(45000);
 
   let pubsub: PubSub;

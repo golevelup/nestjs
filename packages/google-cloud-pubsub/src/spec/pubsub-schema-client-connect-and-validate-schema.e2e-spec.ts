@@ -15,7 +15,11 @@ import { Level3ProtocolBuffer } from './proto/level3';
 import { Level3ProtocolBuffer as Level3ProtocolBufferExtended } from './proto/level3-extended';
 import { TestEvent } from './proto/test';
 
-describe('PubsubSchemaClient.connectAndValidateSchema()', () => {
+// These tests are skipped. They require a real Google Cloud Pub/Sub instance.
+// To run these tests locally:
+// 1. Remove '.skip' from the describe() block.
+// 2. Export the GOOGLE_APPLICATION_CREDENTIALS environment variable.
+describe.skip('PubsubSchemaClient.connectAndValidateSchema()', () => {
   jest.setTimeout(45000);
 
   let pubsub: PubSub;
