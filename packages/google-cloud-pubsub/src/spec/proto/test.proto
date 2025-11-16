@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+package test;
+
+message TestEvent {
+  string test = 1;
+  bool isActive = 2;
+}
