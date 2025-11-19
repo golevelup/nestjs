@@ -445,22 +445,23 @@ export class AmqpConnection {
         );
       }),
     );
-
-    const result = lastValueFrom(race(response$, timeout$));
-
-    await this.publish(
-      requestOptions.exchange,
-      requestOptions.routingKey,
-      payload,
-      {
-        ...requestOptions.publishOptions,
-        replyTo: DIRECT_REPLY_QUEUE,
-        correlationId,
-        headers: requestOptions.headers,
-        expiration: requestOptions.expiration,
-      },
-    );
-
+    
+    const [result] = await Promise.all([
+      lastValueFrom(race(response$, timeout$)),
+      this.publish(
+        requestOptions.exchange,
+        requestOptions.routingKey,
+        payload,
+        {
+          ...requestOptions.publishOptions,
+          replyTo: DIRECT_REPLY_QUEUE,
+          correlationId,
+          headers: requestOptions.headers,
+          expiration: requestOptions.expiration,
+        },
+      ),
+    ]);
+    
     return result;
   }
 
