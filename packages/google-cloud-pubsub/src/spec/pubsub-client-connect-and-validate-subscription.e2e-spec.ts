@@ -106,7 +106,7 @@ describe.skip('PubsubClient.connectAndValidateSubscription()', () => {
     );
   });
 
-  it(`${PubsubConfigurationMismatchError.name}: in case if subscription doesn't exists in remote configuration.`, async () => {
+  it(`${PubsubConfigurationMismatchError.name}: in case the subscription doesn't exist in remote configuration.`, async () => {
     const topicConfiguration = {
       name: `topic.${crypto.randomUUID()}`,
       subscriptions: [{ name: `subscription.${crypto.randomUUID()}` }],

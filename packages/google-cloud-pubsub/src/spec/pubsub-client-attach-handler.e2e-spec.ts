@@ -61,7 +61,7 @@ describe.skip('PubsubClient.attachHandler()', () => {
       Error,
       (error) => {
         expect(error.message).toBe(
-          `Subscription (${unregisteredSubscription}) does not registered.`,
+          `Subscription (${unregisteredSubscription}) is not registered.`,
         );
       },
     );

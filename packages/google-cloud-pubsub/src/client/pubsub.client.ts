@@ -134,9 +134,7 @@ export class PubsubClient {
       this.subscriptionContainers.get(subscriptionName);
 
     if (!subscriptionContainer) {
-      throw new Error(
-        `Subscription (${subscriptionName}) does not registered.`,
-      );
+      throw new Error(`Subscription (${subscriptionName}) is not registered.`);
     }
 
     const subscription = subscriptionContainer.instance;
