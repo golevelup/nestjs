@@ -1,5 +1,5 @@
 export async function assertRejectsWith<T extends Error>(
-  asyncFn: () => Promise<any>,
+  asyncFn: (...parameters: any[]) => Promise<any>,
   ExpectedErrorClass: new (...args: any[]) => T,
   assertError?: (error: T) => void,
 ) {

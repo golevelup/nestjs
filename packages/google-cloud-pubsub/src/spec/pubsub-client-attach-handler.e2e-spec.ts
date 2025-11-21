@@ -11,6 +11,7 @@ import {
 } from '../client';
 
 import { Level3ProtocolBuffer } from './proto/level3';
+import { assertRejectsWith } from './util';
 
 const avroSchema3 = {
   fields: [
@@ -46,6 +47,26 @@ describe.skip('PubsubClient.attachHandler()', () => {
 
   afterAll(async () => {
     await pubsub.close();
+  });
+
+  it('should throw an error if the subscription container is not registered.', async () => {
+    const pubsubClient = new PubsubClient({});
+    const unregisteredSubscription = `unregistered-sub-${crypto.randomUUID()}`;
+
+    await pubsubClient.initialize([]);
+
+    await assertRejectsWith(
+      () =>
+        pubsubClient.attachHandler(unregisteredSubscription, async () => {}),
+      Error,
+      (error) => {
+        expect(error.message).toBe(
+          `Subscription (${unregisteredSubscription}) does not registered.`,
+        );
+      },
+    );
+
+    await pubsubClient.close();
   });
 
   it('Default JSON: should correctly receive and deserialize.', async () => {

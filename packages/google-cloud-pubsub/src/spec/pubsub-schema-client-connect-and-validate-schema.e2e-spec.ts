@@ -4,7 +4,10 @@ import * as crypto from 'crypto';
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
 
-import { PubsubConfigurationMismatchError } from '../client/pubsub-configuration.error';
+import {
+  PubsubConfigurationInvalidError,
+  PubsubConfigurationMismatchError,
+} from '../client/pubsub-configuration.error';
 import { PubsubSchemaClient } from '../client/pubsub-schema.client';
 import { PubsubTopicContainer } from '../client/pubsub-topic.container';
 import { PubsubTopicConfiguration } from '../client';
@@ -289,6 +292,55 @@ describe.skip('PubsubSchemaClient.connectAndValidateSchema()', () => {
           key: 'schema.definition',
           local: protoDefinition,
           remote: JSON.stringify([remoteProtoDefinition]),
+        });
+      },
+    );
+  });
+
+  it(`${PubsubConfigurationInvalidError.name}: if ${SchemaTypes.ProtocolBuffer} schema protoPath is not an absolute path.`, async () => {
+    const topicConfiguration = {
+      name: `topic-${crypto.randomUUID()}`,
+      schema: {
+        definition: TestEvent,
+        encoding: Encodings.Binary,
+        name: `schema-${crypto.randomUUID()}`,
+        protoPath: 'src/file.proto',
+        type: SchemaTypes.ProtocolBuffer,
+      },
+      subscriptions: [],
+    } as const satisfies PubsubTopicConfiguration;
+
+    const remoteProtoDefinition =
+      'syntax = "proto3"; message AnotherMessage {}';
+    const remoteSchema = await pubsub.createSchema(
+      topicConfiguration.schema.name,
+      SchemaTypes.ProtocolBuffer,
+      remoteProtoDefinition,
+    );
+
+    await pubsub.createTopic({
+      name: topicConfiguration.name,
+      schemaSettings: {
+        encoding: Encodings.Binary,
+        schema: await remoteSchema.getName(),
+      },
+    });
+
+    const topic = pubsub.topic(topicConfiguration.name);
+    const topicContainer = new PubsubTopicContainer(
+      topic,
+      new PubsubSerializer(topicConfiguration.name, topicConfiguration.schema),
+      topicConfiguration,
+    );
+
+    await assertRejectsWith(
+      () => pubsubSchemaClient.connectAndValidateSchema(topicContainer),
+      PubsubConfigurationInvalidError,
+      (error) => {
+        expect(error.invalidEntry).toEqual({
+          key: 'schema.protoPath',
+          reason: 'Proto path must be an absolute path.',
+          value: 'src/file.proto',
         });
       },
     );

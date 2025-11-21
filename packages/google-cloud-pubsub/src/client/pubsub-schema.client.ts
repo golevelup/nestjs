@@ -2,8 +2,12 @@ import { PubSub, SchemaTypes, SchemaViews } from '@google-cloud/pubsub';
 import { SchemaServiceClient } from '@google-cloud/pubsub/build/src/v1';
 import { readFile } from 'fs/promises';
 import { isEqual } from 'lodash';
+import * as path from 'path';
 
-import { PubsubConfigurationMismatchError } from './pubsub-configuration.error';
+import {
+  PubsubConfigurationInvalidError,
+  PubsubConfigurationMismatchError,
+} from './pubsub-configuration.error';
 import { PubsubTopicContainer } from './pubsub-topic.container';
 
 export class PubsubSchemaClient {
@@ -119,8 +123,19 @@ export class PubsubSchemaClient {
     }
 
     if (schemaConfiguration.type === SchemaTypes.ProtocolBuffer) {
+      if (!path.isAbsolute(schemaConfiguration.protoPath)) {
+        throw new PubsubConfigurationInvalidError(
+          topicContainer.configuration.name,
+          {
+            key: 'schema.protoPath',
+            reason: 'Proto path must be an absolute path.',
+            value: schemaConfiguration.protoPath,
+          },
+        );
+      }
+
       const localDefinition = await readFile(
-        schemaConfiguration.protoPath,
+        path.resolve(schemaConfiguration.protoPath),
         'utf-8',
       );
 

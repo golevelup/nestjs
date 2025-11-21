@@ -1,10 +1,6 @@
 import { SetMetadata } from '@nestjs/common';
 
-import {
-  GoogleCloudPubsubMessage,
-  InferPayloadMap,
-  PubsubTopicConfiguration,
-} from './client';
+import { GoogleCloudPubsubMessage, PubsubTopicConfiguration } from './client';
 import { GOOGLE_CLOUD_PUBSUB_SUBSCRIBE } from './google-cloud-pubsub.constants';
 
 export interface PubsubSubscribeMetadata {
@@ -14,16 +10,15 @@ export interface PubsubSubscribeMetadata {
 
 export function createSubscribeDecorator<
   Topics extends readonly PubsubTopicConfiguration[],
+  PayloadMap extends Record<string, unknown>,
 >() {
-  type PayloadMap = InferPayloadMap<Topics>;
-
   type SubscriptionNamePerTopicName<TopicName extends keyof PayloadMap> =
     Extract<
       Topics[number],
       { name: TopicName }
     >['subscriptions'][number]['name'];
 
-  return <TopicName extends keyof PayloadMap>(
+  return <TopicName extends keyof PayloadMap & string>(
     topic: TopicName,
     subscription: SubscriptionNamePerTopicName<TopicName>,
   ) => {

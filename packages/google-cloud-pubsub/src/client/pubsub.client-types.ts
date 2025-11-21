@@ -59,9 +59,14 @@ export type InferPayloadMap<
     : Record<string, any>;
 };
 
+const invariantDataSymbol = Symbol.for(
+  'GOOGLE_CLOUD_PUBSUB_MESSAGE_INVARIANT_DATA',
+);
+
 export interface GoogleCloudPubsubMessage<T = any> {
   readonly attributes: Message['attributes'];
   readonly data: T;
+  readonly [invariantDataSymbol]?: (arg: T) => T;
   readonly deliveryAttempt: Message['deliveryAttempt'];
   readonly id: Message['id'];
   readonly orderingKey?: Message['orderingKey'];

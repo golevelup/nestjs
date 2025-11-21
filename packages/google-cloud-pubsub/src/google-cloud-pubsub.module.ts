@@ -9,19 +9,24 @@ import {
   OnApplicationShutdown,
   Provider,
 } from '@nestjs/common';
+import { InferPayloadMap, PubsubTopicConfiguration } from './client';
 
 import { PubsubClient } from './client/pubsub.client';
 import {
   GOOGLE_CLOUD_PUBSUB_CLIENT_TOKEN,
   GOOGLE_CLOUD_PUBSUB_SUBSCRIBE,
 } from './google-cloud-pubsub.constants';
-import { PubsubSubscribeMetadata } from './google-cloud-pubsub.decorators';
+import {
+  createSubscribeDecorator,
+  PubsubSubscribeMetadata,
+} from './google-cloud-pubsub.decorators';
 import {
   ConfigurableModuleClass,
   GOOGLE_CLOUD_PUBSUB_MODULE_OPTIONS_TOKEN,
   GoogleCloudPubsubModuleOptions,
   GoogleCloudPubsubModuleOptionsExtras,
 } from './google-cloud-pubsub.module-definition';
+import { GoogleCloudPubsubAbstractPublisher } from './google-cloud-pubsub.abstract-publisher';
 
 @Module({
   controllers: [],
@@ -57,6 +62,23 @@ export class GoogleCloudPubsubModule
     super();
 
     this.logger = options?.logger || new Logger(GoogleCloudPubsubModule.name);
+  }
+
+  public static initializeKit<
+    Topics extends readonly PubsubTopicConfiguration[],
+  >() {
+    type GoogleCloudPubsubPayloadsMap = InferPayloadMap<Topics>;
+
+    const GoogleCloudPubsubSubscribe = createSubscribeDecorator<
+      Topics,
+      GoogleCloudPubsubPayloadsMap
+    >();
+
+    return {
+      GoogleCloudPubsubAbstractPublisher,
+      _GoogleCloudPubsubPayloadsMap: {} as GoogleCloudPubsubPayloadsMap,
+      GoogleCloudPubsubSubscribe,
+    };
   }
 
   public static registerAsync(

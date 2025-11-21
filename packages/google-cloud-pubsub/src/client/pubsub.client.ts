@@ -130,11 +130,17 @@ export class PubsubClient {
       );
     }
 
-    const serializer =
-      this.subscriptionContainers.get(subscriptionName)!.topicContainer
-        .serializer;
-    const subscription =
-      this.subscriptionContainers.get(subscriptionName)!.instance;
+    const subscriptionContainer =
+      this.subscriptionContainers.get(subscriptionName);
+
+    if (!subscriptionContainer) {
+      throw new Error(
+        `Subscription (${subscriptionName}) does not registered.`,
+      );
+    }
+
+    const subscription = subscriptionContainer.instance;
+    const serializer = subscriptionContainer.topicContainer.serializer;
 
     const messageHandler = (message: Message) => {
       const processingPromise = (async () => {

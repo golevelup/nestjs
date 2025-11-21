@@ -2,10 +2,10 @@ import { ClientConfig } from '@google-cloud/pubsub';
 import { ConfigurableModuleBuilder, LoggerService, Type } from '@nestjs/common';
 
 import { PubsubTopicConfiguration } from './client';
-import { AbstractGoogleCloudPubsubPublisher } from './google-cloud-pubsub.publisher';
+import { GoogleCloudPubsubAbstractPublisher } from './google-cloud-pubsub.abstract-publisher';
 
 export type GoogleCloudPubsubModuleOptionsExtras = {
-  publisher: Type<AbstractGoogleCloudPubsubPublisher<Record<string, unknown>>>;
+  publisher: Type<GoogleCloudPubsubAbstractPublisher<Record<string, unknown>>>;
 };
 
 export type GoogleCloudPubsubModuleOptions = {
