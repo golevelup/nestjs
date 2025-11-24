@@ -445,7 +445,10 @@ export class AmqpConnection {
         );
       }),
     );
-    
+
+    // Wrapped lastValueFrom(race(response$, timeout$)) in a Promise to properly catch
+    // timeout errors. Without this, the timeout could trigger while publish() was
+    // still running, causing an unhandled rejection and crashing the application.
     const [result] = await Promise.all([
       lastValueFrom(race(response$, timeout$)),
       this.publish(
