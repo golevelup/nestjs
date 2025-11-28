@@ -35,6 +35,12 @@ import {
   getHandlerForLegacyBehavior,
   MessageHandlerErrorBehavior,
 } from './errorBehaviors';
+import {
+  ChannelNotAvailableError,
+  ConnectionNotAvailableError,
+  NullMessageError,
+  RpcTimeoutError,
+} from './errors';
 import { Nack, RpcResponse, SubscribeResponse } from './handlerResponses';
 import { isNull, merge } from 'lodash';
 import { matchesRoutingKey } from './utils';
@@ -158,12 +164,12 @@ export class AmqpConnection {
   }
 
   get channel(): Channel {
-    if (!this._channel) throw new Error('channel is not available');
+    if (!this._channel) throw new ChannelNotAvailableError();
     return this._channel;
   }
 
   get connection(): Connection {
-    if (!this._connection) throw new Error('connection is not available');
+    if (!this._connection) throw new ConnectionNotAvailableError();
     return this._connection;
   }
 
@@ -440,8 +446,10 @@ export class AmqpConnection {
     const timeout$ = interval(timeout).pipe(
       first(),
       map(() => {
-        throw new Error(
-          `Failed to receive response within timeout of ${timeout}ms for exchange "${requestOptions.exchange}" and routing key "${requestOptions.routingKey}"`,
+        throw new RpcTimeoutError(
+          timeout,
+          requestOptions.exchange,
+          requestOptions.routingKey,
         );
       }),
     );
@@ -464,7 +472,7 @@ export class AmqpConnection {
         },
       ),
     ]);
-    
+
     return result;
   }
 
@@ -568,7 +576,7 @@ export class AmqpConnection {
       this.wrapConsumer(async (msg) => {
         try {
           if (isNull(msg)) {
-            throw new Error('Received null message');
+            throw new NullMessageError();
           }
 
           const result = this.deserializeMessage<T>(msg, msgOptions);
@@ -766,7 +774,7 @@ export class AmqpConnection {
       this.wrapConsumer(async (msg) => {
         try {
           if (msg == null) {
-            throw new Error('Received null message');
+            throw new NullMessageError();
           }
 
           if (

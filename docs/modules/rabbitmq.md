@@ -517,6 +517,48 @@ const response = await amqpConnection.request<ExpectedReturnType>({
 });
 ```
 
+#### Handling RPC Errors
+
+The library provides custom error classes that you can catch and handle specifically.
+
+##### RpcTimeoutError
+
+When an RPC request times out, an `RpcTimeoutError` is thrown. This error includes detailed information about the timeout:
+
+```typescript
+import { AmqpConnection, RpcTimeoutError } from '@golevelup/nestjs-rabbitmq';
+
+try {
+  const response = await amqpConnection.request<ExpectedReturnType>({
+    exchange: 'exchange1',
+    routingKey: 'rpc',
+    payload: { request: 'val' },
+    timeout: 5000,
+  });
+} catch (error) {
+  if (error instanceof RpcTimeoutError) {
+    console.error(`RPC timed out after ${error.timeout}ms`);
+    console.error(
+      `Exchange: ${error.exchange}, Routing Key: ${error.routingKey}`,
+    );
+    // Handle timeout specifically
+  } else {
+    // Handle other errors
+    throw error;
+  }
+}
+```
+
+##### Other Custom Errors
+
+Following custom error classes are available for more granular error handling:
+
+- `NullMessageError` - Thrown when a null message is received
+- `ChannelNotAvailableError` - Thrown when attempting to use a channel that is not available
+- `ConnectionNotAvailableError` - Thrown when attempting to use a connection that is not available
+
+These can all be imported from `@golevelup/nestjs-rabbitmq` and used for specific error handling in your application.
+
 ## Advanced Patterns
 
 ### Competing Consumers

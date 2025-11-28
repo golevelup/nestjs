@@ -1,6 +1,7 @@
 export * from './amqp/connection';
 export * from './amqp/connectionManager';
 export * from './amqp/errorBehaviors';
+export * from './amqp/errors';
 export * from './amqp/handlerResponses';
 export * from './rabbitmq.constants';
 export * from './rabbitmq.decorators';
