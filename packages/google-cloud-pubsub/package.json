@@ -34,8 +34,7 @@
   },
   "dependencies": {
     "@golevelup/nestjs-discovery": "workspace:^",
-    "@google-cloud/pubsub": "^5.2.0",
-    "lodash": "^4.17.21"
+    "@google-cloud/pubsub": "^5.2.0"
   },
   "devDependencies": {
     "avsc": "^5.7.9",

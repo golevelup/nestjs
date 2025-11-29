@@ -1,22 +1,20 @@
 import { PubSub, SchemaTypes, SchemaViews } from '@google-cloud/pubsub';
 import { SchemaServiceClient } from '@google-cloud/pubsub/build/src/v1';
 import { readFile } from 'fs/promises';
-import { isEqual } from 'lodash';
+import { Type } from 'avsc';
 import * as path from 'path';
 
 import {
   PubsubConfigurationInvalidError,
   PubsubConfigurationMismatchError,
-} from './pubsub-configuration.error';
+} from './pubsub-configuration.errors';
 import { PubsubTopicContainer } from './pubsub-topic.container';
 
 export class PubsubSchemaClient {
   private _schemaClient: SchemaServiceClient | null = null;
   private _schemaClientPromise: Promise<SchemaServiceClient> | null = null;
 
-  private readonly pubsub: PubSub;
-
-  constructor(pubsub: PubSub) {
+  constructor(private readonly pubsub: PubSub) {
     this.pubsub = pubsub;
   }
 
@@ -87,6 +85,19 @@ export class PubsubSchemaClient {
       );
     }
 
+    if (
+      schemaConfiguration.encoding !== remoteMetadata.schemaSettings.encoding
+    ) {
+      throw new PubsubConfigurationMismatchError(
+        topicContainer.configuration.name,
+        {
+          key: 'schema.encoding',
+          local: schemaConfiguration.encoding,
+          remote: remoteMetadata.schemaSettings.encoding as string,
+        },
+      );
+    }
+
     const schemaClient = await this.schemaClient;
 
     const [remoteRevisions] = await schemaClient.listSchemaRevisions({
@@ -100,10 +111,10 @@ export class PubsubSchemaClient {
           return false;
         }
 
-        return isEqual(
-          schemaConfiguration.definition,
-          JSON.parse(revision.definition),
-        );
+        const localType = Type.forSchema(schemaConfiguration.definition as any);
+        const remoteType = Type.forSchema(JSON.parse(revision.definition));
+
+        return localType.equals(remoteType);
       });
 
       if (!isDefinitionMatched) {

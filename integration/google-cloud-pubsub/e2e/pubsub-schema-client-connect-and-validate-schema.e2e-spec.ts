@@ -7,12 +7,12 @@ import { resolve } from 'path';
 import {
   PubsubConfigurationInvalidError,
   PubsubConfigurationMismatchError,
-} from '../client/pubsub-configuration.error';
-import { PubsubSchemaClient } from '../client/pubsub-schema.client';
-import { PubsubTopicContainer } from '../client/pubsub-topic.container';
-import { PubsubTopicConfiguration } from '../client';
-import { PubsubSerializer } from '../client/pubsub.serializer';
-import { assertRejectsWith } from './util';
+} from '../../../packages/google-cloud-pubsub/src/client/pubsub-configuration.errors';
+import { PubsubSchemaClient } from '../../../packages/google-cloud-pubsub/src/client/pubsub-schema.client';
+import { PubsubTopicContainer } from '../../../packages/google-cloud-pubsub/src/client/pubsub-topic.container';
+import { PubsubTopicConfiguration } from '../../../packages/google-cloud-pubsub/src/client';
+import { PubsubSerializer } from '../../../packages/google-cloud-pubsub/src/client/pubsub.serializer';
+import { assertRejectsWith } from './pubsub-client.spec-utils';
 
 import { Level3ProtocolBuffer } from './proto/level3';
 import { Level3ProtocolBuffer as Level3ProtocolBufferExtended } from './proto/level3-extended';
@@ -190,6 +190,100 @@ describe.skip('PubsubSchemaClient.connectAndValidateSchema()', () => {
           key: 'schema.type',
           local: SchemaTypes.Avro,
           remote: SchemaTypes.ProtocolBuffer,
+        });
+      },
+    );
+  });
+
+  it(`${PubsubConfigurationMismatchError.name}: if ${SchemaTypes.Avro} schema encodings differ between local and remote.`, async () => {
+    const topicConfiguration = {
+      name: `topic-${crypto.randomUUID()}`,
+      schema: {
+        definition: avroSchemaDefinition,
+        encoding: Encodings.Json,
+        name: `schema-${crypto.randomUUID()}`,
+        type: SchemaTypes.Avro,
+      },
+      subscriptions: [],
+    } as const satisfies PubsubTopicConfiguration;
+
+    const remoteSchema = await pubsub.createSchema(
+      topicConfiguration.schema.name,
+      topicConfiguration.schema.type,
+      JSON.stringify(topicConfiguration.schema.definition),
+    );
+
+    await pubsub.createTopic({
+      name: topicConfiguration.name,
+      schemaSettings: {
+        encoding: Encodings.Binary,
+        schema: await remoteSchema.getName(),
+      },
+    });
+
+    const topicContainer = new PubsubTopicContainer(
+      pubsub.topic(topicConfiguration.name),
+      new PubsubSerializer(topicConfiguration.name, topicConfiguration.schema),
+      topicConfiguration,
+    );
+
+    await assertRejectsWith(
+      () => pubsubSchemaClient.connectAndValidateSchema(topicContainer),
+      PubsubConfigurationMismatchError,
+      (error) => {
+        expect(error.mismatchEntry).toEqual({
+          key: 'schema.encoding',
+          local: Encodings.Json,
+          remote: Encodings.Binary,
+        });
+      },
+    );
+  });
+
+  it(`${PubsubConfigurationMismatchError.name}: if ${SchemaTypes.ProtocolBuffer} schema encodings differ between local and remote.`, async () => {
+    const protoPath = resolve(__dirname, './proto/test.proto');
+    const protoDefinition = readFileSync(protoPath, 'utf-8');
+
+    const topicConfiguration = {
+      name: `topic-${crypto.randomUUID()}`,
+      schema: {
+        definition: TestEvent,
+        encoding: Encodings.Binary,
+        name: `schema-${crypto.randomUUID()}`,
+        protoPath,
+        type: SchemaTypes.ProtocolBuffer,
+      },
+      subscriptions: [],
+    } as const satisfies PubsubTopicConfiguration;
+
+    const remoteSchema = await pubsub.createSchema(
+      topicConfiguration.schema.name,
+      SchemaTypes.ProtocolBuffer,
+      protoDefinition,
+    );
+
+    await pubsub.createTopic({
+      name: topicConfiguration.name,
+      schemaSettings: {
+        encoding: Encodings.Json,
+        schema: await remoteSchema.getName(),
+      },
+    });
+
+    const topicContainer = new PubsubTopicContainer(
+      pubsub.topic(topicConfiguration.name),
+      new PubsubSerializer(topicConfiguration.name, topicConfiguration.schema),
+      topicConfiguration,
+    );
+
+    await assertRejectsWith(
+      () => pubsubSchemaClient.connectAndValidateSchema(topicContainer),
+      PubsubConfigurationMismatchError,
+      (error) => {
+        expect(error.mismatchEntry).toEqual({
+          key: 'schema.encoding',
+          local: Encodings.Binary,
+          remote: Encodings.Json,
         });
       },
     );

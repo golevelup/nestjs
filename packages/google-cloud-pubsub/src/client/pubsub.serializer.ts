@@ -2,7 +2,7 @@ import { Encodings, Message, SchemaTypes } from '@google-cloud/pubsub';
 import { Type as AvroType } from 'avsc';
 
 import { ENCODINGS, SCHEMA_TYPES } from './constants';
-import { PubsubConfigurationInvalidError } from './pubsub-configuration.error';
+import { PubsubConfigurationInvalidError } from './pubsub-configuration.errors';
 import { PubsubSchemaConfiguration } from './pubsub-schema.client-types';
 
 export class PubsubSerializer {

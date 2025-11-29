@@ -5,8 +5,11 @@ import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as path from 'path';
 
-import { PubsubClient, PubsubTopicConfiguration } from '../client';
-import { assertRejectsWith } from './util';
+import {
+  PubsubClient,
+  PubsubTopicConfiguration,
+} from '../../../packages/google-cloud-pubsub/src/client';
+import { assertRejectsWith } from './pubsub-client.spec-utils';
 
 import { Level1ProtocolBuffer } from './proto/level1';
 import { Level2ProtocolBuffer } from './proto/level2';

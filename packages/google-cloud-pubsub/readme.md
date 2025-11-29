@@ -161,3 +161,6 @@ export class AppService {
 - Custom error hooks / metric emitters.
 - Push subscription support.
 - Split optional dependencies so Avro (`avsc`) and Protocol Buffer runtimes are only required when those schema types are used.
+- Publisher.ready() helper that awaits PubsubClient initialization.
+- Manual ack/nack.
+- Iterate over schema revisions page by page instead of fetching them all at once.

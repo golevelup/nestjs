@@ -8,10 +8,10 @@ import {
   GoogleCloudPubsubMessage,
   PubsubClient,
   PubsubTopicConfiguration,
-} from '../client';
+} from '../../../packages/google-cloud-pubsub/src/client';
 
 import { Level3ProtocolBuffer } from './proto/level3';
-import { assertRejectsWith } from './util';
+import { assertRejectsWith } from './pubsub-client.spec-utils';
 
 const avroSchema3 = {
   fields: [

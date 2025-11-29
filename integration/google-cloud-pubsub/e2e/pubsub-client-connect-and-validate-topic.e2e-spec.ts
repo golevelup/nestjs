@@ -4,9 +4,12 @@ import * as crypto from 'crypto';
 import {
   PubsubConfigurationInvalidError,
   PubsubConfigurationMismatchError,
-} from '../client/pubsub-configuration.error';
-import { PubsubClient, PubsubTopicConfiguration } from '../client';
-import { assertRejectsWith } from './util';
+} from '../../../packages/google-cloud-pubsub/src/client/pubsub-configuration.errors';
+import {
+  PubsubClient,
+  PubsubTopicConfiguration,
+} from '../../../packages/google-cloud-pubsub/src/client';
+import { assertRejectsWith } from './pubsub-client.spec-utils';
 
 // These tests are skipped. They require a real Google Cloud Pub/Sub instance.
 // To run these tests locally:

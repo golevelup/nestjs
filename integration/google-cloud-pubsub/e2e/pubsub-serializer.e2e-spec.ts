@@ -2,10 +2,10 @@ import { Encodings, Message, SchemaTypes } from '@google-cloud/pubsub';
 import { Type as AvroType, schema } from 'avsc';
 import * as crypto from 'crypto';
 
-import { ENCODINGS } from '../client/constants';
-import { PubsubConfigurationInvalidError } from '../client/pubsub-configuration.error';
-import { PubsubTopicConfiguration } from '../client';
-import { PubsubSerializer } from '../client/pubsub.serializer';
+import { ENCODINGS } from '../../../packages/google-cloud-pubsub/src/client/constants';
+import { PubsubConfigurationInvalidError } from '../../../packages/google-cloud-pubsub/src/client/pubsub-configuration.errors';
+import { PubsubTopicConfiguration } from '../../../packages/google-cloud-pubsub/src/client';
+import { PubsubSerializer } from '../../../packages/google-cloud-pubsub/src/client/pubsub.serializer';
 
 import { TestEvent } from './proto/test';
 

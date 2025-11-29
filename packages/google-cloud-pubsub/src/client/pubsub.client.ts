@@ -4,7 +4,7 @@ import { MessageOptions } from '@google-cloud/pubsub/build/src/topic';
 import {
   PubsubConfigurationInvalidError,
   PubsubConfigurationMismatchError,
-} from './pubsub-configuration.error';
+} from './pubsub-configuration.errors';
 import { PubsubSchemaClient } from './pubsub-schema.client';
 import { PubsubSubscriptionContainer } from './pubsub-subscription.container';
 import { PubsubTopicContainer } from './pubsub-topic.container';
