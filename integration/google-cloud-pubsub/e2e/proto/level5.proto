@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package example.level5;
+
+message Level5ProtocolBuffer {
+  string field1 = 1;
+  int32 field2 = 2;
+  bool field3 = 3;
+  double field4 = 4;
+  bytes field5 = 5;
+  repeated string field6 = 6;
+  float field7 = 7;
+  int64 field8 = 8;
+
+  message Nested1L5ProtocolBuffer {
+    string nestedField1 = 1;
+
+    message Nested2L5ProtocolBuffer {
+      int32 nestedField2 = 1;
+
+      message Nested3L5ProtocolBuffer {
+        bool nestedField3 = 1;
+      }
+      Nested3L5ProtocolBuffer nested3 = 2;
+    }
+    Nested2L5ProtocolBuffer nested2 = 2;
+  }
+  Nested1L5ProtocolBuffer nested1 = 9;
+}

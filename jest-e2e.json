@@ -15,5 +15,8 @@
   "moduleNameMapper": {
     "^@golevelup/nestjs-rabbitmq$": "<rootDir>/packages/rabbitmq/src",
     "^@golevelup/nestjs-discovery$": "<rootDir>/packages/discovery/src"
-  }
+  },
+  "setupFilesAfterEnv": [
+    "<rootDir>/jest.setup.js"
+  ]
 }

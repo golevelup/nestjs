@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package example.level3;
+
+message Level3ProtocolBuffer {
+  string field1 = 1;
+  int32 field2 = 2;
+  bool field3 = 3;
+  double field4 = 4;
+
+  message Nested1ProtocolBuffer {
+    string nestedField1 = 1;
+  }
+
+  Nested1ProtocolBuffer field5 = 5;
+}

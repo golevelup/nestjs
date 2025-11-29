@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package example.level4;
+
+message Level4ProtocolBuffer {
+  string field1 = 1;
+  int32 field2 = 2;
+  bool field3 = 3;
+  double field4 = 4;
+  bytes field5 = 5;
+  repeated string field6 = 6;
+
+  message Nested1L4ProtocolBuffer {
+    string nestedField1 = 1;
+    int32 nestedField2 = 2;
+  }
+
+  message Nested2L4ProtocolBuffer {
+    bool nestedField3 = 1;
+  }
+
+  Nested1L4ProtocolBuffer nested1 = 7;
+  Nested2L4ProtocolBuffer nested2 = 8;
+}
