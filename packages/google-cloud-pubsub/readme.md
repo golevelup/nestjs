@@ -164,3 +164,4 @@ export class AppService {
 - Publisher.ready() helper that awaits PubsubClient initialization.
 - Manual ack/nack.
 - Iterate over schema revisions page by page instead of fetching them all at once.
+- Support for custom Avro serialization options (e.g. `wrapUnions`, `logicalTypes`) with adaptive type inference.

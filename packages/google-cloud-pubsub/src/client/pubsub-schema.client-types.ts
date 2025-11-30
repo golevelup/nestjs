@@ -13,56 +13,65 @@ type AvroPrimitiveMap = {
   string: string;
 };
 
-export type DeepReadonly<T> = T extends (infer U)[]
+type HasDefault<T> = T extends { default: any } ? true : false;
+type DeepReadonly<T> = T extends (infer U)[]
   ? readonly DeepReadonly<U>[]
-  : T extends object & (object | null)
-    ? { readonly [K in keyof T]: DeepReadonly<T[K]> }
+  : T extends object
+    ? {
+        readonly [K in keyof T]: DeepReadonly<T[K]>;
+      }
     : T;
 
-type AvroOptionalKeys<T> =
-  T extends DeepReadonly<schema.RecordType>
-    ? T['fields'][number] extends infer F
-      ? F extends {
-          default: null;
-          name: string;
-          type: readonly ['null', ...any];
-        }
-        ? F['name']
-        : never
+export type InferAvroPayload<T> = T extends readonly (infer U)[]
+  ? InferAvroPayload<U>
+  : T extends schema.PrimitiveType
+    ? T extends keyof AvroPrimitiveMap
+      ? AvroPrimitiveMap[T]
       : never
-    : never;
-
-export type InferAvroPayload<T> = T extends keyof AvroPrimitiveMap
-  ? AvroPrimitiveMap[T]
-  : T extends readonly any[]
-    ? InferAvroPayload<T[number]>
-    : T extends DeepReadonly<schema.RecordType>
-      ? {
-          -readonly [P in Exclude<
-            T['fields'][number]['name'],
-            AvroOptionalKeys<T>
-          >]: InferAvroPayload<
-            Extract<T['fields'][number], { name: P }>['type']
-          >;
-        } & {
-          -readonly [P in AvroOptionalKeys<T>]?: InferAvroPayload<
-            Extract<T['fields'][number], { name: P }>['type']
-          >;
-        }
-      : T extends DeepReadonly<schema.EnumType>
-        ? T['symbols'][number]
-        : T extends DeepReadonly<schema.ArrayType>
-          ? InferAvroPayload<T['items']>[]
-          : T extends DeepReadonly<schema.MapType>
-            ? { [key: string]: InferAvroPayload<T['values']> }
-            : T extends DeepReadonly<schema.FixedType>
-              ? Buffer
-              : T extends { type: infer U }
-                ? InferAvroPayload<U>
-                : any;
+    : T extends { type: infer Type }
+      ? Type extends schema.RecordType['type']
+        ? T extends { fields: readonly (infer F)[] }
+          ? {
+              -readonly [K in F as HasDefault<K> extends false
+                ? K extends { name: string }
+                  ? K['name']
+                  : never
+                : never]-?: K extends { type: infer FT }
+                ? InferAvroPayload<FT>
+                : never;
+            } & {
+              -readonly [K in F as HasDefault<K> extends true
+                ? K extends { name: string }
+                  ? K['name']
+                  : never
+                : never]?: K extends { type: infer FT }
+                ? InferAvroPayload<FT>
+                : never;
+            }
+          : Record<string, never>
+        : Type extends schema.ArrayType['type']
+          ? T extends { items: infer Items }
+            ? InferAvroPayload<Items>[]
+            : never
+          : Type extends schema.MapType['type']
+            ? T extends { values: infer Values }
+              ? Record<string, InferAvroPayload<Values>>
+              : never
+            : Type extends schema.EnumType['type']
+              ? T extends { symbols: readonly (infer Symbols)[] }
+                ? Symbols
+                : never
+              : Type extends schema.FixedType['type']
+                ? Buffer
+                : Type extends schema.PrimitiveType
+                  ? Type extends keyof AvroPrimitiveMap
+                    ? AvroPrimitiveMap[Type]
+                    : never
+                  : unknown
+      : unknown;
 
 interface PubsubAvroSchemaConfiguration {
-  definition: DeepReadonly<schema.RecordType>;
+  definition: DeepReadonly<schema.AvroSchema>;
   encoding: (typeof Encodings)[keyof typeof Encodings];
   name: string;
   type: typeof SchemaTypes.Avro;

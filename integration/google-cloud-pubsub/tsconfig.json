@@ -9,7 +9,8 @@
     "target": "es2020",
     "sourceMap": true,
     "outDir": "./dist",
-    "baseUrl": "./"
+    "baseUrl": "./",
+    "strict": true
   },
   "exclude": ["node_modules"]
 }
