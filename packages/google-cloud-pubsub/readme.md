@@ -5,7 +5,8 @@ A type-safe Google Cloud Pub/Sub integration for NestJS. The module validates to
 ## Installation
 
 ```bash
-npm install @golevelup/nestjs-google-cloud-pubsub @google-cloud/pubsub avsc @protobuf-ts/runtime
+npm install @golevelup/nestjs-google-cloud-pubsub
+npm install @google-cloud/pubsub avsc @protobuf-ts/runtime
 ```
 
 ## Quick Start
