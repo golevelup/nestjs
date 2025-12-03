@@ -11,7 +11,6 @@ export class RpcTimeoutError extends Error {
       `Failed to receive response within timeout of ${timeout}ms for exchange "${exchange}" and routing key "${routingKey}"`,
     );
     this.name = 'RpcTimeoutError';
-    Object.setPrototypeOf(this, RpcTimeoutError.prototype);
   }
 }
 
@@ -22,7 +21,6 @@ export class NullMessageError extends Error {
   constructor() {
     super('Received null message');
     this.name = 'NullMessageError';
-    Object.setPrototypeOf(this, NullMessageError.prototype);
   }
 }
 
@@ -33,7 +31,6 @@ export class ChannelNotAvailableError extends Error {
   constructor() {
     super('channel is not available');
     this.name = 'ChannelNotAvailableError';
-    Object.setPrototypeOf(this, ChannelNotAvailableError.prototype);
   }
 }
 
@@ -44,6 +41,5 @@ export class ConnectionNotAvailableError extends Error {
   constructor() {
     super('connection is not available');
     this.name = 'ConnectionNotAvailableError';
-    Object.setPrototypeOf(this, ConnectionNotAvailableError.prototype);
   }
 }
