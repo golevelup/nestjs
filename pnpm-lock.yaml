@@ -368,8 +368,8 @@ importers:
         version: link:../discovery
     devDependencies:
       stripe:
-        specifier: ^18.2.1
-        version: 18.2.1(@types/node@22.16.5)
+        specifier: ^20.0.0
+        version: 20.0.0(@types/node@22.16.5)
 
   packages/testing/ts-jest:
     devDependencies:
@@ -6009,11 +6009,11 @@ packages:
   strip-literal@2.1.0:
     resolution: {integrity: sha512-Op+UycaUt/8FbN/Z2TWPBLge3jWrP3xj10f3fnYxf052bKuS3EKs1ZQcVGjnEMdsNVAM+plXRdmjrZ/KgG3Skw==}
 
-  stripe@18.2.1:
-    resolution: {integrity: sha512-GwB1B7WSwEBzW4dilgyJruUYhbGMscrwuyHsPUmSRKrGHZ5poSh2oU9XKdii5BFVJzXHn35geRvGJ6R8bYcp8w==}
-    engines: {node: '>=12.*'}
+  stripe@20.0.0:
+    resolution: {integrity: sha512-EaZeWpbJOCcDytdjKSwdrL5BxzbDGNueiCfHjHXlPdBQvLqoxl6AAivC35SPzTmVXJb5duXQlXFGS45H0+e6Gg==}
+    engines: {node: '>=16'}
     peerDependencies:
-      '@types/node': '>=12.x.x'
+      '@types/node': '>=16'
     peerDependenciesMeta:
       '@types/node':
         optional: true
@@ -13391,7 +13391,7 @@ snapshots:
       js-tokens: 9.0.0
     optional: true
 
-  stripe@18.2.1(@types/node@22.16.5):
+  stripe@20.0.0(@types/node@22.16.5):
     dependencies:
       qs: 6.14.0
     optionalDependencies:
