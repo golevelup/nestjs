@@ -136,6 +136,14 @@ class PaymentCreatedService {
   handlePaymentIntentCreated(evt: Stripe.PaymentIntentPaymentCreatedEvent) {
     // execute your custom business logic
   }
+
+  @StripeWebhookHandler('v1.billing.meter.no_meter_found')
+  handleBillingMeterNoMeterFound(
+    nft: Stripe.Events.V1BillingMeterNoMeterFoundEventNotification,
+  ) {
+    const event = await nft.fetchEvent();
+    // execute your custom business logic
+  }
 }
 ```
 
