@@ -138,7 +138,7 @@ class PaymentCreatedService {
   }
 
   @StripeWebhookHandler('v1.billing.meter.no_meter_found')
-  handleBillingMeterNoMeterFound(
+  async handleBillingMeterNoMeterFound(
     nft: Stripe.Events.V1BillingMeterNoMeterFoundEventNotification,
   ) {
     const event = await nft.fetchEvent();
