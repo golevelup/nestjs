@@ -1,0 +1,69 @@
+{
+  "name": "@golevelup/nestjs-google-cloud-pubsub",
+  "version": "0.0.1",
+  "description": "Google cloud pubsub wrapper for NestJS",
+  "author": "Nikita Chaikin <nikita.chaikinn@gmail.com>",
+  "homepage": "https://github.com/golevelup/nestjs/blob/master/packages/google-cloud-pubsub/README.md",
+  "license": "MIT",
+  "keywords": [
+    "NestJS",
+    "Google Cloud",
+    "PubSub",
+    "gcp"
+  ],
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/golevelup/nestjs.git"
+  },
+  "scripts": {
+    "build": "tsc --build tsconfig.build.json",
+    "build:watch": "tsc --build tsconfig.build.json --watch",
+    "test": "jest"
+  },
+  "bugs": {
+    "url": "https://github.com/golevelup/nestjs/issues"
+  },
+  "dependencies": {
+    "@golevelup/nestjs-discovery": "workspace:^"
+  },
+  "devDependencies": {
+    "avsc": "^5.7.9",
+    "@google-cloud/pubsub": "^5.2.0",
+    "@protobuf-ts/runtime": "^2.11.1"
+  },
+  "peerDependencies": {
+    "@google-cloud/pubsub": "^5.2.0",
+    "@nestjs/common": "^11.1.3",
+    "@nestjs/core": "^11.1.3",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.1",
+    "avsc": "^5.7.9",
+    "@protobuf-ts/runtime": "^2.11.1"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "jest": {
+    "moduleFileExtensions": [
+      "js",
+      "json",
+      "ts"
+    ],
+    "rootDir": "src",
+    "testRegex": ".spec.ts$",
+    "transform": {
+      "^.+\\.ts$": "ts-jest"
+    },
+    "coverageDirectory": "../coverage",
+    "testEnvironment": "node"
+  }
+}

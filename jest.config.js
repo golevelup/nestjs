@@ -5,7 +5,5 @@ module.exports = {
     "^.+.tsx?$": ["ts-jest",{tsconfig: 'tsconfig.spec.json' }],
   },
   preset: "ts-jest",
-  testPathIgnorePatterns: [
-    "/ts-vitest/"
-  ]
+  testPathIgnorePatterns: ["/ts-vitest/", "/integration/google-cloud-pubsub/e2e/proto/"]
 };
