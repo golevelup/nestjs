@@ -14,7 +14,7 @@ import {
 
 export interface PubsubSubscriptionConfiguration {
   name: string;
-  subscriptionOptions?: SubscriptionOptions;
+  options?: SubscriptionOptions;
 }
 
 export type PubsubTopicConfiguration = {
@@ -54,16 +54,16 @@ export type InferPayloadMap<
             >
             ? InferredPayload
             : never
-          : Record<string, any>
-      : Record<string, any>
-    : Record<string, any>;
+          : Buffer
+      : Buffer
+    : Buffer;
 };
 
 const invariantDataSymbol = Symbol.for(
   'GOOGLE_CLOUD_PUBSUB_MESSAGE_INVARIANT_DATA',
 );
 
-export interface GoogleCloudPubsubMessage<T = any> {
+export interface GoogleCloudPubsubMessage<T = Buffer> {
   readonly attributes: Message['attributes'];
   readonly data: T;
   readonly [invariantDataSymbol]?: (arg: T) => T;
