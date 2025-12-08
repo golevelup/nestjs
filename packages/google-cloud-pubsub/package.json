@@ -1,6 +1,6 @@
 {
   "name": "@golevelup/nestjs-google-cloud-pubsub",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Google cloud pubsub wrapper for NestJS",
   "author": "Nikita Chaikin <nikita.chaikinn@gmail.com>",
   "homepage": "https://github.com/golevelup/nestjs/blob/master/packages/google-cloud-pubsub/README.md",
