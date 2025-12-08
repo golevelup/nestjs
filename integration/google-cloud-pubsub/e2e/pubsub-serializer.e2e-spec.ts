@@ -27,12 +27,21 @@ describe('PubsubSerializer', () => {
     test: 'my-random-value',
   };
 
-  it('JSON serializer: should return default serializer if schema was not provided and serialize/deserialize successfully.', () => {
+  it('Default serializer: should return input data as-is and return raw buffer on deserialize if schema was not provided.', () => {
     const serializer = new PubsubSerializer(`topic.${crypto.randomUUID()}`);
-    const buffer = Buffer.from(JSON.stringify(data));
 
-    expect(serializer.serialize(data)).toEqual(buffer);
-    expect(serializer.deserialize({ data: buffer } as Message)).toEqual(data);
+    expect(serializer.serialize(data)).toEqual(data);
+
+    const inputBuffer = Buffer.from('some-binary-data');
+    expect(serializer.serialize(inputBuffer)).toBe(inputBuffer);
+
+    const jsonBuffer = Buffer.from(JSON.stringify(data));
+    const result = serializer.deserialize({ data: jsonBuffer } as Message);
+
+    expect(Buffer.isBuffer(result)).toBe(true);
+    expect(result).toEqual(jsonBuffer);
+
+    expect(JSON.parse(result.toString())).toEqual(data);
   });
 
   it(`${SchemaTypes.Avro} serializer with ${Encodings.Binary} encoding: should serialize/deserialize successfully when ${Encodings.Binary} data was provided.`, () => {
@@ -47,10 +56,7 @@ describe('PubsubSerializer', () => {
       subscriptions: [],
     } as const satisfies PubsubTopicConfiguration;
 
-    const serializer = new PubsubSerializer(
-      topicConfiguration.name,
-      topicConfiguration.schema,
-    );
+    const serializer = new PubsubSerializer(topicConfiguration.name, topicConfiguration.schema);
     const buffer = avroType.toBuffer(data);
 
     expect(serializer.serialize(data)).toEqual(buffer);
@@ -69,10 +75,7 @@ describe('PubsubSerializer', () => {
       subscriptions: [],
     } as const satisfies PubsubTopicConfiguration;
 
-    const serializer = new PubsubSerializer(
-      topicConfiguration.name,
-      topicConfiguration.schema,
-    );
+    const serializer = new PubsubSerializer(topicConfiguration.name, topicConfiguration.schema);
     const buffer = Buffer.from(JSON.stringify(data));
 
     expect(() => serializer.deserialize({ data: buffer } as Message)).toThrow();
@@ -90,10 +93,7 @@ describe('PubsubSerializer', () => {
       subscriptions: [],
     } as const satisfies PubsubTopicConfiguration;
 
-    const serializer = new PubsubSerializer(
-      topicConfiguration.name,
-      topicConfiguration.schema,
-    );
+    const serializer = new PubsubSerializer(topicConfiguration.name, topicConfiguration.schema);
 
     const buffer = Buffer.from(avroType.toString(data));
 
@@ -113,10 +113,7 @@ describe('PubsubSerializer', () => {
       subscriptions: [],
     } as const satisfies PubsubTopicConfiguration;
 
-    const serializer = new PubsubSerializer(
-      topicConfiguration.name,
-      topicConfiguration.schema,
-    );
+    const serializer = new PubsubSerializer(topicConfiguration.name, topicConfiguration.schema);
 
     const buffer = avroType.toBuffer(data);
 
@@ -137,22 +134,13 @@ describe('PubsubSerializer', () => {
       subscriptions: [],
     };
 
-    const expectedError = new PubsubConfigurationInvalidError(
-      topicConfiguration.name,
-      {
-        key: 'schema.encoding',
-        reason: `Unsupported schema encoding. Supported encodings: (${ENCODINGS.join(', ')}).`,
-        value: encoding,
-      },
-    );
+    const expectedError = new PubsubConfigurationInvalidError(topicConfiguration.name, {
+      key: 'schema.encoding',
+      reason: `Unsupported schema encoding. Supported encodings: (${ENCODINGS.join(', ')}).`,
+      value: encoding,
+    });
 
-    expect(
-      () =>
-        new PubsubSerializer(
-          topicConfiguration.name,
-          topicConfiguration.schema,
-        ),
-    ).toThrow(expectedError);
+    expect(() => new PubsubSerializer(topicConfiguration.name, topicConfiguration.schema)).toThrow(expectedError);
   });
 
   it(`${SchemaTypes.ProtocolBuffer} serializer with ${Encodings.Binary} encoding: should serialize/deserialize successfully when ${Encodings.Binary} data was provided.`, () => {
@@ -168,16 +156,11 @@ describe('PubsubSerializer', () => {
       subscriptions: [],
     } as const satisfies PubsubTopicConfiguration;
 
-    const serializer = new PubsubSerializer(
-      topicConfiguration.name,
-      topicConfiguration.schema,
-    );
+    const serializer = new PubsubSerializer(topicConfiguration.name, topicConfiguration.schema);
     const buffer = Buffer.from(TestEvent.toBinary(protoData));
 
     expect(serializer.serialize(protoData)).toEqual(buffer);
-    expect(serializer.deserialize({ data: buffer } as Message)).toEqual(
-      protoData,
-    );
+    expect(serializer.deserialize({ data: buffer } as Message)).toEqual(protoData);
   });
 
   it(`${SchemaTypes.ProtocolBuffer} serializer with ${Encodings.Binary} encoding: should throw an error when ${Encodings.Json} data was provided.`, () => {
@@ -193,10 +176,7 @@ describe('PubsubSerializer', () => {
       subscriptions: [],
     } as const satisfies PubsubTopicConfiguration;
 
-    const serializer = new PubsubSerializer(
-      topicConfiguration.name,
-      topicConfiguration.schema,
-    );
+    const serializer = new PubsubSerializer(topicConfiguration.name, topicConfiguration.schema);
     const buffer = Buffer.from(JSON.stringify(protoData));
 
     expect(() => serializer.deserialize({ data: buffer } as Message)).toThrow();
@@ -215,17 +195,12 @@ describe('PubsubSerializer', () => {
       subscriptions: [],
     } as const satisfies PubsubTopicConfiguration;
 
-    const serializer = new PubsubSerializer(
-      topicConfiguration.name,
-      topicConfiguration.schema,
-    );
+    const serializer = new PubsubSerializer(topicConfiguration.name, topicConfiguration.schema);
 
     const buffer = Buffer.from(JSON.stringify(TestEvent.toJson(protoData)));
 
     expect(serializer.serialize(protoData)).toEqual(buffer);
-    expect(serializer.deserialize({ data: buffer } as Message)).toEqual(
-      TestEvent.fromJsonString(buffer.toString()),
-    );
+    expect(serializer.deserialize({ data: buffer } as Message)).toEqual(TestEvent.fromJsonString(buffer.toString()));
   });
 
   it(`${SchemaTypes.ProtocolBuffer} serializer with ${Encodings.Json} encoding: should throw an error when ${Encodings.Binary} data was provided.`, () => {
@@ -241,10 +216,7 @@ describe('PubsubSerializer', () => {
       subscriptions: [],
     } as const satisfies PubsubTopicConfiguration;
 
-    const serializer = new PubsubSerializer(
-      topicConfiguration.name,
-      topicConfiguration.schema,
-    );
+    const serializer = new PubsubSerializer(topicConfiguration.name, topicConfiguration.schema);
 
     const buffer = Buffer.from(TestEvent.toBinary(protoData));
 
@@ -266,21 +238,12 @@ describe('PubsubSerializer', () => {
       subscriptions: [],
     };
 
-    const expectedError = new PubsubConfigurationInvalidError(
-      topicConfiguration.name,
-      {
-        key: 'schema.encoding',
-        reason: `Unsupported schema encoding. Supported encodings: (${ENCODINGS.join(', ')}).`,
-        value: encoding,
-      },
-    );
+    const expectedError = new PubsubConfigurationInvalidError(topicConfiguration.name, {
+      key: 'schema.encoding',
+      reason: `Unsupported schema encoding. Supported encodings: (${ENCODINGS.join(', ')}).`,
+      value: encoding,
+    });
 
-    expect(
-      () =>
-        new PubsubSerializer(
-          topicConfiguration.name,
-          topicConfiguration.schema,
-        ),
-    ).toThrow(expectedError);
+    expect(() => new PubsubSerializer(topicConfiguration.name, topicConfiguration.schema)).toThrow(expectedError);
   });
 });

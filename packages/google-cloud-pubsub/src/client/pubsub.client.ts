@@ -16,6 +16,8 @@ import {
   PubsubTopicConfiguration,
 } from './pubsub.client-types';
 import { PubsubSerializer } from './pubsub.serializer';
+import { PubsubSubscriptionBatchManager } from './pubsub-subscription.batch-manager';
+import { promiseWithResolvers } from './utils';
 
 export class PubsubClient {
   private readonly pubsub: PubSub;
@@ -32,7 +34,6 @@ export class PubsubClient {
   private readonly attachedHandlers = new Set<string>();
 
   private readonly outstandingMessageProcessing = new Set<Promise<void>>();
-  private readonly subscriberAbortController = new AbortController();
 
   constructor(configuration: PubsubClientConfiguration) {
     const { logger, ...restConfiguration } = configuration;
@@ -74,14 +75,13 @@ export class PubsubClient {
   public async close(): Promise<void> {
     this.logger.log('Closing.');
 
-    this.subscriberAbortController.abort();
+    for (const container of this.subscriptionContainers.values()) {
+      container.instance.removeAllListeners('message');
+      container.instance.removeAllListeners('error');
 
-    if (this.outstandingMessageProcessing.size > 0) {
-      this.logger.log(
-        `Waiting for ${this.outstandingMessageProcessing.size} subscriber(s) to finish.`,
-      );
-
-      await Promise.allSettled(this.outstandingMessageProcessing);
+      if (container.batchManager) {
+        container.batchManager.flush();
+      }
     }
 
     const closingSubscriptions = Array.from(
@@ -95,6 +95,14 @@ export class PubsubClient {
     );
 
     await Promise.allSettled(closingSubscriptions);
+
+    if (this.outstandingMessageProcessing.size > 0) {
+      this.logger.log(
+        `Waiting for ${this.outstandingMessageProcessing.size} subscriber(s) to finish.`,
+      );
+
+      await Promise.allSettled(this.outstandingMessageProcessing);
+    }
 
     await this.pubsub.close().catch((e) => {
       this.logger.error(`Failed to close client: ${e.message}`);
@@ -141,37 +149,34 @@ export class PubsubClient {
     const serializer = subscriptionContainer.topicContainer.serializer;
 
     const messageHandler = (message: Message) => {
-      const processingPromise = (async () => {
+      const { promise, resolve } = promiseWithResolvers();
+
+      this.outstandingMessageProcessing.add(promise);
+
+      promise.finally(() => {
+        this.outstandingMessageProcessing.delete(promise);
+      });
+
+      const task = async () => {
         try {
-          const data = serializer.deserialize(message);
+          const deserializedMessage = this.deserializeMessage(
+            message,
+            serializer,
+          );
 
-          const processedMessage: GoogleCloudPubsubMessage = {
-            attributes: message.attributes,
-            data,
-            deliveryAttempt: message.deliveryAttempt,
-            id: message.id,
-            orderingKey: message.orderingKey,
-            publishTime: message.publishTime,
-          };
-
-          await handler(processedMessage);
+          await handler(deserializedMessage);
 
           message.ack();
         } catch (error: any) {
           this.logger.error(
             `Failed to process message with id(${message.id}) on subscription (${subscription.name}). Error: ${error.message}`,
-            error.stack,
           );
 
           message.nack();
         }
-      })();
+      };
 
-      processingPromise.finally(() => {
-        this.outstandingMessageProcessing.delete(processingPromise);
-      });
-
-      this.outstandingMessageProcessing.add(processingPromise);
+      task().finally(resolve);
     };
 
     const errorHandler = (error: Error) => {
@@ -180,24 +185,104 @@ export class PubsubClient {
       );
     };
 
-    this.subscriberAbortController.signal.addEventListener(
-      'abort',
-      () => {
-        this.logger.log(`Closing subscription (${subscription.name}).`);
+    subscription.on('message', messageHandler);
+    subscription.on('error', errorHandler);
 
-        subscription.removeListener('message', messageHandler);
-        subscription.removeListener('error', errorHandler);
+    this.attachedHandlers.add(subscription.name);
 
-        this.logger.log(`Subscription (${subscription.name}) closed.`);
-      },
-      { once: true },
-    );
+    this.logger.log(`Handler attached to ${subscriptionName}.`);
+  }
+
+  public async attachBatchHandler(
+    subscriptionName: string,
+    handler: (messages: GoogleCloudPubsubMessage[]) => Promise<void>,
+  ) {
+    if (this.attachedHandlers.has(subscriptionName)) {
+      throw new Error(
+        `Handler attachment failed. A handler has already been attached for subscription (${subscriptionName}).`,
+      );
+    }
+
+    const subscriptionContainer =
+      this.subscriptionContainers.get(subscriptionName);
+
+    if (!subscriptionContainer) {
+      throw new Error(`Subscription (${subscriptionName}) is not registered.`);
+    }
+
+    const subscription = subscriptionContainer.instance;
+    const subscriptionOptions =
+      subscriptionContainer.configuration.options || {};
+    const serializer = subscriptionContainer.topicContainer.serializer;
+
+    const batchManager = new PubsubSubscriptionBatchManager({
+      maxMessages: subscriptionOptions.flowControl?.maxMessages ?? 1000,
+      maxWaitTimeMilliseconds: 20,
+    });
+
+    subscriptionContainer.batchManager = batchManager;
+
+    batchManager.on(async (batch) => {
+      try {
+        const deserializedMessages = batch.map((item) =>
+          this.deserializeMessage(item.message, serializer),
+        );
+
+        await handler(deserializedMessages);
+
+        batch.forEach((item) => {
+          item.message.ack();
+          item.deferred.resolve();
+        });
+      } catch (error: any) {
+        this.logger.error(
+          `Failed to process batch messages on subscription (${subscription.name}). Error: ${error.message}`,
+        );
+
+        batch.forEach((item) => {
+          item.message.nack();
+          item.deferred.resolve();
+        });
+      }
+    });
+
+    const messageHandler = (message: Message) => {
+      const deferred = promiseWithResolvers();
+
+      this.outstandingMessageProcessing.add(deferred.promise);
+
+      deferred.promise.finally(() => {
+        this.outstandingMessageProcessing.delete(deferred.promise);
+      });
+
+      batchManager.add({ message, deferred });
+    };
+
+    const errorHandler = (error: Error) => {
+      this.logger.error(
+        `Subscription (${subscriptionName}) stream error: ${error.message}.`,
+      );
+    };
 
     subscription.on('message', messageHandler);
     subscription.on('error', errorHandler);
 
     this.attachedHandlers.add(subscription.name);
     this.logger.log(`Handler attached to ${subscriptionName}.`);
+  }
+
+  private deserializeMessage(
+    message: Message,
+    serializer: PubsubSerializer,
+  ): GoogleCloudPubsubMessage {
+    return {
+      attributes: message.attributes,
+      data: serializer.deserialize(message),
+      deliveryAttempt: message.deliveryAttempt,
+      id: message.id,
+      orderingKey: message.orderingKey,
+      publishTime: message.publishTime,
+    };
   }
 
   private async connectAndValidateTopic(
@@ -241,7 +326,7 @@ export class PubsubClient {
     topicContainer: PubsubTopicContainer,
     configuration: PubsubSubscriptionConfiguration,
   ) {
-    const { name, subscriptionOptions } = configuration;
+    const { name, options } = configuration;
 
     if (this.subscriptionContainers.has(name)) {
       throw new PubsubConfigurationInvalidError(
@@ -254,10 +339,7 @@ export class PubsubClient {
       );
     }
 
-    const subscription = topicContainer.instance.subscription(
-      name,
-      subscriptionOptions,
-    );
+    const subscription = topicContainer.instance.subscription(name, options);
 
     try {
       const [metadata] = await subscription.getMetadata();

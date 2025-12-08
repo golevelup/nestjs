@@ -18,6 +18,8 @@ export type GoogleCloudPubsubModuleOptions = {
 export const {
   ConfigurableModuleClass,
   MODULE_OPTIONS_TOKEN: GOOGLE_CLOUD_PUBSUB_MODULE_OPTIONS_TOKEN,
+  ASYNC_OPTIONS_TYPE: GOOGLE_CLOUD_PUBSUB_ASYNC_OPTIONS_TYPE,
+  OPTIONS_TYPE: GOOGLE_CLOUD_PUBSUB_OPTIONS_TYPE,
 } = new ConfigurableModuleBuilder<GoogleCloudPubsubModuleOptions>()
   .setExtras(
     { isGlobal: true } as GoogleCloudPubsubModuleOptionsExtras,

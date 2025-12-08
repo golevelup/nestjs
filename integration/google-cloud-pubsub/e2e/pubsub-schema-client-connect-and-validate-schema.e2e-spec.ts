@@ -56,15 +56,9 @@ describe.skip('PubsubSchemaClient.connectAndValidateSchema()', () => {
     await pubsub.createTopic(topicConfiguration.name);
 
     const topic = pubsub.topic(topicConfiguration.name);
-    const topicContainer = new PubsubTopicContainer(
-      topic,
-      new PubsubSerializer(topicConfiguration.name, topicConfiguration.schema),
-      topicConfiguration,
-    );
+    const topicContainer = new PubsubTopicContainer(topic, new PubsubSerializer(topicConfiguration.name, topicConfiguration.schema), topicConfiguration);
 
-    await expect(
-      pubsubSchemaClient.connectAndValidateSchema(topicContainer),
-    ).resolves.toBeNull();
+    await expect(pubsubSchemaClient.connectAndValidateSchema(topicContainer)).resolves.toBeNull();
   });
 
   it(`${PubsubConfigurationMismatchError.name}: if local schema doesn't exists in remote configuration.`, async () => {
@@ -82,11 +76,7 @@ describe.skip('PubsubSchemaClient.connectAndValidateSchema()', () => {
     await pubsub.createTopic(topicConfiguration.name);
 
     const topic = pubsub.topic(topicConfiguration.name);
-    const topicContainer = new PubsubTopicContainer(
-      topic,
-      new PubsubSerializer(topicConfiguration.name, topicConfiguration.schema),
-      topicConfiguration,
-    );
+    const topicContainer = new PubsubTopicContainer(topic, new PubsubSerializer(topicConfiguration.name, topicConfiguration.schema), topicConfiguration);
 
     await assertRejectsWith(
       () => pubsubSchemaClient.connectAndValidateSchema(topicContainer),
@@ -115,11 +105,7 @@ describe.skip('PubsubSchemaClient.connectAndValidateSchema()', () => {
       subscriptions: [],
     } as const satisfies PubsubTopicConfiguration;
 
-    const remoteSchema = await pubsub.createSchema(
-      remoteSchemaName,
-      SchemaTypes.Avro,
-      JSON.stringify(avroSchemaDefinition),
-    );
+    const remoteSchema = await pubsub.createSchema(remoteSchemaName, SchemaTypes.Avro, JSON.stringify(avroSchemaDefinition));
 
     await pubsub.createTopic({
       name: topicConfiguration.name,
@@ -130,11 +116,7 @@ describe.skip('PubsubSchemaClient.connectAndValidateSchema()', () => {
     });
 
     const topic = pubsub.topic(topicConfiguration.name);
-    const topicContainer = new PubsubTopicContainer(
-      topic,
-      new PubsubSerializer(topicConfiguration.name, topicConfiguration.schema),
-      topicConfiguration,
-    );
+    const topicContainer = new PubsubTopicContainer(topic, new PubsubSerializer(topicConfiguration.name, topicConfiguration.schema), topicConfiguration);
 
     await assertRejectsWith(
       () => pubsubSchemaClient.connectAndValidateSchema(topicContainer),
@@ -161,11 +143,7 @@ describe.skip('PubsubSchemaClient.connectAndValidateSchema()', () => {
       subscriptions: [],
     } as const satisfies PubsubTopicConfiguration;
 
-    const remoteSchema = await pubsub.createSchema(
-      topicConfiguration.schema.name,
-      SchemaTypes.ProtocolBuffer,
-      'syntax = "proto3"; message Mismatch {}',
-    );
+    const remoteSchema = await pubsub.createSchema(topicConfiguration.schema.name, SchemaTypes.ProtocolBuffer, 'syntax = "proto3"; message Mismatch {}');
 
     await pubsub.createTopic({
       name: topicConfiguration.name,
@@ -176,11 +154,7 @@ describe.skip('PubsubSchemaClient.connectAndValidateSchema()', () => {
     });
 
     const topic = pubsub.topic(topicConfiguration.name);
-    const topicContainer = new PubsubTopicContainer(
-      topic,
-      new PubsubSerializer(topicConfiguration.name, topicConfiguration.schema),
-      topicConfiguration,
-    );
+    const topicContainer = new PubsubTopicContainer(topic, new PubsubSerializer(topicConfiguration.name, topicConfiguration.schema), topicConfiguration);
 
     await assertRejectsWith(
       () => pubsubSchemaClient.connectAndValidateSchema(topicContainer),
@@ -256,11 +230,7 @@ describe.skip('PubsubSchemaClient.connectAndValidateSchema()', () => {
       subscriptions: [],
     } as const satisfies PubsubTopicConfiguration;
 
-    const remoteSchema = await pubsub.createSchema(
-      topicConfiguration.schema.name,
-      SchemaTypes.ProtocolBuffer,
-      protoDefinition,
-    );
+    const remoteSchema = await pubsub.createSchema(topicConfiguration.schema.name, SchemaTypes.ProtocolBuffer, protoDefinition);
 
     await pubsub.createTopic({
       name: topicConfiguration.name,
@@ -305,11 +275,7 @@ describe.skip('PubsubSchemaClient.connectAndValidateSchema()', () => {
       ...avroSchemaDefinition,
       fields: [{ name: 'another', type: 'string' }],
     } satisfies schema.RecordType;
-    const remoteSchema = await pubsub.createSchema(
-      topicConfiguration.schema.name,
-      SchemaTypes.Avro,
-      JSON.stringify(remoteAvroSchemaDefinition),
-    );
+    const remoteSchema = await pubsub.createSchema(topicConfiguration.schema.name, SchemaTypes.Avro, JSON.stringify(remoteAvroSchemaDefinition));
 
     await pubsub.createTopic({
       name: topicConfiguration.name,
@@ -320,11 +286,7 @@ describe.skip('PubsubSchemaClient.connectAndValidateSchema()', () => {
     });
 
     const topic = pubsub.topic(topicConfiguration.name);
-    const topicContainer = new PubsubTopicContainer(
-      topic,
-      new PubsubSerializer(topicConfiguration.name, topicConfiguration.schema),
-      topicConfiguration,
-    );
+    const topicContainer = new PubsubTopicContainer(topic, new PubsubSerializer(topicConfiguration.name, topicConfiguration.schema), topicConfiguration);
 
     await assertRejectsWith(
       () => pubsubSchemaClient.connectAndValidateSchema(topicContainer),
@@ -355,13 +317,8 @@ describe.skip('PubsubSchemaClient.connectAndValidateSchema()', () => {
       subscriptions: [],
     } as const satisfies PubsubTopicConfiguration;
 
-    const remoteProtoDefinition =
-      'syntax = "proto3"; message AnotherMessage {}';
-    const remoteSchema = await pubsub.createSchema(
-      topicConfiguration.schema.name,
-      SchemaTypes.ProtocolBuffer,
-      remoteProtoDefinition,
-    );
+    const remoteProtoDefinition = 'syntax = "proto3"; message AnotherMessage {}';
+    const remoteSchema = await pubsub.createSchema(topicConfiguration.schema.name, SchemaTypes.ProtocolBuffer, remoteProtoDefinition);
 
     await pubsub.createTopic({
       name: topicConfiguration.name,
@@ -372,11 +329,7 @@ describe.skip('PubsubSchemaClient.connectAndValidateSchema()', () => {
     });
 
     const topic = pubsub.topic(topicConfiguration.name);
-    const topicContainer = new PubsubTopicContainer(
-      topic,
-      new PubsubSerializer(topicConfiguration.name, topicConfiguration.schema),
-      topicConfiguration,
-    );
+    const topicContainer = new PubsubTopicContainer(topic, new PubsubSerializer(topicConfiguration.name, topicConfiguration.schema), topicConfiguration);
 
     await assertRejectsWith(
       () => pubsubSchemaClient.connectAndValidateSchema(topicContainer),
@@ -404,13 +357,8 @@ describe.skip('PubsubSchemaClient.connectAndValidateSchema()', () => {
       subscriptions: [],
     } as const satisfies PubsubTopicConfiguration;
 
-    const remoteProtoDefinition =
-      'syntax = "proto3"; message AnotherMessage {}';
-    const remoteSchema = await pubsub.createSchema(
-      topicConfiguration.schema.name,
-      SchemaTypes.ProtocolBuffer,
-      remoteProtoDefinition,
-    );
+    const remoteProtoDefinition = 'syntax = "proto3"; message AnotherMessage {}';
+    const remoteSchema = await pubsub.createSchema(topicConfiguration.schema.name, SchemaTypes.ProtocolBuffer, remoteProtoDefinition);
 
     await pubsub.createTopic({
       name: topicConfiguration.name,
@@ -421,11 +369,7 @@ describe.skip('PubsubSchemaClient.connectAndValidateSchema()', () => {
     });
 
     const topic = pubsub.topic(topicConfiguration.name);
-    const topicContainer = new PubsubTopicContainer(
-      topic,
-      new PubsubSerializer(topicConfiguration.name, topicConfiguration.schema),
-      topicConfiguration,
-    );
+    const topicContainer = new PubsubTopicContainer(topic, new PubsubSerializer(topicConfiguration.name, topicConfiguration.schema), topicConfiguration);
 
     await assertRejectsWith(
       () => pubsubSchemaClient.connectAndValidateSchema(topicContainer),
@@ -467,15 +411,9 @@ describe.skip('PubsubSchemaClient.connectAndValidateSchema()', () => {
     });
 
     const topic = pubsub.topic(topicConfiguration.name);
-    const topicContainer = new PubsubTopicContainer(
-      topic,
-      new PubsubSerializer(topicConfiguration.name, topicConfiguration.schema),
-      topicConfiguration,
-    );
+    const topicContainer = new PubsubTopicContainer(topic, new PubsubSerializer(topicConfiguration.name, topicConfiguration.schema), topicConfiguration);
 
-    await expect(
-      pubsubSchemaClient.connectAndValidateSchema(topicContainer),
-    ).resolves.toBeUndefined();
+    await expect(pubsubSchemaClient.connectAndValidateSchema(topicContainer)).resolves.toBeUndefined();
   });
 
   it(`should successfully connect ${SchemaTypes.ProtocolBuffer} schema.`, async () => {
@@ -494,11 +432,7 @@ describe.skip('PubsubSchemaClient.connectAndValidateSchema()', () => {
       subscriptions: [],
     } as const satisfies PubsubTopicConfiguration;
 
-    const remoteSchema = await pubsub.createSchema(
-      topicConfiguration.schema.name,
-      topicConfiguration.schema.type,
-      protoDefinition,
-    );
+    const remoteSchema = await pubsub.createSchema(topicConfiguration.schema.name, topicConfiguration.schema.type, protoDefinition);
 
     await pubsub.createTopic({
       name: topicConfiguration.name,
@@ -509,15 +443,9 @@ describe.skip('PubsubSchemaClient.connectAndValidateSchema()', () => {
     });
 
     const topic = pubsub.topic(topicConfiguration.name);
-    const topicContainer = new PubsubTopicContainer(
-      topic,
-      new PubsubSerializer(topicConfiguration.name, topicConfiguration.schema),
-      topicConfiguration,
-    );
+    const topicContainer = new PubsubTopicContainer(topic, new PubsubSerializer(topicConfiguration.name, topicConfiguration.schema), topicConfiguration);
 
-    await expect(
-      pubsubSchemaClient.connectAndValidateSchema(topicContainer),
-    ).resolves.toBeUndefined();
+    await expect(pubsubSchemaClient.connectAndValidateSchema(topicContainer)).resolves.toBeUndefined();
   });
 
   it(`should successfully connect ${SchemaTypes.Avro} schema if definition matches *any* of remote revisions.`, async () => {
@@ -525,18 +453,12 @@ describe.skip('PubsubSchemaClient.connectAndValidateSchema()', () => {
 
     const revision2 = {
       ...avroSchemaDefinition,
-      fields: [
-        ...avroSchemaDefinition.fields,
-        { default: null, name: 'field3', type: ['null', 'int'] },
-      ],
+      fields: [...avroSchemaDefinition.fields, { default: null, name: 'field3', type: ['null', 'int'] }],
     } satisfies schema.RecordType;
 
     const revision3 = {
       ...avroSchemaDefinition,
-      fields: [
-        ...avroSchemaDefinition.fields,
-        { default: null, name: 'field4', type: ['null', 'double'] },
-      ],
+      fields: [...avroSchemaDefinition.fields, { default: null, name: 'field4', type: ['null', 'double'] }],
     } satisfies schema.RecordType;
 
     const allDefinitions = [revision1, revision2, revision3];
@@ -546,11 +468,7 @@ describe.skip('PubsubSchemaClient.connectAndValidateSchema()', () => {
     const schemaName = `schema-${crypto.randomUUID()}`;
     const topicName = `topic-${crypto.randomUUID()}`;
 
-    const createdSchema = await pubsub.createSchema(
-      schemaName,
-      SchemaTypes.Avro,
-      JSON.stringify(revision1),
-    );
+    const createdSchema = await pubsub.createSchema(schemaName, SchemaTypes.Avro, JSON.stringify(revision1));
 
     for (const definition of allDefinitions.slice(1)) {
       const name = await createdSchema.getName();
@@ -587,31 +505,16 @@ describe.skip('PubsubSchemaClient.connectAndValidateSchema()', () => {
         subscriptions: [],
       } as const satisfies PubsubTopicConfiguration;
 
-      const topicContainer = new PubsubTopicContainer(
-        topic,
-        new PubsubSerializer(
-          topicConfiguration.name,
-          topicConfiguration.schema,
-        ),
-        topicConfiguration,
-      );
+      const topicContainer = new PubsubTopicContainer(topic, new PubsubSerializer(topicConfiguration.name, topicConfiguration.schema), topicConfiguration);
 
-      await expect(
-        pubsubSchemaClient.connectAndValidateSchema(topicContainer),
-      ).resolves.toBeUndefined();
+      await expect(pubsubSchemaClient.connectAndValidateSchema(topicContainer)).resolves.toBeUndefined();
     }
   });
 
   it(`should successfully connect ${SchemaTypes.ProtocolBuffer} schema if definition matches *any* of remote revisions.`, async () => {
-    const protoRevisionPaths = [
-      resolve(__dirname, `./proto/level3.proto`),
-      resolve(__dirname, `./proto/level3-extended.proto`),
-    ];
+    const protoRevisionPaths = [resolve(__dirname, `./proto/level3.proto`), resolve(__dirname, `./proto/level3-extended.proto`)];
 
-    const allRevisions = [
-      readFileSync(protoRevisionPaths[0], 'utf-8'),
-      readFileSync(protoRevisionPaths[1], 'utf-8'),
-    ];
+    const allRevisions = [readFileSync(protoRevisionPaths[0], 'utf-8'), readFileSync(protoRevisionPaths[1], 'utf-8')];
     const allDefinitions = [Level3ProtocolBuffer, Level3ProtocolBufferExtended];
 
     const schemaClient = await pubsub.getSchemaClient();
@@ -619,11 +522,7 @@ describe.skip('PubsubSchemaClient.connectAndValidateSchema()', () => {
     const schemaName = `schema-${crypto.randomUUID()}`;
     const topicName = `topic-${crypto.randomUUID()}`;
 
-    const createdSchema = await pubsub.createSchema(
-      schemaName,
-      SchemaTypes.ProtocolBuffer,
-      allRevisions[0],
-    );
+    const createdSchema = await pubsub.createSchema(schemaName, SchemaTypes.ProtocolBuffer, allRevisions[0]);
     const fullSchemaName = await createdSchema.getName();
 
     await schemaClient.commitSchema({
@@ -661,18 +560,9 @@ describe.skip('PubsubSchemaClient.connectAndValidateSchema()', () => {
         subscriptions: [],
       } as const satisfies PubsubTopicConfiguration;
 
-      const topicContainer = new PubsubTopicContainer(
-        topic,
-        new PubsubSerializer(
-          topicConfiguration.name,
-          topicConfiguration.schema,
-        ),
-        topicConfiguration,
-      );
+      const topicContainer = new PubsubTopicContainer(topic, new PubsubSerializer(topicConfiguration.name, topicConfiguration.schema), topicConfiguration);
 
-      await expect(
-        pubsubSchemaClient.connectAndValidateSchema(topicContainer),
-      ).resolves.toBeUndefined();
+      await expect(pubsubSchemaClient.connectAndValidateSchema(topicContainer)).resolves.toBeUndefined();
     }
   });
 });

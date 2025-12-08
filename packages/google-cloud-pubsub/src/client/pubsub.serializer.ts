@@ -21,7 +21,7 @@ export class PubsubSerializer {
     schema?: PubsubSchemaConfiguration,
   ): (data: any) => Buffer {
     if (!schema) {
-      return (data: any) => Buffer.from(JSON.stringify(data));
+      return (data: any) => data;
     }
 
     if (schema.type === SchemaTypes.Avro) {
@@ -77,7 +77,7 @@ export class PubsubSerializer {
     schema?: PubsubSchemaConfiguration,
   ): (message: Message) => any {
     if (!schema) {
-      return (message: Message) => JSON.parse(message.data.toString());
+      return (message: Message) => message.data;
     }
 
     if (schema.type === SchemaTypes.Avro) {
