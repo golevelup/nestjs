@@ -10,6 +10,6 @@ export class StripeWebhookService {
     mode: StripeWebhookMode,
   ): void | Promise<void> {
     // The implementation for this method is overridden by the containing module
-    console.log(Event, mode);
+    console.log(event, mode);
   }
 }
