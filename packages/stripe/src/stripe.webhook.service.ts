@@ -6,10 +6,10 @@ import { StripeWebhookMode } from './stripe.interfaces';
 @SetMetadata(STRIPE_WEBHOOK_SERVICE, true)
 export class StripeWebhookService {
   public handleWebhook(
-    _event: any,
-    _mode: StripeWebhookMode,
+    event: any,
+    mode: StripeWebhookMode,
   ): void | Promise<void> {
     // The implementation for this method is overridden by the containing module
-    throw new Error('Not implemented');
+    console.log(Event, mode);
   }
 }

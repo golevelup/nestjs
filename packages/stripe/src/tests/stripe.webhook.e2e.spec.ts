@@ -184,7 +184,7 @@ describe('Stripe Thin Webhooks (e2e)', () => {
 
     hydratePayloadFn = jest
       .spyOn(stripePayloadService, 'tryHydratePayload')
-      .mockImplementation((sig, buff, mode) => buff as any);
+      .mockImplementation((sig, buff) => buff as any);
   });
 
   it('routes thin events to their handlers when mode=thin', () => {
@@ -234,7 +234,6 @@ describe('Stripe Thin Webhooks (e2e)', () => {
 // Tests for mixed snapshot and thin handlers
 describe('Stripe Mixed Snapshot and Thin Webhooks (e2e)', () => {
   let app: INestApplication;
-  let hydratePayloadFn: jest.SpyInstance;
 
   const moduleConfig: StripeModuleConfig = {
     apiKey: '123',
@@ -264,9 +263,9 @@ describe('Stripe Mixed Snapshot and Thin Webhooks (e2e)', () => {
     const stripePayloadService =
       app.get<StripePayloadService>(StripePayloadService);
 
-    hydratePayloadFn = jest
+    jest
       .spyOn(stripePayloadService, 'tryHydratePayload')
-      .mockImplementation((sig, buff, mode) => buff as any);
+      .mockImplementation((sig, buff) => buff as any);
   });
 
   it('routes snapshot events to snapshot handlers', () => {
@@ -327,7 +326,7 @@ describe('Stripe Wildcard Handlers (e2e)', () => {
 
     jest
       .spyOn(stripePayloadService, 'tryHydratePayload')
-      .mockImplementation((sig, buff, mode) => buff as any);
+      .mockImplementation((sig, buff) => buff as any);
   });
 
   it('wildcard snapshot handler receives all snapshot events', () => {

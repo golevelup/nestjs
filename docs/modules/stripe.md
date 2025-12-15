@@ -71,10 +71,10 @@ import { StripeModule } from '@golevelup/nestjs-stripe';
         },
         // Thin event secrets (optional)
         stripeThinSecrets: {
-          account: 'whsec_thin_***',
-          accountTest: 'whsec_thin_***',
-          connect: 'whsec_thin_***',
-          connectTest: 'whsec_thin_***',
+          account: 'whsec_***',
+          accountTest: 'whsec_***',
+          connect: 'whsec_***',
+          connectTest: 'whsec_***',
         },
       },
     }),
@@ -154,14 +154,6 @@ class PaymentCreatedService {
   handlePaymentIntentCreated(evt: Stripe.PaymentIntentPaymentCreatedEvent) {
     // execute your custom business logic
   }
-
-  @StripeWebhookHandler('v1.billing.meter.no_meter_found')
-  async handleBillingMeterNoMeterFound(
-    nft: Stripe.Events.V1BillingMeterNoMeterFoundEventNotification,
-  ) {
-    const event = await nft.fetchEvent();
-    // execute your custom business logic
-  }
 }
 ```
 
@@ -180,7 +172,7 @@ class BillingService {
   async handleBillingMeterError(evt: Stripe.V2.Core.Event) {
     // Thin events require fetching the full object
     const meter = await this.stripe.v2.billing.meters.retrieve(
-      evt.related_object.id
+      evt.related_object.id,
     );
     // execute your custom business logic
   }
