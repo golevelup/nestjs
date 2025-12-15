@@ -1,15 +1,15 @@
 {
-  "name": "@golevelup/nestjs-stripe",
-  "version": "0.10.0",
-  "description": "Badass utilities for integrating stripe and NestJS",
-  "author": "Jesse Carter <jesse.r.carter@gmail.com>",
-  "homepage": "https://github.com/golevelup/nestjs#readme",
+  "name": "@golevelup/nestjs-google-cloud-pubsub",
+  "version": "0.0.2",
+  "description": "Google cloud pubsub wrapper for NestJS",
+  "author": "Nikita Chaikin <nikita.chaikinn@gmail.com>",
+  "homepage": "https://github.com/golevelup/nestjs/blob/master/packages/google-cloud-pubsub/README.md",
   "license": "MIT",
   "keywords": [
     "NestJS",
-    "typescript",
-    "webhook",
-    "stripe"
+    "Google Cloud",
+    "PubSub",
+    "gcp"
   ],
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -32,17 +32,25 @@
   "bugs": {
     "url": "https://github.com/golevelup/nestjs/issues"
   },
-  "publishConfig": {
-    "access": "public"
-  },
   "dependencies": {
     "@golevelup/nestjs-discovery": "workspace:^"
   },
   "devDependencies": {
-    "stripe": "^20.0.0"
+    "avsc": "^5.7.9",
+    "@google-cloud/pubsub": "^5.2.0",
+    "@protobuf-ts/runtime": "^2.11.1"
   },
   "peerDependencies": {
-    "stripe": "^20.0.0"
+    "@google-cloud/pubsub": "^5.2.0",
+    "@nestjs/common": "^11.1.3",
+    "@nestjs/core": "^11.1.3",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.1",
+    "avsc": "^5.7.9",
+    "@protobuf-ts/runtime": "^2.11.1"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "jest": {
     "moduleFileExtensions": [
@@ -57,6 +65,5 @@
     },
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
-  },
-  "gitHead": "6f97aab8ce9d65dc074750a3ee467ec5ff3b9908"
+  }
 }

@@ -24,7 +24,9 @@ export const InjectStripeClient = () => Inject(STRIPE_CLIENT_TOKEN);
  * @param eventType The Stripe event type to bind the handler to
  */
 export const StripeWebhookHandler = (
-  eventType: Stripe.WebhookEndpointCreateParams.EnabledEvent,
+  eventType:
+    | Stripe.WebhookEndpointCreateParams.EnabledEvent
+    | Stripe.V2.Core.Event['type'],
 ) => SetMetadata(STRIPE_WEBHOOK_HANDLER, eventType);
 
 /**

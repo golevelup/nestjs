@@ -1,0 +1,11 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "strict": true,
+    "strictNullChecks": true,
+    "outDir": "./lib",
+    "rootDir": "./src"
+  },
+  "include": ["./src"],
+  "references": [{ "path": "../discovery" }, { "path": "../modules" }]
+}

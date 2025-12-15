@@ -38,6 +38,10 @@ export default defineConfig({
             text: 'Stripe',
             link: '/modules/stripe',
           },
+          {
+            text: 'Google PubSub',
+            link: '/modules/google-pubsub',
+          },
         ],
       },
       {
