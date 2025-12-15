@@ -169,11 +169,11 @@ class BillingService {
   constructor(@InjectStripeClient() private stripe: Stripe) {}
 
   @StripeThinWebhookHandler('v1.billing.meter.error_report_triggered')
-  async handleBillingMeterError(evt: Stripe.V2.Core.Event) {
+  async handleBillingMeterError(
+    evt: Stripe.Events.V1BillingMeterErrorReportTriggeredEventNotification,
+  ) {
     // Thin events require fetching the full object
-    const meter = await this.stripe.v2.billing.meters.retrieve(
-      evt.related_object.id,
-    );
+    const meter = await evt.fetchRelatedObject();
     // execute your custom business logic
   }
 }
