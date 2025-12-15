@@ -8,7 +8,15 @@ type RequireAtLeastOne<T, Keys extends keyof T = keyof T> = Pick<
     [K in Keys]-?: Required<Pick<T, K>> & Partial<Pick<T, Exclude<Keys, K>>>;
   }[Keys];
 
-interface StripeSecrets {
+/**
+ * The mode of Stripe webhook being used
+ */
+export enum StripeWebhookMode {
+  SNAPSHOT = 'snapshot',
+  THIN = 'thin',
+}
+
+export interface StripeSecrets {
   /**
    * The webhook secret registered in the Stripe Dashboard for events on your accounts
    */
@@ -33,7 +41,15 @@ export interface StripeModuleConfig extends Partial<Stripe.StripeConfig> {
    * Configuration for processing Stripe Webhooks
    */
   webhookConfig?: {
+    /**
+     * Secrets for validating incoming webhook **snapshot** signatures. At least one secret must be provided.
+     */
     stripeSecrets: RequireAtLeastOne<StripeSecrets>;
+
+    /**
+     * Secrets for validating incoming webhook **thin** signatures. At least one secret must be provided if using thin webhooks.
+     */
+    stripeThinSecrets?: RequireAtLeastOne<StripeSecrets>;
 
     /**
      * The property on the request that contains the raw message body so that it

@@ -1,4 +1,8 @@
-import { DiscoveryModule, DiscoveryService } from '@golevelup/nestjs-discovery';
+import {
+  DiscoveryModule,
+  DiscoveryService,
+  MetaKey,
+} from '@golevelup/nestjs-discovery';
 import { Logger, Module, OnModuleInit } from '@nestjs/common';
 import { PATH_METADATA } from '@nestjs/common/constants';
 import { ExternalContextCreator } from '@nestjs/core/helpers/external-context-creator';
@@ -13,9 +17,10 @@ import {
   STRIPE_WEBHOOK_CONTEXT_TYPE,
   STRIPE_WEBHOOK_HANDLER,
   STRIPE_WEBHOOK_SERVICE,
+  STRIPE_THIN_WEBHOOK_HANDLER,
 } from './stripe.constants';
 import { InjectStripeModuleConfig } from './stripe.decorators';
-import { StripeModuleConfig } from './stripe.interfaces';
+import { StripeModuleConfig, StripeWebhookMode } from './stripe.interfaces';
 import { StripePayloadService } from './stripe.payload.service';
 import { StripeWebhookController } from './stripe.webhook.controller';
 import { StripeWebhookService } from './stripe.webhook.service';
@@ -77,29 +82,45 @@ export class StripeModule
     super();
   }
 
-  public async onModuleInit() {
-    // If they didn't provide a webhook config secret there's no reason
-    // to even attempt discovery
-    if (!this.stripeModuleConfig.webhookConfig) {
-      return;
-    }
+  private async discoverAndCreateWebhookHandlers(
+    metadataKey: MetaKey,
+    mode: StripeWebhookMode,
+  ) {
+    const eventHandlerMeta =
+      await this.discover.providerMethodsWithMetaAtKey<string>(metadataKey);
 
-    const noOneSecretProvided =
-      this.stripeModuleConfig.webhookConfig &&
-      !this.stripeModuleConfig.webhookConfig?.stripeSecrets.account &&
-      !this.stripeModuleConfig.webhookConfig?.stripeSecrets.accountTest &&
-      !this.stripeModuleConfig.webhookConfig?.stripeSecrets.connect &&
-      !this.stripeModuleConfig.webhookConfig?.stripeSecrets.connectTest;
+    const grouped = groupBy(
+      eventHandlerMeta,
+      (x) => x.discoveredMethod.parentClass.name,
+    );
 
-    if (noOneSecretProvided) {
-      const errorMessage =
-        'missing stripe webhook secret. module is improperly configured and will be unable to process incoming webhooks from Stripe';
-      this.logger.error(errorMessage);
-      throw new Error(errorMessage);
-    }
+    const webhookHandlers = flatten(
+      Object.keys(grouped).map((x) => {
+        this.logger.log(
+          `Registering Stripe ${mode} webhook handlers from ${x}`,
+        );
 
-    this.logger.log('Initializing Stripe Module for webhooks');
+        return grouped[x].map(({ discoveredMethod, meta: eventType }) => ({
+          key: eventType,
+          handler: this.externalContextCreator.create(
+            discoveredMethod.parentClass.instance,
+            discoveredMethod.handler,
+            discoveredMethod.methodName,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            STRIPE_WEBHOOK_CONTEXT_TYPE,
+          ),
+        }));
+      }),
+    );
 
+    return { handlers: webhookHandlers, handlerMeta: eventHandlerMeta };
+  }
+
+  private async getStripeWebhookService() {
     const [stripeWebhookService] = (
       (await this.discover.providersWithMetaAtKey<boolean>(
         STRIPE_WEBHOOK_SERVICE,
@@ -113,42 +134,108 @@ export class StripeModule
       throw new Error('Could not find instance of Stripe Webhook Service');
     }
 
-    const eventHandlerMeta =
-      await this.discover.providerMethodsWithMetaAtKey<string>(
+    return stripeWebhookService;
+  }
+
+  private validateWebhookSecrets(
+    hasSnapshotHandlers: boolean,
+    hasThinHandlers: boolean,
+  ) {
+    const noSnapshotSecretProvided =
+      !this.stripeModuleConfig.webhookConfig?.stripeSecrets ||
+      Object.values(this.stripeModuleConfig.webhookConfig.stripeSecrets).filter(
+        Boolean,
+      ).length === 0;
+
+    const noThinSecretProvided =
+      !this.stripeModuleConfig.webhookConfig?.stripeThinSecrets ||
+      Object.values(
+        this.stripeModuleConfig.webhookConfig.stripeThinSecrets,
+      ).filter(Boolean).length === 0;
+
+    // Validate snapshot secrets if snapshot handlers exist
+    if (hasSnapshotHandlers && noSnapshotSecretProvided) {
+      const errorMessage =
+        'Snapshot webhook handlers found but no snapshot secrets provided. ' +
+        'Please provide at least one of: stripeSecrets.account, stripeSecrets.accountTest, ' +
+        'stripeSecrets.connect, or stripeSecrets.connectTest';
+
+      this.logger.error(errorMessage);
+      throw new Error(errorMessage);
+    }
+
+    // Validate thin secrets if thin handlers exist
+    if (hasThinHandlers && noThinSecretProvided) {
+      const errorMessage =
+        'Thin webhook handlers found but no thin secrets provided. ' +
+        'Please provide at least one of: stripeThinSecrets.account, stripeThinSecrets.accountTest, ' +
+        'stripeThinSecrets.connect, or stripeThinSecrets.connectTest';
+
+      this.logger.error(errorMessage);
+      throw new Error(errorMessage);
+    }
+
+    // At least one type of handler must exist
+    if (!hasSnapshotHandlers && !hasThinHandlers) {
+      this.logger.warn(
+        'No webhook handlers found. Stripe module initialized but will not handle any events.',
+      );
+
+      return false;
+    }
+
+    return true;
+  }
+
+  public async onModuleInit() {
+    // If they didn't provide a webhook config secret there's no reason
+    // to even attempt discovery
+    if (!this.stripeModuleConfig.webhookConfig) {
+      return;
+    }
+
+    this.logger.log('Initializing Stripe Module for webhooks');
+
+    const stripeWebhookService = await this.getStripeWebhookService();
+
+    // Discover and create snapshot webhook handlers
+    const { handlers: webhookHandlers, handlerMeta: eventHandlerMeta } =
+      await this.discoverAndCreateWebhookHandlers(
         STRIPE_WEBHOOK_HANDLER,
+        StripeWebhookMode.SNAPSHOT,
       );
 
-    const grouped = groupBy(
-      eventHandlerMeta,
-      (x) => x.discoveredMethod.parentClass.name,
+    // Discover and create thin webhook handlers
+    const { handlers: thinWebhookHandlers, handlerMeta: thinEventHandlerMeta } =
+      await this.discoverAndCreateWebhookHandlers(
+        STRIPE_THIN_WEBHOOK_HANDLER,
+        StripeWebhookMode.THIN,
+      );
+
+    // Check if handlers exist for each mode
+    const hasThinHandlers = thinEventHandlerMeta.length > 0;
+    const hasSnapshotHandlers = eventHandlerMeta.length > 0;
+
+    // Validate webhook secrets
+    const hasHandlers = this.validateWebhookSecrets(
+      hasSnapshotHandlers,
+      hasThinHandlers,
     );
 
-    const webhookHandlers = flatten(
-      Object.keys(grouped).map((x) => {
-        this.logger.log(`Registering Stripe webhook handlers from ${x}`);
+    if (!hasHandlers) {
+      return;
+    }
 
-        return grouped[x].map(({ discoveredMethod, meta: eventType }) => ({
-          key: eventType,
-          handler: this.externalContextCreator.create(
-            discoveredMethod.parentClass.instance,
-            discoveredMethod.handler,
-            discoveredMethod.methodName,
-            undefined, // metadataKey
-            undefined, // paramsFactory
-            undefined, // contextId
-            undefined, // inquirerId
-            undefined, // options
-            STRIPE_WEBHOOK_CONTEXT_TYPE, // contextType
-          ),
-        }));
-      }),
-    );
-
-    const handleWebhook = async (webhookEvent: { type: string }) => {
+    const handleWebhook = async (
+      webhookEvent: { type: string },
+      mode: StripeWebhookMode,
+    ) => {
       const { type } = webhookEvent;
-      const handlers = webhookHandlers.filter(
-        (x) => x.key === type || x.key === '*',
-      );
+
+      // Select the correct handler list based on mode
+      const handlers = (
+        mode === StripeWebhookMode.THIN ? thinWebhookHandlers : webhookHandlers
+      ).filter((x) => x.key === type || x.key === '*');
 
       if (handlers.length) {
         if (
@@ -156,7 +243,7 @@ export class StripeModule
             ?.logMatchingEventHandlers
         ) {
           this.logger.log(
-            `Received webhook event for ${type}. Forwarding to ${handlers.length} event handlers`,
+            `Received ${mode} webhook event for ${type}. Forwarding to ${handlers.length} event handlers`,
           );
         }
         await Promise.all(handlers.map((x) => x.handler(webhookEvent)));
