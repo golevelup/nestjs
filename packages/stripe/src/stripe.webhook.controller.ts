@@ -29,7 +29,7 @@ export class StripeWebhookController {
     }
 
     if (mode !== 'thin' && mode !== 'snapshot') {
-      throw new Error('Invalid mode query parameter');
+      throw new Error(`Invalid mode ${mode} query parameter`);
     }
 
     const rawBody = request[this.requestBodyProperty];
