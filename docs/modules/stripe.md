@@ -34,19 +34,25 @@ pnpm add @golevelup/nestjs-stripe stripe
 
 - 🔒 Automatically validates that the event payload was actually sent from Stripe using the configured webhook signing secret
 
-- 🕵️ Discovers providers from your application decorated with `StripeWebhookHandler` and routes incoming events to them
+- 🕵️ Discovers providers from your application decorated with `StripeWebhookHandler` and `StripeThinWebhookHandler` and routes incoming events to them
 
 - 🧭 Route events to logical services easily simply by providing the Stripe webhook event type
 
+- ⚡ Support for both traditional snapshot events and Stripe's new v2 thin events
+
 ## Import
 
-Import and add `StripeModule` to the `imports` section of the consuming module (most likely `AppModule`). Your Stripe API key is required, and you can optionally include a webhook configuration if you plan on consuming Stripe webhook events inside your app.  
-Stripe secrets you can get from your Dashboard’s [Webhooks settings](https://dashboard.stripe.com/webhooks). Select an endpoint that you want to obtain the secret for, then click the Reveal link below "Signing secret".
+Import and add `StripeModule` to the `imports` section of the consuming module (most likely `AppModule`). Your Stripe API key is required, and you can optionally include a webhook configuration if you plan on consuming Stripe webhook events inside your app.
+Stripe secrets you can get from your Dashboard's [Webhooks settings](https://dashboard.stripe.com/webhooks). Select an endpoint that you want to obtain the secret for, then click the Reveal link below "Signing secret".
 
-`account` - The webhook secret registered in the Stripe Dashboard for events on your accounts  
-`account_test` - The webhook secret registered in the Stripe Dashboard for events on your accounts in test mode  
+**Snapshot Events (Traditional Webhooks):**
+`account` - The webhook secret registered in the Stripe Dashboard for events on your accounts
+`accountTest` - The webhook secret registered in the Stripe Dashboard for events on your accounts in test mode
 `connect` - The webhook secret registered in the Stripe Dashboard for events on Connected accounts
-`connect_test` - The webhook secret registered in the Stripe Dashboard for events on Connected accounts in test mode
+`connectTest` - The webhook secret registered in the Stripe Dashboard for events on Connected accounts in test mode
+
+**Thin Events (V2 Webhooks - Optional):**
+`stripeThinSecrets` - Separate secrets for Stripe's v2 thin events (only required if using `@StripeThinWebhookHandler`)
 
 ```typescript
 import { StripeModule } from '@golevelup/nestjs-stripe';
@@ -56,7 +62,15 @@ import { StripeModule } from '@golevelup/nestjs-stripe';
     StripeModule.forRoot({
       apiKey: 'sk_***',
       webhookConfig: {
+        // Snapshot event secrets
         stripeSecrets: {
+          account: 'whsec_***',
+          accountTest: 'whsec_***',
+          connect: 'whsec_***',
+          connectTest: 'whsec_***',
+        },
+        // Thin event secrets (optional)
+        stripeThinSecrets: {
           account: 'whsec_***',
           accountTest: 'whsec_***',
           connect: 'whsec_***',
@@ -129,6 +143,10 @@ Exposing provider/service methods to be used for processing Stripe events is eas
 
 [Review the Stripe documentation](https://stripe.com/docs/api/events/types) for more information about the types of events available.
 
+#### Snapshot Events (Traditional)
+
+Use `@StripeWebhookHandler` for traditional Stripe webhook events. These include the full event object in the payload.
+
 ```typescript
 @Injectable()
 class PaymentCreatedService {
@@ -136,13 +154,48 @@ class PaymentCreatedService {
   handlePaymentIntentCreated(evt: Stripe.PaymentIntentPaymentCreatedEvent) {
     // execute your custom business logic
   }
+}
+```
 
-  @StripeWebhookHandler('v1.billing.meter.no_meter_found')
-  async handleBillingMeterNoMeterFound(
-    nft: Stripe.Events.V1BillingMeterNoMeterFoundEventNotification,
+**Webhook URL:** `https://your-domain.com/stripe/webhook`
+
+#### Thin Events (V2)
+
+Use `@StripeThinWebhookHandler` for Stripe's v2 thin events. These are lightweight events that only include metadata - you'll need to fetch the full object separately.
+
+```typescript
+@Injectable()
+class BillingService {
+  constructor(@InjectStripeClient() private stripe: Stripe) {}
+
+  @StripeThinWebhookHandler('v1.billing.meter.error_report_triggered')
+  async handleBillingMeterError(
+    evt: Stripe.Events.V1BillingMeterErrorReportTriggeredEventNotification,
   ) {
-    const event = await nft.fetchEvent();
+    // Thin events require fetching the full object
+    const meter = await evt.fetchRelatedObject();
     // execute your custom business logic
+  }
+}
+```
+
+**Webhook URL:** `https://your-domain.com/stripe/webhook?mode=thin`
+
+#### Wildcard Handlers
+
+You can use `'*'` to handle all events of a specific type:
+
+```typescript
+@Injectable()
+class WebhookLogger {
+  @StripeWebhookHandler('*')
+  logAllSnapshotEvents(evt: Stripe.Event) {
+    console.log('Received snapshot event:', evt.type);
+  }
+
+  @StripeThinWebhookHandler('*')
+  logAllThinEvents(evt: Stripe.V2.Core.Event) {
+    console.log('Received thin event:', evt.type);
   }
 }
 ```
