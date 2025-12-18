@@ -26,7 +26,7 @@
     "@golevelup/ts-jest": "workspace:^",
     "@google-cloud/pubsub": "^5.2.0",
     "@nestjs/cli": "^11.0.14",
-    "@nestjs/testing": "^11.1.3",
+    "@nestjs/testing": "^11.1.9",
     "@protobuf-ts/runtime": "^2.11.1",
     "@types/express": "5.0.3",
     "@types/jest": "^27.0.3",
