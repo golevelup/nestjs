@@ -37,7 +37,7 @@ const createTaskGuard = (
     const parseResult = await schema.safeParseAsync(payload);
     if (!parseResult.success) {
       throw new Error(
-        `Graphile task: ${name} validation failed, error: ${parseResult.error}`,
+        `Graphile task: ${name} validation failed, error: ${parseResult.error.message}`,
       );
     }
 
