@@ -299,6 +299,9 @@ importers:
       graphile-worker:
         specifier: ^0.16.6
         version: 0.16.6(typescript@5.9.3)
+      vite:
+        specifier: ^7.3.0
+        version: 7.3.0(@types/node@22.16.5)(jiti@2.4.2)(terser@5.44.1)(tsx@4.19.4)(yaml@2.8.0)
       vitest:
         specifier: ^4.0.16
         version: 4.0.16(@opentelemetry/api@1.9.0)(@types/node@22.16.5)(jiti@2.4.2)(jsdom@16.7.0)(terser@5.44.1)(tsx@4.19.4)(yaml@2.8.0)
@@ -8612,7 +8615,7 @@ snapshots:
   '@jridgewell/trace-mapping@0.3.9':
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
-      '@jridgewell/sourcemap-codec': 1.5.0
+      '@jridgewell/sourcemap-codec': 1.5.5
     optional: true
 
   '@js-sdsl/ordered-map@4.4.2': {}

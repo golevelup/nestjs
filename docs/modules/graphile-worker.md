@@ -38,6 +38,15 @@ yarn add @golevelup/nestjs-graphile-worker
 pnpm add @golevelup/nestjs-graphile-worker
 ```
 
+## ESM Only
+
+This library is **fully ESM (ECMAScript Modules)**. All source code, builds, and exports use ESM syntax and conventions.  
+If you are using this package, your project must support ESM (Node.js 16+ recommended) and use ESM-compatible tooling.
+
+> ℹ️ CommonJS (`require`) is not supported. Please use `import` statements and ensure your environment is configured for ESM.
+
+This aligns with the direction of the repository and the broader Node.js ecosystem.
+
 ## Features
 
 - ⚡ **Simple, high-performance queue:** Leverages your existing PostgreSQL database for job queuing—no need for Redis or extra infrastructure.

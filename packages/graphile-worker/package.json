@@ -12,8 +12,19 @@
     "postgres",
     "worker"
   ],
+  "type": "module",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./lib/index.js",
+      "require": "./lib/index.cjs"
+    },
+    "./*": {
+      "import": "./lib/*.js",
+      "require": "./lib/*.cjs"
+    }
+  },
   "directories": {
     "lib": "lib",
     "test": "__tests__"
@@ -42,6 +53,7 @@
   "devDependencies": {
     "graphile-worker": "^0.16.6",
     "zod": "^4.2.1",
+    "vite": "^7.3.0",
     "vitest": "^4.0.16"
   },
   "peerDependencies": {

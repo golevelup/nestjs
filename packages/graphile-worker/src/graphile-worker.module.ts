@@ -4,11 +4,11 @@ import {
   GRAPHILE_TASK_HANDLER,
   GRAPHILE_WORKER_UTILS_TOKEN,
   GRAPHILE_WORKER_CONTEXT_TYPE,
-} from './graphile-worker.constants';
+} from './graphile-worker.constants.js';
 import {
   GRAPHILE_WORKER_MODULE_OPTIONS_TOKEN,
   GraphileWorkerModuleClass,
-} from './graphile-worker-module-definition';
+} from './graphile-worker-module-definition.js';
 import {
   JobHelpers,
   makeWorkerUtils,
@@ -16,17 +16,17 @@ import {
   run,
 } from 'graphile-worker';
 import { fromPairs, omit } from 'lodash';
-import { GraphileTaskService } from './graphile-worker.service';
-import { InjectGraphileModuleOptions } from './graphile-worker.decorators';
+import { GraphileTaskService } from './graphile-worker.service.js';
+import { InjectGraphileModuleOptions } from './graphile-worker.decorators.js';
 import {
   GraphileWorkerModuleOptions,
   GraphileWorkerTaskHandlerOptions,
   GraphileWorkerTaskSchemas,
-} from './graphile-worker.types';
+} from './graphile-worker.types.js';
 import { ExternalContextCreator } from '@nestjs/core';
 import z from 'zod';
-import { RunnerLogger } from './graphile-runner.logger';
-import { TaskHandlerValidationSchemaMissingError } from './task-handler-validation-schema-missing.error';
+import { RunnerLogger } from './graphile-runner.logger.js';
+import { TaskHandlerValidationSchemaMissingError } from './task-handler-validation-schema-missing.error.js';
 
 const createTaskGuard = (
   name: string,

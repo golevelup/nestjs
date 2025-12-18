@@ -1,5 +1,5 @@
 import z from 'zod';
-import { GraphileTaskService } from './graphile-worker.service';
+import { GraphileTaskService } from './graphile-worker.service.js';
 import { describe, it, expect, vi } from 'vitest';
 import { WorkerUtils } from 'graphile-worker';
 
@@ -9,7 +9,7 @@ const emailSchema = z.object({
   body: z.string().min(1),
 });
 
-declare module './graphile-worker.types' {
+declare module './graphile-worker.types.js' {
   interface GraphileWorkerTaskSchemas {
     sendEmail: z.infer<typeof emailSchema>;
   }

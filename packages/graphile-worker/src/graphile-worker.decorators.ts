@@ -2,12 +2,12 @@ import { Inject, SetMetadata } from '@nestjs/common';
 import {
   GraphileCronOptions,
   GraphileWorkerTaskHandlerOptions,
-} from './graphile-worker.types';
+} from './graphile-worker.types.js';
 import {
   GRAPHILE_TASK_HANDLER,
   GRAPHILE_WORKER_UTILS_TOKEN,
-} from './graphile-worker.constants';
-import { GRAPHILE_WORKER_MODULE_OPTIONS_TOKEN } from './graphile-worker-module-definition';
+} from './graphile-worker.constants.js';
+import { GRAPHILE_WORKER_MODULE_OPTIONS_TOKEN } from './graphile-worker-module-definition.js';
 
 /**
  * Decorator for defining a task handler.

@@ -2,14 +2,14 @@ import { Injectable } from '@nestjs/common';
 import {
   InjectGraphileWorkerUtils,
   InjectGraphileModuleOptions,
-} from './graphile-worker.decorators';
+} from './graphile-worker.decorators.js';
 import { TaskSpec, WorkerUtils } from 'graphile-worker';
 import {
   GraphileWorkerModuleOptions,
   GraphileWorkerTaskSchemas,
-} from './graphile-worker.types';
+} from './graphile-worker.types.js';
 import { randomUUID } from 'crypto';
-import { TaskHandlerValidationSchemaMissingError } from './task-handler-validation-schema-missing.error';
+import { TaskHandlerValidationSchemaMissingError } from './task-handler-validation-schema-missing.error.js';
 
 @Injectable()
 export class GraphileTaskService {

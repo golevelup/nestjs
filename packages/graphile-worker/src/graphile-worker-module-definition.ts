@@ -1,5 +1,5 @@
 import { ConfigurableModuleBuilder } from '@nestjs/common';
-import { GraphileWorkerModuleOptions } from './graphile-worker.types';
+import type { GraphileWorkerModuleOptions } from './graphile-worker.types.js';
 
 export const {
   ConfigurableModuleClass: GraphileWorkerModuleClass,
