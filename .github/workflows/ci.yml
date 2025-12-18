@@ -33,8 +33,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: PNPM
-        uses: ./.github/workflows/pnpm_install
+      - uses: actions/checkout@v4
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11
 
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
