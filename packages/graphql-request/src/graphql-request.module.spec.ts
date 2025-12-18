@@ -1,7 +1,7 @@
 import { Test } from '@nestjs/testing';
 import { GraphQLClient } from 'graphql-request';
-import { GraphQLRequestModule } from '../graphql-request.module';
-import { GraphQLClientInject } from './../graphql-request.constants';
+import { GraphQLRequestModule } from '../graphql-request.module.js';
+import { GraphQLClientInject } from './../graphql-request.constants.js';
 import { describe, it, expect } from 'vitest';
 
 describe('GraphQL Request Module', () => {
