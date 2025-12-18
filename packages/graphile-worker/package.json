@@ -1,0 +1,50 @@
+{
+  "name": "@golevelup/nestjs-graphile-worker",
+  "version": "0.2.5",
+  "description": "Badass utilities for integrating graphql-request and NestJS",
+  "author": "Underfisk <rodrigorodriguesk8s@gmail.com>",
+  "homepage": "https://github.com/golevelup/nestjs#readme",
+  "license": "MIT",
+  "keywords": [
+    "NestJS",
+    "graphile-worker",
+    "graphile",
+    "postgres",
+    "worker"
+  ],
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/golevelup/nestjs.git"
+  },
+  "scripts": {
+    "build": "tsc --build tsconfig.build.json",
+    "build:watch": "tsc --build tsconfig.build.json --watch",
+    "test": "vitest"
+  },
+  "bugs": {
+    "url": "https://github.com/golevelup/nestjs/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@golevelup/nestjs-discovery": "workspace:^"
+  },
+  "devDependencies": {
+    "graphile-worker": "^0.16.6",
+    "zod": "^4.2.1"
+  },
+  "peerDependencies": {
+    "graphile-worker": "^0.16.6",
+    "zod": "^4.2.1"
+  }
+}
