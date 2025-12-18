@@ -1,0 +1,19 @@
+name: Install PNPM version using Mise's version
+runs:
+  using: composite
+  steps:
+    - uses: pnpm/action-setup@v4
+      name: Install PNPM
+      id: pnpm-install
+
+    - name: Read mise.toml version
+      run: |
+        echo "Reading Node.js version from mise.toml"
+        NODE_VERSION=$(grep 'pnpm_version' mise.toml | cut -d '"' -f2)
+        echo "PNPM_VERSION=$NODE_VERSION" >> $GITHUB_ENV
+      shell: bash
+
+    - name: Set up PNPM
+      uses: pnpm/action-setup@v4
+      with:
+        version: ${{ env.PNPM_VERSION }}
