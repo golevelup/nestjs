@@ -27,7 +27,7 @@ Graphile Worker is a great fit for most use cases where you need background proc
 ## Getting Started
 
 ```bash [npm]
-npm install ---save @golevelup/nestjs-graphile-worker
+npm install --save @golevelup/nestjs-graphile-worker
 ```
 
 ```bash [yarn]
