@@ -23,10 +23,10 @@ export type DeepPartial<T> = {
  * - Non-function properties can be partial values OR already-mocked DeepMocked objects
  * This dual support prevents double-wrapping and allows flexible mock composition.
  */
-export type PartialMockInput<T> = {
+export type PartialFuncReturn<T> = {
   [K in keyof T]?: T[K] extends (...args: infer A) => infer U
-    ? ((...args: A) => PartialMockInput<U>) | DeepMockedType<T[K]>
-    : DeepPartial<T[K]> | DeepMockedType<T[K]>;
+    ? ((...args: A) => PartialFuncReturn<U>) | DeepMocked<T[K]>
+    : DeepPartial<T[K]> | DeepMocked<T[K]>;
 };
 
 /**
@@ -43,7 +43,7 @@ export type IsExactlyUnknown<T> = unknown extends T
  */
 export type DeepMockedFunction<T extends (...args: any[]) => any> = ((
   ...args: Parameters<T>
-) => DeepMockedType<ReturnType<T>>) &
+) => DeepMocked<ReturnType<T>>) &
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   Mock<Parameters<T>>;
@@ -70,7 +70,7 @@ export type DeepMockedFunction<T extends (...args: any[]) => any> = ((
  * 4. Primitives (string, number, boolean, etc.):
  *    - Left as-is since they can't have nested properties
  */
-export type DeepMockedType<T> = {
+export type DeepMocked<T> = {
   [K in keyof T]: IsExactlyUnknown<T[K]> extends true
     ? any
     : NonNullable<T[K]> extends (...args: any[]) => any
@@ -79,7 +79,7 @@ export type DeepMockedType<T> = {
         : DeepMockedFunction<NonNullable<T[K]>>
       : NonNullable<T[K]> extends object
         ? undefined extends T[K]
-          ? DeepMockedType<NonNullable<T[K]>> | undefined
-          : DeepMockedType<T[K]>
+          ? DeepMocked<NonNullable<T[K]>> | undefined
+          : DeepMocked<T[K]>
         : T[K]; // primitive
 };

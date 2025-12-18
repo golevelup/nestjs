@@ -1,6 +1,6 @@
 import type { Mock } from 'vitest';
 import { vi } from 'vitest';
-import { DeepMockedType, PartialMockInput } from './type-helper.js';
+import { DeepMocked, PartialFuncReturn } from './type-helper.js';
 
 /**
  * Set of property names that are part of Vitest's Mock function API. These keys are handled directly by the underlying vi.fn() mock instance and should not be intercepted by our proxy. This ensures that all Vitest mock methods (like mockImplementation, mockReset, etc.) work as expected.
@@ -188,11 +188,11 @@ export type MockOptions = {
  * ```
  */
 export const createMock = <T extends object>(
-  partial: PartialMockInput<T> = {},
+  partial: PartialFuncReturn<T> = {},
   options: MockOptions = {},
-): DeepMockedType<T> => {
+): DeepMocked<T> => {
   const { name = 'mock', strict = false } = options;
   const proxy = createProxy<T>(name, strict, partial as T);
 
-  return proxy as DeepMockedType<T>;
+  return proxy as DeepMocked<T>;
 };
