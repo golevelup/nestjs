@@ -41,7 +41,8 @@
   },
   "devDependencies": {
     "graphile-worker": "^0.16.6",
-    "zod": "^4.2.1"
+    "zod": "^4.2.1",
+    "vitest": "^4.0.16"
   },
   "peerDependencies": {
     "graphile-worker": "^0.16.6",
