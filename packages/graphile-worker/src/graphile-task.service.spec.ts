@@ -20,27 +20,13 @@ describe(GraphileTaskService.name, () => {
     addJob: vi.fn().mockResolvedValue({ id: 'id1' }),
   } as Partial<WorkerUtils> as any;
 
-  it('should schedule a task when no validation schema is defined', async () => {
-    const service = new GraphileTaskService(workerUtilsMock, {
-      // Notice that we're not providing the validation schemas
-    });
-
-    await expect(
-      service.scheduleTask('sendEmail', {
-        to: 'hello@example.com',
-        subject: 'Test Subject',
-        body: '', // Should fail due to empty body
-      }),
-    ).resolves.toBeDefined();
+  const service = new GraphileTaskService(workerUtilsMock, {
+    tasksValidationSchemas: {
+      sendEmail: emailSchema,
+    },
   });
 
   it('should throw an Error with invalid payload', async () => {
-    const service = new GraphileTaskService(workerUtilsMock, {
-      tasksValidationSchemas: {
-        sendEmail: emailSchema,
-      },
-    });
-
     await expect(
       service.scheduleTask('sendEmail', {
         to: 'hello@example.com',
@@ -48,5 +34,15 @@ describe(GraphileTaskService.name, () => {
         body: '', // Should fail due to empty body
       }),
     ).rejects.toThrow();
+  });
+
+  it('should schedule a task successfully', async () => {
+    await expect(
+      service.scheduleTask('sendEmail', {
+        to: 'hello@example.com',
+        subject: 'Test Subject',
+        body: 'Hello World',
+      }),
+    ).resolves.toBeDefined();
   });
 });

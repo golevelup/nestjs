@@ -26,6 +26,7 @@ import {
 import { ExternalContextCreator } from '@nestjs/core';
 import z from 'zod';
 import { RunnerLogger } from './graphile-runner.logger';
+import { TaskHandlerValidationSchemaMissingError } from './task-handler-validation-schema-missing.error';
 
 const createTaskGuard = (
   name: string,
@@ -129,12 +130,9 @@ export class GraphileWorkerModule
         );
 
         const taskHandlerName = h.meta.name as keyof GraphileWorkerTaskSchemas;
-        const schema = this.options.tasksValidationSchemas?.[taskHandlerName];
+        const schema = this.options.tasksValidationSchemas[taskHandlerName];
         if (!schema) {
-          this.logger.verbose(
-            `No validation schema provided for task handler: '${h.meta.name}. Payloads will not be validated.'`,
-          );
-          return [h.meta.name, originalHandler];
+          throw new TaskHandlerValidationSchemaMissingError(h.meta.name);
         }
 
         return [

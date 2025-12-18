@@ -9,6 +9,7 @@ import {
   GraphileWorkerTaskSchemas,
 } from './graphile-worker.types';
 import { randomUUID } from 'crypto';
+import { TaskHandlerValidationSchemaMissingError } from './task-handler-validation-schema-missing.error';
 
 @Injectable()
 export class GraphileTaskService {
@@ -31,7 +32,14 @@ export class GraphileTaskService {
     data: GraphileWorkerTaskSchemas[TaskName],
     options?: TaskSpec,
   ) {
-    const targetSchema = this.options.tasksValidationSchemas?.[taskName];
+    const targetSchema = this.options.tasksValidationSchemas[taskName];
+
+    // The module initialization should have already thrown an error if a schema is missing
+    // but when the service is used directly, we need to ensure the same check for consistency
+    if (!targetSchema) {
+      throw new TaskHandlerValidationSchemaMissingError(taskName);
+    }
+
     if (targetSchema) {
       const parseResult = targetSchema.safeParse(data);
       if (!parseResult.success) {

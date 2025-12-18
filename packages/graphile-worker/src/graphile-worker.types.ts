@@ -14,9 +14,9 @@ export type GraphileWorkerModuleOptions = Omit<
   disabled?: boolean;
   /**
    * Zod validation schemas for registered tasks
-   * When provided, these schemas will be used to validate task payloads before execution
+   * If a registered task does not have a corresponding schema, an error will be thrown when initializing the module
    */
-  tasksValidationSchemas?: TaskSchemaMap;
+  tasksValidationSchemas: TaskSchemaMap;
 };
 
 export type GraphileCronOptions = Pick<
