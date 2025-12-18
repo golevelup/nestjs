@@ -1,5 +1,5 @@
 {
   "editor.formatOnSave": true,
-  "cSpell.words": ["Hasura", "rabbitmq", "Vitest"],
+  "cSpell.words": ["golevelup", "Graphile", "Hasura", "rabbitmq", "Vitest"],
   "typescript.tsdk": "node_modules/typescript/lib"
 }

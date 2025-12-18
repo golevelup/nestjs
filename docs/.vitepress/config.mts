@@ -42,6 +42,10 @@ export default defineConfig({
             text: 'Google PubSub',
             link: '/modules/google-pubsub',
           },
+          {
+            text: 'Graphile Worker',
+            link: '/modules/graphile-worker',
+          },
         ],
       },
       {
