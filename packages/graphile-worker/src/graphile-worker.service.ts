@@ -40,13 +40,11 @@ export class GraphileTaskService {
       throw new TaskHandlerValidationSchemaMissingError(taskName);
     }
 
-    if (targetSchema) {
-      const parseResult = targetSchema.safeParse(data);
-      if (!parseResult.success) {
-        throw new Error(
-          `Invalid payload for task "${String(taskName)}": ${parseResult.error.message}`,
-        );
-      }
+    const parseResult = targetSchema.safeParse(data);
+    if (!parseResult.success) {
+      throw new Error(
+        `Invalid payload for task "${String(taskName)}": ${parseResult.error.message}`,
+      );
     }
 
     return this.utils.addJob(taskName, data as any, {
