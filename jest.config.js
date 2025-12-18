@@ -9,5 +9,6 @@ module.exports = {
     '/ts-vitest/',
     '/integration/google-cloud-pubsub/e2e/proto/',
     '/graphile-worker/',
+    '/graphql-request/',
   ],
 };
