@@ -31,7 +31,7 @@ jobs:
   publish:
     needs: version
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/main')
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/master') || startsWith(github.ref, 'refs/heads/main')
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v2
