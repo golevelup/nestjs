@@ -1,11 +1,5 @@
 # Change Log
 
-## 5.0.0
-
-### Major Changes
-
-- Several changes across the new release pipeline including readme files
-
 ## 4.0.0
 
 ### Major Changes
