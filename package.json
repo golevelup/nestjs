@@ -54,6 +54,7 @@
     "lerna:publish": "lerna run build && pnpm test && lerna publish from-package --no-private -m 'chore: publish'",
     "lerna:prerelease": "lerna run build && pnpm test && lerna publish prerelease --preid rc -m 'chore: publish prerelease'",
     "build": " lerna run build --ignore rabbitmq-integration --ignore google-cloud-pubsub-integration",
+    "copy-readme": "lerna run copy-readme",
     "build:watch": "lerna run --parallel build:watch --ignore rabbitmq-integration --ignore google-cloud-pubsub-integration",
     "clean": "rimraf packages//lib && rimraf packages//*.tsbuildinfo",
     "test": "jest",

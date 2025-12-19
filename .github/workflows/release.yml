@@ -41,6 +41,8 @@ jobs:
         run: pnpm install
       - name: Build
         run: pnpm build --concurrency=12
+      - name: Copy Readmes
+        run: pnpm lerna run copy-readme
       - name: Publish Packages and Create GitHub Releases
         uses: changesets/action@v1
         with:

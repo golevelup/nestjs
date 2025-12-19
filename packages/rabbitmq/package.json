@@ -26,7 +26,7 @@
     "url": "git+https://github.com/golevelup/nestjs.git"
   },
   "scripts": {
-    "postbuild": "cp ../../docs/modules/rabbitmq.md ./lib/README.md",
+    "copy-readme": "cp ../../docs/modules/rabbitmq.md ./lib/README.md",
     "build": "tsc --build tsconfig.build.json",
     "build:watch": "tsc --build tsconfig.build.json --watch",
     "test": "jest"

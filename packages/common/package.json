@@ -21,7 +21,7 @@
     "url": "git+https://github.com/golevelup/nestjs.git"
   },
   "scripts": {
-    "postbuild": "cp ../../docs/common.md ./lib/README.md",
+    "copy-readme": "cp ../../docs/common.md ./lib/README.md",
     "build": "tsc --build tsconfig.build.json",
     "build:watch": "tsc --build tsconfig.build.json --watch",
     "test": "jest"
