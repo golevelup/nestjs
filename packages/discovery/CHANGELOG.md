@@ -1,5 +1,11 @@
 # Change Log
 
+## 6.1.0
+
+### Minor Changes
+
+- Contains an improvement to the documentation readme copy pipeline
+
 ## 6.0.0
 
 ### Major Changes

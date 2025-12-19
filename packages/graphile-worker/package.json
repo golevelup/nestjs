@@ -1,6 +1,6 @@
 {
   "name": "@golevelup/nestjs-graphile-worker",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "A nestjs module to integrate graphile-worker into your nestjs application.",
   "author": "Underfisk <rodrigorodriguesk8s@gmail.com>",
   "homepage": "https://github.com/golevelup/nestjs#readme",
