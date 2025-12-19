@@ -1,5 +1,11 @@
 # Change Log
 
+## 4.1.0
+
+### Minor Changes
+
+- Contains an improvement to the documentation readme copy pipeline
+
 ## 4.0.0
 
 ### Major Changes
