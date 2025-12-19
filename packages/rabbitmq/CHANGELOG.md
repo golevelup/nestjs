@@ -1,5 +1,15 @@
 # Change Log
 
+## 7.0.0
+
+### Major Changes
+
+- Several changes across the new release pipeline including readme files
+
+### Patch Changes
+
+- Updated dependencies: `@golevelup/nestjs-discovery@6.0.0`
+
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
