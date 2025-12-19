@@ -37,7 +37,7 @@
     "url": "git+https://github.com/golevelup/nestjs.git"
   },
   "scripts": {
-    "copy-readme": "cp ../../docs/modules/graphile-worker.md ./lib/README2.md",
+    "copy-readme": "cp ../../docs/modules/graphile-worker.md ./README2.md",
     "build": "tsc --build tsconfig.build.json",
     "build:watch": "tsc --build tsconfig.build.json --watch",
     "test": "vitest"
