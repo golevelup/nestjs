@@ -1,5 +1,11 @@
 # Change Log
 
+## 4.0.0
+
+### Major Changes
+
+- experimenting copy of readme from docs to published npm
+
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
