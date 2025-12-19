@@ -1,6 +1,6 @@
-import { Controller, Headers, Post, Request } from '@nestjs/common';
+import { Controller, Headers, Post, Query, Request } from '@nestjs/common';
 import { InjectStripeModuleConfig } from './stripe.decorators';
-import { StripeModuleConfig } from './stripe.interfaces';
+import { StripeModuleConfig, StripeWebhookMode } from './stripe.interfaces';
 import { StripePayloadService } from './stripe.payload.service';
 import { StripeWebhookService } from './stripe.webhook.service';
 
@@ -12,7 +12,7 @@ export class StripeWebhookController {
     @InjectStripeModuleConfig()
     config: StripeModuleConfig,
     private readonly stripePayloadService: StripePayloadService,
-    private readonly stripeWebhookService: StripeWebhookService
+    private readonly stripeWebhookService: StripeWebhookService,
   ) {
     this.requestBodyProperty =
       config.webhookConfig?.requestBodyProperty || 'body';
@@ -21,15 +21,25 @@ export class StripeWebhookController {
   @Post('/webhook')
   async handleWebhook(
     @Headers('stripe-signature') sig: string,
-    @Request() request
+    @Request() request,
+    @Query('mode') mode: StripeWebhookMode = StripeWebhookMode.SNAPSHOT,
   ) {
     if (!sig) {
       throw new Error('Missing stripe-signature header');
     }
+
+    if (mode !== 'thin' && mode !== 'snapshot') {
+      throw new Error(`Invalid mode ${mode} query parameter`);
+    }
+
     const rawBody = request[this.requestBodyProperty];
 
-    const event = this.stripePayloadService.tryHydratePayload(sig, rawBody);
+    const event = this.stripePayloadService.tryHydratePayload(
+      sig,
+      rawBody,
+      mode,
+    );
 
-    await this.stripeWebhookService.handleWebhook(event);
+    await this.stripeWebhookService.handleWebhook(event, mode);
   }
 }

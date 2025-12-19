@@ -1,11 +1,14 @@
 /** @type {import('ts-jest').JestConfigWithTsJest} **/
 module.exports = {
-  testEnvironment: "node",
+  testEnvironment: 'node',
   transform: {
-    "^.+.tsx?$": ["ts-jest",{tsconfig: 'tsconfig.spec.json' }],
+    '^.+.tsx?$': ['ts-jest', { tsconfig: 'tsconfig.spec.json' }],
   },
-  preset: "ts-jest",
+  preset: 'ts-jest',
   testPathIgnorePatterns: [
-    "/ts-vitest/"
-  ]
+    '/ts-vitest/',
+    '/integration/google-cloud-pubsub/e2e/proto/',
+    '/graphile-worker/',
+    '/graphql-request/',
+  ],
 };

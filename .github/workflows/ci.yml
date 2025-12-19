@@ -15,7 +15,7 @@ jobs:
 
     strategy:
       matrix:
-        node: [20, 22]
+        node: [24]
       fail-fast: false
 
     services:
@@ -37,13 +37,13 @@ jobs:
       - name: Install pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 9
+          version: 10
+          cache: true
 
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'pnpm'
 
       - name: Install dependencies
         run: pnpm i --prefer-offline
@@ -56,10 +56,6 @@ jobs:
 
       - name: Run Vitest unit tests
         run: pnpm test:vitest:ci
-
-      - name: Publish code coverage
-        if: matrix.node == env.LATEST_NODE_VERSION
-        run: echo Not Implemented Yet
 
       - name: Run integration tests
         run: |

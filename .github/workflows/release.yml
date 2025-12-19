@@ -1,0 +1,55 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 10
+      - name: Install dependencies
+        run: pnpm install
+      - name: Configure git
+        run: |
+          git config user.name "golevelup-bot"
+          git config user.email "golevelup-bot@users.noreply.github.com"
+      - name: Create Version Packages PR
+        uses: changesets/action@v1
+        with:
+          commit: 'chore(release): version packages'
+          title: 'chore(release): version packages'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  publish:
+    needs: version
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/master') || startsWith(github.ref, 'refs/heads/main')
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
+      - name: Install dependencies
+        run: pnpm install
+      - name: Build
+        run: pnpm build --concurrency=12
+      - name: Copy Readmes
+        run: pnpm lerna run copy-readme
+      - name: Publish Packages and Create GitHub Releases
+        uses: changesets/action@v1
+        with:
+          commit: 'chore(release): version packages'
+          title: 'chore(release): version packages'
+          publish: npx changeset publish
+          createGithubReleases: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

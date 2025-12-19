@@ -2,7 +2,7 @@ import { ConsoleLogger, INestApplication, Injectable } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as request from 'supertest';
 import { StripeWebhookHandler } from '../stripe.decorators';
-import { StripeModuleConfig } from '../stripe.interfaces';
+import { StripeModuleConfig, StripeWebhookMode } from '../stripe.interfaces';
 import { StripePayloadService } from '../stripe.payload.service';
 import { StripeModule } from '../stripe.module';
 
@@ -107,6 +107,7 @@ describe.each(cases)(
           expect(hydratePayloadFn).toHaveBeenCalledWith(
             stripeSig,
             expectedEvent,
+            StripeWebhookMode.SNAPSHOT,
           );
           expect(testReceiveStripeFn).toHaveBeenCalledWith(expectedEvent);
         });

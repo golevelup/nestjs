@@ -1,4 +1,8 @@
-import { assertRabbitMqUri, matchesRoutingKey } from '../amqp/utils';
+import {
+  validateRabbitMqUris,
+  matchesRoutingKey,
+  converUriConfigObjectsToUris,
+} from '../amqp/utils';
 
 describe(matchesRoutingKey.name, () => {
   const userCreated = 'user.created';
@@ -58,36 +62,86 @@ describe(matchesRoutingKey.name, () => {
     const result = matchesRoutingKey(routingKey, pattern);
     expect(result).toBe(expectedResult);
   });
+});
 
-  describe(assertRabbitMqUri.name, () => {
-    it('should not throw with valid uris', () => {
-      expect(() =>
-        assertRabbitMqUri('amqp://rabbitmq:rabbitmq@localhost:4444'),
-      ).not.toThrowError();
+describe(validateRabbitMqUris.name, () => {
+  it('should not throw with valid uris', () => {
+    expect(() =>
+      validateRabbitMqUris([
+        'amqp://rabbitmq:rabbitmq@localhost:4444',
+        'amqp://rabbitmq:rabbitmq@localhost:1234',
+        'amqps://rabbitmq:rabbitmq@localhost:2345',
+        'amqp://rabbitmq:rabbitmq@localhost:3456/',
+        'amqps://rabbitmq:rabbitmq@localhost:4567/',
+        // with virtual host
+        'amqps://rabbitmq:rabbitmq@localhost:4567/vhost',
+        'amqps://rabbitmq:rabbitmq@localhost:4567/v/h(o&s*t_',
+        // With query parameters
+        'amqp://rabbitmq:rabbitmq@localhost:5672?vhost=%2F&frameMax=131072&heartbeat=60',
+        'amqps://rabbitmq:rabbitmq@localhost:5671/vhost?frameMax=131072&heartbeat=30',
+        'amqps://rabbitmq:rabbitmq@localhost:5671/%2F?heartbeat=10',
+        'amqps://user:pass@rabbit.example.com:5671/vhost?frameMax=65536&channelMax=2047',
+      ]),
+    ).not.toThrowError();
+  });
 
-      expect(() =>
-        assertRabbitMqUri([
-          'amqp://rabbitmq:rabbitmq@localhost:4444',
-          'amqp://rabbitmq:rabbitmq@localhost:1234',
-          'amqps://rabbitmq:rabbitmq@localhost:2345',
-          'amqp://rabbitmq:rabbitmq@localhost:3456/',
-          'amqps://rabbitmq:rabbitmq@localhost:4567/',
-          'amqps://rabbitmq:rabbitmq@localhost:4567/vhost',
-          'amqps://rabbitmq:rabbitmq@localhost:4567/v/h(o&s*t_',
-        ]),
-      ).not.toThrowError();
-    });
+  it('should throw when malformed uris are provided', () => {
+    expect(() =>
+      validateRabbitMqUris([
+        'amqp://rabbitmq:rabbitmq@localhost:hello',
+        'superbawl://rabbitmq:rabbitmq@localhost:4444',
+      ]),
+    ).toThrowError();
+  });
+});
 
-    it('should throw when malformed uris are provided', () => {
-      expect(() =>
-        assertRabbitMqUri('xamqp://rabbitmq:rabbitmq@localhost:4444'),
-      ).toThrowError();
-      expect(() =>
-        assertRabbitMqUri([
-          'amqp://rabbitmq:rabbitmq@localhost:hello',
-          'superbawl://rabbitmq:rabbitmq@localhost:4444',
-        ]),
-      ).toThrowError();
-    });
+describe(converUriConfigObjectsToUris.name, () => {
+  it('should return array of uris', () => {
+    expect(
+      converUriConfigObjectsToUris([
+        'amqp://rabbitmq:rabbitmq@localhost:hello',
+      ]),
+    ).toEqual(['amqp://rabbitmq:rabbitmq@localhost:hello']);
+
+    expect(
+      converUriConfigObjectsToUris([
+        {
+          hostname: 'localhost',
+          username: 'rabbitmq_user',
+          password: 'rabbitmq_password',
+          port: 3,
+          frameMax: 4,
+          heartbeat: 5,
+          protocol: 'amqp',
+          locale: 'locale',
+          vhost: '/vhost',
+        },
+      ]),
+    ).toEqual([
+      'amqp://rabbitmq_user:rabbitmq_password@localhost:3/vhost?frameMax=4&heartbeat=5',
+    ]);
+  });
+
+  it('should return array when single value provided', () => {
+    expect(
+      converUriConfigObjectsToUris('amqp://rabbitmq:rabbitmq@localhost:hello'),
+    ).toEqual(['amqp://rabbitmq:rabbitmq@localhost:hello']);
+
+    expect(
+      converUriConfigObjectsToUris({
+        hostname: 'localhost',
+        username: 'rabbitmq_user',
+        password: 'rabbitmq_password',
+        port: 3,
+      }),
+    ).toEqual(['amqp://rabbitmq_user:rabbitmq_password@localhost:3']);
+  });
+
+  it("should throw when hostname doesn't exist in uri objecct", () => {
+    expect(() =>
+      converUriConfigObjectsToUris({
+        hostname: undefined,
+      }),
+    ).toThrowError("Configuration object must contain a 'hostname' key.");
   });
 });

@@ -1,6 +1,6 @@
 {
   "name": "@golevelup/nestjs-common",
-  "version": "2.0.2",
+  "version": "5.1.1",
   "description": "Common module and utility building blocks for badass NestJS applications",
   "author": "Jesse Carter <jesse.r.carter@gmail.com>",
   "homepage": "https://github.com/golevelup/nestjs#readme",
@@ -11,8 +11,7 @@
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "directories": {
-    "lib": "lib",
-    "test": "__tests__"
+    "lib": "lib"
   },
   "files": [
     "lib"
@@ -22,6 +21,7 @@
     "url": "git+https://github.com/golevelup/nestjs.git"
   },
   "scripts": {
+    "copy-readme": "cp ../../docs/common.md ./README.md",
     "build": "tsc --build tsconfig.build.json",
     "build:watch": "tsc --build tsconfig.build.json --watch",
     "test": "jest"
@@ -36,7 +36,7 @@
     "lodash": "^4.17.21"
   },
   "peerDependencies": {
-    "@nestjs/common": "^11.0.20"
+    "@nestjs/common": "^11.1.9"
   },
   "jest": {
     "moduleFileExtensions": [

@@ -1,8 +1,9 @@
 import { ExecutionContext } from '@nestjs/common';
-import { HttpArgumentsHost } from '@nestjs/common/interfaces';
 import { Test, TestingModule } from '@nestjs/testing';
-import { createMock, DeepMocked } from './mocks';
 import { describe, it, beforeEach, expect } from 'vitest';
+import { createMock } from './mocks.js';
+import { DeepPartial } from './type-helper.js';
+import { HttpArgumentsHost } from '@nestjs/common/interfaces/index.js';
 
 interface TestInterface {
   someNum: number;
@@ -254,7 +255,7 @@ describe('Mocks', () => {
 
   describe('Nest DI', () => {
     let module: TestingModule;
-    let mockedProvider: DeepMocked<ExecutionContext>;
+    let mockedProvider = createMock<ExecutionContext>();
     let dependentProvider: { dependent: () => string };
     const diToken = Symbol('diToken');
     const dependentToken = Symbol('dependentToken');
@@ -271,16 +272,16 @@ describe('Mocks', () => {
           {
             inject: [diToken],
             provide: dependentToken,
-            useFactory: (dep: DeepMocked<ExecutionContext>) => ({
+            useFactory: (dep: DeepPartial<ExecutionContext>) => ({
               dependent: dep.getType,
             }),
           },
         ],
       }).compile();
 
-      mockedProvider = module.get<DeepMocked<ExecutionContext>>(diToken);
+      mockedProvider = module.get(diToken);
       dependentProvider = module.get<{ dependent: () => string }>(
-        dependentToken
+        dependentToken,
       );
     });
 
@@ -292,7 +293,7 @@ describe('Mocks', () => {
       mockedProvider.switchToHttp.mockReturnValueOnce(
         createMock<HttpArgumentsHost>({
           getRequest: () => request,
-        })
+        }),
       );
 
       const mockResult = mockedProvider.switchToHttp().getRequest();

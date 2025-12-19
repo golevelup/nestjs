@@ -1,0 +1,58 @@
+{
+  "name": "google-cloud-pubsub-integration",
+  "version": "0.0.1",
+  "description": "Google cloud pubsub integration project",
+  "private": true,
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "format": "prettier --write \"src/**/*.ts\" \"e2e/**/*.ts\"",
+    "start": "nest start",
+    "start:dev": "nest start --watch",
+    "start:debug": "nest start --watch --debug",
+    "prestart:prod": "rimraf dist && npm run build",
+    "start:prod": "node dist/main.js",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:cov": "jest --coverage",
+    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r tsx node_modules/.bin/jest --runInBand",
+    "test:e2e": "jest --config ../../jest-e2e.json integration/google-cloud-pubsub"
+  },
+  "dependencies": {
+    "rimraf": "^6.0.1"
+  },
+  "devDependencies": {
+    "@golevelup/nestjs-google-cloud-pubsub": "workspace:^",
+    "@golevelup/ts-jest": "workspace:^",
+    "@google-cloud/pubsub": "^5.2.0",
+    "@nestjs/cli": "^11.0.14",
+    "@nestjs/testing": "^11.1.9",
+    "@protobuf-ts/runtime": "^2.11.1",
+    "@types/express": "5.0.3",
+    "@types/jest": "^27.0.3",
+    "@types/node": "^22.16.5",
+    "@types/supertest": "6.0.3",
+    "avsc": "^5.7.9",
+    "jest": "^27.4.3",
+    "prettier": "3.5.3",
+    "supertest": "7.1.4",
+    "ts-jest": "27.1.5",
+    "tsconfig-paths": "4.2.0",
+    "tsx": "^4.19.4",
+    "typescript": "4.9.5"
+  },
+  "jest": {
+    "moduleFileExtensions": [
+      "js",
+      "json",
+      "ts"
+    ],
+    "rootDir": "src",
+    "testRegex": ".spec.ts$",
+    "transform": {
+      "^.+\\.ts$": "ts-jest"
+    },
+    "coverageDirectory": "../coverage",
+    "testEnvironment": "node"
+  }
+}

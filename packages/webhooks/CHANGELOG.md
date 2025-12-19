@@ -1,7 +1,29 @@
 # Change Log
 
+## 1.1.1
+
+### Patch Changes
+
+- An update to the copy README pipeline, relevant to the NPM package profile
+
+## 1.1.0
+
+### Minor Changes
+
+- Contains an improvement to the documentation readme copy pipeline
+
+## 1.0.0
+
+### Major Changes
+
+- Several changes across the new release pipeline including readme files
+
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+## [0.2.21](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-webhooks@0.2.20...@golevelup/nestjs-webhooks@0.2.21) (2025-05-08)
+
+**Note:** Version bump only for package @golevelup/nestjs-webhooks
 
 ## [0.2.20](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-webhooks@0.2.19...@golevelup/nestjs-webhooks@0.2.20) (2025-01-24)
 

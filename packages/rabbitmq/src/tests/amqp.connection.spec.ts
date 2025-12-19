@@ -10,6 +10,12 @@ const mockConfig = {
   password: 'guest',
   vhost: '/',
   uri: 'amqp://guest:guest@localhost:5672/',
+  queues: [
+    {
+      name: 'queue_1',
+      consumerTag: 'consumer_tag_1',
+    },
+  ],
 };
 
 describe('AmqpConnection', () => {
@@ -41,7 +47,7 @@ describe('AmqpConnection', () => {
       mockHandler,
       mockMsgOptions,
       mockHandlerName,
-      mockConsumeOptions
+      mockConsumeOptions,
     );
 
     expect(result).toEqual({ consumerTag: mockConsumerTag });
@@ -54,5 +60,54 @@ describe('AmqpConnection', () => {
     const result = await connection.createRpc(mockHandler, mockRpcOptions);
 
     expect(result).toEqual({ consumerTag: mockConsumerTag });
+  });
+
+  it('should inherit consumer tag from global config', async () => {
+    const mockHandler = jest.fn();
+    const mockRpcOptions = {
+      queue: 'queue_1',
+    };
+
+    await connection.createRpc(mockHandler, mockRpcOptions);
+
+    expect(connection.setupRpcChannel).toHaveBeenCalledWith(
+      mockHandler,
+      {
+        queue: 'queue_1',
+        queueOptions: {
+          consumerOptions: {
+            consumerTag: 'consumer_tag_1',
+          },
+        },
+      },
+      mockChannel,
+    );
+  });
+
+  it('should use locally defined consumer tag', async () => {
+    const mockHandler = jest.fn();
+    const mockRpcOptions = {
+      queue: 'queue_1',
+      queueOptions: {
+        consumerOptions: {
+          consumerTag: 'consumer_tag_local',
+        },
+      },
+    };
+
+    await connection.createRpc(mockHandler, mockRpcOptions);
+
+    expect(connection.setupRpcChannel).toHaveBeenCalledWith(
+      mockHandler,
+      {
+        queue: 'queue_1',
+        queueOptions: {
+          consumerOptions: {
+            consumerTag: 'consumer_tag_local',
+          },
+        },
+      },
+      mockChannel,
+    );
   });
 });

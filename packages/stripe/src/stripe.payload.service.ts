@@ -5,54 +5,83 @@ import {
   InjectStripeClient,
   InjectStripeModuleConfig,
 } from './stripe.decorators';
-import { StripeModuleConfig } from './stripe.interfaces';
+import {
+  StripeModuleConfig,
+  StripeSecrets,
+  StripeWebhookMode,
+} from './stripe.interfaces';
 
 @Injectable()
 export class StripePayloadService {
-  private readonly stripeWebhookSecret: string;
-  private readonly stripeWebhookTestSecret: string;
-  private readonly stripeConnectWebhookSecret: string;
-  private readonly stripeConnectWebhookTestSecret: string;
+  private readonly stripeSecrets: StripeSecrets;
+  private readonly stripeThinSecrets: StripeSecrets;
 
   constructor(
     @InjectStripeModuleConfig()
-    private readonly config: StripeModuleConfig,
+    readonly config: StripeModuleConfig,
     @InjectStripeClient()
-    private readonly stripeClient: Stripe
+    private readonly stripeClient: Stripe,
   ) {
-    this.stripeWebhookSecret =
-      this.config.webhookConfig?.stripeSecrets.account || '';
-    this.stripeWebhookTestSecret =
-      this.config.webhookConfig?.stripeSecrets.accountTest || '';
-    this.stripeConnectWebhookSecret =
-      this.config.webhookConfig?.stripeSecrets.connect || '';
-    this.stripeConnectWebhookTestSecret =
-      this.config.webhookConfig?.stripeSecrets.connectTest || '';
+    this.stripeSecrets = config.webhookConfig?.stripeSecrets || {};
+    this.stripeThinSecrets = config.webhookConfig?.stripeThinSecrets || {};
   }
-  tryHydratePayload(signature: string, payload: Buffer): { type: string } {
+
+  tryHydratePayload(
+    signature: string,
+    payload: Buffer,
+    mode: StripeWebhookMode,
+  ): { type: string } {
     const decodedPayload = JSON.parse(
-      Buffer.isBuffer(payload) ? payload.toString('utf8') : payload
+      Buffer.isBuffer(payload) ? payload.toString('utf8') : payload,
     );
 
-    let secretToUse: string;
-    if (!decodedPayload.account && decodedPayload.livemode) {
-      secretToUse = this.stripeWebhookSecret;
-    } else if (!decodedPayload.account && !decodedPayload.livemode) {
-      secretToUse = this.stripeWebhookTestSecret;
-    } else if (decodedPayload.account && decodedPayload.livemode) {
-      secretToUse = this.stripeConnectWebhookSecret;
-    } else if (decodedPayload.account && !decodedPayload.livemode) {
-      secretToUse = this.stripeConnectWebhookTestSecret;
+    const secrets = this.getWebhookSecrets(mode);
+    const secretToUse = this.getWebhookSecret(decodedPayload, secrets);
+
+    switch (mode) {
+      case StripeWebhookMode.SNAPSHOT:
+        return this.stripeClient.webhooks.constructEvent(
+          payload,
+          signature,
+          secretToUse,
+        );
+
+      case StripeWebhookMode.THIN:
+        return this.stripeClient.parseEventNotification(
+          payload,
+          signature,
+          secretToUse,
+        );
+    }
+  }
+
+  private getWebhookSecrets(mode: StripeWebhookMode) {
+    switch (mode) {
+      case StripeWebhookMode.SNAPSHOT:
+        return this.stripeSecrets;
+      case StripeWebhookMode.THIN:
+        return this.stripeThinSecrets;
+    }
+  }
+
+  private getWebhookSecret(
+    evt: Stripe.EventBase,
+    secrets: StripeSecrets,
+  ): string {
+    let secret: string | undefined;
+
+    if (!evt.account) {
+      secret = evt.livemode ? secrets.account : secrets.accountTest;
     } else {
+      secret = evt.livemode ? secrets.connect : secrets.connectTest;
+    }
+
+    if (!secret) {
       throw new Error(
-        'Could not determine which secret to use for this webhook call!'
+        'Could not determine which secret to use for this webhook call!',
       );
     }
 
-    return this.stripeClient.webhooks.constructEvent(
-      payload,
-      signature,
-      secretToUse
-    );
+    return secret;
   }
 }

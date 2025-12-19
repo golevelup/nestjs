@@ -1,6 +1,6 @@
 {
   "name": "@golevelup/nestjs-webhooks",
-  "version": "0.2.20",
+  "version": "1.1.1",
   "description": "Badass utilities for integrating webhooks and NestJS",
   "author": "Jesse Carter <jesse.r.carter@gmail.com>",
   "homepage": "https://github.com/golevelup/nestjs#readme",
@@ -27,6 +27,7 @@
     "url": "git+https://github.com/golevelup/nestjs.git"
   },
   "scripts": {
+    "copy-readme": "cp ../../docs/webhooks.md ./README.md",
     "build": "tsc --build tsconfig.build.json",
     "build:watch": "tsc --build tsconfig.build.json --watch",
     "test": "jest"
@@ -38,7 +39,7 @@
     "access": "public"
   },
   "peerDependencies": {
-    "body-parser": "^1.20.3"
+    "body-parser": "^2.2.0"
   },
   "jest": {
     "moduleFileExtensions": [

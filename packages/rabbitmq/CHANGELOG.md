@@ -1,7 +1,68 @@
 # Change Log
 
+## 7.1.1
+
+### Patch Changes
+
+- An update to the copy README pipeline, relevant to the NPM package profile
+- Updated dependencies: `@golevelup/nestjs-discovery@6.1.1`
+
+## 7.1.0
+
+### Minor Changes
+
+- Contains an improvement to the documentation readme copy pipeline
+
+### Patch Changes
+
+- Updated dependencies: `@golevelup/nestjs-discovery@6.1.0`
+
+## 7.0.0
+
+### Major Changes
+
+- Several changes across the new release pipeline including readme files
+
+### Patch Changes
+
+- Updated dependencies: `@golevelup/nestjs-discovery@6.0.0`
+
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+## [6.0.1](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@6.0.0...@golevelup/nestjs-rabbitmq@6.0.1) (2025-05-22)
+
+### Bug Fixes
+
+- **deps:** rabbitmq nestjs version ([#1037](https://github.com/golevelup/nestjs/issues/1037)) ([79efc2f](https://github.com/golevelup/nestjs/commit/79efc2fbbd35f9e5a5c9ddb6c3ebc1abda454911))
+
+# [6.0.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@5.7.0...@golevelup/nestjs-rabbitmq@6.0.0) (2025-05-08)
+
+### Bug Fixes
+
+- **rabbitmq:** improve URI assertion ([#1020](https://github.com/golevelup/nestjs/issues/1020)) ([baaa6df](https://github.com/golevelup/nestjs/commit/baaa6df4671112a3e99688e20c002a11b13e5271))
+
+### chore
+
+- **dependencies:** updates dependencies ([#1003](https://github.com/golevelup/nestjs/issues/1003)) ([4f78129](https://github.com/golevelup/nestjs/commit/4f78129e347019e63cf5db2d1b9ee0d0a42bc71a))
+
+### BREAKING CHANGES
+
+- **dependencies:** Nestjs v10 is no longer supported from now on
+
+- chore: pnpm-lock update
+
+- chore: update types/express
+
+- chore: update types/lodash
+
+- chore: update supertest
+
+- chore: revert rxjs to 7.8.1
+
+- chore: use mise and update pnpm to latest
+
+- chore: update integration amqlib version
 
 # [5.7.0](https://github.com/golevelup/nestjs/compare/@golevelup/nestjs-rabbitmq@5.6.1...@golevelup/nestjs-rabbitmq@5.7.0) (2025-01-24)
 

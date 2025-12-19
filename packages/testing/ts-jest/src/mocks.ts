@@ -49,7 +49,11 @@ const jestFnProps = new Set([
 const createProxy: {
   <T extends object>(name: string, strict: boolean, base: T): T;
   <T extends Mock<any, any> = Mock<any, any>>(name: string, strict: boolean): T;
-} = <T extends object | Mock<any, any>>(name: string, strict: boolean, base?: T): T => {
+} = <T extends object | Mock<any, any>>(
+  name: string,
+  strict: boolean,
+  base?: T,
+): T => {
   const cache = new Map<string | number | symbol, any>();
   const handler: ProxyHandler<T> = {
     get: (obj, prop, receiver) => {
@@ -105,7 +109,9 @@ const createProxy: {
         return result;
       } else {
         if (strict) {
-          throw new Error(`Method ${name} was called without being explicitly stubbed`);
+          throw new Error(
+            `Method ${name} was called without being explicitly stubbed`,
+          );
         }
         if (!cache.has('__apply')) {
           cache.set('__apply', createProxy(name, strict));

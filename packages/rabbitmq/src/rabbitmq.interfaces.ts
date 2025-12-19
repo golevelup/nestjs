@@ -22,6 +22,15 @@ export interface RabbitMQQueueConfig {
   exchange?: string;
   routingKey?: string | string[];
   bindQueueArguments?: any;
+  /**
+   * This property can be set to define custom consumer name for the queue.
+   *
+   * Consumer tag must be unique to one channel. You shoudld properly manage
+   * channels and tags in your local space in order to avoid conflicts.
+   *
+   * @see {@link https://amqp-node.github.io/amqplib/channel_api.html#channel_consume|Channel API reference}
+   */
+  consumerTag?: string | undefined;
 }
 
 export interface RabbitMQExchangeBindingConfig {
@@ -169,6 +178,12 @@ export interface ConnectionInitOptions {
    * @default false - Connection failure logs will be written by default.
    */
   skipConnectionFailedLogging?: boolean;
+  /**
+   * When set to `true`, suppresses logging for disconnection failure events.
+   *
+   * @default false - Disconnection failure logs will be written by default.
+   */
+  skipDisconnectFailedLogging?: boolean;
 }
 
 export type RabbitMQChannels = Record<string, RabbitMQChannelConfig>;
@@ -176,10 +191,11 @@ export type RabbitMQHandlers = Record<
   string,
   MessageHandlerOptions | MessageHandlerOptions[]
 >;
+export type RabbitMQUriConfig = Options.Connect | string;
 
 export interface RabbitMQConfig {
   name?: string;
-  uri: string | string[];
+  uri: RabbitMQUriConfig | RabbitMQUriConfig[];
   /**
    * Now specifies the default prefetch count for all channels.
    */

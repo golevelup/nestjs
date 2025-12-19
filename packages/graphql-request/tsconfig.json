@@ -2,8 +2,11 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "./lib",
-    "rootDir": "./src"
+    "rootDir": "./src",
+    "target": "ES2020",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "declaration": true
   },
-  "include": ["./src"],
-  "references": [{ "path": "../discovery" }, { "path": "../modules" }]
+  "include": ["./src"]
 }

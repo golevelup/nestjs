@@ -1,6 +1,6 @@
 import { Injectable, Module, SetMetadata } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { DiscoveryModule, DiscoveryService, withMetaAtKey } from '..';
+import { DiscoveryModule, DiscoveryService, withMetaAtKey } from '.';
 import { ModuleMetadata } from '@nestjs/common/interfaces';
 
 const TestDecorator = (config: any) => SetMetadata('test', config);
@@ -28,12 +28,12 @@ async function providerMetadataTest(discover: DiscoveryService) {
       provide: DynamicProvider,
       useFactory: async (): Promise<DynamicProvider> => {
         const dynamic = new DynamicProvider();
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
           setTimeout(() => resolve(dynamic), 50);
         });
-      }
-    }
-  ]
+      },
+    },
+  ],
 })
 class ExampleModule {}
 
@@ -54,19 +54,19 @@ const testCases: CaseType[] = [
       providers: [
         {
           provide: 'ValueProviderKey',
-          useValue: new DynamicProvider()
-        }
-      ]
+          useValue: new DynamicProvider(),
+        },
+      ],
     },
     matchObject: {
       meta: 'dynamicMethod',
       discoveredMethod: {
         methodName: 'doSomething',
         parentClass: {
-          name: 'ValueProviderKey'
-        }
-      }
-    }
+          name: 'ValueProviderKey',
+        },
+      },
+    },
   },
   {
     name: 'FactoryProvider',
@@ -75,32 +75,32 @@ const testCases: CaseType[] = [
       providers: [
         {
           provide: 'FactoryProviderKey',
-          useFactory: () => new DynamicProvider()
-        }
-      ]
+          useFactory: () => new DynamicProvider(),
+        },
+      ],
     },
     matchObject: {
       meta: 'dynamicMethod',
       discoveredMethod: {
         methodName: 'doSomething',
         parentClass: {
-          name: 'FactoryProviderKey'
-        }
-      }
-    }
+          name: 'FactoryProviderKey',
+        },
+      },
+    },
   },
   {
     name: 'Async Factory Provider',
     moduleMetadata: {
-      imports: [DiscoveryModule, ExampleModule]
+      imports: [DiscoveryModule, ExampleModule],
     },
     matchObject: {
       meta: 'dynamicMethod',
       discoveredMethod: {
-        methodName: 'doSomething'
-      }
-    }
-  }
+        methodName: 'doSomething',
+      },
+    },
+  },
 ];
 
 describe.each(testCases)('Provider Types', (testCase: CaseType) => {
@@ -121,9 +121,8 @@ describe.each(testCases)('Provider Types', (testCase: CaseType) => {
     });
 
     it('should discover providers based on a metadata key', async () => {
-      const providerMethodMeta = await discover.providerMethodsWithMetaAtKey(
-        'test'
-      );
+      const providerMethodMeta =
+        await discover.providerMethodsWithMetaAtKey('test');
 
       expect(providerMethodMeta.length).toBe(1);
 
@@ -132,7 +131,7 @@ describe.each(testCases)('Provider Types', (testCase: CaseType) => {
       expect(meta).toMatchObject(testCase.matchObject);
 
       expect(meta.discoveredMethod.parentClass.instance).toBeInstanceOf(
-        DynamicProvider
+        DynamicProvider,
       );
     });
   });

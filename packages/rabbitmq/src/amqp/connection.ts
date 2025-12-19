@@ -35,8 +35,14 @@ import {
   getHandlerForLegacyBehavior,
   MessageHandlerErrorBehavior,
 } from './errorBehaviors';
+import {
+  ChannelNotAvailableError,
+  ConnectionNotAvailableError,
+  NullMessageError,
+  RpcTimeoutError,
+} from './errors';
 import { Nack, RpcResponse, SubscribeResponse } from './handlerResponses';
-import { isNull } from 'lodash';
+import { isNull, merge } from 'lodash';
 import { matchesRoutingKey } from './utils';
 
 const DIRECT_REPLY_QUEUE = 'amq.rabbitmq.reply-to';
@@ -110,6 +116,7 @@ const defaultConfig = {
     timeout: 5000,
     reject: true,
     skipConnectionFailedLogging: false,
+    skipDisconnectFailedLogging: false,
   },
   connectionManagerOptions: {},
   registerHandlers: true,
@@ -157,12 +164,12 @@ export class AmqpConnection {
   }
 
   get channel(): Channel {
-    if (!this._channel) throw new Error('channel is not available');
+    if (!this._channel) throw new ChannelNotAvailableError();
     return this._channel;
   }
 
   get connection(): Connection {
-    if (!this._connection) throw new Error('connection is not available');
+    if (!this._connection) throw new ConnectionNotAvailableError();
     return this._connection;
   }
 
@@ -198,12 +205,17 @@ export class AmqpConnection {
 
     const {
       skipConnectionFailedLogging,
+      skipDisconnectFailedLogging,
       wait,
       timeout: timeoutInterval,
       reject,
     } = options;
 
-    const p = this.initCore(wait, skipConnectionFailedLogging);
+    const p = this.initCore(
+      wait,
+      skipConnectionFailedLogging,
+      skipDisconnectFailedLogging,
+    );
 
     if (!wait) {
       this.logger.log(
@@ -234,6 +246,7 @@ export class AmqpConnection {
   private async initCore(
     wait = false,
     skipConnectionFailedLogging = false,
+    skipDisconnectFailedLogging = false,
   ): Promise<void> {
     this.logger.log(
       `Trying to connect to RabbitMQ broker (${this.config.name})`,
@@ -251,12 +264,17 @@ export class AmqpConnection {
       );
     });
 
-    this._managedConnection.on('disconnect', ({ err }) => {
-      this.logger.error(
-        `Disconnected from RabbitMQ broker (${this.config.name})`,
-        err?.stack,
-      );
-    });
+    // Logging disconnections should only be able if consumers
+    // do not skip it. We may be able to merge with the `skipConnectionFailedLogging`
+    // option in the future.
+    if (!skipDisconnectFailedLogging) {
+      this._managedConnection.on('disconnect', ({ err }) => {
+        this.logger.error(
+          `Disconnected from RabbitMQ broker (${this.config.name})`,
+          err?.stack,
+        );
+      });
+    }
 
     // Certain consumers might want to skip "connectionFailed" logging
     // therefore this option will allow us to conditionally register this event consumption
@@ -428,26 +446,32 @@ export class AmqpConnection {
     const timeout$ = interval(timeout).pipe(
       first(),
       map(() => {
-        throw new Error(
-          `Failed to receive response within timeout of ${timeout}ms for exchange "${requestOptions.exchange}" and routing key "${requestOptions.routingKey}"`,
+        throw new RpcTimeoutError(
+          timeout,
+          requestOptions.exchange,
+          requestOptions.routingKey,
         );
       }),
     );
 
-    const result = lastValueFrom(race(response$, timeout$));
-
-    await this.publish(
-      requestOptions.exchange,
-      requestOptions.routingKey,
-      payload,
-      {
-        ...requestOptions.publishOptions,
-        replyTo: DIRECT_REPLY_QUEUE,
-        correlationId,
-        headers: requestOptions.headers,
-        expiration: requestOptions.expiration,
-      },
-    );
+    // Wrapped lastValueFrom(race(response$, timeout$)) in a Promise to properly catch
+    // timeout errors. Without this, the timeout could trigger while publish() was
+    // still running, causing an unhandled rejection and crashing the application.
+    const [result] = await Promise.all([
+      lastValueFrom(race(response$, timeout$)),
+      this.publish(
+        requestOptions.exchange,
+        requestOptions.routingKey,
+        payload,
+        {
+          ...requestOptions.publishOptions,
+          replyTo: DIRECT_REPLY_QUEUE,
+          correlationId,
+          headers: requestOptions.headers,
+          expiration: requestOptions.expiration,
+        },
+      ),
+    ]);
 
     return result;
   }
@@ -458,10 +482,10 @@ export class AmqpConnection {
     originalHandlerName: string,
     consumeOptions?: ConsumeOptions,
   ): Promise<SubscriptionResult> {
-    return this.consumerFactory(msgOptions, (channel) =>
+    return this.consumerFactory(msgOptions, (channel, channelMsgOptions) =>
       this.setupSubscriberChannel<T>(
         handler,
-        msgOptions,
+        channelMsgOptions,
         channel,
         originalHandlerName,
         consumeOptions,
@@ -474,10 +498,10 @@ export class AmqpConnection {
     msgOptions: MessageHandlerOptions,
     consumeOptions?: ConsumeOptions,
   ): Promise<SubscriptionResult> {
-    return this.consumerFactory(msgOptions, (channel) =>
+    return this.consumerFactory(msgOptions, (channel, channelMsgOptions) =>
       this.setupBatchSubscriberChannel<T>(
         handler,
-        msgOptions,
+        channelMsgOptions,
         channel,
         consumeOptions,
       ),
@@ -486,12 +510,38 @@ export class AmqpConnection {
 
   private async consumerFactory(
     msgOptions: MessageHandlerOptions,
-    setupFunction: (channel: ConfirmChannel) => Promise<string>,
+    setupFunction: (
+      channel: ConfirmChannel,
+      msgOptions: MessageHandlerOptions,
+    ) => Promise<string>,
   ): Promise<SubscriptionResult> {
     return new Promise((res) => {
+      // Use globally configured consumer tag.
+      // See https://github.com/golevelup/nestjs/issues/904
+
+      const queueConfig = this.config.queues.find(
+        (q) => q.name === msgOptions.queue,
+      );
+
+      const consumerTagConfig: Partial<MessageHandlerOptions> =
+        queueConfig?.consumerTag
+          ? {
+              queueOptions: {
+                consumerOptions: {
+                  consumerTag: queueConfig.consumerTag,
+                },
+              },
+            }
+          : {};
+
       this.selectManagedChannel(msgOptions?.queueOptions?.channel).addSetup(
         async (channel: ConfirmChannel) => {
-          const consumerTag = await setupFunction(channel);
+          const consumerTag = await setupFunction(
+            channel,
+            // Override global configuration by merging the global/default
+            // tag configuration with the parametized msgOption.
+            merge(consumerTagConfig, msgOptions),
+          );
           res({ consumerTag });
         },
       );
@@ -526,7 +576,7 @@ export class AmqpConnection {
       this.wrapConsumer(async (msg) => {
         try {
           if (isNull(msg)) {
-            throw new Error('Received null message');
+            throw new NullMessageError();
           }
 
           const result = this.deserializeMessage<T>(msg, msgOptions);
@@ -707,8 +757,8 @@ export class AmqpConnection {
     handler: RpcSubscriberHandler<T, U>,
     rpcOptions: MessageHandlerOptions,
   ): Promise<SubscriptionResult> {
-    return this.consumerFactory(rpcOptions, (channel) =>
-      this.setupRpcChannel<T, U>(handler, rpcOptions, channel),
+    return this.consumerFactory(rpcOptions, (channel, channelRpcOptions) =>
+      this.setupRpcChannel<T, U>(handler, channelRpcOptions, channel),
     );
   }
 
@@ -724,7 +774,7 @@ export class AmqpConnection {
       this.wrapConsumer(async (msg) => {
         try {
           if (msg == null) {
-            throw new Error('Received null message');
+            throw new NullMessageError();
           }
 
           if (

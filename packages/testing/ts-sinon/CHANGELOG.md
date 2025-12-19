@@ -1,7 +1,29 @@
 # Change Log
 
+## 1.1.1
+
+### Patch Changes
+
+- An update to the copy README pipeline, relevant to the NPM package profile
+
+## 1.1.0
+
+### Minor Changes
+
+- Contains an improvement to the documentation readme copy pipeline
+
+## 1.0.0
+
+### Major Changes
+
+- Several changes across the new release pipeline including readme files
+
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+## [0.1.3](https://github.com/golevelup/nestjs/compare/@golevelup/ts-sinon@0.1.2...@golevelup/ts-sinon@0.1.3) (2025-05-08)
+
+**Note:** Version bump only for package @golevelup/ts-sinon
 
 ## [0.1.2](https://github.com/golevelup/nestjs/compare/@golevelup/ts-sinon@0.1.1...@golevelup/ts-sinon@0.1.2) (2025-01-24)
 

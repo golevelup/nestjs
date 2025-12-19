@@ -1,6 +1,6 @@
 {
   "name": "@golevelup/ts-sinon",
-  "version": "0.1.2",
+  "version": "1.1.1",
   "description": "",
   "author": "Omer Morad <omer.moradd@gmail.com>",
   "homepage": "https://github.com/golevelup/nestjs#readme",
@@ -26,6 +26,7 @@
     "url": "git+https://github.com/golevelup/nestjs.git"
   },
   "scripts": {
+    "copy-readme": "cp ../../../docs/testing/ts-sinon.md ./README.md",
     "build": "tsc --build tsconfig.build.json",
     "build:watch": "tsc --build tsconfig.build.json --watch",
     "test": "jest"
@@ -34,11 +35,11 @@
     "url": "https://github.com/golevelup/nestjs/issues"
   },
   "peerDependencies": {
-    "sinon": "^19.x"
+    "sinon": "^20.x"
   },
   "devDependencies": {
-    "@types/sinon": "^17.0.0",
-    "sinon": "^19.x"
+    "@types/sinon": "^17.0.4",
+    "sinon": "^20.x"
   },
   "publishConfig": {
     "access": "public"
