@@ -1,5 +1,11 @@
 # Change Log
 
+## 2.1.1
+
+### Patch Changes
+
+- An update to the copy README pipeline, relevant to the NPM package profile
+
 ## 2.1.0
 
 ### Minor Changes

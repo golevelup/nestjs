@@ -1,5 +1,12 @@
 # Change Log
 
+## 7.1.1
+
+### Patch Changes
+
+- An update to the copy README pipeline, relevant to the NPM package profile
+- Updated dependencies: `@golevelup/nestjs-discovery@6.1.1`
+
 ## 7.1.0
 
 ### Minor Changes
