@@ -18,6 +18,9 @@ jobs:
         run: pnpm install
       - name: Create Version Packages PR
         uses: changesets/action@v1
+        with:
+          commit: 'chore(release): version packages'
+          title: 'chore(release): version packages'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
