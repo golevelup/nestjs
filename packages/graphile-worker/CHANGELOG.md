@@ -1,4 +1,4 @@
-# @golevelup/nestjs-google-cloud-pubsub
+# @golevelup/nestjs-graphile-worker
 
 ## 1.0.0
 
@@ -9,7 +9,3 @@
 ### Patch Changes
 
 - Updated dependencies: `@golevelup/nestjs-discovery@6.0.0`
-
-## 0.0.1
-
-- Initial release.
