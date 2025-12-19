@@ -67,7 +67,8 @@
     "prepare": "husky",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
-    "docs:preview": "vitepress preview docs"
+    "docs:preview": "vitepress preview docs",
+    "prep-release": "pnpm changeset version"
   },
   "lint-staged": {
     "*.ts": [

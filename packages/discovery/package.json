@@ -13,8 +13,7 @@
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "directories": {
-    "lib": "lib",
-    "test": "__tests__"
+    "lib": "lib"
   },
   "files": [
     "lib"
@@ -27,6 +26,7 @@
     "url": "git+https://github.com/golevelup/nestjs.git"
   },
   "scripts": {
+    "postbuild": "cp ../../docs/discovery.md ./lib/README.md",
     "build": "tsc --build tsconfig.build.json",
     "build:watch": "tsc --build tsconfig.build.json --watch",
     "test": "jest"

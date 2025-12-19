@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { PATH_METADATA } from '@nestjs/common/constants';
 import { Test, TestingModule } from '@nestjs/testing';
-import { DiscoveryModule, DiscoveryService, withMetaAtKey } from '..';
+import { DiscoveryModule, DiscoveryService, withMetaAtKey } from '.';
 
 // Set up a Controller and Provider that can be used by the Testing Module
 
@@ -77,7 +77,7 @@ describe('Discovery', () => {
   describe('Providers', () => {
     it('should be tolerant of potentially null providers', async () => {
       const providers = await discoveryService.providers(
-        withMetaAtKey(ExampleClassSymbol)
+        withMetaAtKey(ExampleClassSymbol),
       );
 
       expect(providers).toBeDefined();
@@ -88,7 +88,7 @@ describe('Discovery', () => {
 
     it('should discover providers based on a metadata key', async () => {
       const providers = await discoveryService.providers(
-        withMetaAtKey(ExampleClassSymbol)
+        withMetaAtKey(ExampleClassSymbol),
       );
 
       expect(providers).toHaveLength(1);
@@ -100,7 +100,7 @@ describe('Discovery', () => {
     it('should discover provider method handler meta based on a metadata key', async () => {
       const providerMethodMeta =
         await discoveryService.providerMethodsWithMetaAtKey(
-          ExampleMethodSymbol
+          ExampleMethodSymbol,
         );
 
       expect(providerMethodMeta.length).toBe(1);
@@ -124,7 +124,7 @@ describe('Discovery', () => {
       });
 
       expect(meta.discoveredMethod.parentClass.instance).toBeInstanceOf(
-        ExampleService
+        ExampleService,
       );
     });
   });
@@ -146,7 +146,7 @@ describe('Discovery', () => {
     it('should discover controller method handler meta based on a metadata key', async () => {
       const controllerMethodMeta =
         await discoveryService.controllerMethodsWithMetaAtKey<string>(
-          PATH_METADATA
+          PATH_METADATA,
         );
       const [first] = controllerMethodMeta;
       expect(first).toBeDefined();
@@ -172,7 +172,7 @@ describe('Discovery', () => {
       });
 
       expect(meta.discoveredMethod.parentClass.instance).toBeInstanceOf(
-        ExampleController
+        ExampleController,
       );
     });
   });
