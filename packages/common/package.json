@@ -30,8 +30,8 @@
   },
   "scripts": {
     "copy-readme": "cp ../../docs/common.md ./README.md",
-    "build": "tsdown --tsconfig tsconfig.build.json",
-    "build:watch": "tsdown --tsconfig tsconfig.build.json --watch",
+    "build": "tsdown ",
+    "build:watch": "tsdown --watch",
     "test": "jest"
   },
   "bugs": {
