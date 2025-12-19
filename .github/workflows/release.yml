@@ -13,14 +13,11 @@ jobs:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v2
         with:
-          version: 8
+          version: 10
       - name: Install dependencies
         run: pnpm install
       - name: Create Version Packages PR
         uses: changesets/action@v1
-        with:
-          publish: false
-          createGithubReleases: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
