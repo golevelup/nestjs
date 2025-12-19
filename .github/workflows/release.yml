@@ -39,6 +39,8 @@ jobs:
           version: 8
       - name: Install dependencies
         run: pnpm install
+      - name: Build
+        run: pnpm build --concurrency=12
       - name: Publish Packages and Create GitHub Releases
         uses: changesets/action@v1
         with:
