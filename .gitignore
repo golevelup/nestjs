@@ -3,6 +3,8 @@ lerna-debug.log
 npm-debug.log
 packages/*/lib
 packages/testing/*/lib
+packages/*/dist
+packages/testing/*/dist
 .idea
 coverage/
 tsconfig.build.tsbuildinfo

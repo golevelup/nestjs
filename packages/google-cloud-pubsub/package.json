@@ -11,23 +11,24 @@
     "PubSub",
     "gcp"
   ],
-  "main": "lib/index.js",
-  "typings": "lib/index.d.ts",
-  "directories": {
-    "lib": "lib",
-    "test": "__tests__"
+  "exports": {
+    "import": {
+      "types": "./lib/index.d.mts",
+      "default": "./lib/index.mjs"
+    },
+    "require": {
+      "types": "./lib/index.d.cts",
+      "default": "./lib/index.cjs"
+    }
   },
-  "files": [
-    "lib"
-  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/golevelup/nestjs.git"
   },
   "scripts": {
     "copy-readme": "cp ../../docs/modules/google-pubsub.md ./README.md",
-    "build": "tsc --build tsconfig.build.json",
-    "build:watch": "tsc --build tsconfig.build.json --watch",
+    "build": "tsdown",
+    "build:watch": "tsdown --watch",
     "test": "jest"
   },
   "bugs": {

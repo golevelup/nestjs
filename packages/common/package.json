@@ -18,12 +18,6 @@
       "default": "./lib/index.cjs"
     }
   },
-  "directories": {
-    "lib": "lib"
-  },
-  "files": [
-    "lib"
-  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/golevelup/nestjs.git"

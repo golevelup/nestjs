@@ -10,14 +10,16 @@
   "author": "Jesse Carter <jesse.r.carter@gmail.com>",
   "homepage": "https://github.com/golevelup/nestjs/blob/master/packages/discovery/README.md",
   "license": "MIT",
-  "main": "lib/index.js",
-  "typings": "lib/index.d.ts",
-  "directories": {
-    "lib": "lib"
+  "exports": {
+    "import": {
+      "types": "./lib/index.d.mts",
+      "default": "./lib/index.mjs"
+    },
+    "require": {
+      "types": "./lib/index.d.cts",
+      "default": "./lib/index.cjs"
+    }
   },
-  "files": [
-    "lib"
-  ],
   "publishConfig": {
     "access": "public"
   },
@@ -27,8 +29,8 @@
   },
   "scripts": {
     "copy-readme": "cp ../../docs/discovery.md ./README.md",
-    "build": "tsc --build tsconfig.build.json",
-    "build:watch": "tsc --build tsconfig.build.json --watch",
+    "build": "tsdown",
+    "build:watch": "tsdown --watch",
     "test": "jest"
   },
   "dependencies": {

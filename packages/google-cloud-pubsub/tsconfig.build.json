@@ -1,8 +1,0 @@
-{
-  "compilerOptions": {
-    "strict": true,
-    "strictNullChecks": true
-  },
-  "extends": "./tsconfig.json",
-  "exclude": ["./src/**/*.spec.ts", "node_modules", "src/spec"]
-}
