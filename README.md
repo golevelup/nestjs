@@ -29,9 +29,8 @@ Contributions welcome! Read the [contribution guidelines](./docs/contributing.md
 
 ## 📦 Publishing
 
-To ensure only relevant packages are published, version bumps must be done manually. This approach avoids relying on Git tags, which tend to result in higher conflict rates. Once the version is updated in a package’s package.json, it can be published individually.
-
-Historically, any change to a shared library would trigger a publish for all packages — even those that hadn’t changed. This manual bumping strategy prevents unnecessary publishes and keeps versioning meaningful.
+In order to release, changeset has to be run locally to provide human-readable notes and select the applicable packages.
+Once the changeset is pushed to master, a Github action will kick off and generate a PR with the preview
 
 ## License
 
