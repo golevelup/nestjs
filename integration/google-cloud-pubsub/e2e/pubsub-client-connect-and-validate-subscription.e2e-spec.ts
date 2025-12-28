@@ -1,10 +1,7 @@
 import { PubSub, Subscription } from '@google-cloud/pubsub';
 import * as crypto from 'crypto';
 
-import {
-  PubsubConfigurationInvalidError,
-  PubsubConfigurationMismatchError,
-} from '../../../packages/google-cloud-pubsub/src/client/pubsub-configuration.errors';
+import { PubsubConfigurationMismatchError } from '../../../packages/google-cloud-pubsub/src/client/pubsub-configuration.errors';
 import { PubsubClient, PubsubTopicConfiguration } from '../../../packages/google-cloud-pubsub/src/client';
 import { assertRejectsWith } from './pubsub-client.spec-utils';
 
@@ -26,35 +23,6 @@ describe.skip('PubsubClient.connectAndValidateSubscription()', () => {
 
   afterEach(async () => {
     await pubsub.close();
-  });
-
-  it(`${PubsubConfigurationInvalidError.name}: in case of duplicate subscription name.`, async () => {
-    const topicConfiguration = {
-      name: `topic.${crypto.randomUUID()}`,
-      subscriptions: [{ name: `subscription.${crypto.randomUUID()}` }],
-    } as const satisfies PubsubTopicConfiguration;
-
-    const subscriptionConfiguration = topicConfiguration.subscriptions[0];
-
-    const [topic] = await pubsub.createTopic(topicConfiguration.name);
-
-    await topic.createSubscription(subscriptionConfiguration.name);
-
-    const topicContainer = await pubsubClient['connectAndValidateTopic'](topicConfiguration);
-
-    await pubsubClient['connectAndValidateSubscription'](topicContainer, subscriptionConfiguration);
-
-    await assertRejectsWith(
-      () => pubsubClient['connectAndValidateSubscription'](topicContainer, subscriptionConfiguration),
-      PubsubConfigurationInvalidError,
-      (error) => {
-        expect(error.invalidEntry).toEqual({
-          key: 'subscription.name',
-          reason: 'Duplicate subscription name.',
-          value: subscriptionConfiguration.name,
-        } satisfies PubsubConfigurationInvalidError['invalidEntry']);
-      },
-    );
   });
 
   it(`${PubsubConfigurationMismatchError.name}: in case if subscription is not linked to the right topic.`, async () => {

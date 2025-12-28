@@ -6,7 +6,7 @@ import { PubsubSerializer } from './pubsub.serializer';
 export class PubsubTopicContainer {
   constructor(
     public readonly instance: Topic,
-    public readonly serializer: PubsubSerializer,
     public readonly configuration: PubsubTopicConfiguration,
+    public readonly serializer: PubsubSerializer,
   ) {}
 }

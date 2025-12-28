@@ -13,11 +13,14 @@ import { InferPayloadMap, PubsubTopicConfiguration } from './client';
 
 import { PubsubClient } from './client/pubsub.client';
 import {
+  GOOGLE_CLOUD_PUBSUB_BATCH_SUBSCRIBE,
   GOOGLE_CLOUD_PUBSUB_CLIENT_TOKEN,
   GOOGLE_CLOUD_PUBSUB_SUBSCRIBE,
 } from './google-cloud-pubsub.constants';
 import {
+  createBatchSubscribeDecorator,
   createSubscribeDecorator,
+  PubsubBatchSubscribeMetadata,
   PubsubSubscribeMetadata,
 } from './google-cloud-pubsub.decorators';
 import {
@@ -37,8 +40,7 @@ import { GoogleCloudPubsubAbstractPublisher } from './google-cloud-pubsub.abstra
       inject: [GOOGLE_CLOUD_PUBSUB_MODULE_OPTIONS_TOKEN],
       provide: GOOGLE_CLOUD_PUBSUB_CLIENT_TOKEN,
       useFactory: (options: GoogleCloudPubsubModuleOptions) => {
-        const logger =
-          options.logger || new Logger(GoogleCloudPubsubModule.name);
+        const logger = options.logger || new Logger(GoogleCloudPubsubModule.name);
 
         return new PubsubClient({
           ...options.client,
@@ -48,10 +50,7 @@ import { GoogleCloudPubsubAbstractPublisher } from './google-cloud-pubsub.abstra
     },
   ],
 })
-export class GoogleCloudPubsubModule
-  extends ConfigurableModuleClass
-  implements OnApplicationBootstrap, OnApplicationShutdown
-{
+export class GoogleCloudPubsubModule extends ConfigurableModuleClass implements OnApplicationBootstrap, OnApplicationShutdown {
   constructor(
     @Inject(GOOGLE_CLOUD_PUBSUB_CLIENT_TOKEN)
     private readonly pubsubClient: PubsubClient,
@@ -64,28 +63,22 @@ export class GoogleCloudPubsubModule
     this.logger = options?.logger || new Logger(GoogleCloudPubsubModule.name);
   }
 
-  public static initializeKit<
-    Topics extends readonly PubsubTopicConfiguration[],
-  >() {
+  public static initializeKit<Topics extends readonly PubsubTopicConfiguration[]>() {
     type GoogleCloudPubsubPayloadsMap = InferPayloadMap<Topics>;
 
-    const GoogleCloudPubsubSubscribe = createSubscribeDecorator<
-      Topics,
-      GoogleCloudPubsubPayloadsMap
-    >();
+    const GoogleCloudPubsubBatchSubscribe = createBatchSubscribeDecorator<Topics, GoogleCloudPubsubPayloadsMap>();
+    const GoogleCloudPubsubSubscribe = createSubscribeDecorator<Topics, GoogleCloudPubsubPayloadsMap>();
 
     return {
-      GoogleCloudPubsubAbstractPublisher,
       _GoogleCloudPubsubPayloadsMap: {} as GoogleCloudPubsubPayloadsMap,
+      GoogleCloudPubsubAbstractPublisher,
+      GoogleCloudPubsubBatchSubscribe,
       GoogleCloudPubsubSubscribe,
     };
   }
 
   public static registerAsync(
-    options: ConfigurableModuleAsyncOptions<
-      GoogleCloudPubsubModuleOptions,
-      'create'
-    > &
+    options: ConfigurableModuleAsyncOptions<GoogleCloudPubsubModuleOptions, 'create'> &
       Partial<GoogleCloudPubsubModuleOptionsExtras>,
   ): DynamicModule {
     const moduleDefinition = super.registerAsync(options);
@@ -94,16 +87,13 @@ export class GoogleCloudPubsubModule
     moduleDefinition.exports = moduleDefinition.exports || [];
 
     if (!options.publisher) {
-      throw new Error(
-        '`publisher` class must be provided in GcpPubsubModule.registerAsync.',
-      );
+      throw new Error('`publisher` class must be provided in GcpPubsubModule.registerAsync.');
     }
 
     const publisherProvider: Provider = {
       inject: [GOOGLE_CLOUD_PUBSUB_CLIENT_TOKEN],
       provide: options.publisher,
-      useFactory: (pubsubClient: PubsubClient) =>
-        new options.publisher!(pubsubClient),
+      useFactory: (pubsubClient: PubsubClient) => new options.publisher!(pubsubClient),
     };
 
     moduleDefinition.providers.push(publisherProvider);
@@ -126,18 +116,26 @@ export class GoogleCloudPubsubModule
   }
 
   private async attachMessageHandlers() {
-    const providers =
-      await this.discoveryService.providerMethodsWithMetaAtKey<PubsubSubscribeMetadata>(
-        GOOGLE_CLOUD_PUBSUB_SUBSCRIBE,
-      );
+    const [providers, batchProviders] = await Promise.all([
+      this.discoveryService.providerMethodsWithMetaAtKey<PubsubSubscribeMetadata>(GOOGLE_CLOUD_PUBSUB_SUBSCRIBE),
+      this.discoveryService.providerMethodsWithMetaAtKey<PubsubBatchSubscribeMetadata>(GOOGLE_CLOUD_PUBSUB_BATCH_SUBSCRIBE),
+    ]);
 
-    for (const provider of providers) {
-      const { discoveredMethod, meta } = provider;
+    const tasks = [
+      ...providers.map(({ discoveredMethod, meta }) => {
+        return this.pubsubClient.attachHandler(
+          meta.subscription,
+          discoveredMethod.handler.bind(discoveredMethod.parentClass.instance),
+        );
+      }),
+      ...batchProviders.map(({ discoveredMethod, meta }) => {
+        return this.pubsubClient.attachBatchHandler(
+          meta.subscription,
+          discoveredMethod.handler.bind(discoveredMethod.parentClass.instance),
+        );
+      }),
+    ];
 
-      await this.pubsubClient.attachHandler(
-        meta.subscription,
-        discoveredMethod.handler.bind(discoveredMethod.parentClass.instance),
-      );
-    }
+    await Promise.all(tasks);
   }
 }

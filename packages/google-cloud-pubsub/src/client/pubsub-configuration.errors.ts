@@ -37,3 +37,13 @@ export class PubsubConfigurationInvalidError extends Error {
     this.name = PubsubConfigurationInvalidError.name;
   }
 }
+
+export class PubsubBatchManagerConfigurationInvalidError extends Error {
+  constructor(invalidEntry: { key: string; reason: string; value: unknown }) {
+    const message = `Invalid batch manager configuration. ${invalidEntry.key}: value is (${invalidEntry.value}), reason: ${invalidEntry.reason}`;
+
+    super(message);
+
+    this.name = PubsubBatchManagerConfigurationInvalidError.name;
+  }
+}

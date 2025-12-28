@@ -56,7 +56,7 @@ describe.skip('PubsubSchemaClient.connectAndValidateSchema()', () => {
     await pubsub.createTopic(topicConfiguration.name);
 
     const topic = pubsub.topic(topicConfiguration.name);
-    const topicContainer = new PubsubTopicContainer(topic, new PubsubSerializer(topicConfiguration.name, topicConfiguration.schema), topicConfiguration);
+    const topicContainer = new PubsubTopicContainer(topic, topicConfiguration, new PubsubSerializer(topicConfiguration.name, topicConfiguration.schema));
 
     await expect(pubsubSchemaClient.connectAndValidateSchema(topicContainer)).resolves.toBeNull();
   });
@@ -76,7 +76,7 @@ describe.skip('PubsubSchemaClient.connectAndValidateSchema()', () => {
     await pubsub.createTopic(topicConfiguration.name);
 
     const topic = pubsub.topic(topicConfiguration.name);
-    const topicContainer = new PubsubTopicContainer(topic, new PubsubSerializer(topicConfiguration.name, topicConfiguration.schema), topicConfiguration);
+    const topicContainer = new PubsubTopicContainer(topic, topicConfiguration, new PubsubSerializer(topicConfiguration.name, topicConfiguration.schema));
 
     await assertRejectsWith(
       () => pubsubSchemaClient.connectAndValidateSchema(topicContainer),
@@ -116,7 +116,7 @@ describe.skip('PubsubSchemaClient.connectAndValidateSchema()', () => {
     });
 
     const topic = pubsub.topic(topicConfiguration.name);
-    const topicContainer = new PubsubTopicContainer(topic, new PubsubSerializer(topicConfiguration.name, topicConfiguration.schema), topicConfiguration);
+    const topicContainer = new PubsubTopicContainer(topic, topicConfiguration, new PubsubSerializer(topicConfiguration.name, topicConfiguration.schema));
 
     await assertRejectsWith(
       () => pubsubSchemaClient.connectAndValidateSchema(topicContainer),
@@ -154,7 +154,7 @@ describe.skip('PubsubSchemaClient.connectAndValidateSchema()', () => {
     });
 
     const topic = pubsub.topic(topicConfiguration.name);
-    const topicContainer = new PubsubTopicContainer(topic, new PubsubSerializer(topicConfiguration.name, topicConfiguration.schema), topicConfiguration);
+    const topicContainer = new PubsubTopicContainer(topic, topicConfiguration, new PubsubSerializer(topicConfiguration.name, topicConfiguration.schema));
 
     await assertRejectsWith(
       () => pubsubSchemaClient.connectAndValidateSchema(topicContainer),
@@ -197,8 +197,8 @@ describe.skip('PubsubSchemaClient.connectAndValidateSchema()', () => {
 
     const topicContainer = new PubsubTopicContainer(
       pubsub.topic(topicConfiguration.name),
-      new PubsubSerializer(topicConfiguration.name, topicConfiguration.schema),
       topicConfiguration,
+      new PubsubSerializer(topicConfiguration.name, topicConfiguration.schema),
     );
 
     await assertRejectsWith(
@@ -242,8 +242,8 @@ describe.skip('PubsubSchemaClient.connectAndValidateSchema()', () => {
 
     const topicContainer = new PubsubTopicContainer(
       pubsub.topic(topicConfiguration.name),
-      new PubsubSerializer(topicConfiguration.name, topicConfiguration.schema),
       topicConfiguration,
+      new PubsubSerializer(topicConfiguration.name, topicConfiguration.schema),
     );
 
     await assertRejectsWith(
@@ -286,7 +286,7 @@ describe.skip('PubsubSchemaClient.connectAndValidateSchema()', () => {
     });
 
     const topic = pubsub.topic(topicConfiguration.name);
-    const topicContainer = new PubsubTopicContainer(topic, new PubsubSerializer(topicConfiguration.name, topicConfiguration.schema), topicConfiguration);
+    const topicContainer = new PubsubTopicContainer(topic, topicConfiguration, new PubsubSerializer(topicConfiguration.name, topicConfiguration.schema));
 
     await assertRejectsWith(
       () => pubsubSchemaClient.connectAndValidateSchema(topicContainer),
@@ -329,7 +329,7 @@ describe.skip('PubsubSchemaClient.connectAndValidateSchema()', () => {
     });
 
     const topic = pubsub.topic(topicConfiguration.name);
-    const topicContainer = new PubsubTopicContainer(topic, new PubsubSerializer(topicConfiguration.name, topicConfiguration.schema), topicConfiguration);
+    const topicContainer = new PubsubTopicContainer(topic, topicConfiguration, new PubsubSerializer(topicConfiguration.name, topicConfiguration.schema));
 
     await assertRejectsWith(
       () => pubsubSchemaClient.connectAndValidateSchema(topicContainer),
@@ -369,7 +369,7 @@ describe.skip('PubsubSchemaClient.connectAndValidateSchema()', () => {
     });
 
     const topic = pubsub.topic(topicConfiguration.name);
-    const topicContainer = new PubsubTopicContainer(topic, new PubsubSerializer(topicConfiguration.name, topicConfiguration.schema), topicConfiguration);
+    const topicContainer = new PubsubTopicContainer(topic, topicConfiguration, new PubsubSerializer(topicConfiguration.name, topicConfiguration.schema));
 
     await assertRejectsWith(
       () => pubsubSchemaClient.connectAndValidateSchema(topicContainer),
@@ -411,7 +411,7 @@ describe.skip('PubsubSchemaClient.connectAndValidateSchema()', () => {
     });
 
     const topic = pubsub.topic(topicConfiguration.name);
-    const topicContainer = new PubsubTopicContainer(topic, new PubsubSerializer(topicConfiguration.name, topicConfiguration.schema), topicConfiguration);
+    const topicContainer = new PubsubTopicContainer(topic, topicConfiguration, new PubsubSerializer(topicConfiguration.name, topicConfiguration.schema));
 
     await expect(pubsubSchemaClient.connectAndValidateSchema(topicContainer)).resolves.toBeUndefined();
   });
@@ -443,7 +443,7 @@ describe.skip('PubsubSchemaClient.connectAndValidateSchema()', () => {
     });
 
     const topic = pubsub.topic(topicConfiguration.name);
-    const topicContainer = new PubsubTopicContainer(topic, new PubsubSerializer(topicConfiguration.name, topicConfiguration.schema), topicConfiguration);
+    const topicContainer = new PubsubTopicContainer(topic, topicConfiguration, new PubsubSerializer(topicConfiguration.name, topicConfiguration.schema));
 
     await expect(pubsubSchemaClient.connectAndValidateSchema(topicContainer)).resolves.toBeUndefined();
   });
@@ -505,7 +505,7 @@ describe.skip('PubsubSchemaClient.connectAndValidateSchema()', () => {
         subscriptions: [],
       } as const satisfies PubsubTopicConfiguration;
 
-      const topicContainer = new PubsubTopicContainer(topic, new PubsubSerializer(topicConfiguration.name, topicConfiguration.schema), topicConfiguration);
+      const topicContainer = new PubsubTopicContainer(topic, topicConfiguration, new PubsubSerializer(topicConfiguration.name, topicConfiguration.schema));
 
       await expect(pubsubSchemaClient.connectAndValidateSchema(topicContainer)).resolves.toBeUndefined();
     }
@@ -560,7 +560,7 @@ describe.skip('PubsubSchemaClient.connectAndValidateSchema()', () => {
         subscriptions: [],
       } as const satisfies PubsubTopicConfiguration;
 
-      const topicContainer = new PubsubTopicContainer(topic, new PubsubSerializer(topicConfiguration.name, topicConfiguration.schema), topicConfiguration);
+      const topicContainer = new PubsubTopicContainer(topic, topicConfiguration, new PubsubSerializer(topicConfiguration.name, topicConfiguration.schema));
 
       await expect(pubsubSchemaClient.connectAndValidateSchema(topicContainer)).resolves.toBeUndefined();
     }

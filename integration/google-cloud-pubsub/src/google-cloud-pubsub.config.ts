@@ -32,7 +32,20 @@ export const topics = [
       name: 'order.created.schema',
       type: 'AVRO',
     },
-    subscriptions: [{ name: 'order.created.subscription.order-processor-service' }, { name: 'order.created.subscription.analytic-service' }],
+    subscriptions: [
+      {
+        name: 'order.created.subscription.order-processor-service',
+        batchManagerOptions: { maxMessages: 15, maxWaitTimeMilliseconds: 200 },
+        options: {
+          flowControl: {
+            allowExcessMessages: false,
+            maxBytes: 10 * 1024 * 1024,
+            maxMessages: 500,
+          },
+        },
+      },
+      { name: 'order.created.subscription.analytic-service' },
+    ],
   },
   {
     name: 'order.created.dead-letter-queue',
@@ -64,8 +77,8 @@ export const topics = [
 ] as const satisfies readonly PubsubTopicConfiguration[];
 
 const googleCloudPubsubKit = GoogleCloudPubsubModule.initializeKit<typeof topics>();
-const { GoogleCloudPubsubAbstractPublisher, GoogleCloudPubsubSubscribe } = googleCloudPubsubKit;
+const { GoogleCloudPubsubAbstractPublisher, GoogleCloudPubsubBatchSubscribe, GoogleCloudPubsubSubscribe } = googleCloudPubsubKit;
 
 export type GoogleCloudPubsubPayloadsMap = typeof googleCloudPubsubKit._GoogleCloudPubsubPayloadsMap;
 export class GoogleCloudPubsubPublisher extends GoogleCloudPubsubAbstractPublisher<GoogleCloudPubsubPayloadsMap> {}
-export { GoogleCloudPubsubSubscribe };
+export { GoogleCloudPubsubSubscribe, GoogleCloudPubsubBatchSubscribe };

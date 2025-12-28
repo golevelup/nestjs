@@ -21,12 +21,9 @@ export const {
   ASYNC_OPTIONS_TYPE: GOOGLE_CLOUD_PUBSUB_ASYNC_OPTIONS_TYPE,
   OPTIONS_TYPE: GOOGLE_CLOUD_PUBSUB_OPTIONS_TYPE,
 } = new ConfigurableModuleBuilder<GoogleCloudPubsubModuleOptions>()
-  .setExtras(
-    { isGlobal: true } as GoogleCloudPubsubModuleOptionsExtras,
-    (definition, extras) => ({
-      ...definition,
-      global: extras.isGlobal,
-      ...extras,
-    }),
-  )
+  .setExtras({ isGlobal: true } as GoogleCloudPubsubModuleOptionsExtras, (definition, extras) => ({
+    ...definition,
+    global: extras.isGlobal,
+    ...extras,
+  }))
   .build();
