@@ -36,13 +36,17 @@ export type InferAvroPayload<T> = T extends readonly (infer U)[]
                 ? K extends { name: string }
                   ? K['name']
                   : never
-                : never]-?: K extends { type: infer FT } ? InferAvroPayload<FT> : never;
+                : never]-?: K extends { type: infer FT }
+                ? InferAvroPayload<FT>
+                : never;
             } & {
               -readonly [K in F as HasDefault<K> extends true
                 ? K extends { name: string }
                   ? K['name']
                   : never
-                : never]?: K extends { type: infer FT } ? InferAvroPayload<FT> : never;
+                : never]?: K extends { type: infer FT }
+                ? InferAvroPayload<FT>
+                : never;
             }
           : Record<string, never>
         : Type extends schema.ArrayType['type']
@@ -81,4 +85,6 @@ interface PubsubProtocolBufferSchemaConfiguration {
   type: typeof SchemaTypes.ProtocolBuffer;
 }
 
-export type PubsubSchemaConfiguration = PubsubAvroSchemaConfiguration | PubsubProtocolBufferSchemaConfiguration;
+export type PubsubSchemaConfiguration =
+  | PubsubAvroSchemaConfiguration
+  | PubsubProtocolBufferSchemaConfiguration;

@@ -1,7 +1,16 @@
-import { ClientConfig, Message, PublishOptions, SchemaTypes, SubscriptionOptions } from '@google-cloud/pubsub';
+import {
+  ClientConfig,
+  Message,
+  PublishOptions,
+  SchemaTypes,
+  SubscriptionOptions,
+} from '@google-cloud/pubsub';
 import { MessageType } from '@protobuf-ts/runtime';
 
-import { InferAvroPayload, PubsubSchemaConfiguration } from './pubsub-schema.client-types';
+import {
+  InferAvroPayload,
+  PubsubSchemaConfiguration,
+} from './pubsub-schema.client-types';
 import { BatchManagerOptions } from './pubsub-subscription.batch-manager';
 
 export interface PubsubSubscriptionConfiguration {
@@ -29,15 +38,22 @@ export interface PubsubClientConfiguration extends ClientConfig {
   logger?: PubsubClientLogger;
 }
 
-export type InferPayloadMap<TopicConfigurations extends readonly PubsubTopicConfiguration[]> = {
-  [Name in TopicConfigurations[number]['name']]: Extract<TopicConfigurations[number], { name: Name }> extends {
+export type InferPayloadMap<
+  TopicConfigurations extends readonly PubsubTopicConfiguration[],
+> = {
+  [Name in TopicConfigurations[number]['name']]: Extract<
+    TopicConfigurations[number],
+    { name: Name }
+  > extends {
     schema?: infer InferredSchema;
   }
     ? InferredSchema extends PubsubSchemaConfiguration
       ? InferredSchema['type'] extends typeof SchemaTypes.Avro
         ? InferAvroPayload<InferredSchema['definition']>
         : InferredSchema['type'] extends typeof SchemaTypes.ProtocolBuffer
-          ? InferredSchema['definition'] extends MessageType<infer InferredPayload>
+          ? InferredSchema['definition'] extends MessageType<
+              infer InferredPayload
+            >
             ? InferredPayload
             : never
           : Buffer
@@ -45,7 +61,9 @@ export type InferPayloadMap<TopicConfigurations extends readonly PubsubTopicConf
     : Buffer;
 };
 
-const invariantDataSymbol = Symbol.for('GOOGLE_CLOUD_PUBSUB_MESSAGE_INVARIANT_DATA');
+const invariantDataSymbol = Symbol(
+  'GOOGLE_CLOUD_PUBSUB_MESSAGE_INVARIANT_DATA',
+);
 
 export interface GoogleCloudPubsubMessage<T = Buffer> {
   readonly attributes: Message['attributes'];

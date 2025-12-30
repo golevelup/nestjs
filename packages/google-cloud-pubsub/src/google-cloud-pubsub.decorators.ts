@@ -1,7 +1,10 @@
 import { SetMetadata } from '@nestjs/common';
 
 import { GoogleCloudPubsubMessage, PubsubTopicConfiguration } from './client';
-import { GOOGLE_CLOUD_PUBSUB_BATCH_SUBSCRIBE, GOOGLE_CLOUD_PUBSUB_SUBSCRIBE } from './google-cloud-pubsub.constants';
+import {
+  GOOGLE_CLOUD_PUBSUB_BATCH_SUBSCRIBE,
+  GOOGLE_CLOUD_PUBSUB_SUBSCRIBE,
+} from './google-cloud-pubsub.constants';
 
 export interface PubsubSubscribeMetadata {
   subscription: string;
@@ -17,10 +20,11 @@ export function createSubscribeDecorator<
   Topics extends readonly PubsubTopicConfiguration[],
   PayloadMap extends Record<string, unknown>,
 >() {
-  type SubscriptionNamePerTopicName<TopicName extends keyof PayloadMap> = Extract<
-    Topics[number],
-    { name: TopicName }
-  >['subscriptions'][number]['name'];
+  type SubscriptionNamePerTopicName<TopicName extends keyof PayloadMap> =
+    Extract<
+      Topics[number],
+      { name: TopicName }
+    >['subscriptions'][number]['name'];
 
   return <TopicName extends keyof PayloadMap & string>(
     topic: TopicName,
@@ -29,7 +33,11 @@ export function createSubscribeDecorator<
     return (
       target: object,
       key: string | symbol,
-      descriptor: TypedPropertyDescriptor<(payload: GoogleCloudPubsubMessage<PayloadMap[TopicName]>) => Promise<void>>,
+      descriptor: TypedPropertyDescriptor<
+        (
+          payload: GoogleCloudPubsubMessage<PayloadMap[TopicName]>,
+        ) => Promise<void>
+      >,
     ) => {
       SetMetadata(GOOGLE_CLOUD_PUBSUB_SUBSCRIBE, {
         subscription,
@@ -45,10 +53,11 @@ export function createBatchSubscribeDecorator<
   Topics extends readonly PubsubTopicConfiguration[],
   PayloadMap extends Record<string, unknown>,
 >() {
-  type SubscriptionNamePerTopicName<TopicName extends keyof PayloadMap> = Extract<
-    Topics[number],
-    { name: TopicName }
-  >['subscriptions'][number]['name'];
+  type SubscriptionNamePerTopicName<TopicName extends keyof PayloadMap> =
+    Extract<
+      Topics[number],
+      { name: TopicName }
+    >['subscriptions'][number]['name'];
 
   return <TopicName extends keyof PayloadMap & string>(
     topic: TopicName,
@@ -57,7 +66,11 @@ export function createBatchSubscribeDecorator<
     return (
       target: object,
       key: string | symbol,
-      descriptor: TypedPropertyDescriptor<(payload: GoogleCloudPubsubMessage<PayloadMap[TopicName]>[]) => Promise<void>>,
+      descriptor: TypedPropertyDescriptor<
+        (
+          payload: GoogleCloudPubsubMessage<PayloadMap[TopicName]>[],
+        ) => Promise<void>
+      >,
     ) => {
       SetMetadata(GOOGLE_CLOUD_PUBSUB_BATCH_SUBSCRIBE, {
         subscription,

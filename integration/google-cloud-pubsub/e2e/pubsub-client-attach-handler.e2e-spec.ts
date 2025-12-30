@@ -4,7 +4,11 @@ import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as path from 'path';
 
-import { GoogleCloudPubsubMessage, PubsubClient, PubsubTopicConfiguration } from '../../../packages/google-cloud-pubsub/src/client';
+import {
+  GoogleCloudPubsubMessage,
+  PubsubTopicConfiguration,
+} from '@golevelup/nestjs-google-cloud-pubsub/src';
+import { PubsubClient } from '@golevelup/nestjs-google-cloud-pubsub/src/client/pubsub.client';
 
 import { Level3ProtocolBuffer } from './proto/level3';
 import { assertRejectsWith } from './pubsub-client.spec-utils';
@@ -52,10 +56,13 @@ describe.skip('PubsubClient.attachHandler()', () => {
     await pubsubClient.initialize([]);
 
     await assertRejectsWith(
-      () => pubsubClient.attachHandler(unregisteredSubscription, async () => {}),
+      () =>
+        pubsubClient.attachHandler(unregisteredSubscription, async () => {}),
       Error,
       (error) => {
-        expect(error.message).toBe(`Subscription (${unregisteredSubscription}) is not registered.`);
+        expect(error.message).toBe(
+          `Subscription (${unregisteredSubscription}) is not registered.`,
+        );
       },
     );
 
@@ -71,7 +78,9 @@ describe.skip('PubsubClient.attachHandler()', () => {
     const subscriptionName = topicConfiguration.subscriptions[0].name;
 
     await pubsub.createTopic(topicConfiguration.name);
-    await pubsub.topic(topicConfiguration.name).createSubscription(subscriptionName);
+    await pubsub
+      .topic(topicConfiguration.name)
+      .createSubscription(subscriptionName);
 
     const pubsubClient = new PubsubClient({});
 
@@ -81,22 +90,29 @@ describe.skip('PubsubClient.attachHandler()', () => {
       const testData = { message: 'hello world', value: 12345 };
       let receivedData: any = null;
 
-      const messageReceivedPromise = new Promise<void>(async (resolve, reject) => {
-        try {
-          await pubsubClient.attachHandler(subscriptionName, async (message: GoogleCloudPubsubMessage) => {
-            try {
-              receivedData = JSON.parse(message.data.toString());
-              resolve();
-            } catch (processingError) {
-              reject(processingError);
-            }
-          });
-        } catch (attachError) {
-          reject(attachError);
-        }
-      });
+      const messageReceivedPromise = new Promise<void>(
+        async (resolve, reject) => {
+          try {
+            await pubsubClient.attachHandler(
+              subscriptionName,
+              async (message: GoogleCloudPubsubMessage) => {
+                try {
+                  receivedData = JSON.parse(message.data.toString());
+                  resolve();
+                } catch (processingError) {
+                  reject(processingError);
+                }
+              },
+            );
+          } catch (attachError) {
+            reject(attachError);
+          }
+        },
+      );
 
-      await pubsubClient.publish(topicConfiguration.name, { data: Buffer.from(JSON.stringify(testData)) });
+      await pubsubClient.publish(topicConfiguration.name, {
+        data: Buffer.from(JSON.stringify(testData)),
+      });
 
       await expect(messageReceivedPromise).resolves.toBeUndefined();
 
@@ -121,7 +137,11 @@ describe.skip('PubsubClient.attachHandler()', () => {
     const subscriptionName = topicConfiguration.subscriptions[0].name;
 
     const definition = JSON.stringify(topicConfiguration.schema.definition);
-    const remoteSchema = await pubsub.createSchema(topicConfiguration.schema.name, topicConfiguration.schema.type, definition);
+    const remoteSchema = await pubsub.createSchema(
+      topicConfiguration.schema.name,
+      topicConfiguration.schema.type,
+      definition,
+    );
 
     await pubsub.createTopic({
       name: topicConfiguration.name,
@@ -130,7 +150,9 @@ describe.skip('PubsubClient.attachHandler()', () => {
         schema: await remoteSchema.getName(),
       },
     });
-    await pubsub.topic(topicConfiguration.name).createSubscription(subscriptionName);
+    await pubsub
+      .topic(topicConfiguration.name)
+      .createSubscription(subscriptionName);
 
     const pubsubClient = new PubsubClient({});
 
@@ -146,20 +168,25 @@ describe.skip('PubsubClient.attachHandler()', () => {
       };
       let receivedData: any = null;
 
-      const messageReceivedPromise = new Promise<void>(async (resolve, reject) => {
-        try {
-          await pubsubClient.attachHandler(subscriptionName, async (message: GoogleCloudPubsubMessage) => {
-            try {
-              receivedData = message.data;
-              resolve();
-            } catch (processingError) {
-              reject(processingError);
-            }
-          });
-        } catch (attachError) {
-          reject(attachError);
-        }
-      });
+      const messageReceivedPromise = new Promise<void>(
+        async (resolve, reject) => {
+          try {
+            await pubsubClient.attachHandler(
+              subscriptionName,
+              async (message: GoogleCloudPubsubMessage) => {
+                try {
+                  receivedData = message.data;
+                  resolve();
+                } catch (processingError) {
+                  reject(processingError);
+                }
+              },
+            );
+          } catch (attachError) {
+            reject(attachError);
+          }
+        },
+      );
 
       await pubsubClient.publish(topicConfiguration.name, { data: testData });
 
@@ -186,7 +213,11 @@ describe.skip('PubsubClient.attachHandler()', () => {
     const subscriptionName = topicConfiguration.subscriptions[0].name;
 
     const definition = JSON.stringify(topicConfiguration.schema.definition);
-    const remoteSchema = await pubsub.createSchema(topicConfiguration.schema.name, topicConfiguration.schema.type, definition);
+    const remoteSchema = await pubsub.createSchema(
+      topicConfiguration.schema.name,
+      topicConfiguration.schema.type,
+      definition,
+    );
 
     await pubsub.createTopic({
       name: topicConfiguration.name,
@@ -195,7 +226,9 @@ describe.skip('PubsubClient.attachHandler()', () => {
         schema: await remoteSchema.getName(),
       },
     });
-    await pubsub.topic(topicConfiguration.name).createSubscription(subscriptionName);
+    await pubsub
+      .topic(topicConfiguration.name)
+      .createSubscription(subscriptionName);
 
     const pubsubClient = new PubsubClient({});
 
@@ -211,20 +244,25 @@ describe.skip('PubsubClient.attachHandler()', () => {
       };
       let receivedData: any = null;
 
-      const messageReceivedPromise = new Promise<void>(async (resolve, reject) => {
-        try {
-          await pubsubClient.attachHandler(subscriptionName, async (message: GoogleCloudPubsubMessage) => {
-            try {
-              receivedData = message.data;
-              resolve();
-            } catch (processingError) {
-              reject(processingError);
-            }
-          });
-        } catch (attachError) {
-          reject(attachError);
-        }
-      });
+      const messageReceivedPromise = new Promise<void>(
+        async (resolve, reject) => {
+          try {
+            await pubsubClient.attachHandler(
+              subscriptionName,
+              async (message: GoogleCloudPubsubMessage) => {
+                try {
+                  receivedData = message.data;
+                  resolve();
+                } catch (processingError) {
+                  reject(processingError);
+                }
+              },
+            );
+          } catch (attachError) {
+            reject(attachError);
+          }
+        },
+      );
 
       await pubsubClient.publish(topicConfiguration.name, { data: testData });
 
@@ -253,8 +291,15 @@ describe.skip('PubsubClient.attachHandler()', () => {
 
     const subscriptionName = topicConfiguration.subscriptions[0].name;
 
-    const definition = fs.readFileSync(topicConfiguration.schema.protoPath, 'utf-8');
-    const remoteSchema = await pubsub.createSchema(topicConfiguration.schema.name, topicConfiguration.schema.type, definition);
+    const definition = fs.readFileSync(
+      topicConfiguration.schema.protoPath,
+      'utf-8',
+    );
+    const remoteSchema = await pubsub.createSchema(
+      topicConfiguration.schema.name,
+      topicConfiguration.schema.type,
+      definition,
+    );
 
     await pubsub.createTopic({
       name: topicConfiguration.name,
@@ -263,7 +308,9 @@ describe.skip('PubsubClient.attachHandler()', () => {
         schema: await remoteSchema.getName(),
       },
     });
-    await pubsub.topic(topicConfiguration.name).createSubscription(subscriptionName);
+    await pubsub
+      .topic(topicConfiguration.name)
+      .createSubscription(subscriptionName);
 
     const pubsubClient = new PubsubClient({});
 
@@ -279,20 +326,25 @@ describe.skip('PubsubClient.attachHandler()', () => {
       };
       let receivedData: any = null;
 
-      const messageReceivedPromise = new Promise<void>(async (resolve, reject) => {
-        try {
-          await pubsubClient.attachHandler(subscriptionName, async (message: GoogleCloudPubsubMessage) => {
-            try {
-              receivedData = message.data;
-              resolve();
-            } catch (processingError) {
-              reject(processingError);
-            }
-          });
-        } catch (attachError) {
-          reject(attachError);
-        }
-      });
+      const messageReceivedPromise = new Promise<void>(
+        async (resolve, reject) => {
+          try {
+            await pubsubClient.attachHandler(
+              subscriptionName,
+              async (message: GoogleCloudPubsubMessage) => {
+                try {
+                  receivedData = message.data;
+                  resolve();
+                } catch (processingError) {
+                  reject(processingError);
+                }
+              },
+            );
+          } catch (attachError) {
+            reject(attachError);
+          }
+        },
+      );
 
       await pubsubClient.publish(topicConfiguration.name, { data: testData });
 
@@ -321,8 +373,15 @@ describe.skip('PubsubClient.attachHandler()', () => {
 
     const subscriptionName = topicConfiguration.subscriptions[0].name;
 
-    const definition = fs.readFileSync(topicConfiguration.schema.protoPath, 'utf-8');
-    const remoteSchema = await pubsub.createSchema(topicConfiguration.schema.name, topicConfiguration.schema.type, definition);
+    const definition = fs.readFileSync(
+      topicConfiguration.schema.protoPath,
+      'utf-8',
+    );
+    const remoteSchema = await pubsub.createSchema(
+      topicConfiguration.schema.name,
+      topicConfiguration.schema.type,
+      definition,
+    );
 
     await pubsub.createTopic({
       name: topicConfiguration.name,
@@ -331,7 +390,9 @@ describe.skip('PubsubClient.attachHandler()', () => {
         schema: await remoteSchema.getName(),
       },
     });
-    await pubsub.topic(topicConfiguration.name).createSubscription(subscriptionName);
+    await pubsub
+      .topic(topicConfiguration.name)
+      .createSubscription(subscriptionName);
 
     const pubsubClient = new PubsubClient({});
 
@@ -347,20 +408,25 @@ describe.skip('PubsubClient.attachHandler()', () => {
       };
       let receivedData: any = null;
 
-      const messageReceivedPromise = new Promise<void>(async (resolve, reject) => {
-        try {
-          await pubsubClient.attachHandler(subscriptionName, async (message: GoogleCloudPubsubMessage) => {
-            try {
-              receivedData = message.data;
-              resolve();
-            } catch (processingError) {
-              reject(processingError);
-            }
-          });
-        } catch (attachError) {
-          reject(attachError);
-        }
-      });
+      const messageReceivedPromise = new Promise<void>(
+        async (resolve, reject) => {
+          try {
+            await pubsubClient.attachHandler(
+              subscriptionName,
+              async (message: GoogleCloudPubsubMessage) => {
+                try {
+                  receivedData = message.data;
+                  resolve();
+                } catch (processingError) {
+                  reject(processingError);
+                }
+              },
+            );
+          } catch (attachError) {
+            reject(attachError);
+          }
+        },
+      );
 
       await pubsubClient.publish(topicConfiguration.name, { data: testData });
 
@@ -388,10 +454,14 @@ describe.skip('PubsubClient.attachHandler()', () => {
     const subscription2Name = topicConfiguration2.subscriptions[0].name;
 
     await pubsub.createTopic(topicConfiguration1.name);
-    await pubsub.topic(topicConfiguration1.name).createSubscription(subscription1Name);
+    await pubsub
+      .topic(topicConfiguration1.name)
+      .createSubscription(subscription1Name);
 
     await pubsub.createTopic(topicConfiguration2.name);
-    await pubsub.topic(topicConfiguration2.name).createSubscription(subscription2Name);
+    await pubsub
+      .topic(topicConfiguration2.name)
+      .createSubscription(subscription2Name);
 
     const pubsubClient = new PubsubClient({});
 
@@ -404,39 +474,51 @@ describe.skip('PubsubClient.attachHandler()', () => {
     const handlerFinishTimes: number[] = [];
     let handlersStartedCount = 0;
 
-    await pubsubClient.attachHandler(subscription1Name, async (message: GoogleCloudPubsubMessage<Buffer>) => {
-      handlersStartedCount++;
+    await pubsubClient.attachHandler(
+      subscription1Name,
+      async (message: GoogleCloudPubsubMessage<Buffer>) => {
+        handlersStartedCount++;
 
-      const data = JSON.parse(message.data.toString());
-      const processingTime = processingTimes[data.id];
+        const data = JSON.parse(message.data.toString());
+        const processingTime = processingTimes[data.id];
 
-      await new Promise((res) => setTimeout(res, processingTime));
+        await new Promise((res) => setTimeout(res, processingTime));
 
-      handlerFinishTimes.push(Date.now());
-    });
+        handlerFinishTimes.push(Date.now());
+      },
+    );
 
-    await pubsubClient.attachHandler(subscription2Name, async (message: GoogleCloudPubsubMessage<Buffer>) => {
-      handlersStartedCount++;
+    await pubsubClient.attachHandler(
+      subscription2Name,
+      async (message: GoogleCloudPubsubMessage<Buffer>) => {
+        handlersStartedCount++;
 
-      const data = JSON.parse(message.data.toString());
-      const processingTime = processingTimes[data.id];
+        const data = JSON.parse(message.data.toString());
+        const processingTime = processingTimes[data.id];
 
-      await new Promise((res) => setTimeout(res, processingTime));
+        await new Promise((res) => setTimeout(res, processingTime));
 
-      handlerFinishTimes.push(Date.now());
-    });
+        handlerFinishTimes.push(Date.now());
+      },
+    );
 
-    const publishPromises1 = Array.from({ length: messagesPerTopic }, (_, i) => {
-      return pubsubClient.publish(topicConfiguration1.name, {
-        data: Buffer.from(JSON.stringify({ id: i })),
-      });
-    });
+    const publishPromises1 = Array.from(
+      { length: messagesPerTopic },
+      (_, i) => {
+        return pubsubClient.publish(topicConfiguration1.name, {
+          data: Buffer.from(JSON.stringify({ id: i })),
+        });
+      },
+    );
 
-    const publishPromises2 = Array.from({ length: messagesPerTopic }, (_, i) => {
-      return pubsubClient.publish(topicConfiguration2.name, {
-        data: Buffer.from(JSON.stringify({ id: i })),
-      });
-    });
+    const publishPromises2 = Array.from(
+      { length: messagesPerTopic },
+      (_, i) => {
+        return pubsubClient.publish(topicConfiguration2.name, {
+          data: Buffer.from(JSON.stringify({ id: i })),
+        });
+      },
+    );
 
     await Promise.all([...publishPromises1, ...publishPromises2]);
 
@@ -453,7 +535,11 @@ describe.skip('PubsubClient.attachHandler()', () => {
 
         if (Date.now() - startTime > timeout) {
           clearInterval(intervalId);
-          reject(new Error(`Timeout: Only ${handlersStartedCount}/${totalHandlersToRun} handlers started.`));
+          reject(
+            new Error(
+              `Timeout: Only ${handlersStartedCount}/${totalHandlersToRun} handlers started.`,
+            ),
+          );
         }
       }, pollInterval);
     });

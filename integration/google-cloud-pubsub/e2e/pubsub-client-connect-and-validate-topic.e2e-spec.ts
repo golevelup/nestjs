@@ -1,8 +1,10 @@
 import { PubSub } from '@google-cloud/pubsub';
 import * as crypto from 'crypto';
 
-import { PubsubConfigurationMismatchError } from '../../../packages/google-cloud-pubsub/src/client/pubsub-configuration.errors';
-import { PubsubClient, PubsubTopicConfiguration } from '../../../packages/google-cloud-pubsub/src/client';
+import { PubsubTopicConfiguration } from '@golevelup/nestjs-google-cloud-pubsub/src';
+import { PubsubConfigurationMismatchError } from '@golevelup/nestjs-google-cloud-pubsub/src/client/pubsub-configuration.errors';
+import { PubsubClient } from '@golevelup/nestjs-google-cloud-pubsub/src/client/pubsub.client';
+
 import { assertRejectsWith } from './pubsub-client.spec-utils';
 
 // These tests are skipped. They require a real Google Cloud Pub/Sub instance.

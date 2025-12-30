@@ -1,7 +1,10 @@
 import { PubSub } from '@google-cloud/pubsub';
 import * as crypto from 'crypto';
 
-import { PubsubClient, PubsubTopicConfiguration } from '@golevelup/nestjs-google-cloud-pubsub/src/client';
+import {
+  PubsubClient,
+  PubsubTopicConfiguration,
+} from '@golevelup/nestjs-google-cloud-pubsub/src/client';
 
 // These tests are skipped. They require a real Google Cloud Pub/Sub instance.
 // To run these tests locally:
@@ -167,7 +170,9 @@ describe.skip('PubsubClient.attachBatchHandler()', () => {
       messagesProcessed = true;
     });
 
-    await pubsubClient.publish(topicName, { data: Buffer.from('shutdown-test') });
+    await pubsubClient.publish(topicName, {
+      data: Buffer.from('shutdown-test'),
+    });
 
     await new Promise((resolve) => setTimeout(resolve, 3000));
 

@@ -6,7 +6,7 @@ import { GoogleCloudPubsubAbstractPublisher } from './google-cloud-pubsub.abstra
 
 export type GoogleCloudPubsubModuleOptionsExtras = {
   publisher: Type<GoogleCloudPubsubAbstractPublisher<Record<string, unknown>>>;
-  isGlobal: boolean;
+  global: boolean;
 };
 
 export type GoogleCloudPubsubModuleOptions = {
@@ -21,9 +21,8 @@ export const {
   ASYNC_OPTIONS_TYPE: GOOGLE_CLOUD_PUBSUB_ASYNC_OPTIONS_TYPE,
   OPTIONS_TYPE: GOOGLE_CLOUD_PUBSUB_OPTIONS_TYPE,
 } = new ConfigurableModuleBuilder<GoogleCloudPubsubModuleOptions>()
-  .setExtras({ isGlobal: true } as GoogleCloudPubsubModuleOptionsExtras, (definition, extras) => ({
-    ...definition,
-    global: extras.isGlobal,
-    ...extras,
-  }))
+  .setExtras(
+    { global: true } as GoogleCloudPubsubModuleOptionsExtras,
+    (definition, extras) => ({ ...definition, ...extras }),
+  )
   .build();

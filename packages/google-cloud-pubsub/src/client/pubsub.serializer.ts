@@ -17,7 +17,9 @@ export class PubsubSerializer {
     this.deserialize = this.buildDeserializer(schemaConfiguration);
   }
 
-  private buildSerializer(schema?: PubsubSchemaConfiguration): (data: any) => Buffer {
+  private buildSerializer(
+    schema?: PubsubSchemaConfiguration,
+  ): (data: any) => Buffer {
     if (!schema) {
       return (data: any) => data;
     }
@@ -44,11 +46,17 @@ export class PubsubSerializer {
       const protoDefinition = schema.definition;
 
       if (schema.encoding === Encodings.Binary) {
-        return (data: any) => Buffer.from(protoDefinition.toBinary(protoDefinition.create(data)));
+        return (data: any) =>
+          Buffer.from(protoDefinition.toBinary(protoDefinition.create(data)));
       }
 
       if (schema.encoding === Encodings.Json) {
-        return (data: any) => Buffer.from(JSON.stringify(protoDefinition.toJson(protoDefinition.create(data))));
+        return (data: any) =>
+          Buffer.from(
+            JSON.stringify(
+              protoDefinition.toJson(protoDefinition.create(data)),
+            ),
+          );
       }
 
       throw new PubsubConfigurationInvalidError(this.topicName, {
@@ -65,7 +73,9 @@ export class PubsubSerializer {
     });
   }
 
-  private buildDeserializer(schema?: PubsubSchemaConfiguration): (message: Message) => any {
+  private buildDeserializer(
+    schema?: PubsubSchemaConfiguration,
+  ): (message: Message) => any {
     if (!schema) {
       return (message: Message) => message.data;
     }
@@ -78,7 +88,8 @@ export class PubsubSerializer {
       }
 
       if (schema.encoding === Encodings.Json) {
-        return (message: Message) => avroType.fromString(message.data.toString());
+        return (message: Message) =>
+          avroType.fromString(message.data.toString());
       }
 
       throw new PubsubConfigurationInvalidError(this.topicName, {
@@ -96,7 +107,8 @@ export class PubsubSerializer {
       }
 
       if (schema.encoding === Encodings.Json) {
-        return (message: Message) => protoType.fromJsonString(message.data.toString());
+        return (message: Message) =>
+          protoType.fromJsonString(message.data.toString());
       }
 
       throw new PubsubConfigurationInvalidError(this.topicName, {

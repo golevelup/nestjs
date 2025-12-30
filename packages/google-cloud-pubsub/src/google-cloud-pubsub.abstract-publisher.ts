@@ -4,7 +4,9 @@ import { Inject } from '@nestjs/common';
 import { PubsubClient } from './client';
 import { GOOGLE_CLOUD_PUBSUB_CLIENT_TOKEN } from './google-cloud-pubsub.constants';
 
-export abstract class GoogleCloudPubsubAbstractPublisher<PayloadMap extends Record<string, unknown>> {
+export abstract class GoogleCloudPubsubAbstractPublisher<
+  PayloadMap extends Record<string, unknown>,
+> {
   constructor(
     @Inject(GOOGLE_CLOUD_PUBSUB_CLIENT_TOKEN)
     private readonly pubsubClient: PubsubClient,

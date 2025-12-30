@@ -40,7 +40,8 @@ import { GoogleCloudPubsubAbstractPublisher } from './google-cloud-pubsub.abstra
       inject: [GOOGLE_CLOUD_PUBSUB_MODULE_OPTIONS_TOKEN],
       provide: GOOGLE_CLOUD_PUBSUB_CLIENT_TOKEN,
       useFactory: (options: GoogleCloudPubsubModuleOptions) => {
-        const logger = options.logger || new Logger(GoogleCloudPubsubModule.name);
+        const logger =
+          options.logger || new Logger(GoogleCloudPubsubModule.name);
 
         return new PubsubClient({
           ...options.client,
@@ -50,7 +51,10 @@ import { GoogleCloudPubsubAbstractPublisher } from './google-cloud-pubsub.abstra
     },
   ],
 })
-export class GoogleCloudPubsubModule extends ConfigurableModuleClass implements OnApplicationBootstrap, OnApplicationShutdown {
+export class GoogleCloudPubsubModule
+  extends ConfigurableModuleClass
+  implements OnApplicationBootstrap, OnApplicationShutdown
+{
   constructor(
     @Inject(GOOGLE_CLOUD_PUBSUB_CLIENT_TOKEN)
     private readonly pubsubClient: PubsubClient,
@@ -63,11 +67,19 @@ export class GoogleCloudPubsubModule extends ConfigurableModuleClass implements 
     this.logger = options?.logger || new Logger(GoogleCloudPubsubModule.name);
   }
 
-  public static initializeKit<Topics extends readonly PubsubTopicConfiguration[]>() {
+  public static initializeKit<
+    Topics extends readonly PubsubTopicConfiguration[],
+  >() {
     type GoogleCloudPubsubPayloadsMap = InferPayloadMap<Topics>;
 
-    const GoogleCloudPubsubBatchSubscribe = createBatchSubscribeDecorator<Topics, GoogleCloudPubsubPayloadsMap>();
-    const GoogleCloudPubsubSubscribe = createSubscribeDecorator<Topics, GoogleCloudPubsubPayloadsMap>();
+    const GoogleCloudPubsubBatchSubscribe = createBatchSubscribeDecorator<
+      Topics,
+      GoogleCloudPubsubPayloadsMap
+    >();
+    const GoogleCloudPubsubSubscribe = createSubscribeDecorator<
+      Topics,
+      GoogleCloudPubsubPayloadsMap
+    >();
 
     return {
       _GoogleCloudPubsubPayloadsMap: {} as GoogleCloudPubsubPayloadsMap,
@@ -78,7 +90,10 @@ export class GoogleCloudPubsubModule extends ConfigurableModuleClass implements 
   }
 
   public static registerAsync(
-    options: ConfigurableModuleAsyncOptions<GoogleCloudPubsubModuleOptions, 'create'> &
+    options: ConfigurableModuleAsyncOptions<
+      GoogleCloudPubsubModuleOptions,
+      'create'
+    > &
       Partial<GoogleCloudPubsubModuleOptionsExtras>,
   ): DynamicModule {
     const moduleDefinition = super.registerAsync(options);
@@ -87,13 +102,16 @@ export class GoogleCloudPubsubModule extends ConfigurableModuleClass implements 
     moduleDefinition.exports = moduleDefinition.exports || [];
 
     if (!options.publisher) {
-      throw new Error('`publisher` class must be provided in GcpPubsubModule.registerAsync.');
+      throw new Error(
+        '`publisher` class must be provided in GcpPubsubModule.registerAsync.',
+      );
     }
 
     const publisherProvider: Provider = {
       inject: [GOOGLE_CLOUD_PUBSUB_CLIENT_TOKEN],
       provide: options.publisher,
-      useFactory: (pubsubClient: PubsubClient) => new options.publisher!(pubsubClient),
+      useFactory: (pubsubClient: PubsubClient) =>
+        new options.publisher!(pubsubClient),
     };
 
     moduleDefinition.providers.push(publisherProvider);
@@ -117,8 +135,12 @@ export class GoogleCloudPubsubModule extends ConfigurableModuleClass implements 
 
   private async attachMessageHandlers() {
     const [providers, batchProviders] = await Promise.all([
-      this.discoveryService.providerMethodsWithMetaAtKey<PubsubSubscribeMetadata>(GOOGLE_CLOUD_PUBSUB_SUBSCRIBE),
-      this.discoveryService.providerMethodsWithMetaAtKey<PubsubBatchSubscribeMetadata>(GOOGLE_CLOUD_PUBSUB_BATCH_SUBSCRIBE),
+      this.discoveryService.providerMethodsWithMetaAtKey<PubsubSubscribeMetadata>(
+        GOOGLE_CLOUD_PUBSUB_SUBSCRIBE,
+      ),
+      this.discoveryService.providerMethodsWithMetaAtKey<PubsubBatchSubscribeMetadata>(
+        GOOGLE_CLOUD_PUBSUB_BATCH_SUBSCRIBE,
+      ),
     ]);
 
     const tasks = [

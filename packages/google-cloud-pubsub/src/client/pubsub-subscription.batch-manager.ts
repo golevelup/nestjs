@@ -31,7 +31,10 @@ export class PubsubSubscriptionBatchManager {
 
     const maxWaitTimeMilliseconds = options?.maxWaitTimeMilliseconds;
 
-    if (!Number.isInteger(maxWaitTimeMilliseconds) || maxWaitTimeMilliseconds! <= 0) {
+    if (
+      !Number.isInteger(maxWaitTimeMilliseconds) ||
+      maxWaitTimeMilliseconds! <= 0
+    ) {
       throw new PubsubBatchManagerConfigurationInvalidError({
         key: 'subscription.batchManagerOptions.maxWaitTimeMilliseconds',
         value: maxWaitTimeMilliseconds,

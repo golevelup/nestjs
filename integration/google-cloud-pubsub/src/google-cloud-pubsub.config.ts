@@ -1,4 +1,7 @@
-import { GoogleCloudPubsubModule, PubsubTopicConfiguration } from '@golevelup/nestjs-google-cloud-pubsub';
+import {
+  GoogleCloudPubsubModule,
+  PubsubTopicConfiguration,
+} from '@golevelup/nestjs-google-cloud-pubsub';
 import { MessageType } from '@protobuf-ts/runtime';
 import * as path from 'node:path';
 
@@ -72,13 +75,21 @@ export const topics = [
   },
   {
     name: 'payment.processed.dead-letter-queue',
-    subscriptions: [{ name: 'payment.processed.dead-letter-queue.subscription' }],
+    subscriptions: [
+      { name: 'payment.processed.dead-letter-queue.subscription' },
+    ],
   },
 ] as const satisfies readonly PubsubTopicConfiguration[];
 
-const googleCloudPubsubKit = GoogleCloudPubsubModule.initializeKit<typeof topics>();
-const { GoogleCloudPubsubAbstractPublisher, GoogleCloudPubsubBatchSubscribe, GoogleCloudPubsubSubscribe } = googleCloudPubsubKit;
+const googleCloudPubsubKit =
+  GoogleCloudPubsubModule.initializeKit<typeof topics>();
+const {
+  GoogleCloudPubsubAbstractPublisher,
+  GoogleCloudPubsubBatchSubscribe,
+  GoogleCloudPubsubSubscribe,
+} = googleCloudPubsubKit;
 
-export type GoogleCloudPubsubPayloadsMap = typeof googleCloudPubsubKit._GoogleCloudPubsubPayloadsMap;
+export type GoogleCloudPubsubPayloadsMap =
+  typeof googleCloudPubsubKit._GoogleCloudPubsubPayloadsMap;
 export class GoogleCloudPubsubPublisher extends GoogleCloudPubsubAbstractPublisher<GoogleCloudPubsubPayloadsMap> {}
 export { GoogleCloudPubsubSubscribe, GoogleCloudPubsubBatchSubscribe };

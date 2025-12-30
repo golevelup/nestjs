@@ -1,7 +1,10 @@
 import { Message, PubSub } from '@google-cloud/pubsub';
 import { MessageOptions } from '@google-cloud/pubsub/build/src/topic';
 
-import { PubsubConfigurationInvalidError, PubsubConfigurationMismatchError } from './pubsub-configuration.errors';
+import {
+  PubsubConfigurationInvalidError,
+  PubsubConfigurationMismatchError,
+} from './pubsub-configuration.errors';
 import { PubsubSchemaClient } from './pubsub-schema.client';
 import { PubsubSubscriptionContainer } from './pubsub-subscription.container';
 import { PubsubTopicContainer } from './pubsub-topic.container';
@@ -22,7 +25,10 @@ export class PubsubClient {
   private readonly logger: PubsubClientLogger;
 
   private readonly topicContainers = new Map<string, PubsubTopicContainer>();
-  private readonly subscriptionContainers = new Map<string, PubsubSubscriptionContainer>();
+  private readonly subscriptionContainers = new Map<
+    string,
+    PubsubSubscriptionContainer
+  >();
 
   private readonly attachedHandlers = new Set<string>();
 
@@ -37,7 +43,9 @@ export class PubsubClient {
     this.logger = logger || console;
   }
 
-  public async initialize(topicConfigurations: readonly PubsubTopicConfiguration[]) {
+  public async initialize(
+    topicConfigurations: readonly PubsubTopicConfiguration[],
+  ) {
     const topicNames = new Set<string>();
     const subscriptionNames = new Set<string>();
 
@@ -67,17 +75,24 @@ export class PubsubClient {
 
     await Promise.all(
       topicConfigurations.map(async (topicConfiguration) => {
-        const topicContainer = await this.connectAndValidateTopic(topicConfiguration);
+        const topicContainer =
+          await this.connectAndValidateTopic(topicConfiguration);
 
         await Promise.all(
-          topicConfiguration.subscriptions.map(async (subscriptionConfiguration) =>
-            this.connectAndValidateSubscription(topicContainer, subscriptionConfiguration),
+          topicConfiguration.subscriptions.map(
+            async (subscriptionConfiguration) =>
+              this.connectAndValidateSubscription(
+                topicContainer,
+                subscriptionConfiguration,
+              ),
           ),
         );
       }),
     );
 
-    this.logger.log(`Initialized. Topics=${this.topicContainers.size}, Subscriptions=${this.subscriptionContainers.size}.`);
+    this.logger.log(
+      `Initialized. Topics=${this.topicContainers.size}, Subscriptions=${this.subscriptionContainers.size}.`,
+    );
   }
 
   public async close(): Promise<void> {
@@ -96,16 +111,22 @@ export class PubsubClient {
       await Promise.allSettled(flushPromises);
     }
 
-    const closingSubscriptions = Array.from(this.subscriptionContainers.values()).map((subscription) =>
+    const closingSubscriptions = Array.from(
+      this.subscriptionContainers.values(),
+    ).map((subscription) =>
       subscription.instance.close().catch((e) => {
-        this.logger.error(`Failed to close subscription (${subscription.configuration.name}): ${e.message}.`);
+        this.logger.error(
+          `Failed to close subscription (${subscription.configuration.name}): ${e.message}.`,
+        );
       }),
     );
 
     await Promise.allSettled(closingSubscriptions);
 
     if (this.outstandingMessageProcessing.size > 0) {
-      this.logger.log(`Waiting for ${this.outstandingMessageProcessing.size} subscriber(s) to finish.`);
+      this.logger.log(
+        `Waiting for ${this.outstandingMessageProcessing.size} subscriber(s) to finish.`,
+      );
 
       await Promise.allSettled(this.outstandingMessageProcessing);
     }
@@ -117,11 +138,16 @@ export class PubsubClient {
     this.logger.log('Closed.');
   }
 
-  public async publish(topicName: string, message: Omit<MessageOptions, 'data'> & { data: unknown }) {
+  public async publish(
+    topicName: string,
+    message: Omit<MessageOptions, 'data'> & { data: unknown },
+  ) {
     const topicContainer = this.topicContainers.get(topicName);
 
     if (!topicContainer) {
-      throw new Error(`Topic (${topicName}) not initialized. Ensure it is defined in the configuration.`);
+      throw new Error(
+        `Topic (${topicName}) not initialized. Ensure it is defined in the configuration.`,
+      );
     }
 
     const data = topicContainer.serializer.serialize(message.data);
@@ -129,12 +155,18 @@ export class PubsubClient {
     return topicContainer.instance.publishMessage({ ...message, data });
   }
 
-  public async attachHandler(subscriptionName: string, handler: (message: GoogleCloudPubsubMessage) => Promise<void>) {
+  public async attachHandler(
+    subscriptionName: string,
+    handler: (message: GoogleCloudPubsubMessage) => Promise<void>,
+  ) {
     if (this.attachedHandlers.has(subscriptionName)) {
-      throw new Error(`Handler attachment failed. A handler has already been attached for subscription (${subscriptionName}).`);
+      throw new Error(
+        `Handler attachment failed. A handler has already been attached for subscription (${subscriptionName}).`,
+      );
     }
 
-    const subscriptionContainer = this.subscriptionContainers.get(subscriptionName);
+    const subscriptionContainer =
+      this.subscriptionContainers.get(subscriptionName);
 
     if (!subscriptionContainer) {
       throw new Error(`Subscription (${subscriptionName}) is not registered.`);
@@ -146,7 +178,10 @@ export class PubsubClient {
     const messageHandler = (message: Message) => {
       const task = async () => {
         try {
-          const deserializedMessage = this.deserializeMessage(message, serializer);
+          const deserializedMessage = this.deserializeMessage(
+            message,
+            serializer,
+          );
 
           await handler(deserializedMessage);
 
@@ -170,7 +205,9 @@ export class PubsubClient {
     };
 
     const errorHandler = (error: Error) => {
-      this.logger.error(`Subscription (${subscriptionName}) stream error: ${error.message}.`);
+      this.logger.error(
+        `Subscription (${subscriptionName}) stream error: ${error.message}.`,
+      );
     };
 
     subscription.on('message', messageHandler);
@@ -181,12 +218,18 @@ export class PubsubClient {
     this.logger.log(`Handler attached to ${subscriptionName}.`);
   }
 
-  public async attachBatchHandler(subscriptionName: string, handler: (messages: GoogleCloudPubsubMessage[]) => Promise<void>) {
+  public async attachBatchHandler(
+    subscriptionName: string,
+    handler: (messages: GoogleCloudPubsubMessage[]) => Promise<void>,
+  ) {
     if (this.attachedHandlers.has(subscriptionName)) {
-      throw new Error(`Handler attachment failed. A handler has already been attached for subscription (${subscriptionName}).`);
+      throw new Error(
+        `Handler attachment failed. A handler has already been attached for subscription (${subscriptionName}).`,
+      );
     }
 
-    const subscriptionContainer = this.subscriptionContainers.get(subscriptionName);
+    const subscriptionContainer =
+      this.subscriptionContainers.get(subscriptionName);
 
     if (!subscriptionContainer) {
       throw new Error(`Subscription (${subscriptionName}) is not registered.`);
@@ -195,13 +238,17 @@ export class PubsubClient {
     const subscription = subscriptionContainer.instance;
     const serializer = subscriptionContainer.topicContainer.serializer;
 
-    const batchManager = new PubsubSubscriptionBatchManager(subscriptionContainer.configuration.batchManagerOptions);
+    const batchManager = new PubsubSubscriptionBatchManager(
+      subscriptionContainer.configuration.batchManagerOptions,
+    );
 
     subscriptionContainer.batchManager = batchManager;
 
     batchManager.on(async (batch) => {
       try {
-        const deserializedMessages = batch.map((item) => this.deserializeMessage(item.message, serializer));
+        const deserializedMessages = batch.map((item) =>
+          this.deserializeMessage(item.message, serializer),
+        );
 
         await handler(deserializedMessages);
 
@@ -210,7 +257,9 @@ export class PubsubClient {
           item.deferred.resolve();
         });
       } catch (error: any) {
-        this.logger.error(`Failed to process batch messages on subscription (${subscription.name}). Error: ${error.message}`);
+        this.logger.error(
+          `Failed to process batch messages on subscription (${subscription.name}). Error: ${error.message}`,
+        );
 
         batch.forEach((item) => {
           item.message.nack();
@@ -230,7 +279,9 @@ export class PubsubClient {
     };
 
     const errorHandler = (error: Error) => {
-      this.logger.error(`Subscription (${subscriptionName}) stream error: ${error.message}.`);
+      this.logger.error(
+        `Subscription (${subscriptionName}) stream error: ${error.message}.`,
+      );
     };
 
     subscription.on('message', messageHandler);
@@ -240,7 +291,10 @@ export class PubsubClient {
     this.logger.log(`Handler attached to ${subscriptionName}.`);
   }
 
-  private deserializeMessage(message: Message, serializer: PubsubSerializer): GoogleCloudPubsubMessage {
+  private deserializeMessage(
+    message: Message,
+    serializer: PubsubSerializer,
+  ): GoogleCloudPubsubMessage {
     return {
       attributes: message.attributes,
       data: serializer.deserialize(message),
@@ -251,7 +305,9 @@ export class PubsubClient {
     };
   }
 
-  private async connectAndValidateTopic(configuration: PubsubTopicConfiguration) {
+  private async connectAndValidateTopic(
+    configuration: PubsubTopicConfiguration,
+  ) {
     const { name, publishOptions, schema } = configuration;
 
     const topic = this.pubsub.topic(name, publishOptions);
@@ -265,7 +321,11 @@ export class PubsubClient {
       });
     }
 
-    const topicContainer = new PubsubTopicContainer(topic, configuration, new PubsubSerializer(name, schema));
+    const topicContainer = new PubsubTopicContainer(
+      topic,
+      configuration,
+      new PubsubSerializer(name, schema),
+    );
 
     await this.pubsubSchemaClient.connectAndValidateSchema(topicContainer);
 
@@ -287,25 +347,35 @@ export class PubsubClient {
       const remoteTopicName = metadata.topic?.split('/').pop();
 
       if (topicContainer.configuration.name !== remoteTopicName) {
-        throw new PubsubConfigurationMismatchError(topicContainer.configuration.name, {
-          key: 'subscription.topic.name',
-          local: topicContainer.configuration.name,
-          remote: remoteTopicName,
-        });
+        throw new PubsubConfigurationMismatchError(
+          topicContainer.configuration.name,
+          {
+            key: 'subscription.topic.name',
+            local: topicContainer.configuration.name,
+            remote: remoteTopicName,
+          },
+        );
       }
     } catch (error) {
       if ((error as { code: number }).code === 5) {
-        throw new PubsubConfigurationMismatchError(topicContainer.configuration.name, {
-          key: 'subscription.name',
-          local: name,
-          remote: null,
-        });
+        throw new PubsubConfigurationMismatchError(
+          topicContainer.configuration.name,
+          {
+            key: 'subscription.name',
+            local: name,
+            remote: null,
+          },
+        );
       }
 
       throw error;
     }
 
-    const subscriptionContainer = new PubsubSubscriptionContainer(subscription, configuration, topicContainer);
+    const subscriptionContainer = new PubsubSubscriptionContainer(
+      subscription,
+      configuration,
+      topicContainer,
+    );
 
     this.subscriptionContainers.set(name, subscriptionContainer);
   }

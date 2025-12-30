@@ -1,8 +1,10 @@
 import { PubSub, Subscription } from '@google-cloud/pubsub';
 import * as crypto from 'crypto';
 
-import { PubsubConfigurationMismatchError } from '../../../packages/google-cloud-pubsub/src/client/pubsub-configuration.errors';
-import { PubsubClient, PubsubTopicConfiguration } from '../../../packages/google-cloud-pubsub/src/client';
+import { PubsubTopicConfiguration } from '@golevelup/nestjs-google-cloud-pubsub/src';
+import { PubsubConfigurationMismatchError } from '@golevelup/nestjs-google-cloud-pubsub/src/client/pubsub-configuration.errors';
+import { PubsubClient } from '@golevelup/nestjs-google-cloud-pubsub/src/client/pubsub.client';
+
 import { assertRejectsWith } from './pubsub-client.spec-utils';
 
 // These tests are skipped. They require a real Google Cloud Pub/Sub instance.
@@ -40,14 +42,21 @@ describe.skip('PubsubClient.connectAndValidateSubscription()', () => {
       subscriptions: [],
     };
 
-    const [anotherTopic] = await pubsub.createTopic(anotherTopicConfiguration.name);
+    const [anotherTopic] = await pubsub.createTopic(
+      anotherTopicConfiguration.name,
+    );
 
     await anotherTopic.createSubscription(subscriptionConfiguration.name);
 
-    const topicContainer = await pubsubClient['connectAndValidateTopic'](topicConfiguration);
+    const topicContainer =
+      await pubsubClient['connectAndValidateTopic'](topicConfiguration);
 
     await assertRejectsWith(
-      () => pubsubClient['connectAndValidateSubscription'](topicContainer, subscriptionConfiguration),
+      () =>
+        pubsubClient['connectAndValidateSubscription'](
+          topicContainer,
+          subscriptionConfiguration,
+        ),
       PubsubConfigurationMismatchError,
       (error) => {
         expect(error.mismatchEntry).toEqual({
@@ -69,10 +78,15 @@ describe.skip('PubsubClient.connectAndValidateSubscription()', () => {
 
     const subscriptionConfiguration = topicConfiguration.subscriptions[0];
 
-    const topicContainer = await pubsubClient['connectAndValidateTopic'](topicConfiguration);
+    const topicContainer =
+      await pubsubClient['connectAndValidateTopic'](topicConfiguration);
 
     await assertRejectsWith(
-      () => pubsubClient['connectAndValidateSubscription'](topicContainer, subscriptionConfiguration),
+      () =>
+        pubsubClient['connectAndValidateSubscription'](
+          topicContainer,
+          subscriptionConfiguration,
+        ),
       PubsubConfigurationMismatchError,
       (error) => {
         expect(error.mismatchEntry).toEqual({
@@ -96,14 +110,24 @@ describe.skip('PubsubClient.connectAndValidateSubscription()', () => {
 
     await topic.createSubscription(subscriptionConfiguration.name);
 
-    const topicContainer = await pubsubClient['connectAndValidateTopic'](topicConfiguration);
+    const topicContainer =
+      await pubsubClient['connectAndValidateTopic'](topicConfiguration);
 
-    await pubsubClient['connectAndValidateSubscription'](topicContainer, subscriptionConfiguration);
+    await pubsubClient['connectAndValidateSubscription'](
+      topicContainer,
+      subscriptionConfiguration,
+    );
 
-    const subscriptionContainer = pubsubClient['subscriptionContainers'].get(subscriptionConfiguration.name);
+    const subscriptionContainer = pubsubClient['subscriptionContainers'].get(
+      subscriptionConfiguration.name,
+    );
 
-    expect(subscriptionContainer!.configuration).toEqual(subscriptionConfiguration);
+    expect(subscriptionContainer!.configuration).toEqual(
+      subscriptionConfiguration,
+    );
     expect(subscriptionContainer!.instance).toBeInstanceOf(Subscription);
-    expect(subscriptionContainer!.topicContainer.configuration).toEqual(topicContainer.configuration);
+    expect(subscriptionContainer!.topicContainer.configuration).toEqual(
+      topicContainer.configuration,
+    );
   });
 });

@@ -5,7 +5,9 @@ import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as path from 'path';
 
-import { PubsubClient, PubsubTopicConfiguration } from '../../../packages/google-cloud-pubsub/src/client';
+import { PubsubTopicConfiguration } from '@golevelup/nestjs-google-cloud-pubsub/src';
+import { PubsubClient } from '@golevelup/nestjs-google-cloud-pubsub/src/client/pubsub.client';
+
 import { assertRejectsWith } from './pubsub-client.spec-utils';
 
 import { Level1ProtocolBuffer } from './proto/level1';
@@ -133,7 +135,10 @@ describe.skip('PubsubClient.publish()', () => {
 
   let pubsub: PubSub;
 
-  async function createTopicWithSchema(schemaDefinition: schema.RecordType, encoding: (typeof Encodings)[keyof typeof Encodings]) {
+  async function createTopicWithSchema(
+    schemaDefinition: schema.RecordType,
+    encoding: (typeof Encodings)[keyof typeof Encodings],
+  ) {
     const topicConfiguration = {
       name: `topic-${crypto.randomUUID()}`,
       schema: {
@@ -166,7 +171,11 @@ describe.skip('PubsubClient.publish()', () => {
     return { pubsubClient, topicConfiguration };
   }
 
-  async function createTopicWithProtoSchema(definition: MessageType<any>, protoFileName: string, encoding: (typeof Encodings)[keyof typeof Encodings]) {
+  async function createTopicWithProtoSchema(
+    definition: MessageType<any>,
+    protoFileName: string,
+    encoding: (typeof Encodings)[keyof typeof Encodings],
+  ) {
     const protoPath = path.resolve(__dirname, `./proto/${protoFileName}`);
     const protoDefinition = fs.readFileSync(protoPath, 'utf-8');
 
@@ -182,7 +191,11 @@ describe.skip('PubsubClient.publish()', () => {
       subscriptions: [],
     } as const satisfies PubsubTopicConfiguration;
 
-    const remoteSchema = await pubsub.createSchema(topicConfiguration.schema.name, topicConfiguration.schema.type, protoDefinition);
+    const remoteSchema = await pubsub.createSchema(
+      topicConfiguration.schema.name,
+      topicConfiguration.schema.type,
+      protoDefinition,
+    );
 
     await pubsub.createTopic({
       name: topicConfiguration.name,
@@ -208,25 +221,34 @@ describe.skip('PubsubClient.publish()', () => {
   });
 
   it(`${SchemaTypes.Avro} schema with ${Encodings.Binary}: should successfully publish level(1).`, async () => {
-    const { pubsubClient, topicConfiguration } = await createTopicWithSchema(avroSchema1, Encodings.Binary);
+    const { pubsubClient, topicConfiguration } = await createTopicWithSchema(
+      avroSchema1,
+      Encodings.Binary,
+    );
 
     try {
       const validData = { field1: 'hello world' };
 
-      await expect(pubsubClient.publish(topicConfiguration.name, { data: validData })).resolves.toEqual(expect.any(String));
+      await expect(
+        pubsubClient.publish(topicConfiguration.name, { data: validData }),
+      ).resolves.toEqual(expect.any(String));
     } finally {
       await pubsubClient.close();
     }
   });
 
   it(`${SchemaTypes.Avro} schema with ${Encodings.Binary}: should throw validation error for invalid data level(1).`, async () => {
-    const { pubsubClient, topicConfiguration } = await createTopicWithSchema(avroSchema1, Encodings.Binary);
+    const { pubsubClient, topicConfiguration } = await createTopicWithSchema(
+      avroSchema1,
+      Encodings.Binary,
+    );
 
     try {
       const invalidData = { field1: 12345 };
 
       await assertRejectsWith(
-        () => pubsubClient.publish(topicConfiguration.name, { data: invalidData }),
+        () =>
+          pubsubClient.publish(topicConfiguration.name, { data: invalidData }),
         Error,
         (error) => {
           expect(error.message).toContain('invalid "string": 12345');
@@ -238,25 +260,34 @@ describe.skip('PubsubClient.publish()', () => {
   });
 
   it(`${SchemaTypes.Avro} schema with ${Encodings.Json}: should successfully publish level(1).`, async () => {
-    const { pubsubClient, topicConfiguration } = await createTopicWithSchema(avroSchema1, Encodings.Json);
+    const { pubsubClient, topicConfiguration } = await createTopicWithSchema(
+      avroSchema1,
+      Encodings.Json,
+    );
 
     try {
       const validData = { field1: 'hello world' };
 
-      await expect(pubsubClient.publish(topicConfiguration.name, { data: validData })).resolves.toEqual(expect.any(String));
+      await expect(
+        pubsubClient.publish(topicConfiguration.name, { data: validData }),
+      ).resolves.toEqual(expect.any(String));
     } finally {
       await pubsubClient.close();
     }
   });
 
   it(`${SchemaTypes.Avro} schema with ${Encodings.Json}: should throw validation error for invalid data level(1).`, async () => {
-    const { pubsubClient, topicConfiguration } = await createTopicWithSchema(avroSchema1, Encodings.Json);
+    const { pubsubClient, topicConfiguration } = await createTopicWithSchema(
+      avroSchema1,
+      Encodings.Json,
+    );
 
     try {
       const invalidData = { field1: 12345 };
 
       await assertRejectsWith(
-        () => pubsubClient.publish(topicConfiguration.name, { data: invalidData }),
+        () =>
+          pubsubClient.publish(topicConfiguration.name, { data: invalidData }),
         Error,
         (error) => {
           expect(error.message).toContain('invalid "string": 12345');
@@ -268,19 +299,27 @@ describe.skip('PubsubClient.publish()', () => {
   });
 
   it(`${SchemaTypes.Avro} schema with ${Encodings.Binary}: should successfully publish level(2).`, async () => {
-    const { pubsubClient, topicConfiguration } = await createTopicWithSchema(avroSchema2, Encodings.Binary);
+    const { pubsubClient, topicConfiguration } = await createTopicWithSchema(
+      avroSchema2,
+      Encodings.Binary,
+    );
 
     try {
       const validData = { field1: 'level2', field2: 123, field3: true };
 
-      await expect(pubsubClient.publish(topicConfiguration.name, { data: validData })).resolves.toEqual(expect.any(String));
+      await expect(
+        pubsubClient.publish(topicConfiguration.name, { data: validData }),
+      ).resolves.toEqual(expect.any(String));
     } finally {
       await pubsubClient.close();
     }
   });
 
   it(`${SchemaTypes.Avro} schema with ${Encodings.Binary}: should throw validation error for invalid data level(2).`, async () => {
-    const { pubsubClient, topicConfiguration } = await createTopicWithSchema(avroSchema2, Encodings.Binary);
+    const { pubsubClient, topicConfiguration } = await createTopicWithSchema(
+      avroSchema2,
+      Encodings.Binary,
+    );
 
     try {
       const invalidData = {
@@ -290,7 +329,8 @@ describe.skip('PubsubClient.publish()', () => {
       };
 
       await assertRejectsWith(
-        () => pubsubClient.publish(topicConfiguration.name, { data: invalidData }),
+        () =>
+          pubsubClient.publish(topicConfiguration.name, { data: invalidData }),
         Error,
         (error) => {
           expect(error.message).toContain('invalid "int": "not-an-int"');
@@ -302,19 +342,27 @@ describe.skip('PubsubClient.publish()', () => {
   });
 
   it(`${SchemaTypes.Avro} schema with ${Encodings.Json}: should successfully publish level(2).`, async () => {
-    const { pubsubClient, topicConfiguration } = await createTopicWithSchema(avroSchema2, Encodings.Json);
+    const { pubsubClient, topicConfiguration } = await createTopicWithSchema(
+      avroSchema2,
+      Encodings.Json,
+    );
 
     try {
       const validData = { field1: 'level2', field2: 123, field3: true };
 
-      await expect(pubsubClient.publish(topicConfiguration.name, { data: validData })).resolves.toEqual(expect.any(String));
+      await expect(
+        pubsubClient.publish(topicConfiguration.name, { data: validData }),
+      ).resolves.toEqual(expect.any(String));
     } finally {
       await pubsubClient.close();
     }
   });
 
   it(`${SchemaTypes.Avro} schema with ${Encodings.Json}: should throw validation error for invalid data level(2).`, async () => {
-    const { pubsubClient, topicConfiguration } = await createTopicWithSchema(avroSchema2, Encodings.Json);
+    const { pubsubClient, topicConfiguration } = await createTopicWithSchema(
+      avroSchema2,
+      Encodings.Json,
+    );
 
     try {
       const invalidData = {
@@ -324,7 +372,8 @@ describe.skip('PubsubClient.publish()', () => {
       };
 
       await assertRejectsWith(
-        () => pubsubClient.publish(topicConfiguration.name, { data: invalidData }),
+        () =>
+          pubsubClient.publish(topicConfiguration.name, { data: invalidData }),
         Error,
         (error) => {
           expect(error.message).toContain('invalid "int": "not-an-int"');
@@ -336,7 +385,10 @@ describe.skip('PubsubClient.publish()', () => {
   });
 
   it(`${SchemaTypes.Avro} schema with ${Encodings.Binary}: should successfully publish level(3).`, async () => {
-    const { pubsubClient, topicConfiguration } = await createTopicWithSchema(avroSchema3, Encodings.Binary);
+    const { pubsubClient, topicConfiguration } = await createTopicWithSchema(
+      avroSchema3,
+      Encodings.Binary,
+    );
 
     try {
       const validData = {
@@ -347,14 +399,19 @@ describe.skip('PubsubClient.publish()', () => {
         field5: { nestedField1: 'nested' },
       };
 
-      await expect(pubsubClient.publish(topicConfiguration.name, { data: validData })).resolves.toEqual(expect.any(String));
+      await expect(
+        pubsubClient.publish(topicConfiguration.name, { data: validData }),
+      ).resolves.toEqual(expect.any(String));
     } finally {
       await pubsubClient.close();
     }
   });
 
   it(`${SchemaTypes.Avro} schema with ${Encodings.Binary}: should throw validation error for invalid data level(3).`, async () => {
-    const { pubsubClient, topicConfiguration } = await createTopicWithSchema(avroSchema3, Encodings.Binary);
+    const { pubsubClient, topicConfiguration } = await createTopicWithSchema(
+      avroSchema3,
+      Encodings.Binary,
+    );
 
     try {
       const invalidData = {
@@ -366,7 +423,8 @@ describe.skip('PubsubClient.publish()', () => {
       };
 
       await assertRejectsWith(
-        () => pubsubClient.publish(topicConfiguration.name, { data: invalidData }),
+        () =>
+          pubsubClient.publish(topicConfiguration.name, { data: invalidData }),
         Error,
         (error) => {
           expect(error.message).toContain('invalid "string": undefined');
@@ -378,7 +436,10 @@ describe.skip('PubsubClient.publish()', () => {
   });
 
   it(`${SchemaTypes.Avro} schema with ${Encodings.Json}: should successfully publish level(3).`, async () => {
-    const { pubsubClient, topicConfiguration } = await createTopicWithSchema(avroSchema3, Encodings.Json);
+    const { pubsubClient, topicConfiguration } = await createTopicWithSchema(
+      avroSchema3,
+      Encodings.Json,
+    );
 
     try {
       const validData = {
@@ -389,14 +450,19 @@ describe.skip('PubsubClient.publish()', () => {
         field5: { nestedField1: 'nested' },
       };
 
-      await expect(pubsubClient.publish(topicConfiguration.name, { data: validData })).resolves.toEqual(expect.any(String));
+      await expect(
+        pubsubClient.publish(topicConfiguration.name, { data: validData }),
+      ).resolves.toEqual(expect.any(String));
     } finally {
       await pubsubClient.close();
     }
   });
 
   it(`${SchemaTypes.Avro} schema with ${Encodings.Json}: should throw validation error for invalid data level(3).`, async () => {
-    const { pubsubClient, topicConfiguration } = await createTopicWithSchema(avroSchema3, Encodings.Json);
+    const { pubsubClient, topicConfiguration } = await createTopicWithSchema(
+      avroSchema3,
+      Encodings.Json,
+    );
 
     try {
       const invalidData = {
@@ -408,7 +474,8 @@ describe.skip('PubsubClient.publish()', () => {
       };
 
       await assertRejectsWith(
-        () => pubsubClient.publish(topicConfiguration.name, { data: invalidData }),
+        () =>
+          pubsubClient.publish(topicConfiguration.name, { data: invalidData }),
         Error,
         (error) => {
           expect(error.message).toContain('invalid "string": undefined');
@@ -420,7 +487,10 @@ describe.skip('PubsubClient.publish()', () => {
   });
 
   it(`${SchemaTypes.Avro} schema with ${Encodings.Binary}: should successfully publish level(4).`, async () => {
-    const { pubsubClient, topicConfiguration } = await createTopicWithSchema(avroSchema4, Encodings.Binary);
+    const { pubsubClient, topicConfiguration } = await createTopicWithSchema(
+      avroSchema4,
+      Encodings.Binary,
+    );
 
     try {
       const validData = {
@@ -434,14 +504,19 @@ describe.skip('PubsubClient.publish()', () => {
         nested2: { nestedField3: true },
       };
 
-      await expect(pubsubClient.publish(topicConfiguration.name, { data: validData })).resolves.toEqual(expect.any(String));
+      await expect(
+        pubsubClient.publish(topicConfiguration.name, { data: validData }),
+      ).resolves.toEqual(expect.any(String));
     } finally {
       await pubsubClient.close();
     }
   });
 
   it(`${SchemaTypes.Avro} schema with ${Encodings.Binary}: should throw validation error for invalid data level(4).`, async () => {
-    const { pubsubClient, topicConfiguration } = await createTopicWithSchema(avroSchema4, Encodings.Binary);
+    const { pubsubClient, topicConfiguration } = await createTopicWithSchema(
+      avroSchema4,
+      Encodings.Binary,
+    );
 
     try {
       const invalidData = {
@@ -456,7 +531,8 @@ describe.skip('PubsubClient.publish()', () => {
       };
 
       await assertRejectsWith(
-        () => pubsubClient.publish(topicConfiguration.name, { data: invalidData }),
+        () =>
+          pubsubClient.publish(topicConfiguration.name, { data: invalidData }),
         Error,
         (error) => {
           expect(error.message).toContain('invalid "bytes": "not-a-buffer"');
@@ -468,7 +544,10 @@ describe.skip('PubsubClient.publish()', () => {
   });
 
   it(`${SchemaTypes.Avro} schema with ${Encodings.Json}: should successfully publish level(4).`, async () => {
-    const { pubsubClient, topicConfiguration } = await createTopicWithSchema(avroSchema4, Encodings.Json);
+    const { pubsubClient, topicConfiguration } = await createTopicWithSchema(
+      avroSchema4,
+      Encodings.Json,
+    );
 
     try {
       const validData = {
@@ -482,14 +561,19 @@ describe.skip('PubsubClient.publish()', () => {
         nested2: { nestedField3: true },
       };
 
-      await expect(pubsubClient.publish(topicConfiguration.name, { data: validData })).resolves.toEqual(expect.any(String));
+      await expect(
+        pubsubClient.publish(topicConfiguration.name, { data: validData }),
+      ).resolves.toEqual(expect.any(String));
     } finally {
       await pubsubClient.close();
     }
   });
 
   it(`${SchemaTypes.Avro} schema with ${Encodings.Json}: should throw validation error for invalid data level(4).`, async () => {
-    const { pubsubClient, topicConfiguration } = await createTopicWithSchema(avroSchema4, Encodings.Json);
+    const { pubsubClient, topicConfiguration } = await createTopicWithSchema(
+      avroSchema4,
+      Encodings.Json,
+    );
 
     try {
       const invalidData = {
@@ -504,7 +588,8 @@ describe.skip('PubsubClient.publish()', () => {
       };
 
       await assertRejectsWith(
-        () => pubsubClient.publish(topicConfiguration.name, { data: invalidData }),
+        () =>
+          pubsubClient.publish(topicConfiguration.name, { data: invalidData }),
         Error,
         (error) => {
           expect(error.message).toContain('invalid "bytes": "not-a-buffer"');
@@ -516,7 +601,10 @@ describe.skip('PubsubClient.publish()', () => {
   });
 
   it(`${SchemaTypes.Avro} schema with ${Encodings.Binary}: should successfully publish level(5).`, async () => {
-    const { pubsubClient, topicConfiguration } = await createTopicWithSchema(avroSchema5, Encodings.Binary);
+    const { pubsubClient, topicConfiguration } = await createTopicWithSchema(
+      avroSchema5,
+      Encodings.Binary,
+    );
 
     try {
       const validData = {
@@ -537,14 +625,19 @@ describe.skip('PubsubClient.publish()', () => {
         },
       };
 
-      await expect(pubsubClient.publish(topicConfiguration.name, { data: validData })).resolves.toEqual(expect.any(String));
+      await expect(
+        pubsubClient.publish(topicConfiguration.name, { data: validData }),
+      ).resolves.toEqual(expect.any(String));
     } finally {
       await pubsubClient.close();
     }
   });
 
   it(`${SchemaTypes.Avro} schema with ${Encodings.Binary}: should throw validation error for invalid data level(5).`, async () => {
-    const { pubsubClient, topicConfiguration } = await createTopicWithSchema(avroSchema5, Encodings.Binary);
+    const { pubsubClient, topicConfiguration } = await createTopicWithSchema(
+      avroSchema5,
+      Encodings.Binary,
+    );
 
     try {
       const invalidData = {
@@ -566,7 +659,8 @@ describe.skip('PubsubClient.publish()', () => {
       };
 
       await assertRejectsWith(
-        () => pubsubClient.publish(topicConfiguration.name, { data: invalidData }),
+        () =>
+          pubsubClient.publish(topicConfiguration.name, { data: invalidData }),
         Error,
         (error) => {
           expect(error.message).toContain('invalid "boolean": "not-a-boolean"');
@@ -578,7 +672,10 @@ describe.skip('PubsubClient.publish()', () => {
   });
 
   it(`${SchemaTypes.Avro} schema with ${Encodings.Json}: should successfully publish level(5).`, async () => {
-    const { pubsubClient, topicConfiguration } = await createTopicWithSchema(avroSchema5, Encodings.Json);
+    const { pubsubClient, topicConfiguration } = await createTopicWithSchema(
+      avroSchema5,
+      Encodings.Json,
+    );
 
     try {
       const validData = {
@@ -599,14 +696,19 @@ describe.skip('PubsubClient.publish()', () => {
         },
       };
 
-      await expect(pubsubClient.publish(topicConfiguration.name, { data: validData })).resolves.toEqual(expect.any(String));
+      await expect(
+        pubsubClient.publish(topicConfiguration.name, { data: validData }),
+      ).resolves.toEqual(expect.any(String));
     } finally {
       await pubsubClient.close();
     }
   });
 
   it(`${SchemaTypes.Avro} schema with ${Encodings.Json}: should throw validation error for invalid data level(5).`, async () => {
-    const { pubsubClient, topicConfiguration } = await createTopicWithSchema(avroSchema5, Encodings.Json);
+    const { pubsubClient, topicConfiguration } = await createTopicWithSchema(
+      avroSchema5,
+      Encodings.Json,
+    );
 
     try {
       const invalidData = {
@@ -628,7 +730,8 @@ describe.skip('PubsubClient.publish()', () => {
       };
 
       await assertRejectsWith(
-        () => pubsubClient.publish(topicConfiguration.name, { data: invalidData }),
+        () =>
+          pubsubClient.publish(topicConfiguration.name, { data: invalidData }),
         Error,
         (error) => {
           expect(error.message).toContain('invalid "boolean": "not-a-boolean"');
@@ -640,25 +743,38 @@ describe.skip('PubsubClient.publish()', () => {
   });
 
   it(`${SchemaTypes.ProtocolBuffer} schema with ${Encodings.Binary}: should successfully publish level(1).`, async () => {
-    const { pubsubClient, topicConfiguration } = await createTopicWithProtoSchema(Level1ProtocolBuffer, 'level1.proto', Encodings.Binary);
+    const { pubsubClient, topicConfiguration } =
+      await createTopicWithProtoSchema(
+        Level1ProtocolBuffer,
+        'level1.proto',
+        Encodings.Binary,
+      );
 
     try {
       const validData = { field1: 'hello world' };
 
-      await expect(pubsubClient.publish(topicConfiguration.name, { data: validData })).resolves.toEqual(expect.any(String));
+      await expect(
+        pubsubClient.publish(topicConfiguration.name, { data: validData }),
+      ).resolves.toEqual(expect.any(String));
     } finally {
       await pubsubClient.close();
     }
   });
 
   it(`${SchemaTypes.ProtocolBuffer} schema with ${Encodings.Binary}: should throw validation error for invalid data level(1).`, async () => {
-    const { pubsubClient, topicConfiguration } = await createTopicWithProtoSchema(Level1ProtocolBuffer, 'level1.proto', Encodings.Binary);
+    const { pubsubClient, topicConfiguration } =
+      await createTopicWithProtoSchema(
+        Level1ProtocolBuffer,
+        'level1.proto',
+        Encodings.Binary,
+      );
 
     try {
       const invalidData = { field1: 12345 };
 
       await assertRejectsWith(
-        () => pubsubClient.publish(topicConfiguration.name, { data: invalidData }),
+        () =>
+          pubsubClient.publish(topicConfiguration.name, { data: invalidData }),
         Error,
         (error) => {
           expect(error.message).toContain('fail is not defined');
@@ -670,25 +786,38 @@ describe.skip('PubsubClient.publish()', () => {
   });
 
   it(`${SchemaTypes.ProtocolBuffer} schema with ${Encodings.Json}: should successfully publish level(1).`, async () => {
-    const { pubsubClient, topicConfiguration } = await createTopicWithProtoSchema(Level1ProtocolBuffer, 'level1.proto', Encodings.Json);
+    const { pubsubClient, topicConfiguration } =
+      await createTopicWithProtoSchema(
+        Level1ProtocolBuffer,
+        'level1.proto',
+        Encodings.Json,
+      );
 
     try {
       const validData = { field1: 'hello world' };
 
-      await expect(pubsubClient.publish(topicConfiguration.name, { data: validData })).resolves.toEqual(expect.any(String));
+      await expect(
+        pubsubClient.publish(topicConfiguration.name, { data: validData }),
+      ).resolves.toEqual(expect.any(String));
     } finally {
       await pubsubClient.close();
     }
   });
 
   it(`${SchemaTypes.ProtocolBuffer} schema with ${Encodings.Json}: should throw validation error for invalid data level(1).`, async () => {
-    const { pubsubClient, topicConfiguration } = await createTopicWithProtoSchema(Level1ProtocolBuffer, 'level1.proto', Encodings.Json);
+    const { pubsubClient, topicConfiguration } =
+      await createTopicWithProtoSchema(
+        Level1ProtocolBuffer,
+        'level1.proto',
+        Encodings.Json,
+      );
 
     try {
       const invalidData = { field1: 12345 };
 
       await assertRejectsWith(
-        () => pubsubClient.publish(topicConfiguration.name, { data: invalidData }),
+        () =>
+          pubsubClient.publish(topicConfiguration.name, { data: invalidData }),
         Error,
         (error) => {
           expect(error.message).toBe('');
@@ -700,19 +829,31 @@ describe.skip('PubsubClient.publish()', () => {
   });
 
   it(`${SchemaTypes.ProtocolBuffer} schema with ${Encodings.Binary}: should successfully publish level(2).`, async () => {
-    const { pubsubClient, topicConfiguration } = await createTopicWithProtoSchema(Level2ProtocolBuffer, 'level2.proto', Encodings.Binary);
+    const { pubsubClient, topicConfiguration } =
+      await createTopicWithProtoSchema(
+        Level2ProtocolBuffer,
+        'level2.proto',
+        Encodings.Binary,
+      );
 
     try {
       const validData = { field1: 'level2', field2: 123, field3: true };
 
-      await expect(pubsubClient.publish(topicConfiguration.name, { data: validData })).resolves.toEqual(expect.any(String));
+      await expect(
+        pubsubClient.publish(topicConfiguration.name, { data: validData }),
+      ).resolves.toEqual(expect.any(String));
     } finally {
       await pubsubClient.close();
     }
   });
 
   it(`${SchemaTypes.ProtocolBuffer} schema with ${Encodings.Binary}: should throw validation error for invalid data level(2).`, async () => {
-    const { pubsubClient, topicConfiguration } = await createTopicWithProtoSchema(Level2ProtocolBuffer, 'level2.proto', Encodings.Binary);
+    const { pubsubClient, topicConfiguration } =
+      await createTopicWithProtoSchema(
+        Level2ProtocolBuffer,
+        'level2.proto',
+        Encodings.Binary,
+      );
 
     try {
       const invalidData = {
@@ -722,7 +863,8 @@ describe.skip('PubsubClient.publish()', () => {
       };
 
       await assertRejectsWith(
-        () => pubsubClient.publish(topicConfiguration.name, { data: invalidData }),
+        () =>
+          pubsubClient.publish(topicConfiguration.name, { data: invalidData }),
         Error,
         (error) => {
           expect(error.message).toContain('invalid int 32: string');
@@ -734,19 +876,31 @@ describe.skip('PubsubClient.publish()', () => {
   });
 
   it(`${SchemaTypes.ProtocolBuffer} schema with ${Encodings.Json}: should successfully publish level(2).`, async () => {
-    const { pubsubClient, topicConfiguration } = await createTopicWithProtoSchema(Level2ProtocolBuffer, 'level2.proto', Encodings.Json);
+    const { pubsubClient, topicConfiguration } =
+      await createTopicWithProtoSchema(
+        Level2ProtocolBuffer,
+        'level2.proto',
+        Encodings.Json,
+      );
 
     try {
       const validData = { field1: 'level2', field2: 123, field3: true };
 
-      await expect(pubsubClient.publish(topicConfiguration.name, { data: validData })).resolves.toEqual(expect.any(String));
+      await expect(
+        pubsubClient.publish(topicConfiguration.name, { data: validData }),
+      ).resolves.toEqual(expect.any(String));
     } finally {
       await pubsubClient.close();
     }
   });
 
   it(`${SchemaTypes.ProtocolBuffer} schema with ${Encodings.Json}: should throw validation error for invalid data level(2).`, async () => {
-    const { pubsubClient, topicConfiguration } = await createTopicWithProtoSchema(Level2ProtocolBuffer, 'level2.proto', Encodings.Json);
+    const { pubsubClient, topicConfiguration } =
+      await createTopicWithProtoSchema(
+        Level2ProtocolBuffer,
+        'level2.proto',
+        Encodings.Json,
+      );
 
     try {
       const invalidData = {
@@ -756,7 +910,8 @@ describe.skip('PubsubClient.publish()', () => {
       };
 
       await assertRejectsWith(
-        () => pubsubClient.publish(topicConfiguration.name, { data: invalidData }),
+        () =>
+          pubsubClient.publish(topicConfiguration.name, { data: invalidData }),
         Error,
         (error) => {
           expect(error.message).toContain('invalid int 32: string');
@@ -768,7 +923,12 @@ describe.skip('PubsubClient.publish()', () => {
   });
 
   it(`${SchemaTypes.ProtocolBuffer} schema with ${Encodings.Binary}: should successfully publish level(3).`, async () => {
-    const { pubsubClient, topicConfiguration } = await createTopicWithProtoSchema(Level3ProtocolBuffer, 'level3.proto', Encodings.Binary);
+    const { pubsubClient, topicConfiguration } =
+      await createTopicWithProtoSchema(
+        Level3ProtocolBuffer,
+        'level3.proto',
+        Encodings.Binary,
+      );
 
     try {
       const validData = {
@@ -779,14 +939,21 @@ describe.skip('PubsubClient.publish()', () => {
         field5: { nestedField1: 'nested' },
       };
 
-      await expect(pubsubClient.publish(topicConfiguration.name, { data: validData })).resolves.toEqual(expect.any(String));
+      await expect(
+        pubsubClient.publish(topicConfiguration.name, { data: validData }),
+      ).resolves.toEqual(expect.any(String));
     } finally {
       await pubsubClient.close();
     }
   });
 
   it(`${SchemaTypes.ProtocolBuffer} schema with ${Encodings.Binary}: should throw validation error for invalid data level(3).`, async () => {
-    const { pubsubClient, topicConfiguration } = await createTopicWithProtoSchema(Level3ProtocolBuffer, 'level3.proto', Encodings.Binary);
+    const { pubsubClient, topicConfiguration } =
+      await createTopicWithProtoSchema(
+        Level3ProtocolBuffer,
+        'level3.proto',
+        Encodings.Binary,
+      );
 
     try {
       const invalidData = {
@@ -798,7 +965,8 @@ describe.skip('PubsubClient.publish()', () => {
       };
 
       await assertRejectsWith(
-        () => pubsubClient.publish(topicConfiguration.name, { data: invalidData }),
+        () =>
+          pubsubClient.publish(topicConfiguration.name, { data: invalidData }),
         Error,
         (error) => {
           expect(error.message).toContain('fail is not defined');
@@ -810,7 +978,12 @@ describe.skip('PubsubClient.publish()', () => {
   });
 
   it(`${SchemaTypes.ProtocolBuffer} schema with ${Encodings.Json}: should successfully publish level(3).`, async () => {
-    const { pubsubClient, topicConfiguration } = await createTopicWithProtoSchema(Level3ProtocolBuffer, 'level3.proto', Encodings.Json);
+    const { pubsubClient, topicConfiguration } =
+      await createTopicWithProtoSchema(
+        Level3ProtocolBuffer,
+        'level3.proto',
+        Encodings.Json,
+      );
 
     try {
       const validData = {
@@ -821,14 +994,21 @@ describe.skip('PubsubClient.publish()', () => {
         field5: { nestedField1: 'nested' },
       };
 
-      await expect(pubsubClient.publish(topicConfiguration.name, { data: validData })).resolves.toEqual(expect.any(String));
+      await expect(
+        pubsubClient.publish(topicConfiguration.name, { data: validData }),
+      ).resolves.toEqual(expect.any(String));
     } finally {
       await pubsubClient.close();
     }
   });
 
   it(`${SchemaTypes.ProtocolBuffer} schema with ${Encodings.Json}: should throw validation error for invalid data level(3).`, async () => {
-    const { pubsubClient, topicConfiguration } = await createTopicWithProtoSchema(Level3ProtocolBuffer, 'level3.proto', Encodings.Json);
+    const { pubsubClient, topicConfiguration } =
+      await createTopicWithProtoSchema(
+        Level3ProtocolBuffer,
+        'level3.proto',
+        Encodings.Json,
+      );
 
     try {
       const invalidData = {
@@ -840,7 +1020,8 @@ describe.skip('PubsubClient.publish()', () => {
       };
 
       await assertRejectsWith(
-        () => pubsubClient.publish(topicConfiguration.name, { data: invalidData }),
+        () =>
+          pubsubClient.publish(topicConfiguration.name, { data: invalidData }),
         Error,
         (error) => {
           expect(error.message).toBe('');
@@ -852,7 +1033,12 @@ describe.skip('PubsubClient.publish()', () => {
   });
 
   it(`${SchemaTypes.ProtocolBuffer} schema with ${Encodings.Binary}: should successfully publish level(4).`, async () => {
-    const { pubsubClient, topicConfiguration } = await createTopicWithProtoSchema(Level4ProtocolBuffer, 'level4.proto', Encodings.Binary);
+    const { pubsubClient, topicConfiguration } =
+      await createTopicWithProtoSchema(
+        Level4ProtocolBuffer,
+        'level4.proto',
+        Encodings.Binary,
+      );
 
     try {
       const validData = {
@@ -866,14 +1052,21 @@ describe.skip('PubsubClient.publish()', () => {
         nested2: { nestedField3: true },
       };
 
-      await expect(pubsubClient.publish(topicConfiguration.name, { data: validData })).resolves.toEqual(expect.any(String));
+      await expect(
+        pubsubClient.publish(topicConfiguration.name, { data: validData }),
+      ).resolves.toEqual(expect.any(String));
     } finally {
       await pubsubClient.close();
     }
   });
 
   it(`${SchemaTypes.ProtocolBuffer} schema with ${Encodings.Binary}: should throw validation error for invalid data level(4).`, async () => {
-    const { pubsubClient, topicConfiguration } = await createTopicWithProtoSchema(Level4ProtocolBuffer, 'level4.proto', Encodings.Binary);
+    const { pubsubClient, topicConfiguration } =
+      await createTopicWithProtoSchema(
+        Level4ProtocolBuffer,
+        'level4.proto',
+        Encodings.Binary,
+      );
 
     try {
       const invalidData = {
@@ -888,7 +1081,8 @@ describe.skip('PubsubClient.publish()', () => {
       };
 
       await assertRejectsWith(
-        () => pubsubClient.publish(topicConfiguration.name, { data: invalidData }),
+        () =>
+          pubsubClient.publish(topicConfiguration.name, { data: invalidData }),
         Error,
         (error) => {
           expect(error.message).toContain('invalid uint 32: undefined');
@@ -900,7 +1094,12 @@ describe.skip('PubsubClient.publish()', () => {
   });
 
   it(`${SchemaTypes.ProtocolBuffer} schema with ${Encodings.Json}: should successfully publish level(4).`, async () => {
-    const { pubsubClient, topicConfiguration } = await createTopicWithProtoSchema(Level4ProtocolBuffer, 'level4.proto', Encodings.Json);
+    const { pubsubClient, topicConfiguration } =
+      await createTopicWithProtoSchema(
+        Level4ProtocolBuffer,
+        'level4.proto',
+        Encodings.Json,
+      );
 
     try {
       const validData = {
@@ -914,14 +1113,21 @@ describe.skip('PubsubClient.publish()', () => {
         nested2: { nestedField3: true },
       };
 
-      await expect(pubsubClient.publish(topicConfiguration.name, { data: validData })).resolves.toEqual(expect.any(String));
+      await expect(
+        pubsubClient.publish(topicConfiguration.name, { data: validData }),
+      ).resolves.toEqual(expect.any(String));
     } finally {
       await pubsubClient.close();
     }
   });
 
   it(`${SchemaTypes.ProtocolBuffer} schema with ${Encodings.Json}: should throw validation error for invalid data level(4).`, async () => {
-    const { pubsubClient, topicConfiguration } = await createTopicWithProtoSchema(Level4ProtocolBuffer, 'level4.proto', Encodings.Json);
+    const { pubsubClient, topicConfiguration } =
+      await createTopicWithProtoSchema(
+        Level4ProtocolBuffer,
+        'level4.proto',
+        Encodings.Json,
+      );
 
     try {
       const invalidData = {
@@ -936,7 +1142,8 @@ describe.skip('PubsubClient.publish()', () => {
       };
 
       await assertRejectsWith(
-        () => pubsubClient.publish(topicConfiguration.name, { data: invalidData }),
+        () =>
+          pubsubClient.publish(topicConfiguration.name, { data: invalidData }),
         Error,
         (error) => {
           expect(error.message).toBe('');
@@ -948,7 +1155,12 @@ describe.skip('PubsubClient.publish()', () => {
   });
 
   it(`${SchemaTypes.ProtocolBuffer} schema with ${Encodings.Binary}: should successfully publish level(5).`, async () => {
-    const { pubsubClient, topicConfiguration } = await createTopicWithProtoSchema(Level5ProtocolBuffer, 'level5.proto', Encodings.Binary);
+    const { pubsubClient, topicConfiguration } =
+      await createTopicWithProtoSchema(
+        Level5ProtocolBuffer,
+        'level5.proto',
+        Encodings.Binary,
+      );
 
     try {
       const validData = {
@@ -969,14 +1181,21 @@ describe.skip('PubsubClient.publish()', () => {
         },
       };
 
-      await expect(pubsubClient.publish(topicConfiguration.name, { data: validData })).resolves.toEqual(expect.any(String));
+      await expect(
+        pubsubClient.publish(topicConfiguration.name, { data: validData }),
+      ).resolves.toEqual(expect.any(String));
     } finally {
       await pubsubClient.close();
     }
   });
 
   it(`${SchemaTypes.ProtocolBuffer} schema with ${Encodings.Binary}: should throw validation error for invalid data level(5).`, async () => {
-    const { pubsubClient, topicConfiguration } = await createTopicWithProtoSchema(Level5ProtocolBuffer, 'level5.proto', Encodings.Binary);
+    const { pubsubClient, topicConfiguration } =
+      await createTopicWithProtoSchema(
+        Level5ProtocolBuffer,
+        'level5.proto',
+        Encodings.Binary,
+      );
 
     try {
       const invalidData = {
@@ -998,7 +1217,8 @@ describe.skip('PubsubClient.publish()', () => {
       };
 
       await assertRejectsWith(
-        () => pubsubClient.publish(topicConfiguration.name, { data: invalidData }),
+        () =>
+          pubsubClient.publish(topicConfiguration.name, { data: invalidData }),
         Error,
         (error) => {
           expect(error.message).toContain('fail is not defined');
@@ -1010,7 +1230,12 @@ describe.skip('PubsubClient.publish()', () => {
   });
 
   it(`${SchemaTypes.ProtocolBuffer} schema with ${Encodings.Json}: should successfully publish level(5).`, async () => {
-    const { pubsubClient, topicConfiguration } = await createTopicWithProtoSchema(Level5ProtocolBuffer, 'level5.proto', Encodings.Json);
+    const { pubsubClient, topicConfiguration } =
+      await createTopicWithProtoSchema(
+        Level5ProtocolBuffer,
+        'level5.proto',
+        Encodings.Json,
+      );
 
     try {
       const validData = {
@@ -1031,14 +1256,21 @@ describe.skip('PubsubClient.publish()', () => {
         },
       };
 
-      await expect(pubsubClient.publish(topicConfiguration.name, { data: validData })).resolves.toEqual(expect.any(String));
+      await expect(
+        pubsubClient.publish(topicConfiguration.name, { data: validData }),
+      ).resolves.toEqual(expect.any(String));
     } finally {
       await pubsubClient.close();
     }
   });
 
   it(`${SchemaTypes.ProtocolBuffer} schema with ${Encodings.Json}: should throw validation error for invalid data level(5).`, async () => {
-    const { pubsubClient, topicConfiguration } = await createTopicWithProtoSchema(Level5ProtocolBuffer, 'level5.proto', Encodings.Json);
+    const { pubsubClient, topicConfiguration } =
+      await createTopicWithProtoSchema(
+        Level5ProtocolBuffer,
+        'level5.proto',
+        Encodings.Json,
+      );
 
     try {
       const invalidData = {
@@ -1060,7 +1292,8 @@ describe.skip('PubsubClient.publish()', () => {
       };
 
       await assertRejectsWith(
-        () => pubsubClient.publish(topicConfiguration.name, { data: invalidData }),
+        () =>
+          pubsubClient.publish(topicConfiguration.name, { data: invalidData }),
         Error,
         (error) => {
           expect(error.message).toBe('');

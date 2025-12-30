@@ -1,7 +1,9 @@
 import * as crypto from 'crypto';
 
-import { PubsubConfigurationInvalidError } from '../../../packages/google-cloud-pubsub/src/client/pubsub-configuration.errors';
-import { PubsubClient, PubsubTopicConfiguration } from '../../../packages/google-cloud-pubsub/src/client';
+import { PubsubTopicConfiguration } from '@golevelup/nestjs-google-cloud-pubsub/src';
+import { PubsubConfigurationInvalidError } from '@golevelup/nestjs-google-cloud-pubsub/src/client/pubsub-configuration.errors';
+import { PubsubClient } from '@golevelup/nestjs-google-cloud-pubsub/src/client/pubsub.client';
+
 import { assertRejectsWith } from './pubsub-client.spec-utils';
 
 describe.skip('PubsubClient.initialize()', () => {
