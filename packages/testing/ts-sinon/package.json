@@ -29,7 +29,8 @@
     "copy-readme": "cp ../../../docs/testing/ts-sinon.md ./README.md",
     "build": "tsc --build tsconfig.build.json",
     "build:watch": "tsc --build tsconfig.build.json --watch",
-    "test": "jest"
+    "test": "jest",
+    "typecheck": "tsc --noEmit"
   },
   "bugs": {
     "url": "https://github.com/golevelup/nestjs/issues"

@@ -44,9 +44,7 @@ export type IsExactlyUnknown<T> = unknown extends T
 export type DeepMockedFunction<T extends (...args: any[]) => any> = ((
   ...args: Parameters<T>
 ) => DeepMocked<ReturnType<T>>) &
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  Mock<Parameters<T>>;
+  Mock<T>;
 
 /**
  * Recursively transforms a type into a deeply mocked version.
@@ -82,4 +80,4 @@ export type DeepMocked<T> = {
           ? DeepMocked<NonNullable<T[K]>> | undefined
           : DeepMocked<T[K]>
         : T[K]; // primitive
-};
+} & T;
