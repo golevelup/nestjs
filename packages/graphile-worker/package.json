@@ -40,7 +40,8 @@
     "copy-readme": "cp ../../docs/modules/graphile-worker.md ./README2.md",
     "build": "tsc --build tsconfig.build.json",
     "build:watch": "tsc --build tsconfig.build.json --watch",
-    "test": "vitest"
+    "test": "vitest",
+    "typecheck": "tsc --noEmit"
   },
   "bugs": {
     "url": "https://github.com/golevelup/nestjs/issues"
