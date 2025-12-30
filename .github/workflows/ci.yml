@@ -51,6 +51,9 @@ jobs:
       - name: Build
         run: pnpm build --concurrency=12
 
+      - name: Lint & Typecheck
+        run: pnpm lint && pnpm lerna:typecheck
+
       - name: Run unit tests
         run: pnpm test:ci
 

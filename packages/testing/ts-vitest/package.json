@@ -31,7 +31,8 @@
     "copy-readme": "cp ../../../docs/testing/ts-vitest.md ./README.md",
     "build": "tsc --build tsconfig.build.json",
     "build:watch": "tsc --build tsconfig.build.json --watch",
-    "test": "vitest"
+    "test": "vitest",
+    "typecheck": "tsc --noEmit"
   },
   "bugs": {
     "url": "https://github.com/golevelup/nestjs/issues"
