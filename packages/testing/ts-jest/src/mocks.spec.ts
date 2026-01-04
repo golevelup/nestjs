@@ -1,7 +1,9 @@
 import { ExecutionContext } from '@nestjs/common';
 import { HttpArgumentsHost } from '@nestjs/common/interfaces';
 import { Test, TestingModule } from '@nestjs/testing';
+import { S3Client } from '@aws-sdk/client-s3';
 import { createMock, DeepMocked } from './mocks';
+import { Repository } from 'typeorm';
 
 interface TestInterface {
   someNum: number;
@@ -220,6 +222,19 @@ describe('Mocks', () => {
       const result = mock.nested.func4();
       expect(mock.nested.someOtherNum).toBe(99);
       expect(result).toBe(true);
+    });
+
+    it('should handle real AWS SDK S3Client without type instantiation errors', () => {
+      // This is the real-world case that triggers TS2589 with the current DeepMocked implementation
+      const s3Client: S3Client = createMock<S3Client>();
+      expect(s3Client).toBeDefined();
+    });
+
+    it('should handle real TypeORM Repository without too complex of a type errors', () => {
+      // This is the real-world case that triggers TS2590: with the current DeepMocked implementation
+      const repo: Repository<{ a: number }> =
+        createMock<Repository<{ a: number }>>();
+      expect(repo).toBeDefined();
     });
 
     it('should work with classes having nested properties', () => {

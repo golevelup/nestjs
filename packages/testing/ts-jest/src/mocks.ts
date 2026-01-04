@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-empty-object-type */
 import { jest } from '@jest/globals';
 import { Mock } from 'jest-mock';
 
@@ -17,11 +18,23 @@ export type PartialFuncReturn<T> = {
     : DeepPartial<T[K]>;
 };
 
+type IsExactlyUnknown<T> = unknown extends T
+  ? T extends {}
+    ? false
+    : true
+  : false;
+
 export type DeepMocked<T> = {
-  [K in keyof T]: Required<T>[K] extends (...args: any[]) => infer U
-    ? jest.MockInstance<ReturnType<Required<T>[K]>, jest.ArgsType<T[K]>> &
-        ((...args: jest.ArgsType<T[K]>) => DeepMocked<U>)
-    : DeepMocked<T[K]>;
+  [K in keyof T]: IsExactlyUnknown<T[K]> extends true
+    ? any
+    : NonNullable<T[K]> extends (...args: any[]) => infer U
+      ? jest.MockInstance<ReturnType<NonNullable<T[K]>>, jest.ArgsType<T[K]>> &
+          ((...args: jest.ArgsType<T[K]>) => DeepMocked<U>)
+      : NonNullable<T[K]> extends object
+        ? undefined extends T[K]
+          ? DeepMocked<NonNullable<T[K]>> | undefined
+          : DeepMocked<T[K]>
+        : T[K];
 } & T;
 
 const jestFnProps = new Set([
