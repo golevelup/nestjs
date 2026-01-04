@@ -228,6 +228,9 @@ describe('Mocks', () => {
       // This is the real-world case that triggers TS2589 with the current DeepMocked implementation
       const s3Client: S3Client = createMock<S3Client>();
       expect(s3Client).toBeDefined();
+    });
+
+    it('should handle real TypeORM Repository without too complex of a type errors', () => {
       // This is the real-world case that triggers TS2590: with the current DeepMocked implementation
       const repo: Repository<{ a: number }> =
         createMock<Repository<{ a: number }>>();
