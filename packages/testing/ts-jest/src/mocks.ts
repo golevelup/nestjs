@@ -17,12 +17,18 @@ export type PartialFuncReturn<T> = {
     : DeepPartial<T[K]>;
 };
 
-export type DeepMocked<T> = {
-  [K in keyof T]: Required<T>[K] extends (...args: any[]) => infer U
-    ? jest.MockInstance<ReturnType<Required<T>[K]>, jest.ArgsType<T[K]>> &
-        ((...args: jest.ArgsType<T[K]>) => DeepMocked<U>)
-    : DeepMocked<T[K]>;
-} & T;
+type DeepMockedDepth = [never, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+
+export type DeepMocked<T, Depth extends number = 10> = Depth extends 0
+  ? T
+  : {
+      [K in keyof T]: Required<T>[K] extends (...args: any[]) => infer U
+        ? jest.MockInstance<ReturnType<Required<T>[K]>, jest.ArgsType<T[K]>> &
+            ((
+              ...args: jest.ArgsType<T[K]>
+            ) => DeepMocked<U, DeepMockedDepth[Depth]>)
+        : DeepMocked<T[K], DeepMockedDepth[Depth]>;
+    } & T;
 
 const jestFnProps = new Set([
   '_isMockFunction',
