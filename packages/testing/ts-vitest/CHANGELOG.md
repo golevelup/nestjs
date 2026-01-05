@@ -1,5 +1,11 @@
 # Change Log
 
+## 2.2.0
+
+### Minor Changes
+
+- fixes on a regression caused by the new DeepMocked & type signatures
+
 ## 2.1.1
 
 ### Patch Changes
