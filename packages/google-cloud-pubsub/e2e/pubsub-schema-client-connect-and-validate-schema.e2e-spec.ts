@@ -4,14 +4,14 @@ import * as crypto from 'crypto';
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
 
-import { PubsubTopicConfiguration } from '@golevelup/nestjs-google-cloud-pubsub/src';
+import { PubsubTopicConfiguration } from '../src';
 import {
   PubsubConfigurationInvalidError,
   PubsubConfigurationMismatchError,
-} from '@golevelup/nestjs-google-cloud-pubsub/src/client/pubsub-configuration.errors';
-import { PubsubSchemaClient } from '@golevelup/nestjs-google-cloud-pubsub/src/client/pubsub-schema.client';
-import { PubsubTopicContainer } from '@golevelup/nestjs-google-cloud-pubsub/src/client/pubsub-topic.container';
-import { PubsubSerializer } from '@golevelup/nestjs-google-cloud-pubsub/src/client/pubsub.serializer';
+} from '../src/client/pubsub-configuration.errors';
+import { PubsubSchemaClient } from '../src/client/pubsub-schema.client';
+import { PubsubTopicContainer } from '../src/client/pubsub-topic.container';
+import { PubsubSerializer } from '../src/client/pubsub.serializer';
 
 import { assertRejectsWith } from './pubsub-client.spec-utils';
 

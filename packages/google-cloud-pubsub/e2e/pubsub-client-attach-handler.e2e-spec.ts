@@ -4,11 +4,8 @@ import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as path from 'path';
 
-import {
-  GoogleCloudPubsubMessage,
-  PubsubTopicConfiguration,
-} from '@golevelup/nestjs-google-cloud-pubsub/src';
-import { PubsubClient } from '@golevelup/nestjs-google-cloud-pubsub/src/client/pubsub.client';
+import { GoogleCloudPubsubMessage, PubsubTopicConfiguration } from '../src';
+import { PubsubClient } from '../src/client/pubsub.client';
 
 import { Level3ProtocolBuffer } from './proto/level3';
 import { assertRejectsWith } from './pubsub-client.spec-utils';

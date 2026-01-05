@@ -1,10 +1,7 @@
 import { PubSub } from '@google-cloud/pubsub';
 import * as crypto from 'crypto';
 
-import {
-  PubsubClient,
-  PubsubTopicConfiguration,
-} from '@golevelup/nestjs-google-cloud-pubsub/src/client';
+import { PubsubClient, PubsubTopicConfiguration } from '../src/client';
 
 // These tests are skipped. They require a real Google Cloud Pub/Sub instance.
 // To run these tests locally:

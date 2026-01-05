@@ -25,6 +25,7 @@
     "url": "git+https://github.com/golevelup/nestjs.git"
   },
   "scripts": {
+    "test:e2e": "jest --config ../../jest-e2e.json packages/google-cloud-pubsub",
     "copy-readme": "cp ../../docs/modules/google-pubsub.md ./README.md",
     "build": "tsc --build tsconfig.build.json",
     "build:watch": "tsc --build tsconfig.build.json --watch",

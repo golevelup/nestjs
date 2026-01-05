@@ -5,8 +5,8 @@ import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as path from 'path';
 
-import { PubsubTopicConfiguration } from '@golevelup/nestjs-google-cloud-pubsub/src';
-import { PubsubClient } from '@golevelup/nestjs-google-cloud-pubsub/src/client/pubsub.client';
+import { PubsubTopicConfiguration } from '../src';
+import { PubsubClient } from '../src/client/pubsub.client';
 
 import { assertRejectsWith } from './pubsub-client.spec-utils';
 

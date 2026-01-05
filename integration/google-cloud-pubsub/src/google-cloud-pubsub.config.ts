@@ -5,7 +5,7 @@ import {
 import { MessageType } from '@protobuf-ts/runtime';
 import * as path from 'node:path';
 
-import { Level5ProtocolBuffer } from '../e2e/proto/level5';
+import { Level5ProtocolBuffer } from '../proto/level5';
 
 export const topics = [
   {
@@ -60,7 +60,7 @@ export const topics = [
       definition: Level5ProtocolBuffer as MessageType<Level5ProtocolBuffer>,
       encoding: 'BINARY',
       name: 'payment.processed.schema',
-      protoPath: path.join(process.cwd(), 'e2e/proto/level5.proto'),
+      protoPath: path.join(process.cwd(), 'proto/level5.proto'),
       type: 'PROTOCOL_BUFFER',
     },
     subscriptions: [

@@ -2,12 +2,9 @@ import { Encodings, Message, SchemaTypes } from '@google-cloud/pubsub';
 import { Type as AvroType, schema } from 'avsc';
 import * as crypto from 'crypto';
 
-import {
-  ENCODINGS,
-  PubsubTopicConfiguration,
-} from '@golevelup/nestjs-google-cloud-pubsub/src';
-import { PubsubConfigurationInvalidError } from '@golevelup/nestjs-google-cloud-pubsub/src/client/pubsub-configuration.errors';
-import { PubsubSerializer } from '@golevelup/nestjs-google-cloud-pubsub/src/client/pubsub.serializer';
+import { ENCODINGS, PubsubTopicConfiguration } from '../src';
+import { PubsubConfigurationInvalidError } from '../src/client/pubsub-configuration.errors';
+import { PubsubSerializer } from '../src/client/pubsub.serializer';
 
 import { TestEvent } from './proto/test';
 

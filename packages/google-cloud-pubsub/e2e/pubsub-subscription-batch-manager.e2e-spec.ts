@@ -1,7 +1,7 @@
 import { Message } from '@google-cloud/pubsub';
-import { PubsubSubscriptionBatchManager } from '@golevelup/nestjs-google-cloud-pubsub/src/client/pubsub-subscription.batch-manager';
-import { promiseWithResolvers } from '@golevelup/nestjs-google-cloud-pubsub/src/client/utils';
-import { PubsubBatchManagerConfigurationInvalidError } from '@golevelup/nestjs-google-cloud-pubsub/src/client/pubsub-configuration.errors';
+import { PubsubSubscriptionBatchManager } from '../src/client/pubsub-subscription.batch-manager';
+import { promiseWithResolvers } from '../src/client/utils';
+import { PubsubBatchManagerConfigurationInvalidError } from '../src/client/pubsub-configuration.errors';
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
