@@ -17,7 +17,6 @@ import {
 } from './pubsub.client-types';
 import { PubsubSerializer } from './pubsub.serializer';
 import { PubsubSubscriptionBatchManager } from './pubsub-subscription.batch-manager';
-import { promiseWithResolvers } from './utils';
 
 export class PubsubClient {
   private readonly pubsub: PubSub;
@@ -46,26 +45,50 @@ export class PubsubClient {
 
   public async initialize(
     topicConfigurations: readonly PubsubTopicConfiguration[],
-  ): Promise<void> {
-    for (const topicConfiguration of topicConfigurations) {
-      const topicContainer =
-        await this.connectAndValidateTopic(topicConfiguration);
+  ) {
+    const topicNames = new Set<string>();
+    const subscriptionNames = new Set<string>();
 
-      for (const subscriptionConfiguration of topicConfiguration.subscriptions) {
-        await this.connectAndValidateSubscription(
-          topicContainer,
-          subscriptionConfiguration,
-        );
+    for (const topicConfiguration of topicConfigurations) {
+      if (topicNames.has(topicConfiguration.name)) {
+        throw new PubsubConfigurationInvalidError(topicConfiguration.name, {
+          key: 'name',
+          reason: 'Duplicate topic name in configuration.',
+          value: topicConfiguration.name,
+        });
       }
 
-      const subscriptionNames = topicConfiguration.subscriptions.map(
-        (subscription) => subscription.name,
-      );
+      topicNames.add(topicConfiguration.name);
 
-      this.logger.log(
-        `Topic ${topicConfiguration.name} -> [${subscriptionNames.join(', ')}] initialized.`,
-      );
+      for (const subscriptionConfiguration of topicConfiguration.subscriptions) {
+        if (subscriptionNames.has(subscriptionConfiguration.name)) {
+          throw new PubsubConfigurationInvalidError(topicConfiguration.name, {
+            key: 'subscription.name',
+            reason: 'Duplicate subscription name in configuration.',
+            value: subscriptionConfiguration.name,
+          });
+        }
+
+        subscriptionNames.add(subscriptionConfiguration.name);
+      }
     }
+
+    await Promise.all(
+      topicConfigurations.map(async (topicConfiguration) => {
+        const topicContainer =
+          await this.connectAndValidateTopic(topicConfiguration);
+
+        await Promise.all(
+          topicConfiguration.subscriptions.map(
+            async (subscriptionConfiguration) =>
+              this.connectAndValidateSubscription(
+                topicContainer,
+                subscriptionConfiguration,
+              ),
+          ),
+        );
+      }),
+    );
 
     this.logger.log(
       `Initialized. Topics=${this.topicContainers.size}, Subscriptions=${this.subscriptionContainers.size}.`,
@@ -73,15 +96,19 @@ export class PubsubClient {
   }
 
   public async close(): Promise<void> {
-    this.logger.log('Closing.');
+    const flushPromises: Promise<void>[] = [];
 
     for (const container of this.subscriptionContainers.values()) {
       container.instance.removeAllListeners('message');
       container.instance.removeAllListeners('error');
 
       if (container.batchManager) {
-        container.batchManager.flush();
+        flushPromises.push(container.batchManager.flush());
       }
+    }
+
+    if (flushPromises.length > 0) {
+      await Promise.allSettled(flushPromises);
     }
 
     const closingSubscriptions = Array.from(
@@ -149,14 +176,6 @@ export class PubsubClient {
     const serializer = subscriptionContainer.topicContainer.serializer;
 
     const messageHandler = (message: Message) => {
-      const { promise, resolve } = promiseWithResolvers();
-
-      this.outstandingMessageProcessing.add(promise);
-
-      promise.finally(() => {
-        this.outstandingMessageProcessing.delete(promise);
-      });
-
       const task = async () => {
         try {
           const deserializedMessage = this.deserializeMessage(
@@ -176,7 +195,13 @@ export class PubsubClient {
         }
       };
 
-      task().finally(resolve);
+      const promise = task();
+
+      this.outstandingMessageProcessing.add(promise);
+
+      promise.finally(() => {
+        this.outstandingMessageProcessing.delete(promise);
+      });
     };
 
     const errorHandler = (error: Error) => {
@@ -211,14 +236,11 @@ export class PubsubClient {
     }
 
     const subscription = subscriptionContainer.instance;
-    const subscriptionOptions =
-      subscriptionContainer.configuration.options || {};
     const serializer = subscriptionContainer.topicContainer.serializer;
 
-    const batchManager = new PubsubSubscriptionBatchManager({
-      maxMessages: subscriptionOptions.flowControl?.maxMessages ?? 1000,
-      maxWaitTimeMilliseconds: 20,
-    });
+    const batchManager = new PubsubSubscriptionBatchManager(
+      subscriptionContainer.configuration.batchManagerOptions,
+    );
 
     subscriptionContainer.batchManager = batchManager;
 
@@ -247,15 +269,13 @@ export class PubsubClient {
     });
 
     const messageHandler = (message: Message) => {
-      const deferred = promiseWithResolvers();
+      const task = batchManager.add(message);
 
-      this.outstandingMessageProcessing.add(deferred.promise);
+      this.outstandingMessageProcessing.add(task);
 
-      deferred.promise.finally(() => {
-        this.outstandingMessageProcessing.delete(deferred.promise);
+      task.finally(() => {
+        this.outstandingMessageProcessing.delete(task);
       });
-
-      batchManager.add({ message, deferred });
     };
 
     const errorHandler = (error: Error) => {
@@ -290,14 +310,6 @@ export class PubsubClient {
   ) {
     const { name, publishOptions, schema } = configuration;
 
-    if (this.topicContainers.has(name)) {
-      throw new PubsubConfigurationInvalidError(name, {
-        key: 'name',
-        reason: 'Duplicate topic name.',
-        value: name,
-      });
-    }
-
     const topic = this.pubsub.topic(name, publishOptions);
     const [exists] = await topic.exists();
 
@@ -311,8 +323,8 @@ export class PubsubClient {
 
     const topicContainer = new PubsubTopicContainer(
       topic,
-      new PubsubSerializer(name, schema),
       configuration,
+      new PubsubSerializer(name, schema),
     );
 
     await this.pubsubSchemaClient.connectAndValidateSchema(topicContainer);
@@ -327,17 +339,6 @@ export class PubsubClient {
     configuration: PubsubSubscriptionConfiguration,
   ) {
     const { name, options } = configuration;
-
-    if (this.subscriptionContainers.has(name)) {
-      throw new PubsubConfigurationInvalidError(
-        topicContainer.configuration.name,
-        {
-          key: 'subscription.name',
-          reason: 'Duplicate subscription name.',
-          value: name,
-        },
-      );
-    }
 
     const subscription = topicContainer.instance.subscription(name, options);
 

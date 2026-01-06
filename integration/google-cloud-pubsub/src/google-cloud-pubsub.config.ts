@@ -1,8 +1,11 @@
-import { GoogleCloudPubsubModule, PubsubTopicConfiguration } from '@golevelup/nestjs-google-cloud-pubsub';
+import {
+  GoogleCloudPubsubModule,
+  PubsubTopicConfiguration,
+} from '@golevelup/nestjs-google-cloud-pubsub';
 import { MessageType } from '@protobuf-ts/runtime';
 import * as path from 'node:path';
 
-import { Level5ProtocolBuffer } from '../e2e/proto/level5';
+import { Level5ProtocolBuffer } from '../proto/level5';
 
 export const topics = [
   {
@@ -32,7 +35,20 @@ export const topics = [
       name: 'order.created.schema',
       type: 'AVRO',
     },
-    subscriptions: [{ name: 'order.created.subscription.order-processor-service' }, { name: 'order.created.subscription.analytic-service' }],
+    subscriptions: [
+      {
+        name: 'order.created.subscription.order-processor-service',
+        batchManagerOptions: { maxMessages: 15, maxWaitTimeMilliseconds: 200 },
+        options: {
+          flowControl: {
+            allowExcessMessages: false,
+            maxBytes: 10 * 1024 * 1024,
+            maxMessages: 500,
+          },
+        },
+      },
+      { name: 'order.created.subscription.analytic-service' },
+    ],
   },
   {
     name: 'order.created.dead-letter-queue',
@@ -44,7 +60,7 @@ export const topics = [
       definition: Level5ProtocolBuffer as MessageType<Level5ProtocolBuffer>,
       encoding: 'BINARY',
       name: 'payment.processed.schema',
-      protoPath: path.join(process.cwd(), 'e2e/proto/level5.proto'),
+      protoPath: path.join(process.cwd(), 'proto/level5.proto'),
       type: 'PROTOCOL_BUFFER',
     },
     subscriptions: [
@@ -59,13 +75,21 @@ export const topics = [
   },
   {
     name: 'payment.processed.dead-letter-queue',
-    subscriptions: [{ name: 'payment.processed.dead-letter-queue.subscription' }],
+    subscriptions: [
+      { name: 'payment.processed.dead-letter-queue.subscription' },
+    ],
   },
 ] as const satisfies readonly PubsubTopicConfiguration[];
 
-const googleCloudPubsubKit = GoogleCloudPubsubModule.initializeKit<typeof topics>();
-const { GoogleCloudPubsubAbstractPublisher, GoogleCloudPubsubSubscribe } = googleCloudPubsubKit;
+const googleCloudPubsubKit =
+  GoogleCloudPubsubModule.initializeKit<typeof topics>();
+const {
+  GoogleCloudPubsubAbstractPublisher,
+  GoogleCloudPubsubBatchSubscribe,
+  GoogleCloudPubsubSubscribe,
+} = googleCloudPubsubKit;
 
-export type GoogleCloudPubsubPayloadsMap = typeof googleCloudPubsubKit._GoogleCloudPubsubPayloadsMap;
+export type GoogleCloudPubsubPayloadsMap =
+  typeof googleCloudPubsubKit._GoogleCloudPubsubPayloadsMap;
 export class GoogleCloudPubsubPublisher extends GoogleCloudPubsubAbstractPublisher<GoogleCloudPubsubPayloadsMap> {}
-export { GoogleCloudPubsubSubscribe };
+export { GoogleCloudPubsubSubscribe, GoogleCloudPubsubBatchSubscribe };

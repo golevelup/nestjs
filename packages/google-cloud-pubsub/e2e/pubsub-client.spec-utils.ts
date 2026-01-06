@@ -6,7 +6,9 @@ export async function assertRejectsWith<T extends Error>(
   try {
     await asyncFn();
 
-    return fail(`Expected ${ExpectedErrorClass.name} to be thrown, but it did not throw.`);
+    return fail(
+      `Expected ${ExpectedErrorClass.name} to be thrown, but it did not throw.`,
+    );
   } catch (error: any) {
     expect(error).toBeInstanceOf(ExpectedErrorClass);
 

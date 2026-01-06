@@ -11,10 +11,12 @@ import {
   InferAvroPayload,
   PubsubSchemaConfiguration,
 } from './pubsub-schema.client-types';
+import { BatchManagerOptions } from './pubsub-subscription.batch-manager';
 
 export interface PubsubSubscriptionConfiguration {
   name: string;
   options?: SubscriptionOptions;
+  batchManagerOptions?: BatchManagerOptions;
 }
 
 export type PubsubTopicConfiguration = {
@@ -59,7 +61,7 @@ export type InferPayloadMap<
     : Buffer;
 };
 
-const invariantDataSymbol = Symbol.for(
+const invariantDataSymbol = Symbol(
   'GOOGLE_CLOUD_PUBSUB_MESSAGE_INVARIANT_DATA',
 );
 

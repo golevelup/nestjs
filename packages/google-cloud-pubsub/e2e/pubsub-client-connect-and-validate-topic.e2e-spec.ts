@@ -1,11 +1,10 @@
 import { PubSub } from '@google-cloud/pubsub';
 import * as crypto from 'crypto';
 
-import {
-  PubsubConfigurationInvalidError,
-  PubsubConfigurationMismatchError,
-} from '../../../packages/google-cloud-pubsub/src/client/pubsub-configuration.errors';
-import { PubsubClient, PubsubTopicConfiguration } from '../../../packages/google-cloud-pubsub/src/client';
+import { PubsubTopicConfiguration } from '../src';
+import { PubsubConfigurationMismatchError } from '../src/client/pubsub-configuration.errors';
+import { PubsubClient } from '../src/client/pubsub.client';
+
 import { assertRejectsWith } from './pubsub-client.spec-utils';
 
 // These tests are skipped. They require a real Google Cloud Pub/Sub instance.
@@ -23,38 +22,6 @@ describe.skip('PubsubClient.connectAndValidateTopic()', () => {
 
   afterAll(async () => {
     await pubsub.close();
-  });
-
-  it(`${PubsubConfigurationInvalidError.name}: in case of duplicate topic name.`, async () => {
-    const pubsubClient = new PubsubClient({});
-
-    const topicConfiguration: PubsubTopicConfiguration = {
-      name: `topic.${crypto.randomUUID()}`,
-      subscriptions: [],
-    };
-
-    await pubsub.createTopic(topicConfiguration.name);
-
-    await pubsubClient['connectAndValidateTopic']({
-      name: topicConfiguration.name,
-      subscriptions: [],
-    });
-
-    await assertRejectsWith(
-      () =>
-        pubsubClient['connectAndValidateTopic']({
-          name: topicConfiguration.name,
-          subscriptions: [],
-        }),
-      PubsubConfigurationInvalidError,
-      (error) => {
-        expect(error.invalidEntry).toEqual({
-          key: 'name',
-          reason: 'Duplicate topic name.',
-          value: topicConfiguration.name,
-        } satisfies PubsubConfigurationInvalidError['invalidEntry']);
-      },
-    );
   });
 
   it(`${PubsubConfigurationMismatchError.name}: in case if local topic doesn't exists in remote configuration.`, async () => {

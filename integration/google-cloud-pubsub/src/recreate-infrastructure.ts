@@ -51,10 +51,17 @@ async function bootstrap() {
       if (topicConfiguration.schema.type === 'AVRO') {
         definition = JSON.stringify(topicConfiguration.schema.definition);
       } else {
-        definition = await readFile(path.resolve(topicConfiguration.schema.protoPath), 'utf-8');
+        definition = await readFile(
+          path.resolve(topicConfiguration.schema.protoPath),
+          'utf-8',
+        );
       }
 
-      const createdSchema = await pubsub.createSchema(topicConfiguration.schema.name, topicConfiguration.schema.type, definition);
+      const createdSchema = await pubsub.createSchema(
+        topicConfiguration.schema.name,
+        topicConfiguration.schema.type,
+        definition,
+      );
 
       fullSchemaName = await createdSchema.getName();
     }

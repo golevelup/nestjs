@@ -13,11 +13,14 @@ import { InferPayloadMap, PubsubTopicConfiguration } from './client';
 
 import { PubsubClient } from './client/pubsub.client';
 import {
+  GOOGLE_CLOUD_PUBSUB_BATCH_SUBSCRIBE,
   GOOGLE_CLOUD_PUBSUB_CLIENT_TOKEN,
   GOOGLE_CLOUD_PUBSUB_SUBSCRIBE,
 } from './google-cloud-pubsub.constants';
 import {
+  createBatchSubscribeDecorator,
   createSubscribeDecorator,
+  PubsubBatchSubscribeMetadata,
   PubsubSubscribeMetadata,
 } from './google-cloud-pubsub.decorators';
 import {
@@ -69,14 +72,19 @@ export class GoogleCloudPubsubModule
   >() {
     type GoogleCloudPubsubPayloadsMap = InferPayloadMap<Topics>;
 
+    const GoogleCloudPubsubBatchSubscribe = createBatchSubscribeDecorator<
+      Topics,
+      GoogleCloudPubsubPayloadsMap
+    >();
     const GoogleCloudPubsubSubscribe = createSubscribeDecorator<
       Topics,
       GoogleCloudPubsubPayloadsMap
     >();
 
     return {
-      GoogleCloudPubsubAbstractPublisher,
       _GoogleCloudPubsubPayloadsMap: {} as GoogleCloudPubsubPayloadsMap,
+      GoogleCloudPubsubAbstractPublisher,
+      GoogleCloudPubsubBatchSubscribe,
       GoogleCloudPubsubSubscribe,
     };
   }
@@ -126,18 +134,30 @@ export class GoogleCloudPubsubModule
   }
 
   private async attachMessageHandlers() {
-    const providers =
-      await this.discoveryService.providerMethodsWithMetaAtKey<PubsubSubscribeMetadata>(
+    const [providers, batchProviders] = await Promise.all([
+      this.discoveryService.providerMethodsWithMetaAtKey<PubsubSubscribeMetadata>(
         GOOGLE_CLOUD_PUBSUB_SUBSCRIBE,
-      );
+      ),
+      this.discoveryService.providerMethodsWithMetaAtKey<PubsubBatchSubscribeMetadata>(
+        GOOGLE_CLOUD_PUBSUB_BATCH_SUBSCRIBE,
+      ),
+    ]);
 
-    for (const provider of providers) {
-      const { discoveredMethod, meta } = provider;
+    const tasks = [
+      ...providers.map(({ discoveredMethod, meta }) => {
+        return this.pubsubClient.attachHandler(
+          meta.subscription,
+          discoveredMethod.handler.bind(discoveredMethod.parentClass.instance),
+        );
+      }),
+      ...batchProviders.map(({ discoveredMethod, meta }) => {
+        return this.pubsubClient.attachBatchHandler(
+          meta.subscription,
+          discoveredMethod.handler.bind(discoveredMethod.parentClass.instance),
+        );
+      }),
+    ];
 
-      await this.pubsubClient.attachHandler(
-        meta.subscription,
-        discoveredMethod.handler.bind(discoveredMethod.parentClass.instance),
-      );
-    }
+    await Promise.all(tasks);
   }
 }

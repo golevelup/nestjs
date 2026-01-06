@@ -53,7 +53,28 @@ export const topics = [
       type: SchemaTypes.Avro,
     },
     subscriptions: [
-      { name: 'order.created.subscription.order-processor-service' },
+      /**
+       * High Density Configuration (Designed for up to 100 subscriptions per instance):
+       *
+       * 1. Flow Control:
+       *    - Limits each subscription to 10MB or 500 messages.
+       *    - Math: 100 subs * 10MB = 1GB Raw Buffer (~2GB Real RAM Usage).
+       *
+       * 2. Batch Manager:
+       *    - Aggregates up to 125 messages.
+       *    - Flushes every 200ms even if 125 messages weren't aggregated.
+       */
+      {
+        name: 'order.created.subscription.order-processor-service',
+        batchManagerOptions: { maxMessages: 125, maxWaitTimeMilliseconds: 200 },
+        options: {
+          flowControl: {
+            allowExcessMessages: false,
+            maxBytes: 10 * 1024 * 1024,
+            maxMessages: 500,
+          },
+        },
+      },
       { name: 'order.created.subscription.analytic-service' },
     ],
   },
@@ -75,16 +96,18 @@ export const topics = [
   },
 ] as const satisfies readonly PubsubTopicConfiguration[];
 
+const googleCloudPubsubKit =
+  GoogleCloudPubsubModule.initializeKit<typeof topics>();
 const {
-  _GoogleCloudPubsubPayloadsMap,
   GoogleCloudPubsubAbstractPublisher,
+  GoogleCloudPubsubBatchSubscribe,
   GoogleCloudPubsubSubscribe,
-} = GoogleCloudPubsubModule.initializeKit<typeof topics>();
+} = googleCloudPubsubKit;
 
-export type GoogleCloudPubsubPayloadsMap = typeof _GoogleCloudPubsubPayloadsMap;
-
+export type GoogleCloudPubsubPayloadsMap =
+  typeof googleCloudPubsubKit._GoogleCloudPubsubPayloadsMap;
 export class GoogleCloudPubsubPublisher extends GoogleCloudPubsubAbstractPublisher<GoogleCloudPubsubPayloadsMap> {}
-export { GoogleCloudPubsubSubscribe };
+export { GoogleCloudPubsubSubscribe, GoogleCloudPubsubBatchSubscribe };
 ```
 
 // app.module.ts
@@ -122,6 +145,7 @@ import {
   GoogleCloudPubsubPayloadsMap,
   GoogleCloudPubsubPublisher,
   GoogleCloudPubsubSubscribe,
+  GoogleCloudPubsubBatchSubscribe,
 } from './google-cloud-pubsub.configuration';
 
 @Injectable()
@@ -141,6 +165,18 @@ export class AppService {
         field6: null,
       },
     });
+  }
+
+  @GoogleCloudPubsubBatchSubscribe(
+    'order.created',
+    'order.created.subscription.analytic-service',
+  )
+  public async onOrdersCreated(
+    payload: GoogleCloudPubsubMessage<
+      GoogleCloudPubsubPayloadsMap['order.created']
+    >[],
+  ) {
+    console.log({ data: payload.data });
   }
 
   @GoogleCloudPubsubSubscribe(

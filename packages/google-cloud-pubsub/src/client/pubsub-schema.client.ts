@@ -14,9 +14,7 @@ export class PubsubSchemaClient {
   private _schemaClient: SchemaServiceClient | null = null;
   private _schemaClientPromise: Promise<SchemaServiceClient> | null = null;
 
-  constructor(private readonly pubsub: PubSub) {
-    this.pubsub = pubsub;
-  }
+  constructor(private readonly pubsub: PubSub) {}
 
   private get schemaClient(): Promise<SchemaServiceClient> {
     if (this._schemaClient) {
