@@ -28,7 +28,7 @@
     "@nestjs/cli": "^11.0.14",
     "@nestjs/testing": "^11.1.9",
     "@protobuf-ts/runtime": "^2.11.1",
-    "@types/express": "5.0.3",
+    "@types/express": "5.0.6",
     "@types/jest": "^27.0.3",
     "@types/node": "^22.16.5",
     "@types/supertest": "6.0.3",
