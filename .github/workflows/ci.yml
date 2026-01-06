@@ -38,7 +38,6 @@ jobs:
         uses: pnpm/action-setup@v4
         with:
           version: 10
-          cache: true
 
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4

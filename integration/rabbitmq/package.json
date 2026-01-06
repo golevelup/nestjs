@@ -31,7 +31,7 @@
     "@types/supertest": "6.0.3",
     "amqplib": "0.10.8",
     "jest": "^27.4.3",
-    "nodemon": "3.1.10",
+    "nodemon": "3.1.11",
     "prettier": "3.5.3",
     "supertest": "7.1.4",
     "ts-jest": "27.1.5",
