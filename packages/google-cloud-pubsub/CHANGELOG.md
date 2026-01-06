@@ -1,5 +1,11 @@
 # @golevelup/nestjs-google-cloud-pubsub
 
+## 1.2.0
+
+### Minor Changes
+
+- introduction of batching, async initialization and centralized documentation
+
 ## 1.1.1
 
 ### Patch Changes
