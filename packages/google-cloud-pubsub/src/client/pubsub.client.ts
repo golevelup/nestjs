@@ -178,17 +178,24 @@ export class PubsubClient {
     const messageHandler = (message: Message) => {
       const task = async () => {
         try {
-          const deserializedMessage = this.deserializeMessage(
-            message,
+          const [deserializedMessage] = this.deserializeMessages(
+            [message],
             serializer,
+            subscription.name,
           );
+
+          if (!deserializedMessage) {
+            message.ack();
+
+            return;
+          }
 
           await handler(deserializedMessage);
 
           message.ack();
         } catch (error: any) {
           this.logger.error(
-            `Failed to process message with id(${message.id}) on subscription (${subscription.name}). Error: ${error.message}`,
+            `Failed to process message with id(${message.id}) on subscription (${subscription.name}). Error: ${error.message}.`,
           );
 
           message.nack();
@@ -240,33 +247,36 @@ export class PubsubClient {
 
     const batchManager = new PubsubSubscriptionBatchManager(
       subscriptionContainer.configuration.batchManagerOptions,
+      async (batch, deferreds) => {
+        try {
+          const deserializedMessages = this.deserializeMessages(
+            batch,
+            serializer,
+            subscription.name,
+          );
+
+          if (deserializedMessages.length > 0) {
+            await handler(deserializedMessages);
+          }
+
+          for (let i = 0; i < batch.length; i++) {
+            batch[i].ack();
+            deferreds[i].resolve();
+          }
+        } catch (error: any) {
+          this.logger.error(
+            `Failed to process batch messages on subscription (${subscription.name}). Error: ${error.message}.`,
+          );
+
+          for (let i = 0; i < batch.length; i++) {
+            batch[i].nack();
+            deferreds[i].resolve();
+          }
+        }
+      },
     );
 
     subscriptionContainer.batchManager = batchManager;
-
-    batchManager.on(async (batch) => {
-      try {
-        const deserializedMessages = batch.map((item) =>
-          this.deserializeMessage(item.message, serializer),
-        );
-
-        await handler(deserializedMessages);
-
-        batch.forEach((item) => {
-          item.message.ack();
-          item.deferred.resolve();
-        });
-      } catch (error: any) {
-        this.logger.error(
-          `Failed to process batch messages on subscription (${subscription.name}). Error: ${error.message}`,
-        );
-
-        batch.forEach((item) => {
-          item.message.nack();
-          item.deferred.resolve();
-        });
-      }
-    });
 
     const messageHandler = (message: Message) => {
       const task = batchManager.add(message);
@@ -291,18 +301,32 @@ export class PubsubClient {
     this.logger.log(`Handler attached to ${subscriptionName}.`);
   }
 
-  private deserializeMessage(
-    message: Message,
+  private deserializeMessages(
+    messages: Message[],
     serializer: PubsubSerializer,
-  ): GoogleCloudPubsubMessage {
-    return {
-      attributes: message.attributes,
-      data: serializer.deserialize(message),
-      deliveryAttempt: message.deliveryAttempt,
-      id: message.id,
-      orderingKey: message.orderingKey,
-      publishTime: message.publishTime,
-    };
+    subscriptionName: string,
+  ): GoogleCloudPubsubMessage[] {
+    const deserializedMessages: GoogleCloudPubsubMessage[] = [];
+
+    for (const message of messages) {
+      try {
+        deserializedMessages.push({
+          attributes: message.attributes,
+          data: serializer.deserialize(message),
+          deliveryAttempt: message.deliveryAttempt,
+          id: message.id,
+          orderingKey: message.orderingKey,
+          publishTime: message.publishTime,
+        });
+      } catch (error: unknown) {
+        this.logger.error(
+          `Serialization error for message ${message.id} on subscription ${subscriptionName}.`,
+          error,
+        );
+      }
+    }
+
+    return deserializedMessages;
   }
 
   private async connectAndValidateTopic(

@@ -36,6 +36,7 @@
     "url": "https://github.com/golevelup/nestjs/issues"
   },
   "dependencies": {
+    "p-limit": "^7.2.0",
     "@golevelup/nestjs-discovery": "workspace:^"
   },
   "devDependencies": {

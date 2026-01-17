@@ -1,11 +1,8 @@
+import pLimit from 'p-limit';
 import { Message } from '@google-cloud/pubsub';
-import { PubsubBatchManagerConfigurationInvalidError } from './pubsub-configuration.errors';
-import { promiseWithResolvers } from './utils';
 
-type BatchItem = {
-  message: Message;
-  deferred: ReturnType<typeof promiseWithResolvers<void>>;
-};
+import { PubsubBatchManagerConfigurationInvalidError } from './pubsub-configuration.errors';
+import { Deferred, promiseWithResolvers } from './utils';
 
 export interface BatchManagerOptions {
   maxMessages: number;
@@ -13,12 +10,24 @@ export interface BatchManagerOptions {
 }
 
 export class PubsubSubscriptionBatchManager {
-  private buffer: BatchItem[] = [];
+  private messageBuffer: Message[] = [];
+  private deferredBuffer: Deferred<void>[] = [];
+
+  private queue: { batch: Message[]; deferreds: Deferred<void>[] }[] = [];
+
   private timer: NodeJS.Timeout | null = null;
+  private readonly limiter = pLimit(10);
 
-  private listener: ((batch: BatchItem[]) => Promise<void>) | null = null;
+  private readonly listener: (
+    batch: Message[],
+    deferreds: Deferred<void>[],
+  ) => Promise<void>;
+  private readonly options: BatchManagerOptions;
 
-  constructor(private readonly options?: BatchManagerOptions) {
+  constructor(
+    options: BatchManagerOptions | undefined,
+    listener: (batch: Message[], deferreds: Deferred<void>[]) => Promise<void>,
+  ) {
     const maxMessages = options?.maxMessages;
 
     if (!Number.isInteger(maxMessages) || maxMessages! <= 0) {
@@ -41,43 +50,68 @@ export class PubsubSubscriptionBatchManager {
         reason: 'Must be a positive integer greater than 0.',
       });
     }
-  }
 
-  public on(handler: (batch: BatchItem[]) => Promise<void>) {
-    this.listener = handler;
+    this.options = options!;
+    this.listener = listener;
   }
 
   public add(message: Message) {
     const deferred = promiseWithResolvers<void>();
 
-    this.buffer.push({ deferred, message });
+    this.messageBuffer.push(message);
+    this.deferredBuffer.push(deferred);
 
-    if (this.buffer.length >= this.options!.maxMessages) {
-      this.flush();
+    if (this.messageBuffer.length >= this.options.maxMessages) {
+      this.enqueueBuffer();
     } else if (!this.timer) {
       this.timer = setTimeout(() => {
-        void this.flush();
-      }, this.options!.maxWaitTimeMilliseconds);
+        this.enqueueBuffer();
+      }, this.options.maxWaitTimeMilliseconds);
     }
 
     return deferred.promise;
   }
 
-  public async flush() {
+  private enqueueBuffer() {
     if (this.timer) {
       clearTimeout(this.timer);
       this.timer = null;
     }
 
-    if (this.buffer.length === 0) {
+    if (this.messageBuffer.length === 0) {
       return;
     }
 
-    const batch = this.buffer;
-    this.buffer = [];
+    this.queue.push({
+      batch: this.messageBuffer,
+      deferreds: this.deferredBuffer,
+    });
 
-    if (this.listener) {
-      await this.listener(batch);
+    this.messageBuffer = [];
+    this.deferredBuffer = [];
+
+    this.processQueue();
+  }
+
+  public async flush() {
+    this.enqueueBuffer();
+
+    while (this.queue.length > 0 || this.limiter.activeCount > 0) {
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    }
+  }
+
+  private async processQueue() {
+    while (this.queue.length > 0 && this.limiter.pendingCount === 0) {
+      const item = this.queue.shift();
+
+      if (!item) {
+        break;
+      }
+
+      this.limiter(() => this.listener(item.batch, item.deferreds)).finally(
+        () => this.processQueue(),
+      );
     }
   }
 }

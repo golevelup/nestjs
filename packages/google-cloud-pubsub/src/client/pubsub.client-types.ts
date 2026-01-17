@@ -36,6 +36,7 @@ export interface PubsubClientLogger {
 
 export interface PubsubClientConfiguration extends ClientConfig {
   logger?: PubsubClientLogger;
+  adaptiveFlowControl?: boolean;
 }
 
 export type InferPayloadMap<
