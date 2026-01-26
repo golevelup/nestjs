@@ -45,8 +45,8 @@
   },
   "peerDependencies": {
     "@google-cloud/pubsub": "^5.2.0",
-    "@nestjs/common": "^11.1.9",
-    "@nestjs/core": "^11.1.9",
+    "@nestjs/common": "^11.1.12",
+    "@nestjs/core": "^11.1.12",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
     "avsc": "^5.7.9",
