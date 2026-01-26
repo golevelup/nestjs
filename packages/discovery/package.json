@@ -36,8 +36,8 @@
     "lodash": "^4.17.21"
   },
   "peerDependencies": {
-    "@nestjs/common": "^11.1.9",
-    "@nestjs/core": "^11.1.9"
+    "@nestjs/common": "^11.1.12",
+    "@nestjs/core": "^11.1.12"
   },
   "bugs": {
     "url": "https://github.com/golevelup/nestjs/issues"
