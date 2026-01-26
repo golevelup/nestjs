@@ -1,5 +1,11 @@
 # Change Log
 
+## 1.1.2
+
+### Patch Changes
+
+- Includes several dependencies upgrades, patch & minor such as Nestjs to its latest version
+
 ## 1.1.1
 
 ### Patch Changes

@@ -1,5 +1,12 @@
 # Change Log
 
+## 7.1.2
+
+### Patch Changes
+
+- Includes several dependencies upgrades, patch & minor such as Nestjs to its latest version
+- Updated dependencies: `@golevelup/nestjs-discovery@6.1.2`
+
 ## 7.1.1
 
 ### Patch Changes
