@@ -221,7 +221,7 @@ This library is built using an underlying NestJS concept called `External Contex
 You can identify Stripe webhook contexts by their context type, `'stripe_webhook'`:
 
 ```typescript
-import { STRIPE_WEBHOOK_CONTEXT_TYPE } from '@golevelup/stripe';
+import { STRIPE_WEBHOOK_CONTEXT_TYPE } from '@golevelup/nestjs-stripe';
 
 @Injectable()
 class ExampleInterceptor implements NestInterceptor {
