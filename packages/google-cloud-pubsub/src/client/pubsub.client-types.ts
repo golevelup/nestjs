@@ -5,13 +5,13 @@ import {
   SchemaTypes,
   SubscriptionOptions,
 } from '@google-cloud/pubsub';
-import { MessageType } from '@protobuf-ts/runtime';
 
 import {
   InferAvroPayload,
   PubsubSchemaConfiguration,
 } from './pubsub-schema.client-types';
 import { BatchManagerOptions } from './pubsub-subscription.batch-manager';
+import { IMessageType } from './vendor/protobuf-runtime';
 
 export interface PubsubSubscriptionConfiguration {
   name: string;
@@ -42,17 +42,14 @@ export interface PubsubClientConfiguration extends ClientConfig {
 export type InferPayloadMap<
   TopicConfigurations extends readonly PubsubTopicConfiguration[],
 > = {
-  [Name in TopicConfigurations[number]['name']]: Extract<
-    TopicConfigurations[number],
-    { name: Name }
-  > extends {
+  [Topic in TopicConfigurations[number] as Topic['name']]: Topic extends {
     schema?: infer InferredSchema;
   }
     ? InferredSchema extends PubsubSchemaConfiguration
       ? InferredSchema['type'] extends typeof SchemaTypes.Avro
         ? InferAvroPayload<InferredSchema['definition']>
         : InferredSchema['type'] extends typeof SchemaTypes.ProtocolBuffer
-          ? InferredSchema['definition'] extends MessageType<
+          ? InferredSchema['definition'] extends IMessageType<
               infer InferredPayload
             >
             ? InferredPayload

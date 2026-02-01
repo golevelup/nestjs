@@ -1,7 +1,8 @@
 import { Encodings, Message, SchemaTypes } from '@google-cloud/pubsub';
-import { Type as AvroType } from 'avsc';
+import type { Type as AvroType, Schema as AvroSchema } from './vendor/avsc';
 
 import { ENCODINGS, SCHEMA_TYPES } from './constants';
+import { loadPackage } from './utils';
 import { PubsubConfigurationInvalidError } from './pubsub-configuration.errors';
 import { PubsubSchemaConfiguration } from './pubsub-schema.client-types';
 
@@ -25,10 +26,12 @@ export class PubsubSerializer {
     }
 
     if (schema.type === SchemaTypes.Avro) {
-      const avroDefinition = AvroType.forSchema(schema.definition as any);
+      const { Type } = loadPackage<{ Type: typeof AvroType }>('avsc');
+
+      const avroDefinition = Type.forSchema(schema.definition as AvroSchema);
 
       if (schema.encoding === Encodings.Binary) {
-        return (data: any) => avroDefinition.toBuffer(data);
+        return (data: any) => Buffer.from(avroDefinition.toBuffer(data));
       }
 
       if (schema.encoding === Encodings.Json) {
@@ -81,7 +84,9 @@ export class PubsubSerializer {
     }
 
     if (schema.type === SchemaTypes.Avro) {
-      const avroType = AvroType.forSchema(schema.definition as any);
+      const { Type } = loadPackage<{ Type: typeof AvroType }>('avsc');
+
+      const avroType = Type.forSchema(schema.definition as AvroSchema);
 
       if (schema.encoding === Encodings.Binary) {
         return (message: Message) => avroType.fromBuffer(message.data);

@@ -15,3 +15,14 @@ export function promiseWithResolvers<T>(): Deferred<T> {
 
   return { promise, resolve, reject };
 }
+
+export function loadPackage<T = any>(packageName: string): T {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    return require(packageName);
+  } catch {
+    throw new Error(
+      `The "${packageName}" package is missing. Please, install it to use the requested feature.`,
+    );
+  }
+}

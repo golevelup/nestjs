@@ -1,14 +1,10 @@
 import { PubSub, SchemaTypes, SchemaViews } from '@google-cloud/pubsub';
 import { SchemaServiceClient } from '@google-cloud/pubsub/build/src/v1';
-import { readFile } from 'fs/promises';
-import { Type } from 'avsc';
-import * as path from 'path';
+import type { Type as AvroType, Schema as AvroSchema } from './vendor/avsc';
 
-import {
-  PubsubConfigurationInvalidError,
-  PubsubConfigurationMismatchError,
-} from './pubsub-configuration.errors';
+import { PubsubConfigurationMismatchError } from './pubsub-configuration.errors';
 import { PubsubTopicContainer } from './pubsub-topic.container';
+import { loadPackage } from './utils';
 
 export class PubsubSchemaClient {
   private _schemaClient: SchemaServiceClient | null = null;
@@ -41,7 +37,10 @@ export class PubsubSchemaClient {
       return null;
     }
 
-    const [remoteMetadata] = await topicContainer.instance.getMetadata();
+    const [[remoteMetadata], schemaClient] = await Promise.all([
+      topicContainer.instance.getMetadata(),
+      this.schemaClient,
+    ]);
 
     if (!remoteMetadata.schemaSettings?.schema) {
       throw new PubsubConfigurationMismatchError(
@@ -96,80 +95,39 @@ export class PubsubSchemaClient {
       );
     }
 
-    const schemaClient = await this.schemaClient;
-
-    const [remoteRevisions] = await schemaClient.listSchemaRevisions({
-      name: await schema.getName(),
-      view: SchemaViews.Full,
-    });
+    let stubMessage: Uint8Array;
 
     if (schemaConfiguration.type === SchemaTypes.Avro) {
-      const isDefinitionMatched = remoteRevisions.some((revision) => {
-        if (!revision.definition) {
-          return false;
-        }
+      const { Type } = loadPackage<{ Type: typeof AvroType }>('avsc');
 
-        const localType = Type.forSchema(schemaConfiguration.definition as any);
-        const remoteType = Type.forSchema(JSON.parse(revision.definition));
-
-        return localType.equals(remoteType);
-      });
-
-      if (!isDefinitionMatched) {
-        throw new PubsubConfigurationMismatchError(
-          topicContainer.configuration.name,
-          {
-            key: 'schema.definition',
-            local: JSON.stringify(schemaConfiguration.definition),
-            remote: JSON.stringify(
-              remoteRevisions.map((revision) => revision.definition),
-            ),
-          },
-        );
-      }
-
-      return;
-    }
-
-    if (schemaConfiguration.type === SchemaTypes.ProtocolBuffer) {
-      if (!path.isAbsolute(schemaConfiguration.protoPath)) {
-        throw new PubsubConfigurationInvalidError(
-          topicContainer.configuration.name,
-          {
-            key: 'schema.protoPath',
-            reason: 'Proto path must be an absolute path.',
-            value: schemaConfiguration.protoPath,
-          },
-        );
-      }
-
-      const localDefinition = await readFile(
-        path.resolve(schemaConfiguration.protoPath),
-        'utf-8',
+      const avroType = Type.forSchema(
+        schemaConfiguration.definition as AvroSchema,
       );
 
-      const isDefinitionMatched = remoteRevisions.some((revision) => {
-        if (!revision.definition) {
-          return false;
-        }
+      stubMessage = avroType.toBuffer(avroType.random());
+    } else if (schemaConfiguration.type === SchemaTypes.ProtocolBuffer) {
+      const definition = schemaConfiguration.definition;
 
-        return revision.definition === localDefinition;
+      stubMessage = Buffer.from(definition.toBinary(definition.create()));
+    } else {
+      throw new Error(
+        `Schema type invalid for topic (${topicContainer.configuration.name}).`,
+      );
+    }
+
+    try {
+      await schemaClient.validateMessage({
+        name: remoteMetadata.schemaSettings.schema,
+        message: stubMessage,
+        encoding: remoteMetadata.schemaSettings.encoding,
       });
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
 
-      if (!isDefinitionMatched) {
-        throw new PubsubConfigurationMismatchError(
-          topicContainer.configuration.name,
-          {
-            key: 'schema.definition',
-            local: localDefinition,
-            remote: JSON.stringify(
-              remoteRevisions.map((revision) => revision.definition),
-            ),
-          },
-        );
-      }
-
-      return;
+      throw new Error(
+        `Schema compatibility validation failed for topic (${topicContainer.configuration.name}). The local schema definition is not compatible with the remote schema version. Error: ${errorMessage}`,
+      );
     }
   }
 }
