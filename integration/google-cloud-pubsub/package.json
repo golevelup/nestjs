@@ -24,8 +24,8 @@
   "devDependencies": {
     "@golevelup/nestjs-google-cloud-pubsub": "workspace:^",
     "@golevelup/ts-jest": "workspace:^",
-    "@google-cloud/pubsub": "^5.2.0",
-    "@nestjs/cli": "^11.0.14",
+    "@google-cloud/pubsub": "^5.2.2",
+    "@nestjs/cli": "^11.0.16",
     "@nestjs/testing": "^11.1.12",
     "@protobuf-ts/runtime": "^2.11.1",
     "@types/express": "5.0.6",

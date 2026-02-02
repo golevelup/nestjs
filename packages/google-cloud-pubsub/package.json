@@ -40,11 +40,11 @@
   },
   "devDependencies": {
     "avsc": "^5.7.9",
-    "@google-cloud/pubsub": "^5.2.0",
+    "@google-cloud/pubsub": "^5.2.2",
     "@protobuf-ts/runtime": "^2.11.1"
   },
   "peerDependencies": {
-    "@google-cloud/pubsub": "^5.2.0",
+    "@google-cloud/pubsub": "^5.2.2",
     "@nestjs/common": "^11.1.12",
     "@nestjs/core": "^11.1.12",
     "reflect-metadata": "^0.2.2",
