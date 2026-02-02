@@ -1,5 +1,11 @@
 # @golevelup/nestjs-google-cloud-pubsub
 
+## 1.2.2
+
+### Patch Changes
+
+- Includes dev dependencies upgrades such as Vite, Vitest and nestjs CLI and a new Stripe upgrade
+
 ## 1.2.1
 
 ### Patch Changes
