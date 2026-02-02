@@ -1,5 +1,11 @@
 # Change Log
 
+## 1.2.0
+
+### Minor Changes
+
+- Includes dev dependencies upgrades such as Vite, Vitest and nestjs CLI and a new Stripe upgrade
+
 ## 1.1.1
 
 ### Patch Changes
