@@ -34,7 +34,7 @@
     "@types/supertest": "6.0.3",
     "avsc": "^5.7.9",
     "jest": "^27.4.3",
-    "prettier": "3.5.3",
+    "prettier": "3.8.1",
     "supertest": "7.1.4",
     "ts-jest": "27.1.5",
     "tsconfig-paths": "4.2.0",
