@@ -10,13 +10,12 @@ import {
   InferAvroPayload,
   PubsubSchemaConfiguration,
 } from './pubsub-schema.client-types';
-import { BatchManagerOptions } from './pubsub-subscription.batch-manager';
 import { IMessageType } from './vendor/protobuf-runtime';
 
 export interface PubsubSubscriptionConfiguration {
   name: string;
   options?: SubscriptionOptions;
-  batchManagerOptions?: BatchManagerOptions;
+  batchManagerOptions?: { maxMessages: number; concurrency?: number };
 }
 
 export type PubsubTopicConfiguration = {

@@ -5,10 +5,7 @@ import { readFileSync } from 'fs';
 import { resolve } from 'path';
 
 import { PubsubTopicConfiguration } from '../src';
-import {
-  PubsubConfigurationInvalidError,
-  PubsubConfigurationMismatchError,
-} from '../src/client/pubsub-configuration.errors';
+import { PubsubConfigurationMismatchError } from '../src/client/pubsub-configuration.errors';
 import { PubsubSchemaClient } from '../src/client/pubsub-schema.client';
 import { PubsubTopicContainer } from '../src/client/pubsub-topic.container';
 import { PubsubSerializer } from '../src/client/pubsub.serializer';
@@ -251,7 +248,6 @@ describe.skip('PubsubSchemaClient.connectAndValidateSchema()', () => {
         definition: TestEvent,
         encoding: Encodings.Binary,
         name: `schema-${crypto.randomUUID()}`,
-        protoPath,
         type: SchemaTypes.ProtocolBuffer,
       },
       subscriptions: [],
@@ -341,16 +337,12 @@ describe.skip('PubsubSchemaClient.connectAndValidateSchema()', () => {
   });
 
   it(`${PubsubConfigurationMismatchError.name}: if ${SchemaTypes.ProtocolBuffer} schema definition does not match any of remote revisions.`, async () => {
-    const protoPath = resolve(__dirname, './proto/test.proto');
-    const protoDefinition = readFileSync(protoPath, 'utf-8');
-
     const topicConfiguration = {
       name: `topic-${crypto.randomUUID()}`,
       schema: {
         definition: TestEvent,
         encoding: Encodings.Binary,
         name: `schema-${crypto.randomUUID()}`,
-        protoPath,
         type: SchemaTypes.ProtocolBuffer,
       },
       subscriptions: [],
@@ -385,57 +377,8 @@ describe.skip('PubsubSchemaClient.connectAndValidateSchema()', () => {
       (error) => {
         expect(error.mismatchEntry).toEqual({
           key: 'schema.definition',
-          local: protoDefinition,
+          local: TestEvent.typeName,
           remote: JSON.stringify([remoteProtoDefinition]),
-        });
-      },
-    );
-  });
-
-  it(`${PubsubConfigurationInvalidError.name}: if ${SchemaTypes.ProtocolBuffer} schema protoPath is not an absolute path.`, async () => {
-    const topicConfiguration = {
-      name: `topic-${crypto.randomUUID()}`,
-      schema: {
-        definition: TestEvent,
-        encoding: Encodings.Binary,
-        name: `schema-${crypto.randomUUID()}`,
-        protoPath: 'src/file.proto',
-        type: SchemaTypes.ProtocolBuffer,
-      },
-      subscriptions: [],
-    } as const satisfies PubsubTopicConfiguration;
-
-    const remoteProtoDefinition =
-      'syntax = "proto3"; message AnotherMessage {}';
-    const remoteSchema = await pubsub.createSchema(
-      topicConfiguration.schema.name,
-      SchemaTypes.ProtocolBuffer,
-      remoteProtoDefinition,
-    );
-
-    await pubsub.createTopic({
-      name: topicConfiguration.name,
-      schemaSettings: {
-        encoding: Encodings.Binary,
-        schema: await remoteSchema.getName(),
-      },
-    });
-
-    const topic = pubsub.topic(topicConfiguration.name);
-    const topicContainer = new PubsubTopicContainer(
-      topic,
-      topicConfiguration,
-      new PubsubSerializer(topicConfiguration.name, topicConfiguration.schema),
-    );
-
-    await assertRejectsWith(
-      () => pubsubSchemaClient.connectAndValidateSchema(topicContainer),
-      PubsubConfigurationInvalidError,
-      (error) => {
-        expect(error.invalidEntry).toEqual({
-          key: 'schema.protoPath',
-          reason: 'Proto path must be an absolute path.',
-          value: 'src/file.proto',
         });
       },
     );
@@ -489,7 +432,6 @@ describe.skip('PubsubSchemaClient.connectAndValidateSchema()', () => {
         definition: TestEvent,
         encoding: Encodings.Binary,
         name: `schema-${crypto.randomUUID()}`,
-        protoPath,
         type: SchemaTypes.ProtocolBuffer,
       },
       subscriptions: [],
@@ -648,7 +590,6 @@ describe.skip('PubsubSchemaClient.connectAndValidateSchema()', () => {
 
     for (let i = 0; i < allDefinitions.length; i++) {
       const definition = allDefinitions[i];
-      const protoPath = protoRevisionPaths[i];
 
       const topicConfiguration = {
         name: topicName,
@@ -656,7 +597,6 @@ describe.skip('PubsubSchemaClient.connectAndValidateSchema()', () => {
           definition,
           encoding: Encodings.Binary,
           name: schemaName,
-          protoPath,
           type: SchemaTypes.ProtocolBuffer,
         },
         subscriptions: [],

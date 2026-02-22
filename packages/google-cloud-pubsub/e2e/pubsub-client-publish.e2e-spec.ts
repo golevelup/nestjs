@@ -185,7 +185,6 @@ describe.skip('PubsubClient.publish()', () => {
         definition,
         encoding,
         name: `schema-${crypto.randomUUID()}`,
-        protoPath,
         type: SchemaTypes.ProtocolBuffer,
       },
       subscriptions: [],

@@ -3,7 +3,6 @@ import {
   PubsubTopicConfiguration,
 } from '@golevelup/nestjs-google-cloud-pubsub';
 import { MessageType } from '@protobuf-ts/runtime';
-import * as path from 'node:path';
 
 import { Level5ProtocolBuffer } from '../proto/level5';
 
@@ -38,14 +37,7 @@ export const topics = [
     subscriptions: [
       {
         name: 'order.created.subscription.order-processor-service',
-        batchManagerOptions: { maxMessages: 15, maxWaitTimeMilliseconds: 200 },
-        options: {
-          flowControl: {
-            allowExcessMessages: false,
-            maxBytes: 10 * 1024 * 1024,
-            maxMessages: 500,
-          },
-        },
+        batchManagerOptions: { maxMessages: 15 },
       },
       { name: 'order.created.subscription.analytic-service' },
     ],
@@ -60,17 +52,11 @@ export const topics = [
       definition: Level5ProtocolBuffer as MessageType<Level5ProtocolBuffer>,
       encoding: 'BINARY',
       name: 'payment.processed.schema',
-      protoPath: path.join(process.cwd(), 'proto/level5.proto'),
       type: 'PROTOCOL_BUFFER',
     },
     subscriptions: [
       { name: 'payment.processed.payment-processor-service' },
-      {
-        name: 'payment.processed.analytic-service',
-        options: {
-          flowControl: { maxMessages: 100 },
-        },
-      },
+      { name: 'payment.processed.analytic-service' },
     ],
   },
   {

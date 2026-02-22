@@ -1,5 +1,5 @@
 {
-  "name": "google-cloud-pubsub-integration",
+  "name": "@integration/google-cloud-pubsub",
   "version": "0.0.1",
   "description": "Google cloud pubsub integration project",
   "private": true,

@@ -5,7 +5,7 @@ import { PubsubTopicConfiguration } from './client';
 import { GoogleCloudPubsubAbstractPublisher } from './google-cloud-pubsub.abstract-publisher';
 
 export type GoogleCloudPubsubModuleOptionsExtras = {
-  publisher: Type<GoogleCloudPubsubAbstractPublisher<Record<string, unknown>>>;
+  publisher?: Type<GoogleCloudPubsubAbstractPublisher<Record<string, unknown>>>;
   global: boolean;
 };
 

@@ -31,7 +31,6 @@ describe.skip('PubsubClient.attachBatchHandler()', () => {
           name: subscriptionName,
           batchManagerOptions: {
             maxMessages: 5,
-            maxWaitTimeMilliseconds: 10000,
           },
         },
       ],
@@ -92,7 +91,6 @@ describe.skip('PubsubClient.attachBatchHandler()', () => {
           name: subscriptionName,
           batchManagerOptions: {
             maxMessages: 100,
-            maxWaitTimeMilliseconds: 1000,
           },
         },
       ],
@@ -146,7 +144,6 @@ describe.skip('PubsubClient.attachBatchHandler()', () => {
           name: subscriptionName,
           batchManagerOptions: {
             maxMessages: 100,
-            maxWaitTimeMilliseconds: 5000,
           },
         },
       ],

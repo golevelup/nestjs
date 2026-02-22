@@ -17,11 +17,15 @@ import {
 } from './pubsub.client-types';
 import { PubsubSerializer } from './pubsub.serializer';
 import { PubsubSubscriptionBatchManager } from './pubsub-subscription.batch-manager';
+import { ResourceManager, ResourceState } from './resource-manager';
+
+const DEFAULT_BATCH_MANAGER_CONCURRENCY = 3;
 
 export class PubsubClient {
   private readonly pubsub: PubSub;
   private readonly pubsubSchemaClient: PubsubSchemaClient;
 
+  private readonly resourceManager?: ResourceManager;
   private readonly logger: PubsubClientLogger;
 
   private readonly topicContainers = new Map<string, PubsubTopicContainer>();
@@ -35,12 +39,16 @@ export class PubsubClient {
   private readonly outstandingMessageProcessing = new Set<Promise<void>>();
 
   constructor(configuration: PubsubClientConfiguration) {
-    const { logger, ...restConfiguration } = configuration;
+    const { logger, adaptiveFlowControl, ...restConfiguration } = configuration;
 
     this.pubsub = new PubSub(restConfiguration);
     this.pubsubSchemaClient = new PubsubSchemaClient(this.pubsub);
 
     this.logger = logger || console;
+
+    if (adaptiveFlowControl) {
+      this.resourceManager = new ResourceManager();
+    }
   }
 
   public async initialize(
@@ -96,6 +104,8 @@ export class PubsubClient {
   }
 
   public async close(): Promise<void> {
+    this.resourceManager?.stop();
+
     const flushPromises: Promise<void>[] = [];
 
     for (const container of this.subscriptionContainers.values()) {
@@ -103,7 +113,7 @@ export class PubsubClient {
       container.instance.removeAllListeners('error');
 
       if (container.batchManager) {
-        flushPromises.push(container.batchManager.flush());
+        flushPromises.push(container.batchManager.instance.flush());
       }
     }
 
@@ -220,7 +230,7 @@ export class PubsubClient {
     subscription.on('message', messageHandler);
     subscription.on('error', errorHandler);
 
-    this.attachedHandlers.add(subscription.name);
+    this.attachedHandlers.add(subscriptionName);
 
     this.logger.log(`Handler attached to ${subscriptionName}.`);
   }
@@ -242,41 +252,43 @@ export class PubsubClient {
       throw new Error(`Subscription (${subscriptionName}) is not registered.`);
     }
 
+    if (!subscriptionContainer.batchManager) {
+      throw new Error(
+        `Subscription (${subscriptionName}) does not have batch manager options configured. Ensure 'batchManagerOptions' is defined in the subscription configuration.`,
+      );
+    }
+
     const subscription = subscriptionContainer.instance;
     const serializer = subscriptionContainer.topicContainer.serializer;
+    const batchManager = subscriptionContainer.batchManager.instance;
 
-    const batchManager = new PubsubSubscriptionBatchManager(
-      subscriptionContainer.configuration.batchManagerOptions,
-      async (batch, deferreds) => {
-        try {
-          const deserializedMessages = this.deserializeMessages(
-            batch,
-            serializer,
-            subscription.name,
-          );
+    batchManager.addListener(async (batch, deferreds) => {
+      try {
+        const deserializedMessages = this.deserializeMessages(
+          batch,
+          serializer,
+          subscription.name,
+        );
 
-          if (deserializedMessages.length > 0) {
-            await handler(deserializedMessages);
-          }
-
-          for (let i = 0; i < batch.length; i++) {
-            batch[i].ack();
-            deferreds[i].resolve();
-          }
-        } catch (error: any) {
-          this.logger.error(
-            `Failed to process batch messages on subscription (${subscription.name}). Error: ${error.message}.`,
-          );
-
-          for (let i = 0; i < batch.length; i++) {
-            batch[i].nack();
-            deferreds[i].resolve();
-          }
+        if (deserializedMessages.length > 0) {
+          await handler(deserializedMessages);
         }
-      },
-    );
 
-    subscriptionContainer.batchManager = batchManager;
+        for (let i = 0; i < batch.length; i++) {
+          batch[i].ack();
+          deferreds[i].resolve();
+        }
+      } catch (error: any) {
+        this.logger.error(
+          `Failed to process batch messages on subscription (${subscription.name}). Error: ${error.message}.`,
+        );
+
+        for (let i = 0; i < batch.length; i++) {
+          batch[i].nack();
+          deferreds[i].resolve();
+        }
+      }
+    });
 
     const messageHandler = (message: Message) => {
       const task = batchManager.add(message);
@@ -297,7 +309,8 @@ export class PubsubClient {
     subscription.on('message', messageHandler);
     subscription.on('error', errorHandler);
 
-    this.attachedHandlers.add(subscription.name);
+    this.attachedHandlers.add(subscriptionName);
+
     this.logger.log(`Handler attached to ${subscriptionName}.`);
   }
 
@@ -399,8 +412,44 @@ export class PubsubClient {
       subscription,
       configuration,
       topicContainer,
+      this.createBatchManager(configuration),
     );
 
     this.subscriptionContainers.set(name, subscriptionContainer);
+  }
+
+  private createBatchManager(configuration: PubsubSubscriptionConfiguration) {
+    if (!configuration.batchManagerOptions) {
+      return;
+    }
+
+    const maxMessages = configuration.batchManagerOptions.maxMessages;
+    const concurrency =
+      configuration.batchManagerOptions.concurrency ??
+      DEFAULT_BATCH_MANAGER_CONCURRENCY;
+    const maxWaitTimeMilliseconds = Math.min(
+      Math.max(Math.ceil(Math.log2(maxMessages) * 50), 50),
+      500,
+    );
+
+    const concurrencyPerResourceStateMap = {
+      [ResourceState.Healthy]: concurrency,
+      [ResourceState.Pressure]: Math.max(1, Math.floor(concurrency / 2)),
+      [ResourceState.Critical]: 1,
+    };
+
+    const instance = new PubsubSubscriptionBatchManager({
+      maxMessages,
+      concurrency,
+      maxWaitTimeMilliseconds,
+    });
+
+    if (this.resourceManager) {
+      this.resourceManager.on('stateChanged', ({ newState }) => {
+        instance.setConcurrency(concurrencyPerResourceStateMap[newState]);
+      });
+    }
+
+    return { instance, concurrencyPerResourceStateMap };
   }
 }

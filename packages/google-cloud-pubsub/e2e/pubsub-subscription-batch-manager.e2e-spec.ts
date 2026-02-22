@@ -112,9 +112,10 @@ describe('PubsubSubscriptionBatchManager', () => {
     const manager = new PubsubSubscriptionBatchManager({
       maxMessages: 10,
       maxWaitTimeMilliseconds: 50,
+      concurrency: 1,
     });
 
-    manager.on(async (batch) => {
+    manager.addListener(async (batch) => {
       await delay(100);
 
       batch.forEach((item) => item.deferred.resolve());
@@ -152,7 +153,7 @@ describe('PubsubSubscriptionBatchManager', () => {
 
     const batchSizes: number[] = [];
 
-    manager.on(async (batch) => {
+    manager.addListener(async (batch) => {
       batchSizes.push(batch.length);
 
       batch.forEach((i) => i.deferred.resolve());

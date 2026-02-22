@@ -21,7 +21,17 @@ export interface ResourceMetricsSnapshot {
   maximumGarbageCollectionPause: number;
 }
 
-export class ResourceManager extends EventEmitter {
+interface ResourceManagerEvents {
+  stateChanged: [
+    {
+      previousState: ResourceState;
+      newState: ResourceState;
+      metrics: ResourceMetricsSnapshot;
+    },
+  ];
+}
+
+export class ResourceManager extends EventEmitter<ResourceManagerEvents> {
   private readonly CHECK_INTERVAL_MILLISECONDS = 1000;
   private readonly PRESSURE_THRESHOLD = 0.7;
   private readonly CRITICAL_THRESHOLD = 0.9;

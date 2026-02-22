@@ -1,4 +1,4 @@
-import pLimit from 'p-limit';
+import * as pLimit from 'p-limit';
 import { Message } from '@google-cloud/pubsub';
 
 import { PubsubBatchManagerConfigurationInvalidError } from './pubsub-configuration.errors';
@@ -6,6 +6,7 @@ import { Deferred, promiseWithResolvers } from './utils';
 
 export interface BatchManagerOptions {
   maxMessages: number;
+  concurrency: number;
   maxWaitTimeMilliseconds: number;
 }
 
@@ -16,43 +17,54 @@ export class PubsubSubscriptionBatchManager {
   private queue: { batch: Message[]; deferreds: Deferred<void>[] }[] = [];
 
   private timer: NodeJS.Timeout | null = null;
-  private readonly limiter = pLimit(10);
+  private limiter: pLimit.Limit;
 
-  private readonly listener: (
-    batch: Message[],
-    deferreds: Deferred<void>[],
-  ) => Promise<void>;
-  private readonly options: BatchManagerOptions;
+  private listener:
+    | ((batch: Message[], deferreds: Deferred<void>[]) => Promise<void>)
+    | null = null;
 
-  constructor(
-    options: BatchManagerOptions | undefined,
-    listener: (batch: Message[], deferreds: Deferred<void>[]) => Promise<void>,
-  ) {
-    const maxMessages = options?.maxMessages;
-
-    if (!Number.isInteger(maxMessages) || maxMessages! <= 0) {
+  constructor(private readonly options: BatchManagerOptions) {
+    if (!Number.isInteger(options.maxMessages) || options.maxMessages <= 0) {
       throw new PubsubBatchManagerConfigurationInvalidError({
         key: 'subscription.batchManagerOptions.maxMessages',
-        value: maxMessages,
+        value: options.maxMessages,
         reason: 'Must be a positive integer greater than 0.',
       });
     }
 
-    const maxWaitTimeMilliseconds = options?.maxWaitTimeMilliseconds;
-
     if (
-      !Number.isInteger(maxWaitTimeMilliseconds) ||
-      maxWaitTimeMilliseconds! <= 0
+      !Number.isInteger(options.maxWaitTimeMilliseconds) ||
+      options.maxWaitTimeMilliseconds <= 0
     ) {
       throw new PubsubBatchManagerConfigurationInvalidError({
         key: 'subscription.batchManagerOptions.maxWaitTimeMilliseconds',
-        value: maxWaitTimeMilliseconds,
+        value: options.maxWaitTimeMilliseconds,
         reason: 'Must be a positive integer greater than 0.',
       });
     }
 
-    this.options = options!;
+    if (!Number.isInteger(options.concurrency) || options.concurrency <= 0) {
+      throw new PubsubBatchManagerConfigurationInvalidError({
+        key: 'subscription.batchManagerOptions.concurrency',
+        value: options.concurrency,
+        reason: 'Must be a positive integer greater than 0.',
+      });
+    }
+
+    this.limiter = pLimit(options.concurrency);
+  }
+
+  public addListener(
+    listener: (batch: Message[], deferreds: Deferred<void>[]) => Promise<void>,
+  ) {
     this.listener = listener;
+  }
+
+  public setConcurrency(concurrency: number) {
+    this.options.concurrency = concurrency;
+    this.limiter = pLimit(this.options.concurrency);
+
+    this.processQueue();
   }
 
   public add(message: Message) {
@@ -101,15 +113,14 @@ export class PubsubSubscriptionBatchManager {
     }
   }
 
-  private async processQueue() {
-    while (this.queue.length > 0 && this.limiter.pendingCount === 0) {
-      const item = this.queue.shift();
+  private processQueue() {
+    while (
+      this.queue.length > 0 &&
+      this.limiter.activeCount < this.options.concurrency
+    ) {
+      const item = this.queue.shift()!;
 
-      if (!item) {
-        break;
-      }
-
-      this.limiter(() => this.listener(item.batch, item.deferreds)).finally(
+      this.limiter(() => this.listener!(item.batch, item.deferreds)).finally(
         () => this.processQueue(),
       );
     }
