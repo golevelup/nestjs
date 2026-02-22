@@ -66,7 +66,7 @@ export const topics = [
        */
       {
         name: 'order.created.subscription.order-processor-service',
-        batchManagerOptions: { maxMessages: 125, maxWaitTimeMilliseconds: 200 },
+        batchManagerOptions: { maxMessages: 125 },
         options: {
           flowControl: {
             allowExcessMessages: false,
@@ -85,8 +85,6 @@ export const topics = [
         PaymentProcessedProtocolBufferSchema as MessageType<PaymentProcessedProtocolBufferSchema>,
       encoding: Encodings.Binary,
       name: 'payment.processed.schema',
-      protoPath:
-        '/Users/Desktop/google-cloud-pubsub/proto/payment-processed.proto',
       type: SchemaTypes.ProtocolBuffer,
     },
     subscriptions: [
