@@ -118,4 +118,48 @@ describe('Rabbit RPC', () => {
 
     expect(response).toEqual({ echo: '{a:' });
   });
+
+  it('should route to correct handler when RPC handlers share a queue', async () => {
+    const response = await amqpConnection.request({
+      exchange: 'exchange1',
+      routingKey: 'shared-rpc-1',
+      payload: { test: 'handler1' },
+    });
+
+    expect(response).toEqual({
+      echo: { test: 'handler1' },
+      handler: 'shared-rpc-1',
+    });
+  });
+
+  it('should route to second handler on shared queue', async () => {
+    const response = await amqpConnection.request({
+      exchange: 'exchange1',
+      routingKey: 'shared-rpc-2',
+      payload: { test: 'handler2' },
+    });
+
+    expect(response).toEqual({
+      echo: { test: 'handler2' },
+      handler: 'shared-rpc-2',
+    });
+  });
+
+  it('should handle parallel requests to shared queue handlers', async () => {
+    const [res1, res2] = await Promise.all([
+      amqpConnection.request({
+        exchange: 'exchange1',
+        routingKey: 'shared-rpc-1',
+        payload: { n: 1 },
+      }),
+      amqpConnection.request({
+        exchange: 'exchange1',
+        routingKey: 'shared-rpc-2',
+        payload: { n: 2 },
+      }),
+    ]);
+
+    expect(res1).toEqual({ echo: { n: 1 }, handler: 'shared-rpc-1' });
+    expect(res2).toEqual({ echo: { n: 2 }, handler: 'shared-rpc-2' });
+  });
 });

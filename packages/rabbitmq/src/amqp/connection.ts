@@ -147,6 +147,15 @@ export class AmqpConnection {
   private _consumers: Record<ConsumerTag, ConsumerHandler<unknown, unknown>> =
     {};
 
+  private _rpcHandlersByQueue = new Map<
+    string,
+    Array<{
+      routingKey: string | string[];
+      handler: RpcSubscriberHandler<any, any>;
+      rpcOptions: MessageHandlerOptions;
+    }>
+  >();
+
   private readonly config: Required<RabbitMQConfig>;
 
   private readonly outstandingMessageProcessing = new Set<Promise<void>>();
@@ -753,13 +762,102 @@ export class AmqpConnection {
     }
   }
 
+  private findRpcHandler(
+    handlers: Array<{
+      routingKey: string | string[];
+      handler: RpcSubscriberHandler<any, any>;
+      rpcOptions: MessageHandlerOptions;
+    }>,
+    routingKey: string,
+  ) {
+    for (const entry of handlers) {
+      const keys = Array.isArray(entry.routingKey)
+        ? entry.routingKey
+        : [entry.routingKey];
+      if (keys.includes(routingKey)) {
+        return entry;
+      }
+    }
+    for (const entry of handlers) {
+      if (matchesRoutingKey(routingKey, entry.routingKey)) {
+        return entry;
+      }
+    }
+    return null;
+  }
+
+  private validateSharedQueueOptions(
+    queueName: string,
+    newOptions: MessageHandlerOptions,
+  ) {
+    const existing = this._rpcHandlersByQueue.get(queueName);
+    if (!existing || existing.length === 0) return;
+
+    const first = existing[0].rpcOptions;
+
+    if (first.exchange !== newOptions.exchange) {
+      throw new Error(
+        `RPC handler conflict on queue "${queueName}": ` +
+          `exchange "${newOptions.exchange}" does not match ` +
+          `already registered exchange "${first.exchange}". ` +
+          `All @RabbitRPC handlers sharing a queue must use the same exchange.`,
+      );
+    }
+
+    const existingConsumerOpts = JSON.stringify(
+      first.queueOptions?.consumerOptions ?? {},
+    );
+    const newConsumerOpts = JSON.stringify(
+      newOptions.queueOptions?.consumerOptions ?? {},
+    );
+    if (existingConsumerOpts !== newConsumerOpts) {
+      throw new Error(
+        `RPC handler conflict on queue "${queueName}": ` +
+          `consumerOptions do not match between handlers. ` +
+          `All @RabbitRPC handlers sharing a queue must use the same consumerOptions.`,
+      );
+    }
+  }
+
   public async createRpc<T, U>(
     handler: RpcSubscriberHandler<T, U>,
     rpcOptions: MessageHandlerOptions,
   ): Promise<SubscriptionResult> {
-    return this.consumerFactory(rpcOptions, (channel, channelRpcOptions) =>
-      this.setupRpcChannel<T, U>(handler, channelRpcOptions, channel),
-    );
+    const queueName = rpcOptions.queue;
+
+    if (!queueName) {
+      return this.consumerFactory(rpcOptions, (channel, channelRpcOptions) =>
+        this.setupRpcChannel<T, U>(handler, channelRpcOptions, channel),
+      );
+    }
+
+    this.validateSharedQueueOptions(queueName, rpcOptions);
+
+    if (!this._rpcHandlersByQueue.has(queueName)) {
+      this._rpcHandlersByQueue.set(queueName, []);
+    }
+    this._rpcHandlersByQueue.get(queueName)!.push({
+      routingKey: rpcOptions.routingKey!,
+      handler,
+      rpcOptions,
+    });
+
+    if (this._rpcHandlersByQueue.get(queueName)!.length === 1) {
+      return this.consumerFactory(rpcOptions, (channel, channelRpcOptions) =>
+        this.setupRpcChannel<T, U>(handler, channelRpcOptions, channel),
+      );
+    }
+
+    return new Promise((res) => {
+      this.selectManagedChannel(rpcOptions?.queueOptions?.channel).addSetup(
+        async (channel: ConfirmChannel) => {
+          await this.setupQueue(rpcOptions, channel);
+          res({
+            consumerTag: `shared-rpc-${queueName}-${this._rpcHandlersByQueue.get(queueName)!.length}`,
+          });
+        },
+      );
+    });
   }
 
   public async setupRpcChannel<T, U>(
@@ -767,29 +865,64 @@ export class AmqpConnection {
     rpcOptions: MessageHandlerOptions,
     channel: ConfirmChannel,
   ): Promise<ConsumerTag> {
-    const queue = await this.setupQueue(rpcOptions, channel);
+    const queueName = rpcOptions.queue;
+    const handlers = queueName ? this._rpcHandlersByQueue.get(queueName) : null;
+
+    let resolvedQueue: string;
+    if (handlers && handlers.length > 0) {
+      for (const entry of handlers) {
+        resolvedQueue = await this.setupQueue(entry.rpcOptions, channel);
+      }
+    } else {
+      resolvedQueue = await this.setupQueue(rpcOptions, channel);
+    }
 
     const { consumerTag }: { consumerTag: ConsumerTag } = await channel.consume(
-      queue,
+      resolvedQueue!,
       this.wrapConsumer(async (msg) => {
         try {
           if (msg == null) {
             throw new NullMessageError();
           }
 
-          if (
-            !matchesRoutingKey(msg.fields.routingKey, rpcOptions.routingKey)
-          ) {
-            channel.nack(msg, false, false);
-            this.logger.error(
-              'Received message with invalid routing key: ' +
-                msg.fields.routingKey,
+          let matchedHandler: RpcSubscriberHandler<any, any>;
+          let matchedOptions: MessageHandlerOptions;
+
+          if (handlers && handlers.length > 0) {
+            const matched = this.findRpcHandler(
+              handlers,
+              msg.fields.routingKey,
             );
-            return;
+            if (!matched) {
+              channel.nack(msg, false, false);
+              this.logger.error(
+                `No RPC handler found for routing key "${msg.fields.routingKey}" on queue "${queueName}"`,
+              );
+              return;
+            }
+            matchedHandler = matched.handler;
+            matchedOptions = matched.rpcOptions;
+          } else {
+            if (
+              !matchesRoutingKey(msg.fields.routingKey, rpcOptions.routingKey)
+            ) {
+              channel.nack(msg, false, false);
+              this.logger.error(
+                'Received message with invalid routing key: ' +
+                  msg.fields.routingKey,
+              );
+              return;
+            }
+            matchedHandler = handler;
+            matchedOptions = rpcOptions;
           }
 
-          const result = this.deserializeMessage<T>(msg, rpcOptions);
-          const response = await handler(result.message, msg, result.headers);
+          const result = this.deserializeMessage<T>(msg, matchedOptions);
+          const response = await matchedHandler(
+            result.message,
+            msg,
+            result.headers,
+          );
 
           if (response instanceof Nack) {
             channel.nack(msg, false, response.requeue);
@@ -803,7 +936,7 @@ export class AmqpConnection {
               correlationId,
               expiration,
               headers,
-              persistent: rpcOptions.usePersistentReplyTo ?? false,
+              persistent: matchedOptions.usePersistentReplyTo ?? false,
             });
           }
           channel.ack(msg);
@@ -811,11 +944,17 @@ export class AmqpConnection {
           if (msg == null) {
             return;
           } else {
+            const matchedOptions =
+              handlers && handlers.length > 0
+                ? (this.findRpcHandler(handlers, msg.fields.routingKey)
+                    ?.rpcOptions ?? rpcOptions)
+                : rpcOptions;
+
             const errorHandler =
-              rpcOptions.errorHandler ||
+              matchedOptions.errorHandler ||
               this.config.defaultRpcErrorHandler ||
               getHandlerForLegacyBehavior(
-                rpcOptions.errorBehavior ||
+                matchedOptions.errorBehavior ||
                   this.config.defaultSubscribeErrorBehavior,
               );
 
