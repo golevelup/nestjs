@@ -42,7 +42,7 @@ import {
   RpcTimeoutError,
 } from './errors';
 import { Nack, RpcResponse, SubscribeResponse } from './handlerResponses';
-import { isNull, merge } from 'lodash';
+import { isEqual, isNull, merge } from 'lodash';
 import { matchesRoutingKey } from './utils';
 
 const DIRECT_REPLY_QUEUE = 'amq.rabbitmq.reply-to';
@@ -155,6 +155,8 @@ export class AmqpConnection {
       rpcOptions: MessageHandlerOptions;
     }>
   >();
+
+  private _rpcConsumerTagByQueue = new Map<string, ConsumerTag>();
 
   private readonly config: Required<RabbitMQConfig>;
 
@@ -804,13 +806,23 @@ export class AmqpConnection {
       );
     }
 
-    const existingConsumerOpts = JSON.stringify(
-      first.queueOptions?.consumerOptions ?? {},
-    );
-    const newConsumerOpts = JSON.stringify(
-      newOptions.queueOptions?.consumerOptions ?? {},
-    );
-    if (existingConsumerOpts !== newConsumerOpts) {
+    const firstChannel = first.queueOptions?.channel;
+    const newChannel = newOptions.queueOptions?.channel;
+    if (firstChannel !== newChannel) {
+      throw new Error(
+        `RPC handler conflict on queue "${queueName}": ` +
+          `channel "${newChannel}" does not match ` +
+          `already registered channel "${firstChannel}". ` +
+          `All @RabbitRPC handlers sharing a queue must use the same channel.`,
+      );
+    }
+
+    if (
+      !isEqual(
+        first.queueOptions?.consumerOptions ?? {},
+        newOptions.queueOptions?.consumerOptions ?? {},
+      )
+    ) {
       throw new Error(
         `RPC handler conflict on queue "${queueName}": ` +
           `consumerOptions do not match between handlers. ` +
@@ -848,13 +860,33 @@ export class AmqpConnection {
       );
     }
 
-    return new Promise((res) => {
+    const existingTag = this._rpcConsumerTagByQueue.get(queueName);
+    if (existingTag) {
+      return new Promise((res, rej) => {
+        this.selectManagedChannel(rpcOptions?.queueOptions?.channel).addSetup(
+          async (channel: ConfirmChannel) => {
+            try {
+              await this.setupQueue(rpcOptions, channel);
+              res({ consumerTag: existingTag });
+            } catch (error) {
+              rej(error);
+              throw error;
+            }
+          },
+        );
+      });
+    }
+
+    return new Promise((res, rej) => {
       this.selectManagedChannel(rpcOptions?.queueOptions?.channel).addSetup(
         async (channel: ConfirmChannel) => {
-          await this.setupQueue(rpcOptions, channel);
-          res({
-            consumerTag: `shared-rpc-${queueName}-${this._rpcHandlersByQueue.get(queueName)!.length}`,
-          });
+          try {
+            await this.setupQueue(rpcOptions, channel);
+            res({ consumerTag: `shared-rpc-${queueName}` });
+          } catch (error) {
+            rej(error);
+            throw error;
+          }
         },
       );
     });
@@ -870,8 +902,9 @@ export class AmqpConnection {
 
     let resolvedQueue: string;
     if (handlers && handlers.length > 0) {
-      for (const entry of handlers) {
-        resolvedQueue = await this.setupQueue(entry.rpcOptions, channel);
+      resolvedQueue = await this.setupQueue(handlers[0].rpcOptions, channel);
+      for (let i = 1; i < handlers.length; i++) {
+        await this.setupQueue(handlers[i].rpcOptions, channel);
       }
     } else {
       resolvedQueue = await this.setupQueue(rpcOptions, channel);
@@ -964,6 +997,10 @@ export class AmqpConnection {
       }),
       rpcOptions?.queueOptions?.consumerOptions,
     );
+
+    if (queueName && handlers && handlers.length > 0) {
+      this._rpcConsumerTagByQueue.set(queueName, consumerTag);
+    }
 
     this.registerConsumerForQueue({
       type: 'rpc',

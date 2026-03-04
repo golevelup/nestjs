@@ -68,7 +68,7 @@ export class NamedConnectionController {
     connection: CONNECTION_NAME,
     routingKey: 'piped-rpc-2',
     exchange: 'exchange3',
-    queue: 'piped-rpc-2',
+    queue: 'piped-rpc-3',
     errorBehavior: MessageHandlerErrorBehavior.ACK,
     errorHandler: ReplyErrorCallback,
   })
@@ -83,7 +83,7 @@ export class NamedConnectionController {
     connection: CONNECTION_NAME,
     routingKey: 'piped-param-rpc-2',
     exchange: 'exchange3',
-    queue: 'piped-param-rpc-2',
+    queue: 'piped-param-rpc-3',
     errorBehavior: MessageHandlerErrorBehavior.ACK,
     errorHandler: ReplyErrorCallback,
   })
@@ -97,7 +97,7 @@ export class NamedConnectionController {
     connection: CONNECTION_NAME,
     routingKey: 'guarded-rpc-2',
     exchange: 'exchange3',
-    queue: 'guarded-rpc-2',
+    queue: 'guarded-rpc-3',
     errorBehavior: MessageHandlerErrorBehavior.ACK,
     errorHandler: ReplyErrorCallback,
   })
@@ -112,7 +112,7 @@ export class NamedConnectionController {
     connection: CONNECTION_NAME,
     routingKey: 'error-reply-rpc-2',
     exchange: 'exchange3',
-    queue: 'error-reply-rpc-2',
+    queue: 'error-reply-rpc-3',
     errorBehavior: MessageHandlerErrorBehavior.ACK,
     errorHandler: ReplyErrorCallback,
   })
@@ -124,7 +124,7 @@ export class NamedConnectionController {
     connection: CONNECTION_NAME,
     routingKey: 'non-json-rpc-2',
     exchange: 'exchange3',
-    queue: 'non-json-rpc-2',
+    queue: 'non-json-rpc-3',
     allowNonJsonMessages: true,
   })
   nonJsonRpc(nonJsonMessage: any) {
