@@ -73,4 +73,28 @@ export class RpcService {
       echo: nonJsonMessage,
     };
   }
+
+  @RabbitRPC({
+    routingKey: 'shared-rpc-1',
+    exchange: 'exchange1',
+    queue: 'shared-rpc-queue',
+  })
+  sharedRpc1(message: object) {
+    return {
+      echo: message,
+      handler: 'shared-rpc-1',
+    };
+  }
+
+  @RabbitRPC({
+    routingKey: 'shared-rpc-2',
+    exchange: 'exchange1',
+    queue: 'shared-rpc-queue',
+  })
+  sharedRpc2(message: object) {
+    return {
+      echo: message,
+      handler: 'shared-rpc-2',
+    };
+  }
 }
