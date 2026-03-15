@@ -174,8 +174,8 @@ importers:
         specifier: ^27.4.3
         version: 27.5.1(ts-node@10.9.2(@types/node@22.16.5)(typescript@4.9.5))
       prettier:
-        specifier: 3.5.3
-        version: 3.5.3
+        specifier: 3.8.1
+        version: 3.8.1
       supertest:
         specifier: 7.1.4
         version: 7.1.4
@@ -229,8 +229,8 @@ importers:
         specifier: 3.1.11
         version: 3.1.11
       prettier:
-        specifier: 3.5.3
-        version: 3.5.3
+        specifier: 3.8.1
+        version: 3.8.1
       supertest:
         specifier: 7.1.4
         version: 7.1.4
@@ -1908,6 +1908,7 @@ packages:
   '@lerna/create@8.2.4':
     resolution: {integrity: sha512-A8AlzetnS2WIuhijdAzKUyFpR5YbLLfV3luQ4lzBgIBgRfuoBDZeF+RSZPhra+7A6/zTUlrbhKZIOi/MNhqgvQ==}
     engines: {node: '>=18.0.0'}
+    deprecated: This package is an implementation detail of Lerna and is no longer published separately.
 
   '@lukeed/csprng@1.1.0':
     resolution: {integrity: sha512-Z7C/xXCiGWsg0KuKsHTKJxbWhpI3Vs5GwLfOean7MGyVFGqdRgBbAjOCh6u4bbjPc/8MJ2pZmK/0DLdCbivLDA==}
@@ -4617,11 +4618,13 @@ packages:
   git-raw-commits@3.0.0:
     resolution: {integrity: sha512-b5OHmZ3vAgGrDn/X0kS+9qCfNKWe4K/jFnhwzVWWg0/k5eLa3060tZShrRg8Dja5kPc+YjS0Gc6y7cRr44Lpjw==}
     engines: {node: '>=14'}
+    deprecated: This package is no longer maintained. For the JavaScript API, please use @conventional-changelog/git-client instead.
     hasBin: true
 
   git-raw-commits@4.0.0:
     resolution: {integrity: sha512-ICsMM1Wk8xSGMowkOmPrzo2Fgmfo4bMHLNX6ytHjajRJUqvHOw/TFapQ+QG75c3X/tTDDhOSRPGC52dDbNM8FQ==}
     engines: {node: '>=16'}
+    deprecated: This package is no longer maintained. For the JavaScript API, please use @conventional-changelog/git-client instead.
     hasBin: true
 
   git-remote-origin-url@2.0.0:
@@ -4631,6 +4634,7 @@ packages:
   git-semver-tags@5.0.1:
     resolution: {integrity: sha512-hIvOeZwRbQ+7YEUmCkHqo8FOLQZCEn18yevLHADlFPZY02KJGsu5FZt9YW/lybfK2uhWFI7Qg/07LekJiTv7iA==}
     engines: {node: '>=14'}
+    deprecated: This package is no longer maintained. For the JavaScript API, please use @conventional-changelog/git-client instead.
     hasBin: true
 
   git-up@7.0.0:
@@ -6341,11 +6345,6 @@ packages:
   prettier@2.8.8:
     resolution: {integrity: sha512-tdN8qQGvNjw4CHbY+XXk0JgCXn9QiF21a55rBe5LJAU+kDyC4WQn4+awm2Xfk2lQMk5fKup9XgzTZtGkjBdP9Q==}
     engines: {node: '>=10.13.0'}
-    hasBin: true
-
-  prettier@3.5.3:
-    resolution: {integrity: sha512-QQtaxnoDJeAkDvDKWCLiwIXkTgRhwYDEQCghU9Z6q03iyek/rxRh/2lC3HB7P8sWT2xC/y5JDctPLBIGzHKbhw==}
-    engines: {node: '>=14'}
     hasBin: true
 
   prettier@3.8.1:
@@ -15270,8 +15269,6 @@ snapshots:
       fast-diff: 1.3.0
 
   prettier@2.8.8: {}
-
-  prettier@3.5.3: {}
 
   prettier@3.8.1: {}
 
