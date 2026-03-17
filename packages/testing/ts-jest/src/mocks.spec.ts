@@ -281,25 +281,33 @@ describe('Mocks', () => {
       expect({ foo: mock.foo }).toEqual({ foo: { bar: 1 } });
     });
 
-    it('nested properties can not be implictly casted to string/number', () => {
+    it('nested properties can be implicitly casted to string/number', () => {
       const mock = createMock<{ nested: any }>();
 
       const testFnNumber = () => mock.nested > 0;
       const testFnString = () => `${mock.nested}`;
 
-      expect(testFnNumber).toThrowError();
-      expect(testFnString).toThrowError();
+      expect(testFnNumber).not.toThrowError();
+      expect(testFnString).not.toThrowError();
     });
 
-    it('mocked functions returned values can not be implictly casted to string/number', async () => {
+    it('mocked functions returned values can be implicitly casted to string/number', async () => {
       const mock = createMock<TestInterface>();
       const result = await mock.func3();
 
       const testFnNumber = () => result.prop > 0;
       const testFnString = () => `${result.prop}`;
 
-      expect(testFnNumber).toThrowError();
-      expect(testFnString).toThrowError();
+      expect(testFnNumber).not.toThrowError();
+      expect(testFnString).not.toThrowError();
+    });
+
+    it('should work with RegExp.test on mocked string property', () => {
+      type SimpleType = {
+        field: string;
+      };
+      const mock = createMock<SimpleType>();
+      expect(() => /test/.test(mock.field)).not.toThrow();
     });
 
     it('asymmetricMatch should not be set', () => {

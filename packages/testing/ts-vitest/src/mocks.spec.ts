@@ -226,6 +226,14 @@ describe('Mocks', () => {
       expect(result).toBe(42);
     });
 
+    it('should work with RegExp.test on mocked string property', () => {
+      type SimpleType = {
+        field: string;
+      };
+      const mock = createMock<SimpleType>();
+      expect(() => /test/.test(mock.field)).not.toThrow();
+    });
+
     describe(`constructor`, () => {
       it('should have constructor defined', () => {
         class Service {}
