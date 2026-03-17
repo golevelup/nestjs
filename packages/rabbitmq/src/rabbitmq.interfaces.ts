@@ -288,7 +288,7 @@ export interface RabbitMQConfig {
    * to `AmqpConnection.publish()` or `AmqpConnection.request()`.
    *
    * @example
-   * // Make all published messages durable so they survive a broker restart:
+   * // Make all published messages persistent by default:
    * defaultPublishOptions: { persistent: true }
    */
   defaultPublishOptions?: Options.Publish;
