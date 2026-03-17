@@ -499,7 +499,6 @@ export class AmqpConnection {
         channelMsgOptions,
         channel,
         originalHandlerName,
-        consumeOptions,
       ),
     );
   }
@@ -514,7 +513,6 @@ export class AmqpConnection {
         handler,
         channelMsgOptions,
         channel,
-        consumeOptions,
       ),
     );
   }
