@@ -613,9 +613,12 @@ This is done with the `errorHandler` property that is available both in RPC and 
 
 > it should be used with `rpcOptions` for RPC
 
-The default behavior is to nack and **requeue** the message (i.e. `MessageHandlerErrorBehavior.REQUEUE`). You can change this globally via the `defaultSubscribeErrorBehavior` connection option, or per-handler via the `errorBehavior` option on `@RabbitSubscribe` / `@RabbitRPC`. Be aware that requeuing indefinitely can cause an infinite loop — consider using a dead-letter exchange or setting `defaultSubscribeErrorBehavior: MessageHandlerErrorBehavior.NACK` to nack without requeueing.
+The library exposes two complementary mechanisms for error handling:
 
-However, you can do more fancy stuff like inspecting the message properties to decide to requeue or not. Be aware that you should not requeue indefinitely...
+- **`errorBehavior`** (per-handler) / **`defaultSubscribeErrorBehavior`** (global): An enum that controls what happens to the message when an error is thrown and no custom `errorHandler` is provided. The default is `MessageHandlerErrorBehavior.REQUEUE` — the message is nacked **and requeued**. Other options are `MessageHandlerErrorBehavior.NACK` (nack without requeue) and `MessageHandlerErrorBehavior.ACK`.
+- **`errorHandler`** (per-handler): A custom function that gives you full control over error handling (e.g. inspecting message properties to decide whether to requeue). When provided, it takes precedence over the `errorBehavior` enum.
+
+> ⚠️ The default `MessageHandlerErrorBehavior.REQUEUE` can cause **infinite processing loops** if the error is persistent. Consider setting `defaultSubscribeErrorBehavior: MessageHandlerErrorBehavior.NACK` globally, or configure a dead-letter exchange to route failed messages elsewhere.
 
 Please note that nack will trigger the dead-letter mechanism of RabbitMQ (and so, you can use the deadLetterExchange in the queueOptions in order to send the message somewhere else).
 
