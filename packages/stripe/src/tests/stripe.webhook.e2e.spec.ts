@@ -1,4 +1,12 @@
-import { ConsoleLogger, INestApplication, Injectable } from '@nestjs/common';
+import {
+  ArgumentsHost,
+  Catch,
+  ConsoleLogger,
+  ExceptionFilter,
+  HttpException,
+  INestApplication,
+  Injectable,
+} from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as request from 'supertest';
 import { StripeWebhookHandler } from '../stripe.decorators';
@@ -27,6 +35,35 @@ class PaymentCreatedService {
   @StripeWebhookHandler(eventType)
   handlePaymentIntentCreated(evt: any) {
     testReceiveStripeFn(evt);
+  }
+}
+
+@Injectable()
+class ThrowingWebhookService {
+  @StripeWebhookHandler(eventType)
+  handlePaymentIntentCreated() {
+    throw new Error('Handler error');
+  }
+}
+
+/**
+ * Mimics the behavior of Sentry's SentryGlobalFilter which extends NestJS's
+ * BaseExceptionFilter. It accesses response.headersSent via switchToHttp(),
+ * which caused a crash before the fix (the response was undefined in the
+ * external exception filter context).
+ */
+@Catch()
+class SentryLikeGlobalFilter implements ExceptionFilter {
+  catch(exception: unknown, host: ArgumentsHost) {
+    const response = host.switchToHttp().getResponse();
+    // Accessing headersSent mirrors what Sentry's SentryGlobalFilter does and
+    // is the exact line that threw "Cannot read properties of undefined
+    // (reading 'headersSent')" before the fix.
+    if (response && !response.headersSent) {
+      const status =
+        exception instanceof HttpException ? exception.getStatus() : 500;
+      response.status(status).json({ message: 'Internal server error' });
+    }
   }
 }
 
@@ -85,7 +122,7 @@ describe.each(cases)(
 
       hydratePayloadFn = jest
         .spyOn(stripePayloadService, 'tryHydratePayload')
-        .mockImplementationOnce((sig, buff) => buff as any);
+        .mockResolvedValueOnce(expectedEvent as any);
     });
 
     it('returns an error if the stripe signature is missing', () => {
@@ -116,3 +153,50 @@ describe.each(cases)(
     afterEach(() => jest.resetAllMocks());
   },
 );
+
+describe('Stripe Webhook error propagation', () => {
+  let app: INestApplication;
+
+  const moduleConfig: StripeModuleConfig = {
+    apiKey: '123',
+    webhookConfig: {
+      stripeSecrets: {
+        account: '123',
+      },
+    },
+  };
+
+  beforeEach(async () => {
+    const moduleFixture: TestingModule = await Test.createTestingModule({
+      imports: [StripeModule.forRoot(moduleConfig)],
+      providers: [ThrowingWebhookService],
+    }).compile();
+
+    app = moduleFixture.createNestApplication();
+    app.useLogger(new SilentLogger());
+    // Register a global filter that mimics Sentry's SentryGlobalFilter:
+    // it accesses response.headersSent via switchToHttp().getResponse().
+    // Before the fix this threw "Cannot read properties of undefined
+    // (reading 'headersSent')" because the external context had no HTTP
+    // response object.
+    app.useGlobalFilters(new SentryLikeGlobalFilter());
+    await app.init();
+
+    const stripePayloadService =
+      app.get<StripePayloadService>(StripePayloadService);
+
+    jest
+      .spyOn(stripePayloadService, 'tryHydratePayload')
+      .mockImplementationOnce((sig, buff) => buff as any);
+  });
+
+  it('returns 500 when a webhook handler throws, without crashing due to missing response context', () => {
+    return request(app.getHttpServer())
+      .post(defaultStripeWebhookEndpoint)
+      .send(expectedEvent)
+      .set('stripe-signature', stripeSig)
+      .expect(500);
+  });
+
+  afterEach(() => jest.resetAllMocks());
+});
