@@ -1,8 +1,7 @@
 import { GenericContainer, Wait } from 'testcontainers';
+import { provide } from 'vitest/suite';
 
-let stopContainer: (() => Promise<void>) | undefined;
-
-async function setupImpl() {
+export default async function setup() {
   const container = await new GenericContainer('rabbitmq:3-management')
     .withEnvironment({
       RABBITMQ_DEFAULT_USER: 'rabbitmq',
@@ -12,24 +11,10 @@ async function setupImpl() {
     .withWaitStrategy(Wait.forListeningPorts())
     .start();
 
-  process.env.RABBITMQ_HOST = container.getHost();
-  process.env.RABBITMQ_PORT = String(container.getMappedPort(5672));
+  provide('RABBITMQ_HOST', container.getHost());
+  provide('RABBITMQ_PORT', String(container.getMappedPort(5672)));
 
-  const stopContainerFn = async () => {
+  return async () => {
     await container.stop();
   };
-
-  stopContainer = stopContainerFn;
-
-  return stopContainerFn;
-}
-
-export default setupImpl;
-
-export async function setup() {
-  return setupImpl();
-}
-
-export async function teardown() {
-  await stopContainer?.();
 }
