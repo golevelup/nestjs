@@ -97,7 +97,7 @@ describe('Stripe Thin Webhooks (e2e)', () => {
 
     hydratePayloadFn = jest
       .spyOn(stripePayloadService, 'tryHydratePayload')
-      .mockImplementation((sig, buff) => Promise.resolve(buff as any));
+      .mockResolvedValue(expectedThinEvent as any);
   });
 
   it('routes thin events to their handlers when mode=thin', () => {
