@@ -60,7 +60,10 @@ export function resolveHandlerConfigs(
     return [];
   }
   const raw = handlers[lookupKey];
-  return Array.isArray(raw) ? raw : [raw];
+  if (Array.isArray(raw)) {
+    return raw;
+  }
+  return [raw];
 }
 
 @Module({
