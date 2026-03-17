@@ -6,6 +6,7 @@ import {
 } from '@golevelup/nestjs-rabbitmq';
 import { INestApplication, Injectable } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
+import { getRabbitMQUri } from './utils';
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -50,11 +51,7 @@ describe('Nack and Requeue', () => {
   let app: INestApplication;
   let amqpConnection: AmqpConnection;
 
-  const rabbitHost =
-    process.env.NODE_ENV === 'ci' ? process.env.RABBITMQ_HOST : 'localhost';
-  const rabbitPort =
-    process.env.NODE_ENV === 'ci' ? process.env.RABBITMQ_PORT : '5672';
-  const uri = `amqp://rabbitmq:rabbitmq@${rabbitHost}:${rabbitPort}`;
+  const uri = getRabbitMQUri();
 
   beforeAll(async () => {
     const moduleFixture = await Test.createTestingModule({

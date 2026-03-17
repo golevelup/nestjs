@@ -7,12 +7,9 @@ import {
 import { Injectable } from '@nestjs/common';
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
+import { getRabbitMQUri } from './utils';
 
-const rabbitHost =
-  process.env.NODE_ENV === 'ci' ? process.env.RABBITMQ_HOST : 'localhost';
-const rabbitPort =
-  process.env.NODE_ENV === 'ci' ? process.env.RABBITMQ_PORT : '5672';
-const uri = `amqp://rabbitmq:rabbitmq@${rabbitHost}:${rabbitPort}`;
+const uri = getRabbitMQUri();
 
 const prefix = 'multiplechannels-';
 const routePrefix = `${prefix}route-`;
