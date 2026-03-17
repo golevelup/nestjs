@@ -611,7 +611,7 @@ For example:
 amqpConnection.publish('some-exchange', 'routing-key', { msg: 'hello world' });
 ```
 
-To make published messages durable (so they survive a RabbitMQ broker restart and are not lost if they end up in a dead-letter queue), pass `{ persistent: true }` as the options argument:
+To mark published messages as persistent on the broker, pass `{ persistent: true }` as the options argument:
 
 ```typescript
 amqpConnection.publish(
@@ -622,7 +622,9 @@ amqpConnection.publish(
 );
 ```
 
-Alternatively, configure `defaultPublishOptions` in the module configuration to apply persistence to **all** published messages by default:
+Note: For messages to be retained across a RabbitMQ broker restart, they must be published to queues (and exchanges) that are declared as `durable`, and the broker must have successfully flushed them to disk in addition to the messages being marked as persistent.
+
+Alternatively, configure `defaultPublishOptions` in the module configuration to apply the message persistence flag to **all** published messages by default:
 
 ```typescript
 RabbitMQModule.forRoot(RabbitMQModule, {
