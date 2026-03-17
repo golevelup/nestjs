@@ -252,14 +252,21 @@ export class RabbitMQModule
               RABBIT_CONTEXT_TYPE_KEY, // contextType
             );
 
-            const moduleHandlerConfigRaw =
-              connection.configuration.handlers[
-                config.name || connection.configuration.defaultHandler || ''
-              ];
+            const handlerLookupKey =
+              config.name || connection.configuration.defaultHandler;
 
+            const moduleHandlerConfigRaw =
+              connection.configuration.handlers[handlerLookupKey || ''];
+
+            // When a handler name or defaultHandler is configured but no
+            // matching entry exists in the handlers map, skip registration to
+            // prevent random amq.gen-* queues from being asserted (consistent
+            // with the behaviour of an explicitly empty array entry).
             const moduleHandlerConfigs = Array.isArray(moduleHandlerConfigRaw)
               ? moduleHandlerConfigRaw
-              : [moduleHandlerConfigRaw];
+              : handlerLookupKey && moduleHandlerConfigRaw === undefined
+                ? []
+                : [moduleHandlerConfigRaw];
 
             await Promise.all(
               moduleHandlerConfigs.map((moduleHandlerConfig) => {
