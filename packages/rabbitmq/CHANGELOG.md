@@ -1,5 +1,11 @@
 # Change Log
 
+## 8.0.1
+
+### Patch Changes
+
+- Fix: skip handler registration when named handler config entry is absent
+
 ## 8.0.0
 
 ### Major Changes
