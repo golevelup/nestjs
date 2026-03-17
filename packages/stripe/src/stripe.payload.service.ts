@@ -26,11 +26,11 @@ export class StripePayloadService {
     this.stripeThinSecrets = config.webhookConfig?.stripeThinSecrets || {};
   }
 
-  tryHydratePayload(
+  async tryHydratePayload(
     signature: string,
     payload: Buffer,
     mode: StripeWebhookMode,
-  ): { type: string } {
+  ): Promise<{ type: string }> {
     const decodedPayload = JSON.parse(
       Buffer.isBuffer(payload) ? payload.toString('utf8') : payload,
     );
@@ -40,14 +40,14 @@ export class StripePayloadService {
 
     switch (mode) {
       case StripeWebhookMode.SNAPSHOT:
-        return this.stripeClient.webhooks.constructEvent(
+        return this.stripeClient.webhooks.constructEventAsync(
           payload,
           signature,
           secretToUse,
         );
 
       case StripeWebhookMode.THIN:
-        return this.stripeClient.parseEventNotification(
+        return this.stripeClient.webhooks.constructEventAsync(
           payload,
           signature,
           secretToUse,
