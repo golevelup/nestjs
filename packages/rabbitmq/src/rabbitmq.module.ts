@@ -226,7 +226,9 @@ export class RabbitMQModule
 
             const handler = this.externalContextCreator.create(
               discoveredMethod.parentClass.instance,
-              discoveredMethod.handler,
+              discoveredMethod.handler.bind(
+                discoveredMethod.parentClass.instance,
+              ),
               discoveredMethod.methodName,
               ROUTE_ARGS_METADATA,
               this.rpcParamsFactory,
