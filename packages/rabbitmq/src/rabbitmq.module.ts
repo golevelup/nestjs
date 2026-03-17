@@ -28,7 +28,36 @@ import {
 } from './rabbitmq.constants';
 import { InjectRabbitMQConfig } from './rabbitmq.decorators';
 import { RabbitRpcParamsFactory } from './rabbitmq.factory';
-import { RabbitHandlerConfig, RabbitMQConfig } from './rabbitmq.interfaces';
+import {
+  MessageHandlerOptions,
+  RabbitHandlerConfig,
+  RabbitMQConfig,
+} from './rabbitmq.interfaces';
+
+/**
+ * Resolves the list of per-registration handler configs to apply for a given
+ * handler, given the raw value found in the module-level `handlers` map and the
+ * key that was used to look it up.
+ *
+ * Rules:
+ * - Array value  → use it as-is (zero or more registrations).
+ * - Non-empty lookup key with no matching entry (`undefined`) → return `[]`
+ *   to skip registration and avoid asserting random `amq.gen-*` queues.
+ * - No lookup key / explicit `undefined` value → wrap in a single-element
+ *   array so the handler is registered using only the decorator config.
+ */
+export function resolveHandlerConfigs(
+  raw: MessageHandlerOptions | MessageHandlerOptions[] | undefined,
+  lookupKey: string | undefined,
+): (MessageHandlerOptions | undefined)[] {
+  if (Array.isArray(raw)) {
+    return raw;
+  }
+  if (lookupKey && raw === undefined) {
+    return [];
+  }
+  return [raw];
+}
 
 @Module({
   imports: [DiscoveryModule],
@@ -262,11 +291,10 @@ export class RabbitMQModule
             // matching entry exists in the handlers map, skip registration to
             // prevent random amq.gen-* queues from being asserted (consistent
             // with the behaviour of an explicitly empty array entry).
-            const moduleHandlerConfigs = Array.isArray(moduleHandlerConfigRaw)
-              ? moduleHandlerConfigRaw
-              : handlerLookupKey && moduleHandlerConfigRaw === undefined
-                ? []
-                : [moduleHandlerConfigRaw];
+            const moduleHandlerConfigs = resolveHandlerConfigs(
+              moduleHandlerConfigRaw,
+              handlerLookupKey,
+            );
 
             await Promise.all(
               moduleHandlerConfigs.map((moduleHandlerConfig) => {

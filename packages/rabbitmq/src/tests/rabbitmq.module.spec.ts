@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { RABBIT_HANDLER } from '../rabbitmq.constants';
 import { RabbitSubscribe } from '../rabbitmq.decorators';
+import { resolveHandlerConfigs } from '../rabbitmq.module';
 
 const handlerSpy = jest.fn();
 
@@ -93,5 +94,59 @@ describe('RabbitMQModule handler this-context binding', () => {
     boundHandler({});
     expect(handlerSpy).toHaveBeenCalledWith('service-value');
     expect(Reflect.getMetadataKeys(boundHandler)).toContain(RABBIT_HANDLER);
+  });
+});
+
+describe(resolveHandlerConfigs.name, () => {
+  const singleConfig = { queue: 'q', exchange: 'ex', routingKey: 'rk' };
+  const anotherConfig = { queue: 'q2', exchange: 'ex2', routingKey: 'rk2' };
+
+  describe('when raw value is an array', () => {
+    it('returns the array as-is regardless of lookup key', () => {
+      expect(resolveHandlerConfigs([singleConfig], 'handlerA')).toEqual([
+        singleConfig,
+      ]);
+    });
+
+    it('returns empty array when the array entry is empty (handlerB: [])', () => {
+      expect(resolveHandlerConfigs([], 'handlerB')).toEqual([]);
+    });
+
+    it('returns multi-element array unchanged', () => {
+      expect(
+        resolveHandlerConfigs([singleConfig, anotherConfig], 'handlerA'),
+      ).toEqual([singleConfig, anotherConfig]);
+    });
+  });
+
+  describe('when raw value is undefined and a lookup key is present', () => {
+    it('returns [] so registration is skipped (handlerC missing from config)', () => {
+      // This is the bug-fix scenario: the handler name is set in the decorator
+      // but has no corresponding entry in the module handlers map.
+      expect(resolveHandlerConfigs(undefined, 'handlerC')).toEqual([]);
+    });
+
+    it('returns [] when defaultHandler key is present but absent from handlers map', () => {
+      expect(resolveHandlerConfigs(undefined, 'defaultHandlerKey')).toEqual([]);
+    });
+  });
+
+  describe('when there is no lookup key (handler uses only decorator config)', () => {
+    it('wraps undefined in a single-element array so decorator config is used', () => {
+      expect(resolveHandlerConfigs(undefined, undefined)).toEqual([undefined]);
+    });
+
+    it('wraps undefined in a single-element array when lookup key is empty string', () => {
+      // defaultHandler defaults to '' in AmqpConnection — treated as no key
+      expect(resolveHandlerConfigs(undefined, '')).toEqual([undefined]);
+    });
+  });
+
+  describe('when raw value is a single config object (not an array)', () => {
+    it('wraps the config in a single-element array', () => {
+      expect(resolveHandlerConfigs(singleConfig, 'handlerA')).toEqual([
+        singleConfig,
+      ]);
+    });
   });
 });
