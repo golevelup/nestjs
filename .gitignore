@@ -10,4 +10,5 @@ integration/rabbitmq/dist
 
 # doc ignored directories
 docs/.vitepress/dist
-docs/.vitepress/cachepackage-lock.json
+docs/.vitepress/cache
+package-lock.json
