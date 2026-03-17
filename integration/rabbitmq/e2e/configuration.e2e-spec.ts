@@ -520,7 +520,7 @@ describe('Module Configuration', () => {
                               args,
                             );
                             result.then(() => {
-                              expect(bindQueueSpy).not.toBeCalled();
+                              expect(bindQueueSpy).not.toHaveBeenCalled();
                             });
                             return result;
                           },

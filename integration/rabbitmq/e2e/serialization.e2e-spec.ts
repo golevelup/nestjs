@@ -111,7 +111,7 @@ describe('Rabbit Subscribe', () => {
     expect(moduleSerializeHandler).toHaveBeenCalledWith(`testMessage-1`);
     expect(moduleDeserializer).toHaveBeenCalledTimes(2);
     expect(moduleSerializer).toHaveBeenCalledTimes(2);
-    expect(handlerDeserializer).not.toBeCalled();
+    expect(handlerDeserializer).not.toHaveBeenCalled();
   });
 
   it('should receive subscribe messages and deserialize via handler options', async () => {
@@ -125,7 +125,7 @@ describe('Rabbit Subscribe', () => {
     expect(handlerSerializeHandler).toHaveBeenCalledWith(`testMessage-0`);
     expect(handlerSerializeHandler).toHaveBeenCalledWith(`testMessage-1`);
     expect(handlerDeserializer).toHaveBeenCalledTimes(2);
-    expect(moduleDeserializer).not.toBeCalled();
+    expect(moduleDeserializer).not.toHaveBeenCalled();
     expect(moduleSerializer).toHaveBeenCalledTimes(2);
   });
 });
