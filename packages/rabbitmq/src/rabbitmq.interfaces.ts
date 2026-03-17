@@ -281,6 +281,17 @@ export interface RabbitMQConfig {
    * This function is used to serialize the message to be sent.
    */
   serializer?: MessageSerializer;
+
+  /**
+   * Default options to apply to every published message.
+   * These are merged with (and can be overridden by) any options passed directly
+   * to `AmqpConnection.publish()` or `AmqpConnection.request()`.
+   *
+   * @example
+   * // Make all published messages durable so they survive a broker restart:
+   * defaultPublishOptions: { persistent: true }
+   */
+  defaultPublishOptions?: Options.Publish;
 }
 
 export type RabbitHandlerType = 'rpc' | 'subscribe';

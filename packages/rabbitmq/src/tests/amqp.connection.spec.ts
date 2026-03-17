@@ -164,4 +164,92 @@ describe('AmqpConnection', () => {
 
     expect(connection['setupRpcChannel']).toHaveBeenCalledTimes(1);
   });
+
+  describe('publish with defaultPublishOptions', () => {
+    const mockPublish = jest.fn().mockResolvedValue(true);
+
+    beforeEach(() => {
+      (connection as any)._managedChannel = { publish: mockPublish };
+    });
+
+    it('should publish without options when no defaultPublishOptions are set', async () => {
+      await connection.publish('test-exchange', 'test-key', { msg: 'hello' });
+
+      expect(mockPublish).toHaveBeenCalledWith(
+        'test-exchange',
+        'test-key',
+        expect.any(Buffer),
+        {},
+      );
+    });
+
+    it('should apply defaultPublishOptions when publishing', async () => {
+      const connectionWithDefaults = new AmqpConnection({
+        ...mockConfig,
+        defaultPublishOptions: { persistent: true },
+      });
+      (connectionWithDefaults as any)._managedChannel = {
+        publish: mockPublish,
+      };
+
+      await connectionWithDefaults.publish('test-exchange', 'test-key', {
+        msg: 'hello',
+      });
+
+      expect(mockPublish).toHaveBeenCalledWith(
+        'test-exchange',
+        'test-key',
+        expect.any(Buffer),
+        { persistent: true },
+      );
+    });
+
+    it('should allow per-call options to override defaultPublishOptions', async () => {
+      const connectionWithDefaults = new AmqpConnection({
+        ...mockConfig,
+        defaultPublishOptions: { persistent: true },
+      });
+      (connectionWithDefaults as any)._managedChannel = {
+        publish: mockPublish,
+      };
+
+      await connectionWithDefaults.publish(
+        'test-exchange',
+        'test-key',
+        { msg: 'hello' },
+        { persistent: false },
+      );
+
+      expect(mockPublish).toHaveBeenCalledWith(
+        'test-exchange',
+        'test-key',
+        expect.any(Buffer),
+        { persistent: false },
+      );
+    });
+
+    it('should merge per-call options with defaultPublishOptions', async () => {
+      const connectionWithDefaults = new AmqpConnection({
+        ...mockConfig,
+        defaultPublishOptions: { persistent: true, priority: 1 },
+      });
+      (connectionWithDefaults as any)._managedChannel = {
+        publish: mockPublish,
+      };
+
+      await connectionWithDefaults.publish(
+        'test-exchange',
+        'test-key',
+        { msg: 'hello' },
+        { expiration: '5000' },
+      );
+
+      expect(mockPublish).toHaveBeenCalledWith(
+        'test-exchange',
+        'test-key',
+        expect.any(Buffer),
+        { persistent: true, priority: 1, expiration: '5000' },
+      );
+    });
+  });
 });
