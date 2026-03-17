@@ -1,4 +1,5 @@
 import { AmqpConnection } from '../amqp/connection';
+import { ChannelWrapper } from 'amqp-connection-manager';
 
 const mockConsumerTag = 'amq.ctag-mock';
 
@@ -169,7 +170,10 @@ describe('AmqpConnection', () => {
     const mockPublish = jest.fn().mockResolvedValue(true);
 
     beforeEach(() => {
-      (connection as any)._managedChannel = { publish: mockPublish };
+      // _managedChannel is private; bracket notation is used to inject the mock in tests
+      connection['_managedChannel'] = {
+        publish: mockPublish,
+      } as unknown as ChannelWrapper;
     });
 
     it('should publish without options when no defaultPublishOptions are set', async () => {
@@ -188,9 +192,10 @@ describe('AmqpConnection', () => {
         ...mockConfig,
         defaultPublishOptions: { persistent: true },
       });
-      (connectionWithDefaults as any)._managedChannel = {
+      // _managedChannel is private; bracket notation is used to inject the mock in tests
+      connectionWithDefaults['_managedChannel'] = {
         publish: mockPublish,
-      };
+      } as unknown as ChannelWrapper;
 
       await connectionWithDefaults.publish('test-exchange', 'test-key', {
         msg: 'hello',
@@ -209,9 +214,10 @@ describe('AmqpConnection', () => {
         ...mockConfig,
         defaultPublishOptions: { persistent: true },
       });
-      (connectionWithDefaults as any)._managedChannel = {
+      // _managedChannel is private; bracket notation is used to inject the mock in tests
+      connectionWithDefaults['_managedChannel'] = {
         publish: mockPublish,
-      };
+      } as unknown as ChannelWrapper;
 
       await connectionWithDefaults.publish(
         'test-exchange',
@@ -233,9 +239,10 @@ describe('AmqpConnection', () => {
         ...mockConfig,
         defaultPublishOptions: { persistent: true, priority: 1 },
       });
-      (connectionWithDefaults as any)._managedChannel = {
+      // _managedChannel is private; bracket notation is used to inject the mock in tests
+      connectionWithDefaults['_managedChannel'] = {
         publish: mockPublish,
-      };
+      } as unknown as ChannelWrapper;
 
       await connectionWithDefaults.publish(
         'test-exchange',
