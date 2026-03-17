@@ -152,18 +152,13 @@ export class RabbitMQModule
 
       case 'subscribe':
         if (config.batchOptions) {
-          return connection.createBatchSubscriber(
-            handler,
-            config,
-            config?.queueOptions?.consumerOptions,
-          );
+          return connection.createBatchSubscriber(handler, config);
         }
 
         return connection.createSubscriber(
           handler,
           config,
           discoveredMethod.methodName,
-          config?.queueOptions?.consumerOptions,
         );
 
       default:
