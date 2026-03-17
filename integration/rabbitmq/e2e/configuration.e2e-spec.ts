@@ -276,7 +276,7 @@ describe('Module Configuration', () => {
               const originalCreateConfirmChannel = conn.createConfirmChannel;
               jest
                 .spyOn(conn, 'createConfirmChannel')
-                .mockImplementation(function (...args) {
+                .mockImplementation(function (this: unknown, ...args) {
                   const result = originalCreateConfirmChannel.apply(this, args);
                   result.then((channel) => {
                     assertQueueSpy = jest.spyOn(channel, 'assertQueue');
@@ -503,7 +503,7 @@ describe('Module Configuration', () => {
               const originalCreateConfirmChannel = conn.createConfirmChannel;
               jest
                 .spyOn(conn, 'createConfirmChannel')
-                .mockImplementation(function (...args) {
+                .mockImplementation(function (this: unknown, ...args) {
                   const result = originalCreateConfirmChannel.apply(this, args);
                   result.then((channel) => {
                     const bindQueueSpy = jest.spyOn(channel, 'bindQueue');
@@ -511,7 +511,7 @@ describe('Module Configuration', () => {
                     const originalAssertExchange = channel.assertExchange;
                     jest
                       .spyOn(channel, 'assertExchange')
-                      .mockImplementation(function (...args) {
+                      .mockImplementation(function (this: unknown, ...args) {
                         // Delay for a long time to ensure queues are bound after exchanges are asserted
                         return new Promise((r) => setTimeout(r, 500)).then(
                           () => {
@@ -591,7 +591,7 @@ describe('Module Configuration', () => {
             const originalCreateConfirmChannel = conn.createConfirmChannel;
             jest
               .spyOn(conn, 'createConfirmChannel')
-              .mockImplementation(function (...args) {
+              .mockImplementation(function (this: unknown, ...args) {
                 const result = originalCreateConfirmChannel.apply(this, args);
                 result.then((channel) => {
                   bindExchangeSpy = jest.spyOn(channel, 'bindExchange');
