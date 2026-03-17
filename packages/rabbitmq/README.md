@@ -404,54 +404,6 @@ export class MessagingService {
 }
 ```
 
-### Configuring Consumer Tag
-
-A consumer tag is a string that uniquely identifies a consumer on a channel. By default, RabbitMQ assigns a server-generated tag. You can customise this for easier consumer management, tracing, and identification.
-
-#### Global Consumer Tag (per queue in module config)
-
-You can set a default `consumerTag` for a queue in the module-level `queues` configuration. All handlers subscribed to that queue will use this tag unless overridden at the handler level.
-
-```typescript
-RabbitMQModule.forRoot({
-  uri: 'amqp://localhost:5672',
-  queues: [
-    {
-      name: 'my-queue',
-      consumerTag: 'my-global-consumer-tag',
-    },
-  ],
-});
-```
-
-#### Per-Handler Consumer Tag (via decorator)
-
-You can also set the `consumerTag` directly on an individual handler using `queueOptions.consumerOptions`. A tag set on the decorator takes precedence over the global queue config.
-
-```typescript
-import { RabbitSubscribe, RabbitRPC } from '@golevelup/nestjs-rabbitmq';
-import { Injectable } from '@nestjs/common';
-
-@Injectable()
-export class MessagingService {
-  @RabbitSubscribe({
-    exchange: 'exchange1',
-    routingKey: 'subscribe-route',
-    queue: 'my-queue',
-    queueOptions: {
-      consumerOptions: {
-        consumerTag: 'my-handler-consumer-tag',
-      },
-    },
-  })
-  public async pubSubHandler(msg: {}) {
-    console.log(`Received message: ${JSON.stringify(msg)}`);
-  }
-}
-```
-
-> **Note:** Consumer tags must be unique per channel. If multiple consumers on the same channel share a tag, RabbitMQ will reject the duplicate registration. Ensure tags are unique when configuring them manually.
-
 ### Consumer-side Message Batching
 
 Messages can be presented as a batch to the handler. This works by accumulating messages on the consumer-side until either a batch size limit is reached or the batch timer expires. After handling, all messages in the batch will be acked (or nacked) automatically.
