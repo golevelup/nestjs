@@ -224,11 +224,25 @@ export class RabbitMQModule
               return;
             }
 
+            const originalHandler = discoveredMethod.handler;
+            const instance = discoveredMethod.parentClass.instance;
+            const boundHandler = originalHandler.bind(instance);
+
+            // Copy all Reflect metadata from the original prototype method to
+            // the bound function so that metadata-based features continue to
+            // work correctly (e.g. isRabbitContext(), method-level interceptors,
+            // guards and pipes whose metadata lives on the function object).
+            for (const metaKey of Reflect.getMetadataKeys(originalHandler)) {
+              Reflect.defineMetadata(
+                metaKey,
+                Reflect.getMetadata(metaKey, originalHandler),
+                boundHandler,
+              );
+            }
+
             const handler = this.externalContextCreator.create(
-              discoveredMethod.parentClass.instance,
-              discoveredMethod.handler.bind(
-                discoveredMethod.parentClass.instance,
-              ),
+              instance,
+              boundHandler,
               discoveredMethod.methodName,
               ROUTE_ARGS_METADATA,
               this.rpcParamsFactory,

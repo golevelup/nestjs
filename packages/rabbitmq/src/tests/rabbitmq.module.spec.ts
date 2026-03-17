@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
+import { RABBIT_HANDLER } from '../rabbitmq.constants';
 import { RabbitSubscribe } from '../rabbitmq.decorators';
 
 const handlerSpy = jest.fn();
@@ -26,10 +27,8 @@ describe('RabbitMQModule handler this-context binding', () => {
   it('should preserve `this` context when the handler is bound to the class instance', () => {
     const service = new TestService();
     const prototype = Object.getPrototypeOf(service);
-
-    // Simulate how RabbitMQModule registers the handler with the fix applied:
-    // discoveredMethod.handler.bind(discoveredMethod.parentClass.instance)
-    const boundHandler = prototype['handleMessage'].bind(service);
+    const originalHandler = prototype['handleMessage'];
+    const boundHandler = originalHandler.bind(service);
 
     boundHandler({});
 
@@ -39,28 +38,60 @@ describe('RabbitMQModule handler this-context binding', () => {
   it('should lose `this` context when handler is unbound', () => {
     const service = new TestService();
     const prototype = Object.getPrototypeOf(service);
+    const unboundHandler = prototype['handleMessage'];
 
     // Without binding, `this` is undefined in strict mode, so accessing
     // this.serviceValue will throw a TypeError
-    const unboundHandler = prototype['handleMessage'];
-
     expect(() => unboundHandler.call(undefined, {})).toThrow(TypeError);
   });
 
-  it('should allow injected dependencies to be accessed when handler is bound to the instance', async () => {
+  it('should preserve Reflect metadata on the bound handler so isRabbitContext() keeps working', () => {
+    const service = new TestService();
+    const prototype = Object.getPrototypeOf(service);
+    const originalHandler = prototype['handleMessage'];
+    const boundHandler = originalHandler.bind(service);
+
+    // Copy metadata from original to bound — this is what RabbitMQModule does
+    for (const metaKey of Reflect.getMetadataKeys(originalHandler)) {
+      Reflect.defineMetadata(
+        metaKey,
+        Reflect.getMetadata(metaKey, originalHandler),
+        boundHandler,
+      );
+    }
+
+    // RABBIT_HANDLER metadata must be present so isRabbitContext() returns true
+    expect(Reflect.getMetadataKeys(boundHandler)).toContain(RABBIT_HANDLER);
+    expect(Reflect.getMetadata(RABBIT_HANDLER, boundHandler)).toMatchObject({
+      type: 'subscribe',
+      exchange: 'test-exchange',
+      routingKey: 'test-route',
+      queue: 'test-queue',
+    });
+  });
+
+  it('should allow injected dependencies to be accessed when handler is bound with metadata copied', async () => {
     const module = await Test.createTestingModule({
       providers: [TestService],
     }).compile();
 
     const testService = module.get(TestService);
     const prototype = Object.getPrototypeOf(testService);
+    const originalHandler = prototype['handleMessage'];
+    const boundHandler = originalHandler.bind(testService);
 
-    // Simulate what RabbitMQModule does: bind the discovered prototype method
-    // to the parent class instance before registering as a subscriber
-    const boundHandler = prototype['handleMessage'].bind(testService);
+    // Copy metadata (as RabbitMQModule does)
+    for (const metaKey of Reflect.getMetadataKeys(originalHandler)) {
+      Reflect.defineMetadata(
+        metaKey,
+        Reflect.getMetadata(metaKey, originalHandler),
+        boundHandler,
+      );
+    }
 
+    // Both this-context and metadata must be available
     boundHandler({});
-
     expect(handlerSpy).toHaveBeenCalledWith('service-value');
+    expect(Reflect.getMetadataKeys(boundHandler)).toContain(RABBIT_HANDLER);
   });
 });
