@@ -225,13 +225,18 @@ describe('Mocks', () => {
     });
 
     it('should handle real AWS SDK S3Client without type instantiation errors', () => {
-      // This is the real-world case that triggers TS2589 with the current DeepMocked implementation
+      // Regression test: complex SDK types like S3Client previously triggered
+      // TS2589 ("Type instantiation is excessively deep") due to unbounded
+      // recursion in DeepMocked. The depth-limited implementation prevents this.
       const s3Client: S3Client = createMock<S3Client>();
       expect(s3Client).toBeDefined();
     });
 
     it('should handle real TypeORM Repository without too complex of a type errors', () => {
-      // This is the real-world case that triggers TS2590: with the current DeepMocked implementation
+      // Regression test: TypeORM Repository previously triggered TS2590
+      // ("Expression produces a union type too complex to represent") due to
+      // unbounded recursion in DeepMocked. The depth-limited implementation
+      // prevents this.
       const repo: Repository<{ a: number }> =
         createMock<Repository<{ a: number }>>();
       expect(repo).toBeDefined();

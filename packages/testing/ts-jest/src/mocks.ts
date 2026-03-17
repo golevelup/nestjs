@@ -24,18 +24,31 @@ type IsExactlyUnknown<T> = unknown extends T
     : true
   : false;
 
-export type DeepMocked<T> = {
-  [K in keyof T]: IsExactlyUnknown<T[K]> extends true
-    ? any
-    : NonNullable<T[K]> extends (...args: any[]) => infer U
-      ? jest.MockInstance<ReturnType<NonNullable<T[K]>>, jest.ArgsType<T[K]>> &
-          ((...args: jest.ArgsType<T[K]>) => DeepMocked<U>)
-      : NonNullable<T[K]> extends object
-        ? undefined extends T[K]
-          ? DeepMocked<NonNullable<T[K]>> | undefined
-          : DeepMocked<T[K]>
-        : T[K];
-} & T;
+// Tuple used to decrement the depth counter at the type level.
+type Prev = [never, 0, 1, 2, 3, 4];
+
+// Internal recursive implementation. The depth counter `D` prevents unbounded
+// type instantiation on complex SDK types (e.g. S3Client, PrismaClient) that
+// caused the type-checking performance regression introduced in v1.0.0.
+type DeepMockedInternal<T, D extends number> = D extends 0
+  ? T
+  : {
+      [K in keyof T]: IsExactlyUnknown<T[K]> extends true
+        ? any
+        : NonNullable<T[K]> extends (...args: any[]) => infer U
+          ? jest.MockInstance<
+              ReturnType<NonNullable<T[K]>>,
+              jest.ArgsType<T[K]>
+            > &
+              ((...args: jest.ArgsType<T[K]>) => DeepMockedInternal<U, Prev[D]>)
+          : NonNullable<T[K]> extends object
+            ? undefined extends T[K]
+              ? DeepMockedInternal<NonNullable<T[K]>, Prev[D]> | undefined
+              : DeepMockedInternal<T[K], Prev[D]>
+            : T[K];
+    } & T;
+
+export type DeepMocked<T> = DeepMockedInternal<T, 4>;
 
 const jestFnProps = new Set([
   '_isMockFunction',
