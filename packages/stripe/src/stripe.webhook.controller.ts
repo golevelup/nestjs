@@ -34,7 +34,7 @@ export class StripeWebhookController {
 
     const rawBody = request[this.requestBodyProperty];
 
-    const event = this.stripePayloadService.tryHydratePayload(
+    const event = await this.stripePayloadService.tryHydratePayload(
       sig,
       rawBody,
       mode,
