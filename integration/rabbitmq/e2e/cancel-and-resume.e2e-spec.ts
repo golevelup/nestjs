@@ -2,6 +2,7 @@ import { AmqpConnection, RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
 import { INestApplication, LoggerService } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { createMock } from '@golevelup/ts-jest';
+import { getRabbitMQUri } from './utils';
 
 const exchange = 'testCancelAndResumeExchange';
 const queue = 'testCancelAndResumeQueue';
@@ -12,11 +13,7 @@ describe('Rabbit Cancel and Resume', () => {
     warn: jest.fn(),
   });
 
-  const rabbitHost =
-    process.env.NODE_ENV === 'ci' ? process.env.RABBITMQ_HOST : 'localhost';
-  const rabbitPort =
-    process.env.NODE_ENV === 'ci' ? process.env.RABBITMQ_PORT : '5672';
-  const uri = `amqp://rabbitmq:rabbitmq@${rabbitHost}:${rabbitPort}`;
+  const uri = getRabbitMQUri();
 
   let app: INestApplication;
   let amqpConnection: AmqpConnection;

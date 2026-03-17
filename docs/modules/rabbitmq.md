@@ -445,6 +445,54 @@ export class MessagingService {
 }
 ```
 
+### Configuring Consumer Tag
+
+A consumer tag is a string that uniquely identifies a consumer on a channel. By default, RabbitMQ assigns a server-generated tag. You can customise this for easier consumer management, tracing, and identification.
+
+#### Global Consumer Tag (per queue in module config)
+
+You can set a default `consumerTag` for a queue in the module-level `queues` configuration. All handlers subscribed to that queue will use this tag unless overridden at the handler level.
+
+```typescript
+RabbitMQModule.forRoot({
+  uri: 'amqp://localhost:5672',
+  queues: [
+    {
+      name: 'my-queue',
+      consumerTag: 'my-global-consumer-tag',
+    },
+  ],
+});
+```
+
+#### Per-Handler Consumer Tag (via decorator)
+
+You can also set the `consumerTag` directly on an individual handler using `queueOptions.consumerOptions`. A tag set on the decorator takes precedence over the global queue config.
+
+```typescript
+import { RabbitSubscribe, RabbitRPC } from '@golevelup/nestjs-rabbitmq';
+import { Injectable } from '@nestjs/common';
+
+@Injectable()
+export class MessagingService {
+  @RabbitSubscribe({
+    exchange: 'exchange1',
+    routingKey: 'subscribe-route',
+    queue: 'my-queue',
+    queueOptions: {
+      consumerOptions: {
+        consumerTag: 'my-handler-consumer-tag',
+      },
+    },
+  })
+  public async pubSubHandler(msg: {}) {
+    console.log(`Received message: ${JSON.stringify(msg)}`);
+  }
+}
+```
+
+> **Note:** Consumer tags must be unique per channel. If multiple consumers on the same channel share a tag, RabbitMQ will reject the duplicate registration. Ensure tags are unique when configuring them manually.
+
 ### Consumer-side Message Batching
 
 Messages can be presented as a batch to the handler. This works by accumulating messages on the consumer-side until either a batch size limit is reached or the batch timer expires. After handling, all messages in the batch will be acked (or nacked) automatically.
@@ -654,9 +702,12 @@ This is done with the `errorHandler` property that is available both in RPC and 
 
 > it should be used with `rpcOptions` for RPC
 
-The default is `defaultNackErrorHandler` and it just nack the message without requeue (which is usually ok to avoid the message coming back in the queue again and again)
+The library exposes two complementary mechanisms for error handling:
 
-However, you can do more fancy stuff like inspecting the message properties to decide to requeue or not. Be aware that you should not requeue indefinitely...
+- **`errorBehavior`** (per-handler) / **`defaultSubscribeErrorBehavior`** (global): An enum that controls what happens to the message when an error is thrown and no custom `errorHandler` is provided. The default is `MessageHandlerErrorBehavior.REQUEUE` — the message is nacked **and requeued**. Other options are `MessageHandlerErrorBehavior.NACK` (nack without requeue) and `MessageHandlerErrorBehavior.ACK`.
+- **`errorHandler`** (per-handler): A custom function that gives you full control over error handling (e.g. inspecting message properties to decide whether to requeue). When provided, it takes precedence over the `errorBehavior` enum.
+
+> ⚠️ The default `MessageHandlerErrorBehavior.REQUEUE` can cause **infinite processing loops** if the error is persistent. Consider setting `defaultSubscribeErrorBehavior: MessageHandlerErrorBehavior.NACK` globally, or configure a dead-letter exchange to route failed messages elsewhere.
 
 Please note that nack will trigger the dead-letter mechanism of RabbitMQ (and so, you can use the deadLetterExchange in the queueOptions in order to send the message somewhere else).
 

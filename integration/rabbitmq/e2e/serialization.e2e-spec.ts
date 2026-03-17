@@ -8,6 +8,7 @@ import {
 import { INestApplication, Injectable, LoggerService } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { createMock } from '@golevelup/ts-jest';
+import { getRabbitMQUri } from './utils';
 import { gzipSync, gunzipSync } from 'node:zlib';
 
 const moduleSerializeHandler = jest.fn();
@@ -62,11 +63,7 @@ describe('Rabbit Subscribe', () => {
     warn: jest.fn(),
   });
 
-  const rabbitHost =
-    process.env.NODE_ENV === 'ci' ? process.env.RABBITMQ_HOST : 'localhost';
-  const rabbitPort =
-    process.env.NODE_ENV === 'ci' ? process.env.RABBITMQ_PORT : '5672';
-  const uri = `amqp://rabbitmq:rabbitmq@${rabbitHost}:${rabbitPort}`;
+  const uri = getRabbitMQUri();
 
   beforeEach(async () => {
     jest.clearAllMocks();
