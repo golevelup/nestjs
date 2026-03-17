@@ -8,6 +8,7 @@ import { Test } from '@nestjs/testing';
 import { flatten, times } from 'lodash';
 import { createMock } from '@golevelup/ts-jest';
 import { setTimeout } from 'node:timers/promises';
+import { getRabbitMQUri } from './utils';
 
 const testHandler = jest.fn();
 
@@ -202,11 +203,7 @@ describe('Rabbit Subscribe', () => {
     warn: jest.fn(),
   });
 
-  const rabbitHost =
-    process.env.NODE_ENV === 'ci' ? process.env.RABBITMQ_HOST : 'localhost';
-  const rabbitPort =
-    process.env.NODE_ENV === 'ci' ? process.env.RABBITMQ_PORT : '5672';
-  const uri = `amqp://rabbitmq:rabbitmq@${rabbitHost}:${rabbitPort}`;
+  const uri = getRabbitMQUri();
 
   beforeAll(async () => {
     const moduleFixture = await Test.createTestingModule({
@@ -647,5 +644,92 @@ describe('Rabbit Subscribe', () => {
       expect(bindingsHandler).toHaveBeenCalledWith('msg1');
       expect(bindingsHandler).toHaveBeenCalledWith('msg2');
     });
+  });
+});
+
+const globalConsumerTagQueue = 'global-consumer-tag-queue';
+const globalConsumerTag = 'global-consumer-tag';
+const decoratorConsumerTag = 'decorator-consumer-tag';
+const decoratorOverridesGlobalConsumerTag = 'decorator-overrides-global-tag';
+const globalConsumerTagHandler = jest.fn();
+
+@Injectable()
+class GlobalConsumerTagService {
+  @RabbitSubscribe({
+    queue: globalConsumerTagQueue,
+    createQueueIfNotExists: true,
+  })
+  handleWithGlobalConsumerTag(msg: object, rawMsg: any) {
+    globalConsumerTagHandler(msg, rawMsg);
+  }
+
+  @RabbitSubscribe({
+    queue: decoratorOverridesGlobalConsumerTag,
+    createQueueIfNotExists: true,
+    queueOptions: {
+      consumerOptions: { consumerTag: decoratorConsumerTag },
+    },
+  })
+  handleWithDecoratorOverride(msg: object, rawMsg: any) {
+    globalConsumerTagHandler(msg, rawMsg);
+  }
+}
+
+describe('Rabbit Subscribe - Global ConsumerTag', () => {
+  let app: INestApplication;
+  let amqpConnection: AmqpConnection;
+
+  const uri = getRabbitMQUri();
+
+  beforeAll(async () => {
+    const moduleFixture = await Test.createTestingModule({
+      providers: [GlobalConsumerTagService],
+      imports: [
+        RabbitMQModule.forRoot({
+          uri,
+          queues: [
+            {
+              name: globalConsumerTagQueue,
+              consumerTag: globalConsumerTag,
+            },
+          ],
+          connectionInitOptions: { wait: true, reject: true, timeout: 3000 },
+        }),
+      ],
+    }).compile();
+
+    app = moduleFixture.createNestApplication();
+    amqpConnection = app.get<AmqpConnection>(AmqpConnection);
+    await app.init();
+  });
+
+  afterAll(async () => {
+    await app?.close();
+  });
+
+  beforeEach(() => {
+    jest.resetAllMocks();
+  });
+
+  it('should use the globally configured consumerTag for a queue subscriber', async () => {
+    const message = { test: 'global-consumer-tag' };
+    amqpConnection.publish('', globalConsumerTagQueue, message);
+
+    await setTimeout(50);
+
+    expect(globalConsumerTagHandler).toHaveBeenCalledTimes(1);
+    const rawMsg = globalConsumerTagHandler.mock.calls[0][1];
+    expect(rawMsg.fields.consumerTag).toEqual(globalConsumerTag);
+  });
+
+  it('should allow a decorator-level consumerTag to override the global consumerTag', async () => {
+    const message = { test: 'decorator-override' };
+    amqpConnection.publish('', decoratorOverridesGlobalConsumerTag, message);
+
+    await setTimeout(50);
+
+    expect(globalConsumerTagHandler).toHaveBeenCalledTimes(1);
+    const rawMsg = globalConsumerTagHandler.mock.calls[0][1];
+    expect(rawMsg.fields.consumerTag).toEqual(decoratorConsumerTag);
   });
 });
