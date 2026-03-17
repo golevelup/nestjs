@@ -178,7 +178,7 @@ describe('Stripe Mixed Snapshot and Thin Webhooks (e2e)', () => {
 
     jest
       .spyOn(stripePayloadService, 'tryHydratePayload')
-      .mockImplementation((sig, buff) => Promise.resolve(buff as any));
+      .mockImplementation(async (_, buff) => buff as any);
   });
 
   it('routes snapshot events to snapshot handlers', () => {
@@ -239,7 +239,7 @@ describe('Stripe Wildcard Handlers (e2e)', () => {
 
     jest
       .spyOn(stripePayloadService, 'tryHydratePayload')
-      .mockImplementation((sig, buff) => Promise.resolve(buff as any));
+      .mockImplementation(async (_, buff) => buff as any);
   });
 
   it('wildcard snapshot handler receives all snapshot events', () => {
