@@ -147,6 +147,7 @@ describe('Stripe Thin Webhooks (e2e)', () => {
 // Tests for mixed snapshot and thin handlers
 describe('Stripe Mixed Snapshot and Thin Webhooks (e2e)', () => {
   let app: INestApplication;
+  let stripePayloadService: StripePayloadService;
 
   const moduleConfig: StripeModuleConfig = {
     apiKey: '123',
@@ -173,15 +174,14 @@ describe('Stripe Mixed Snapshot and Thin Webhooks (e2e)', () => {
     app.useLogger(new SilentLogger());
     await app.init();
 
-    const stripePayloadService =
-      app.get<StripePayloadService>(StripePayloadService);
-
-    jest
-      .spyOn(stripePayloadService, 'tryHydratePayload')
-      .mockImplementation(async (_, buff) => buff as any);
+    stripePayloadService = app.get<StripePayloadService>(StripePayloadService);
   });
 
   it('routes snapshot events to snapshot handlers', () => {
+    jest
+      .spyOn(stripePayloadService, 'tryHydratePayload')
+      .mockResolvedValue(expectedEvent as any);
+
     return request(app.getHttpServer())
       .post(defaultStripeWebhookEndpoint)
       .send(expectedEvent)
@@ -194,6 +194,10 @@ describe('Stripe Mixed Snapshot and Thin Webhooks (e2e)', () => {
   });
 
   it('routes thin events to thin handlers', () => {
+    jest
+      .spyOn(stripePayloadService, 'tryHydratePayload')
+      .mockResolvedValue(expectedThinEvent as any);
+
     return request(app.getHttpServer())
       .post(`${defaultStripeWebhookEndpoint}?mode=${StripeWebhookMode.THIN}`)
       .send(expectedThinEvent)
@@ -211,6 +215,7 @@ describe('Stripe Mixed Snapshot and Thin Webhooks (e2e)', () => {
 // Tests for wildcard handlers
 describe('Stripe Wildcard Handlers (e2e)', () => {
   let app: INestApplication;
+  let stripePayloadService: StripePayloadService;
 
   const moduleConfig: StripeModuleConfig = {
     apiKey: '123',
@@ -234,15 +239,14 @@ describe('Stripe Wildcard Handlers (e2e)', () => {
     app.useLogger(new SilentLogger());
     await app.init();
 
-    const stripePayloadService =
-      app.get<StripePayloadService>(StripePayloadService);
-
-    jest
-      .spyOn(stripePayloadService, 'tryHydratePayload')
-      .mockImplementation(async (_, buff) => buff as any);
+    stripePayloadService = app.get<StripePayloadService>(StripePayloadService);
   });
 
   it('wildcard snapshot handler receives all snapshot events', () => {
+    jest
+      .spyOn(stripePayloadService, 'tryHydratePayload')
+      .mockResolvedValue(expectedEvent as any);
+
     return request(app.getHttpServer())
       .post(defaultStripeWebhookEndpoint)
       .send(expectedEvent)
@@ -255,6 +259,10 @@ describe('Stripe Wildcard Handlers (e2e)', () => {
   });
 
   it('wildcard thin handler receives all thin events', () => {
+    jest
+      .spyOn(stripePayloadService, 'tryHydratePayload')
+      .mockResolvedValue(expectedThinEvent as any);
+
     return request(app.getHttpServer())
       .post(`${defaultStripeWebhookEndpoint}?mode=${StripeWebhookMode.THIN}`)
       .send(expectedThinEvent)
@@ -269,6 +277,10 @@ describe('Stripe Wildcard Handlers (e2e)', () => {
   });
 
   it('wildcard handlers do not cross between modes', () => {
+    jest
+      .spyOn(stripePayloadService, 'tryHydratePayload')
+      .mockResolvedValue(expectedEvent as any);
+
     return request(app.getHttpServer())
       .post(defaultStripeWebhookEndpoint)
       .send(expectedEvent)
