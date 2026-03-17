@@ -59,13 +59,5 @@ jobs:
       - name: Run Vitest unit tests
         run: pnpm test:vitest:ci
 
-      - name: Run integration tests
-        run: |
-          pnpm test:ci:integration
-        env:
-          NODE_ENV: ci
-          RABBITMQ_HOST: localhost
-          RABBITMQ_PORT: ${{ job.services.rabbitmq.ports[5672] }}
-
-      - name: Run RabbitMQ integration tests (Vitest)
+      - name: Integration tests
         run: pnpm --filter rabbitmq-integration test:e2e
