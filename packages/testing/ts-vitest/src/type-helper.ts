@@ -41,10 +41,33 @@ export type IsExactlyUnknown<T> = unknown extends T
 /**
  * Helper type for mocked functions with deep mocked return types.
  */
-export type DeepMockedFunction<T extends (...args: any[]) => any> = ((
-  ...args: Parameters<T>
-) => DeepMocked<ReturnType<T>>) &
+export type DeepMockedFunction<
+  T extends (...args: any[]) => any,
+  D extends number = 4,
+> = ((...args: Parameters<T>) => DeepMockedInternal<ReturnType<T>, D>) &
   Mock<T>;
+
+// Tuple used to decrement the depth counter at the type level.
+type Prev = [never, 0, 1, 2, 3, 4];
+
+// Internal recursive implementation. The depth counter `D` prevents unbounded
+// type instantiation on complex SDK types (e.g. S3Client, PrismaClient) that
+// would cause type-checking performance regressions.
+type DeepMockedInternal<T, D extends number> = D extends 0
+  ? T
+  : {
+      [K in keyof T]: IsExactlyUnknown<T[K]> extends true
+        ? any
+        : NonNullable<T[K]> extends (...args: any[]) => any
+          ? undefined extends T[K]
+            ? DeepMockedFunction<NonNullable<T[K]>, Prev[D]> | undefined
+            : DeepMockedFunction<NonNullable<T[K]>, Prev[D]>
+          : NonNullable<T[K]> extends object
+            ? undefined extends T[K]
+              ? DeepMockedInternal<NonNullable<T[K]>, Prev[D]> | undefined
+              : DeepMockedInternal<T[K], Prev[D]>
+            : T[K]; // primitive
+    } & T;
 
 /**
  * Recursively transforms a type into a deeply mocked version.
@@ -68,16 +91,4 @@ export type DeepMockedFunction<T extends (...args: any[]) => any> = ((
  * 4. Primitives (string, number, boolean, etc.):
  *    - Left as-is since they can't have nested properties
  */
-export type DeepMocked<T> = {
-  [K in keyof T]: IsExactlyUnknown<T[K]> extends true
-    ? any
-    : NonNullable<T[K]> extends (...args: any[]) => any
-      ? undefined extends T[K]
-        ? DeepMockedFunction<NonNullable<T[K]>> | undefined
-        : DeepMockedFunction<NonNullable<T[K]>>
-      : NonNullable<T[K]> extends object
-        ? undefined extends T[K]
-          ? DeepMocked<NonNullable<T[K]>> | undefined
-          : DeepMocked<T[K]>
-        : T[K]; // primitive
-} & T;
+export type DeepMocked<T> = DeepMockedInternal<T, 4>;
