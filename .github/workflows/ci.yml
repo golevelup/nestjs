@@ -66,3 +66,6 @@ jobs:
           NODE_ENV: ci
           RABBITMQ_HOST: localhost
           RABBITMQ_PORT: ${{ job.services.rabbitmq.ports[5672] }}
+
+      - name: Run RabbitMQ integration tests (Vitest)
+        run: pnpm --filter rabbitmq-integration test:e2e
