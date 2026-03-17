@@ -1,5 +1,11 @@
 # Change Log
 
+## 8.1.0
+
+### Minor Changes
+
+- feat(rabbitmq): add `defaultPublishOptions` to support persistent messages in dead letter queues
+
 ## 8.0.1
 
 ### Patch Changes
