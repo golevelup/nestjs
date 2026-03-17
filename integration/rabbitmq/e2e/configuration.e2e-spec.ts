@@ -1,10 +1,11 @@
+import { vi, describe, it, expect, afterEach } from 'vitest';
 import {
   RabbitMQConfig,
   AmqpConnection,
   RabbitMQModule,
   AmqpConnectionManager,
 } from '@golevelup/nestjs-rabbitmq';
-import { createMock } from '@golevelup/ts-jest';
+import { createMock } from '@golevelup/ts-vitest';
 import { Logger, Provider } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as amqplib from 'amqplib';
@@ -19,9 +20,9 @@ const uri: Options.Connect = {
 };
 const amqplibUri = `${getRabbitMQUri()}?heartbeat=5`;
 const customLogger = createMock<Logger>({
-  log: jest.fn(),
-  error: jest.fn(),
-  warn: jest.fn(),
+  log: vi.fn(),
+  error: vi.fn(),
+  warn: vi.fn(),
 });
 
 const nonExistingExchange = 'non-existing-exchange';
@@ -41,9 +42,9 @@ class RabbitConfig {
 const silentLoggerProvider: Provider = {
   provide: Logger,
   useValue: {
-    log: jest.fn(),
-    error: jest.fn(),
-    warn: jest.fn(),
+    log: vi.fn(),
+    error: vi.fn(),
+    warn: vi.fn(),
   },
 };
 
@@ -51,15 +52,15 @@ describe('Module Configuration', () => {
   let app: TestingModule;
 
   afterEach(async () => {
-    jest.clearAllMocks();
-    jest.restoreAllMocks();
+    vi.clearAllMocks();
+    vi.restoreAllMocks();
     await app?.close();
   });
 
   describe('forRoot', () => {
     it('should configure RabbitMQ', async () => {
-      const spy = jest.spyOn(amqplib, 'connect');
-      const logSpy = jest.spyOn(customLogger, 'log');
+      const spy = vi.spyOn(amqplib, 'connect');
+      const logSpy = vi.spyOn(customLogger, 'log');
 
       app = await Test.createTestingModule({
         imports: [
@@ -80,7 +81,7 @@ describe('Module Configuration', () => {
     });
 
     it('should be able to add connection latter when rmq config is not provided through module', async () => {
-      const spy = jest.spyOn(amqplib, 'connect');
+      const spy = vi.spyOn(amqplib, 'connect');
       app = await Test.createTestingModule({
         providers: [silentLoggerProvider],
         imports: [RabbitMQModule.forRoot({ uri })],
@@ -128,7 +129,7 @@ describe('Module Configuration', () => {
       });
 
       it('should create an exchange successfully if `createExchangeIfNotExists` is true', async () => {
-        const spy = jest.spyOn(amqplib, 'connect');
+        const spy = vi.spyOn(amqplib, 'connect');
 
         app = await Test.createTestingModule({
           imports: [
@@ -165,7 +166,7 @@ describe('Module Configuration', () => {
       });
 
       it('should connect to an existing exchange successfully if `createExchangeIfNotExists` is false', async () => {
-        const spy = jest.spyOn(amqplib, 'connect');
+        const spy = vi.spyOn(amqplib, 'connect');
 
         app = await Test.createTestingModule({
           imports: [
@@ -229,7 +230,7 @@ describe('Module Configuration', () => {
       });
 
       it('should create a queue successfully if `createQueueIfNotExists` is true', async () => {
-        const spy = jest.spyOn(amqplib, 'connect');
+        const spy = vi.spyOn(amqplib, 'connect');
 
         app = await Test.createTestingModule({
           imports: [
@@ -279,7 +280,7 @@ describe('Module Configuration', () => {
                 .mockImplementation(function (this: unknown, ...args) {
                   const result = originalCreateConfirmChannel.apply(this, args);
                   result.then((channel) => {
-                    assertQueueSpy = jest.spyOn(channel, 'assertQueue');
+                    assertQueueSpy = vi.spyOn(channel, 'assertQueue');
                   });
                   return result;
                 });
@@ -331,7 +332,7 @@ describe('Module Configuration', () => {
 
   describe('forRootAsync', () => {
     it('should configure RabbitMQ with useFactory', async () => {
-      const spy = jest.spyOn(amqplib, 'connect');
+      const spy = vi.spyOn(amqplib, 'connect');
 
       app = await Test.createTestingModule({
         providers: [silentLoggerProvider],
@@ -358,7 +359,7 @@ describe('Module Configuration', () => {
     });
 
     it('should configure RabbitMQ with useClass', async () => {
-      const spy = jest.spyOn(amqplib, 'connect');
+      const spy = vi.spyOn(amqplib, 'connect');
 
       app = await Test.createTestingModule({
         providers: [silentLoggerProvider],
@@ -412,7 +413,7 @@ describe('Module Configuration', () => {
       });
 
       it('should create an exchange successfully if `createExchangeIfNotExists` is true', async () => {
-        const spy = jest.spyOn(amqplib, 'connect');
+        const spy = vi.spyOn(amqplib, 'connect');
 
         app = await Test.createTestingModule({
           providers: [silentLoggerProvider],
@@ -453,7 +454,7 @@ describe('Module Configuration', () => {
       });
 
       it('should connect to an existing exchange successfully if `createExchangeIfNotExists` is false', async () => {
-        const spy = jest.spyOn(amqplib, 'connect');
+        const spy = vi.spyOn(amqplib, 'connect');
 
         app = await Test.createTestingModule({
           providers: [silentLoggerProvider],
@@ -506,7 +507,7 @@ describe('Module Configuration', () => {
                 .mockImplementation(function (this: unknown, ...args) {
                   const result = originalCreateConfirmChannel.apply(this, args);
                   result.then((channel) => {
-                    const bindQueueSpy = jest.spyOn(channel, 'bindQueue');
+                    const bindQueueSpy = vi.spyOn(channel, 'bindQueue');
 
                     const originalAssertExchange = channel.assertExchange;
                     jest
@@ -594,7 +595,7 @@ describe('Module Configuration', () => {
               .mockImplementation(function (this: unknown, ...args) {
                 const result = originalCreateConfirmChannel.apply(this, args);
                 result.then((channel) => {
-                  bindExchangeSpy = jest.spyOn(channel, 'bindExchange');
+                  bindExchangeSpy = vi.spyOn(channel, 'bindExchange');
                 });
                 return result;
               });

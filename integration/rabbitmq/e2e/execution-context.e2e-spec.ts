@@ -1,3 +1,4 @@
+import { vi, describe, it, expect, beforeAll, afterAll } from 'vitest';
 import {
   AmqpConnection,
   isRabbitContext,
@@ -9,7 +10,7 @@ import { INestApplication, Injectable } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { getRabbitMQUri } from './utils';
 
-const interceptorHandler = jest.fn();
+const interceptorHandler = vi.fn();
 
 const exchange = 'executionContextExchange';
 const queue = 'executionContextQueue';

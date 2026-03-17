@@ -1,3 +1,12 @@
+import {
+  vi,
+  describe,
+  it,
+  expect,
+  beforeAll,
+  afterAll,
+  afterEach,
+} from 'vitest';
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
@@ -11,7 +20,7 @@ describe('Rabbit Controller RPC', () => {
   let amqpConnection: AmqpConnection;
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   afterAll(async () => {

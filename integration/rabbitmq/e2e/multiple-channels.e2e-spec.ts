@@ -1,4 +1,13 @@
 import {
+  vi,
+  describe,
+  it,
+  expect,
+  beforeAll,
+  afterAll,
+  beforeEach,
+} from 'vitest';
+import {
   AmqpConnection,
   RabbitMQModule,
   RabbitRPC,
@@ -22,7 +31,7 @@ const defaultChannel = `${prefix}default`;
 let pubsubPrefetchN = 1;
 let rpcPrefetchN = 1;
 
-const pubsubMessageHandler = jest.fn();
+const pubsubMessageHandler = vi.fn();
 
 @Injectable()
 class SubscribeToMultipleChannelsService {
@@ -182,7 +191,7 @@ describe('Rabbit Multiple Channels', () => {
   });
 
   beforeEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it('should receive pub/sub message over channel 2', (done) => {

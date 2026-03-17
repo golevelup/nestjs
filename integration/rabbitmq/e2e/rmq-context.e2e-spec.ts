@@ -1,3 +1,4 @@
+import { vi, describe, it, expect, beforeAll, afterAll } from 'vitest';
 import {
   AmqpConnection,
   RabbitMQModule,
@@ -8,7 +9,7 @@ import { INestApplication, Injectable } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { getRabbitMQUri } from './utils';
 
-const validRmqTypeHandler = jest.fn();
+const validRmqTypeHandler = vi.fn();
 
 const exchange = 'rmqContextExchange';
 const queue = 'rmqContextQueue';

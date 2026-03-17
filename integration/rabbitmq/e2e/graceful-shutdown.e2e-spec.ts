@@ -1,3 +1,4 @@
+import { vi, describe, it, expect, beforeAll } from 'vitest';
 import {
   AmqpConnection,
   RabbitMQModule,
@@ -7,7 +8,7 @@ import { INestApplication, Injectable } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { getRabbitMQUri } from './utils';
 
-const testHandler = jest.fn();
+const testHandler = vi.fn();
 
 const routingKey1 = 'longConsumerRoutingKey';
 let subscriberResolve: (value: unknown) => void;

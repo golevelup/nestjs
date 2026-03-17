@@ -1,3 +1,4 @@
+import { vi, describe, it, beforeAll, afterAll, beforeEach } from 'vitest';
 import {
   RabbitMQModule,
   RabbitRPC,
@@ -8,10 +9,8 @@ import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
 
-const rabbitHost =
-  process.env.NODE_ENV === 'ci' ? process.env.RABBITMQ_HOST : 'localhost';
-const rabbitPort =
-  process.env.NODE_ENV === 'ci' ? process.env.RABBITMQ_PORT : '5672';
+const rabbitHost = process.env.RABBITMQ_HOST ?? 'localhost';
+const rabbitPort = process.env.RABBITMQ_PORT ?? '5672';
 const uri = `amqp://user:bitnami@${rabbitHost}:${rabbitPort}2`;
 
 const prefix = 'multiplechannels-';
@@ -21,7 +20,7 @@ const exchange = `${prefix}exchange`;
 const channel1 = `${prefix}1`;
 const channel2 = `${prefix}2`;
 
-const pubsubMessageHandler = jest.fn();
+const pubsubMessageHandler = vi.fn();
 
 @Injectable()
 class SubscribeService {
@@ -102,7 +101,7 @@ describe('Rabbit Subscribe and RPC connection failover test', () => {
   });
 
   beforeEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it('should start http server when the connection uri is wrong', () => {

@@ -1,7 +1,16 @@
+import {
+  vi,
+  describe,
+  it,
+  expect,
+  beforeAll,
+  afterAll,
+  beforeEach,
+} from 'vitest';
 import { AmqpConnection, RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
 import { INestApplication, LoggerService } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
-import { createMock } from '@golevelup/ts-jest';
+import { createMock } from '@golevelup/ts-vitest';
 import { getRabbitMQUri } from './utils';
 
 const exchange = 'testCancelAndResumeExchange';
@@ -10,7 +19,7 @@ const routingKey1 = 'testCancelAndResumeRoute1';
 
 describe('Rabbit Cancel and Resume', () => {
   const customLogger = createMock<LoggerService>({
-    warn: jest.fn(),
+    warn: vi.fn(),
   });
 
   const uri = getRabbitMQUri();
@@ -46,11 +55,11 @@ describe('Rabbit Cancel and Resume', () => {
   });
 
   beforeEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it('should allow for a ConsumerTag to cancel and resume a subscription', async () => {
-    const subscriptionCallback = jest.fn();
+    const subscriptionCallback = vi.fn();
     const { consumerTag } = await amqpConnection.createSubscriber(
       (msg) => subscriptionCallback(msg),
       {

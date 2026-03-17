@@ -1,4 +1,13 @@
 import {
+  vi,
+  describe,
+  it,
+  expect,
+  beforeAll,
+  afterAll,
+  afterEach,
+} from 'vitest';
+import {
   AmqpConnection,
   Nack,
   RabbitMQModule,
@@ -14,8 +23,8 @@ const exchange = 'testSubscribeExhange';
 const nackRoutingKey = 'nackRoutingKey';
 const nackAndRequeueRoutingKey = 'nackAndRequeueRoutingKey';
 
-const nackHandler = jest.fn();
-const nackAndRequeueHandler = jest.fn();
+const nackHandler = vi.fn();
+const nackAndRequeueHandler = vi.fn();
 
 @Injectable()
 class SubscribeService {
@@ -78,7 +87,7 @@ describe('Nack and Requeue', () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   afterAll(async () => {
@@ -86,7 +95,7 @@ describe('Nack and Requeue', () => {
   });
 
   it('should nack the message when handler returns a Nack object', async () => {
-    const spy = jest.spyOn(amqpConnection.channel, 'nack');
+    const spy = vi.spyOn(amqpConnection.channel, 'nack');
 
     amqpConnection.publish(exchange, nackRoutingKey, { msg: 'nack' });
 
@@ -98,7 +107,7 @@ describe('Nack and Requeue', () => {
   });
 
   it('should nack and requeue 3 times', async () => {
-    const spy = jest.spyOn(amqpConnection.channel, 'nack');
+    const spy = vi.spyOn(amqpConnection.channel, 'nack');
 
     amqpConnection.publish(exchange, nackAndRequeueRoutingKey, {
       msg: 'nackAndRequeue',

@@ -1,3 +1,4 @@
+import { vi, describe, it, expect, beforeEach, afterAll } from 'vitest';
 import {
   AmqpConnection,
   RabbitMQModule,
@@ -7,21 +8,21 @@ import {
 } from '@golevelup/nestjs-rabbitmq';
 import { INestApplication, Injectable, LoggerService } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
-import { createMock } from '@golevelup/ts-jest';
+import { createMock } from '@golevelup/ts-vitest';
 import { getRabbitMQUri } from './utils';
 import { gzipSync, gunzipSync } from 'node:zlib';
 
-const moduleSerializeHandler = jest.fn();
-const handlerSerializeHandler = jest.fn();
+const moduleSerializeHandler = vi.fn();
+const handlerSerializeHandler = vi.fn();
 
-const moduleSerializer: MessageSerializer = jest.fn((value) =>
+const moduleSerializer: MessageSerializer = vi.fn((value) =>
   gzipSync(JSON.stringify(value)),
 );
-const moduleDeserializer: MessageDeserializer = jest.fn((message) =>
+const moduleDeserializer: MessageDeserializer = vi.fn((message) =>
   JSON.parse(gunzipSync(message).toString()),
 );
 
-const handlerDeserializer: MessageDeserializer = jest.fn((message) =>
+const handlerDeserializer: MessageDeserializer = vi.fn((message) =>
   JSON.parse(gunzipSync(message).toString()),
 );
 
@@ -60,13 +61,13 @@ describe('Rabbit Subscribe', () => {
   let app: INestApplication;
   let amqpConnection: AmqpConnection;
   const customLogger = createMock<LoggerService>({
-    warn: jest.fn(),
+    warn: vi.fn(),
   });
 
   const uri = getRabbitMQUri();
 
   beforeEach(async () => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     const moduleFixture = await Test.createTestingModule({
       providers: [

@@ -1,4 +1,13 @@
 import {
+  vi,
+  describe,
+  it,
+  expect,
+  beforeAll,
+  afterAll,
+  beforeEach,
+} from 'vitest';
+import {
   AmqpConnection,
   RabbitMQModule,
   RabbitSubscribe,
@@ -6,11 +15,11 @@ import {
 import { INestApplication, Injectable, LoggerService } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { flatten, times } from 'lodash';
-import { createMock } from '@golevelup/ts-jest';
+import { createMock } from '@golevelup/ts-vitest';
 import { setTimeout } from 'node:timers/promises';
 import { getRabbitMQUri } from './utils';
 
-const testHandler = jest.fn();
+const testHandler = vi.fn();
 
 const amqDefaultExchange = '';
 const exchange = 'testSubscribeExchange';
@@ -30,24 +39,24 @@ const nonExistingQueue = 'testing_queue_does_no_exist';
 
 const preDefinedConsumerTag = 'predefined-consumer-tag';
 
-const createHandler = jest.fn();
-const updateHandler = jest.fn();
-const deleteHandler = jest.fn();
+const createHandler = vi.fn();
+const updateHandler = vi.fn();
+const deleteHandler = vi.fn();
 
 const FANOUT = 'fanout';
-const fanoutHandler = jest.fn();
+const fanoutHandler = vi.fn();
 
 const BATCH_SIZE = 10;
 const BATCH_TIMEOUT = 200;
-const batchHandler = jest.fn();
+const batchHandler = vi.fn();
 const batchRoutingKey = 'testSubscribeBatch';
 const batchQueue = 'testSubscribeBatchQueue';
-const batchErrorHandler = jest.fn();
+const batchErrorHandler = vi.fn();
 const batchErrorRoutingKey = 'testSubscribeBatchError';
 const batchErrorQueue = 'testSubscribeBatchErrorQueue';
 
 const exchange2 = 'testSubscribeExchange2';
-const bindingsHandler = jest.fn();
+const bindingsHandler = vi.fn();
 const bindingsRoutingKey1 = 'testBindingsRoute1';
 const bindingsRoutingKey2 = 'testBindingsRoute2';
 const bindingsQueue = 'testSubscribeBindingsQueue';
@@ -200,7 +209,7 @@ describe('Rabbit Subscribe', () => {
   let app: INestApplication;
   let amqpConnection: AmqpConnection;
   const customLogger = createMock<LoggerService>({
-    warn: jest.fn(),
+    warn: vi.fn(),
   });
 
   const uri = getRabbitMQUri();
@@ -258,7 +267,7 @@ describe('Rabbit Subscribe', () => {
   });
 
   beforeEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it('should receive subscribe messages and handle them', async () => {
@@ -383,7 +392,7 @@ describe('Rabbit Subscribe', () => {
   it('should go into infite lopo', async () => {
     const message = '{"key":"value"}';
     // publish and expect to acknowledge but not throw
-    const warnSpy = jest.spyOn(customLogger, 'warn');
+    const warnSpy = vi.spyOn(customLogger, 'warn');
     amqpConnection.publish(exchange, 'infinite-loop', message);
     await setTimeout(50);
 
@@ -651,7 +660,7 @@ const globalConsumerTagQueue = 'global-consumer-tag-queue';
 const globalConsumerTag = 'global-consumer-tag';
 const decoratorConsumerTag = 'decorator-consumer-tag';
 const decoratorOverridesGlobalConsumerTag = 'decorator-overrides-global-tag';
-const globalConsumerTagHandler = jest.fn();
+const globalConsumerTagHandler = vi.fn();
 
 @Injectable()
 class GlobalConsumerTagService {
@@ -708,7 +717,7 @@ describe('Rabbit Subscribe - Global ConsumerTag', () => {
   });
 
   beforeEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it('should use the globally configured consumerTag for a queue subscriber', async () => {
