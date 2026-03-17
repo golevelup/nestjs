@@ -267,6 +267,47 @@ export class MessagingService {
 }
 ```
 
+### Binding a Queue to Multiple Exchanges
+
+You can bind a single queue to routing keys from multiple different exchanges using the `bindings` option in `@RabbitSubscribe`. This is useful when you want a handler to receive messages that may arrive from different exchanges.
+
+Each entry in `bindings` specifies an `exchange` and a `routingKey`. All specified bindings are applied to the queue in addition to any top-level `exchange` and `routingKey` options.
+
+```typescript
+import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
+import { Injectable } from '@nestjs/common';
+
+@Injectable()
+export class MessagingService {
+  @RabbitSubscribe({
+    queue: 'my-queue',
+    bindings: [
+      { exchange: 'exchange1', routingKey: 'route.a' },
+      { exchange: 'exchange2', routingKey: 'route.b' },
+    ],
+  })
+  public async multiExchangeHandler(msg: {}) {
+    console.log(`Received message: ${JSON.stringify(msg)}`);
+  }
+}
+```
+
+You can also mix `bindings` with a top-level `exchange` and `routingKey` to combine both approaches:
+
+```typescript
+@RabbitSubscribe({
+  exchange: 'exchange1',
+  routingKey: 'route.c',
+  queue: 'my-queue',
+  bindings: [
+    { exchange: 'exchange2', routingKey: 'route.d' },
+  ],
+})
+public async mixedHandler(msg: {}) {
+  console.log(`Received message: ${JSON.stringify(msg)}`);
+}
+```
+
 ### Handling messages with format different than JSON
 
 By default, messages are parsed with `JSON.parse` method when they are received and stringified with `JSON.stringify` on publish.
