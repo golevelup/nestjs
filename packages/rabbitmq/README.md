@@ -408,6 +408,8 @@ export class MessagingService {
 
 Messages can be presented as a batch to the handler. This works by accumulating messages on the consumer-side until either a batch size limit is reached or the batch timer expires. After handling, all messages in the batch will be acked (or nacked) automatically.
 
+> **Note:** For batching to work correctly, the channel's `prefetchCount` must be set to a value greater than or equal to the configured batch `size`. If the prefetch count is lower than the batch size, RabbitMQ will not deliver enough messages at once to fill a batch. You can configure this either globally via `RabbitMQConfig.prefetchCount` or per-channel via `RabbitMQChannelConfig.prefetchCount`.
+
 This behaviour is configured in the `batchOptions` property:
 
 ```typescript
