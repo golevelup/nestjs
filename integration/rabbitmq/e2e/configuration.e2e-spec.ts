@@ -269,21 +269,21 @@ describe('Module Configuration', () => {
         const originalConnect = amqplib.connect;
         let assertQueueSpy;
 
-        const connectSpy = jest
+        const connectSpy = vi
           .spyOn(amqplib, 'connect')
           .mockImplementation((...args) => {
             const result = originalConnect(...args);
             result.then((conn) => {
               const originalCreateConfirmChannel = conn.createConfirmChannel;
-              jest
-                .spyOn(conn, 'createConfirmChannel')
-                .mockImplementation(function (this: unknown, ...args) {
+              vi.spyOn(conn, 'createConfirmChannel').mockImplementation(
+                function (this: unknown, ...args) {
                   const result = originalCreateConfirmChannel.apply(this, args);
                   result.then((channel) => {
                     assertQueueSpy = vi.spyOn(channel, 'assertQueue');
                   });
                   return result;
-                });
+                },
+              );
             });
             return result;
           });
@@ -496,23 +496,21 @@ describe('Module Configuration', () => {
 
         // Spy on the internals of amqplib to be able to introduce delays in some functions
         // to expose race conditions or unawaited promises
-        const connectSpy = jest
+        const connectSpy = vi
           .spyOn(amqplib, 'connect')
           .mockImplementation((...args) => {
             const result = originalConnect(...args);
             result.then((conn) => {
               const originalCreateConfirmChannel = conn.createConfirmChannel;
-              jest
-                .spyOn(conn, 'createConfirmChannel')
-                .mockImplementation(function (this: unknown, ...args) {
+              vi.spyOn(conn, 'createConfirmChannel').mockImplementation(
+                function (this: unknown, ...args) {
                   const result = originalCreateConfirmChannel.apply(this, args);
                   result.then((channel) => {
                     const bindQueueSpy = vi.spyOn(channel, 'bindQueue');
 
                     const originalAssertExchange = channel.assertExchange;
-                    jest
-                      .spyOn(channel, 'assertExchange')
-                      .mockImplementation(function (this: unknown, ...args) {
+                    vi.spyOn(channel, 'assertExchange').mockImplementation(
+                      function (this: unknown, ...args) {
                         // Delay for a long time to ensure queues are bound after exchanges are asserted
                         return new Promise((r) => setTimeout(r, 500)).then(
                           () => {
@@ -526,10 +524,12 @@ describe('Module Configuration', () => {
                             return result;
                           },
                         ) as any;
-                      });
+                      },
+                    );
                   });
                   return result;
-                });
+                },
+              );
             });
             return result;
           });
@@ -584,21 +584,22 @@ describe('Module Configuration', () => {
       const originalConnect = amqplib.connect;
       let bindExchangeSpy;
 
-      const connectSpy = jest
+      const connectSpy = vi
         .spyOn(amqplib, 'connect')
         .mockImplementation((...args) => {
           const result = originalConnect(...args);
           result.then((conn) => {
             const originalCreateConfirmChannel = conn.createConfirmChannel;
-            jest
-              .spyOn(conn, 'createConfirmChannel')
-              .mockImplementation(function (this: unknown, ...args) {
-                const result = originalCreateConfirmChannel.apply(this, args);
-                result.then((channel) => {
-                  bindExchangeSpy = vi.spyOn(channel, 'bindExchange');
-                });
-                return result;
+            vi.spyOn(conn, 'createConfirmChannel').mockImplementation(function (
+              this: unknown,
+              ...args
+            ) {
+              const result = originalCreateConfirmChannel.apply(this, args);
+              result.then((channel) => {
+                bindExchangeSpy = vi.spyOn(channel, 'bindExchange');
               });
+              return result;
+            });
           });
           return result;
         });
