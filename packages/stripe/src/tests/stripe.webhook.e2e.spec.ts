@@ -1,4 +1,12 @@
-import { ConsoleLogger, INestApplication, Injectable } from '@nestjs/common';
+import {
+  ArgumentsHost,
+  Catch,
+  ConsoleLogger,
+  ExceptionFilter,
+  HttpException,
+  INestApplication,
+  Injectable,
+} from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as request from 'supertest';
 import { StripeWebhookHandler } from '../stripe.decorators';
@@ -35,6 +43,27 @@ class ThrowingWebhookService {
   @StripeWebhookHandler(eventType)
   handlePaymentIntentCreated() {
     throw new Error('Handler error');
+  }
+}
+
+/**
+ * Mimics the behavior of Sentry's SentryGlobalFilter which extends NestJS's
+ * BaseExceptionFilter. It accesses response.headersSent via switchToHttp(),
+ * which caused a crash before the fix (the response was undefined in the
+ * external exception filter context).
+ */
+@Catch()
+class SentryLikeGlobalFilter implements ExceptionFilter {
+  catch(exception: unknown, host: ArgumentsHost) {
+    const response = host.switchToHttp().getResponse();
+    // Accessing headersSent mirrors what Sentry's SentryGlobalFilter does and
+    // is the exact line that threw "Cannot read properties of undefined
+    // (reading 'headersSent')" before the fix.
+    if (response && !response.headersSent) {
+      const status =
+        exception instanceof HttpException ? exception.getStatus() : 500;
+      response.status(status).json({ message: 'Internal server error' });
+    }
   }
 }
 
@@ -145,6 +174,12 @@ describe('Stripe Webhook error propagation', () => {
 
     app = moduleFixture.createNestApplication();
     app.useLogger(new SilentLogger());
+    // Register a global filter that mimics Sentry's SentryGlobalFilter:
+    // it accesses response.headersSent via switchToHttp().getResponse().
+    // Before the fix this threw "Cannot read properties of undefined
+    // (reading 'headersSent')" because the external context had no HTTP
+    // response object.
+    app.useGlobalFilters(new SentryLikeGlobalFilter());
     await app.init();
 
     const stripePayloadService =
