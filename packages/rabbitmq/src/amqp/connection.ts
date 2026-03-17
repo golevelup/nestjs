@@ -494,13 +494,17 @@ export class AmqpConnection {
     originalHandlerName: string,
     consumeOptions?: ConsumeOptions,
   ): Promise<SubscriptionResult> {
-    return this.consumerFactory(msgOptions, (channel, channelMsgOptions) =>
+    const mergedOptions: MessageHandlerOptions = consumeOptions
+      ? merge({}, msgOptions, {
+          queueOptions: { consumerOptions: consumeOptions },
+        })
+      : msgOptions;
+    return this.consumerFactory(mergedOptions, (channel, channelMsgOptions) =>
       this.setupSubscriberChannel<T>(
         handler,
         channelMsgOptions,
         channel,
         originalHandlerName,
-        consumeOptions,
       ),
     );
   }
@@ -510,13 +514,13 @@ export class AmqpConnection {
     msgOptions: MessageHandlerOptions,
     consumeOptions?: ConsumeOptions,
   ): Promise<SubscriptionResult> {
-    return this.consumerFactory(msgOptions, (channel, channelMsgOptions) =>
-      this.setupBatchSubscriberChannel<T>(
-        handler,
-        channelMsgOptions,
-        channel,
-        consumeOptions,
-      ),
+    const mergedOptions: MessageHandlerOptions = consumeOptions
+      ? merge({}, msgOptions, {
+          queueOptions: { consumerOptions: consumeOptions },
+        })
+      : msgOptions;
+    return this.consumerFactory(mergedOptions, (channel, channelMsgOptions) =>
+      this.setupBatchSubscriberChannel<T>(handler, channelMsgOptions, channel),
     );
   }
 
@@ -579,7 +583,6 @@ export class AmqpConnection {
     msgOptions: MessageHandlerOptions,
     channel: ConfirmChannel,
     originalHandlerName = 'unknown',
-    consumeOptions?: ConsumeOptions,
   ): Promise<ConsumerTag> {
     const queue = await this.setupQueue(msgOptions, channel);
 
@@ -625,7 +628,7 @@ export class AmqpConnection {
           }
         }
       }),
-      consumeOptions,
+      msgOptions.queueOptions?.consumerOptions,
     );
 
     this.registerConsumerForQueue({
@@ -643,7 +646,6 @@ export class AmqpConnection {
     handler: BatchSubscriberHandler<T>,
     msgOptions: MessageHandlerOptions,
     channel: ConfirmChannel,
-    consumeOptions?: ConsumeOptions,
   ): Promise<ConsumerTag> {
     let batchSize = msgOptions.batchOptions?.size;
     let batchTimeout = msgOptions.batchOptions?.timeout;
@@ -704,7 +706,7 @@ export class AmqpConnection {
           batchTimer.refresh();
         }
       }),
-      consumeOptions,
+      msgOptions.queueOptions?.consumerOptions,
     );
 
     this.registerConsumerForQueue({

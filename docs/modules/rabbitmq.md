@@ -348,33 +348,78 @@ Also, if you simply do not want to parse incoming message, set flag `allowNonJso
 
 NestJS Plus provides sane defaults for message handling with automatic acking of messages that have been successfully processed by either RPC or PubSub handlers. However, there are situations where an application may want to Negatively Acknowledge (or Nack) a message. To support this, the library exposes the `Nack` object which when returned from a handler allows a developer to control the message handling behavior. Simply return a `Nack` instance to negatively acknowledge the message.
 
-By default, messages that are Nacked will not be requeued. However, if you would like to requeue the message so that another handler has an opportunity to process it use the optional requeue constructor argument set to true.
+By default, `new Nack()` will nack the message **without** requeuing it (equivalent to `new Nack(false)`). If you would like to requeue the message so that another handler has an opportunity to process it, pass `true` to the constructor.
+
+> **⚠️ Warning:** Returning `new Nack(true)` requeues the message immediately. If your handler always fails (e.g. due to a persistent error), this creates an **infinite processing loop**. Use `Nack(true)` only when you have a mechanism to prevent unbounded retries, for example by inspecting a retry counter in the message headers.
 
 ```typescript
-import { RabbitRPC } from '@golevelup/nestjs-rabbitmq';
+import { RabbitSubscribe, Nack } from '@golevelup/nestjs-rabbitmq';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class MessagingService {
-  @RabbitRPC({
+  @RabbitSubscribe({
     exchange: 'exchange1',
-    routingKey: 'rpc-route',
-    queue: 'rpc-queue'
+    routingKey: 'subscribe-route',
+    queue: 'subscribe-queue',
   })
-  public async rpcHandler(msg: {}) {
-    return {
-      if (someCondition) {
-        return 42;
-      } else if (requeueCondition) {
-        return new Nack(true);
-      } else {
-        // Will not be requeued
-        return new Nack();
-      }
-    };
+  public async pubSubHandler(msg: {}) {
+    try {
+      // ... process message ...
+      // returning void/undefined here causes the library to auto-ack the message
+    } catch (e) {
+      // Log the error so it's not silently swallowed
+      console.error('Failed to process message', e);
+      // Nack without requeue — message goes to the dead-letter exchange (if configured)
+      return new Nack(false);
+    }
   }
 }
 ```
+
+If you need to conditionally requeue vs. dead-letter a message, you can use a retry counter stored in the message headers. Note that you are responsible for incrementing this counter when republishing — this example only shows the consumer side:
+
+```typescript
+import { RabbitSubscribe, Nack } from '@golevelup/nestjs-rabbitmq';
+import { Injectable } from '@nestjs/common';
+import { ConsumeMessage } from 'amqplib';
+
+@Injectable()
+export class MessagingService {
+  @RabbitSubscribe({
+    exchange: 'exchange1',
+    routingKey: 'subscribe-route',
+    queue: 'subscribe-queue',
+  })
+  public async pubSubHandler(msg: {}, amqpMsg: ConsumeMessage) {
+    // x-retry-count must be set by your retry infrastructure when republishing
+    const retryCount = (amqpMsg.properties.headers?.['x-retry-count'] ?? 0) as number;
+
+    try {
+      // ... process message ...
+    } catch (e) {
+      console.error('Failed to process message', e);
+      if (retryCount < 3) {
+        // Requeue for retry — make sure you have a retry counter to avoid infinite loops
+        return new Nack(true);
+      }
+      // Exhausted retries — nack without requeue (routes to DLQ if configured)
+      return new Nack(false);
+    }
+  }
+}
+```
+
+**Quick reference:**
+
+| Scenario | What to return |
+|---|---|
+| Processing succeeded | `void` / `undefined` — library auto-acks |
+| Non-recoverable error, send to DLQ | `return new Nack()` or `return new Nack(false)` |
+| Retriable error, put back in queue | `return new Nack(true)` _(use with care — can cause infinite loops)_ |
+| Error thrown from handler (uncaught) | Library nacks without requeue by default via `errorHandler` |
+
+> **Note:** The `channel` object is **not** injected directly into the handler. The second argument to a subscriber handler is always `amqplib.ConsumeMessage` (the raw AMQP message). Use the `Nack` return value or a custom `errorHandler` to control acknowledgement rather than calling `channel.nack()` manually.
 
 ### Conditional Handler Registration
 
@@ -389,6 +434,8 @@ In some scenarios, it will be useful to get the original amqp message (to retrie
 The raw message is passed to the consumer as a second argument.
 
 If the method signature of the consumer accepts `amqplib.ConsumeMessage` as a second argument, it enables to access all information that is available on the original message.
+
+> **Note:** The second argument is always `ConsumeMessage` (the raw AMQP message object). It is **not** a `Channel`. Do not attempt to call `channel.ack()` or `channel.nack()` directly from the handler — use the `Nack` return value instead (see [Message Handling](#message-handling)).
 
 ```typescript
 import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
@@ -445,9 +492,61 @@ export class MessagingService {
 }
 ```
 
+### Configuring Consumer Tag
+
+A consumer tag is a string that uniquely identifies a consumer on a channel. By default, RabbitMQ assigns a server-generated tag. You can customise this for easier consumer management, tracing, and identification.
+
+#### Global Consumer Tag (per queue in module config)
+
+You can set a default `consumerTag` for a queue in the module-level `queues` configuration. All handlers subscribed to that queue will use this tag unless overridden at the handler level.
+
+```typescript
+RabbitMQModule.forRoot({
+  uri: 'amqp://localhost:5672',
+  queues: [
+    {
+      name: 'my-queue',
+      consumerTag: 'my-global-consumer-tag',
+    },
+  ],
+});
+```
+
+#### Per-Handler Consumer Tag (via decorator)
+
+You can also set the `consumerTag` directly on an individual handler using `queueOptions.consumerOptions`. A tag set on the decorator takes precedence over the global queue config.
+
+```typescript
+import { RabbitSubscribe, RabbitRPC } from '@golevelup/nestjs-rabbitmq';
+import { Injectable } from '@nestjs/common';
+
+@Injectable()
+export class MessagingService {
+  @RabbitSubscribe({
+    exchange: 'exchange1',
+    routingKey: 'subscribe-route',
+    queue: 'my-queue',
+    queueOptions: {
+      consumerOptions: {
+        consumerTag: 'my-handler-consumer-tag',
+      },
+    },
+  })
+  public async pubSubHandler(msg: {}) {
+    console.log(`Received message: ${JSON.stringify(msg)}`);
+  }
+}
+```
+
+> **Note:** Consumer tags must be unique per channel. If multiple consumers on the same channel share a tag, RabbitMQ will reject the duplicate registration. Ensure tags are unique when configuring them manually.
+
 ### Consumer-side Message Batching
 
 Messages can be presented as a batch to the handler. This works by accumulating messages on the consumer-side until either a batch size limit is reached or the batch timer expires. After handling, all messages in the batch will be acked (or nacked) automatically.
+
+:::note
+For batching to work correctly, the channel's `prefetchCount` must be set to a value greater than or equal to the configured batch `size`. If the prefetch count is lower than the batch size, RabbitMQ will not deliver enough messages at once to fill a batch. You can configure this either globally via `RabbitMQConfig.prefetchCount` or per-channel via `RabbitMQChannelConfig.prefetchCount`. See the [Configuration section](#configuration) for details.
+:::
 
 This behaviour is configured in the `batchOptions` property:
 
