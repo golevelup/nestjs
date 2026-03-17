@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { RABBIT_HANDLER } from '../rabbitmq.constants';
 import { RabbitSubscribe } from '../rabbitmq.decorators';
+import { resolveHandlerConfigs } from '../rabbitmq.module';
 
 const handlerSpy = jest.fn();
 
@@ -93,5 +94,66 @@ describe('RabbitMQModule handler this-context binding', () => {
     boundHandler({});
     expect(handlerSpy).toHaveBeenCalledWith('service-value');
     expect(Reflect.getMetadataKeys(boundHandler)).toContain(RABBIT_HANDLER);
+  });
+});
+
+describe(resolveHandlerConfigs.name, () => {
+  const singleConfig = { queue: 'q', exchange: 'ex', routingKey: 'rk' };
+  const anotherConfig = { queue: 'q2', exchange: 'ex2', routingKey: 'rk2' };
+
+  describe('when there is no lookup key (handler uses only decorator config)', () => {
+    it('returns [undefined] so decorator config is used when lookupKey is undefined', () => {
+      expect(resolveHandlerConfigs({}, undefined)).toEqual([undefined]);
+    });
+
+    it('returns [undefined] when lookup key is empty string (no-name handler)', () => {
+      // defaultHandler defaults to '' in AmqpConnection — treated as no key
+      expect(resolveHandlerConfigs({}, '')).toEqual([undefined]);
+    });
+  });
+
+  describe('when lookup key is present but absent from the handlers map', () => {
+    it('returns [] so registration is skipped (handlerC missing from config)', () => {
+      // This is the bug-fix scenario: the handler name is set in the decorator
+      // but has no corresponding entry in the module handlers map.
+      const handlers = { handlerA: [singleConfig], handlerB: [] };
+      expect(resolveHandlerConfigs(handlers, 'handlerC')).toEqual([]);
+    });
+
+    it('returns [] when defaultHandler key is present but absent from handlers map', () => {
+      expect(resolveHandlerConfigs({}, 'defaultHandlerKey')).toEqual([]);
+    });
+  });
+
+  describe('when lookup key exists in the handlers map', () => {
+    it('returns the array as-is for a multi-element entry (handlerA: [...])', () => {
+      const handlers = { handlerA: [singleConfig, anotherConfig] };
+      expect(resolveHandlerConfigs(handlers, 'handlerA')).toEqual([
+        singleConfig,
+        anotherConfig,
+      ]);
+    });
+
+    it('returns empty array when the entry is explicitly [] (handlerB: [])', () => {
+      const handlers = { handlerB: [] };
+      expect(resolveHandlerConfigs(handlers, 'handlerB')).toEqual([]);
+    });
+
+    it('wraps a single config object in a single-element array', () => {
+      const handlers = { handlerA: singleConfig };
+      expect(resolveHandlerConfigs(handlers, 'handlerA')).toEqual([
+        singleConfig,
+      ]);
+    });
+
+    it('uses the key value even when it is undefined (explicit undefined value differs from missing key)', () => {
+      // An explicitly undefined value on a present key should NOT be skipped.
+      // hasOwnProperty returns true here so the value (undefined) is wrapped.
+      const handlers = { handlerX: undefined } as unknown as Record<
+        string,
+        never
+      >;
+      expect(resolveHandlerConfigs(handlers, 'handlerX')).toEqual([undefined]);
+    });
   });
 });
