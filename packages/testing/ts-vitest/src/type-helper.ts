@@ -43,7 +43,7 @@ export type IsExactlyUnknown<T> = unknown extends T
  */
 export type DeepMockedFunction<
   T extends (...args: any[]) => any,
-  D extends number = 4,
+  D extends keyof Prev & number = 4,
 > = ((...args: Parameters<T>) => DeepMockedInternal<ReturnType<T>, D>) &
   Mock<T>;
 
@@ -53,7 +53,7 @@ type Prev = [never, 0, 1, 2, 3, 4];
 // Internal recursive implementation. The depth counter `D` prevents unbounded
 // type instantiation on complex SDK types (e.g. S3Client, PrismaClient) that
 // would cause type-checking performance regressions.
-type DeepMockedInternal<T, D extends number> = D extends 0
+type DeepMockedInternal<T, D extends keyof Prev & number> = D extends 0
   ? T
   : {
       [K in keyof T]: IsExactlyUnknown<T[K]> extends true
