@@ -110,7 +110,7 @@ export class StripeModule
             undefined,
             undefined,
             undefined,
-            undefined,
+            { filters: false },
             STRIPE_WEBHOOK_CONTEXT_TYPE,
           ),
         }));

@@ -30,6 +30,14 @@ class PaymentCreatedService {
   }
 }
 
+@Injectable()
+class ThrowingWebhookService {
+  @StripeWebhookHandler(eventType)
+  handlePaymentIntentCreated() {
+    throw new Error('Handler error');
+  }
+}
+
 type ModuleType = 'forRoot' | 'forRootAsync';
 const cases: [ModuleType, string | undefined][] = [
   ['forRoot', undefined],
@@ -116,3 +124,44 @@ describe.each(cases)(
     afterEach(() => jest.resetAllMocks());
   },
 );
+
+describe('Stripe Webhook error propagation', () => {
+  let app: INestApplication;
+
+  const moduleConfig: StripeModuleConfig = {
+    apiKey: '123',
+    webhookConfig: {
+      stripeSecrets: {
+        account: '123',
+      },
+    },
+  };
+
+  beforeEach(async () => {
+    const moduleFixture: TestingModule = await Test.createTestingModule({
+      imports: [StripeModule.forRoot(moduleConfig)],
+      providers: [ThrowingWebhookService],
+    }).compile();
+
+    app = moduleFixture.createNestApplication();
+    app.useLogger(new SilentLogger());
+    await app.init();
+
+    const stripePayloadService =
+      app.get<StripePayloadService>(StripePayloadService);
+
+    jest
+      .spyOn(stripePayloadService, 'tryHydratePayload')
+      .mockImplementationOnce((sig, buff) => buff as any);
+  });
+
+  it('returns 500 when a webhook handler throws, without crashing due to missing response context', () => {
+    return request(app.getHttpServer())
+      .post(defaultStripeWebhookEndpoint)
+      .send(expectedEvent)
+      .set('stripe-signature', stripeSig)
+      .expect(500);
+  });
+
+  afterEach(() => jest.resetAllMocks());
+});
