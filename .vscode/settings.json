@@ -1,5 +1,7 @@
 {
   "editor.formatOnSave": true,
+  "editor.defaultFormatter": "oxc.oxc-vscode",
   "cSpell.words": ["golevelup", "Graphile", "Hasura", "rabbitmq", "Vitest"],
-  "typescript.tsdk": "node_modules/typescript/lib"
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "oxc.enable": true
 }

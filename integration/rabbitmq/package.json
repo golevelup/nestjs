@@ -6,7 +6,7 @@
   "license": "MIT",
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
-    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+    "format": "oxfmt \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "tsx src/main.ts",
     "start:dev": "nodemon",
     "start:debug": "nodemon --config nodemon-debug.json",
@@ -32,7 +32,6 @@
     "amqplib": "^0.10.9",
     "jest": "^30.3.0",
     "nodemon": "3.1.11",
-    "prettier": "^3.8.1",
     "supertest": "7.1.4",
     "ts-jest": "^29.4.6",
     "tsconfig-paths": "4.2.0",
