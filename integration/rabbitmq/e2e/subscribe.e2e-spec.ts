@@ -45,6 +45,12 @@ const batchErrorHandler = jest.fn();
 const batchErrorRoutingKey = 'testSubscribeBatchError';
 const batchErrorQueue = 'testSubscribeBatchErrorQueue';
 
+const exchange2 = 'testSubscribeExchange2';
+const bindingsHandler = jest.fn();
+const bindingsRoutingKey1 = 'testBindingsRoute1';
+const bindingsRoutingKey2 = 'testBindingsRoute2';
+const bindingsQueue = 'testSubscribeBindingsQueue';
+
 @Injectable()
 class SubscribeService {
   @RabbitSubscribe({
@@ -176,6 +182,17 @@ class SubscribeService {
   batchErrorSubscriber() {
     throw new Error();
   }
+
+  @RabbitSubscribe({
+    queue: bindingsQueue,
+    bindings: [
+      { exchange, routingKey: bindingsRoutingKey1 },
+      { exchange: exchange2, routingKey: bindingsRoutingKey2 },
+    ],
+  })
+  handleBindings(message: object) {
+    bindingsHandler(message);
+  }
 }
 
 describe('Rabbit Subscribe', () => {
@@ -204,6 +221,10 @@ describe('Rabbit Subscribe', () => {
             {
               name: FANOUT,
               type: FANOUT,
+            },
+            {
+              name: exchange2,
+              type: 'topic',
             },
           ],
           handlers: {
@@ -586,6 +607,45 @@ describe('Rabbit Subscribe', () => {
 
       await setTimeout(paddedBatchTimeout);
       expect(batchErrorHandler).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('Bindings per routing key', () => {
+    it('should receive messages from first exchange binding', async () => {
+      amqpConnection.publish(
+        exchange,
+        bindingsRoutingKey1,
+        'message-from-exchange1',
+      );
+
+      await setTimeout(50);
+
+      expect(bindingsHandler).toHaveBeenCalledTimes(1);
+      expect(bindingsHandler).toHaveBeenCalledWith('message-from-exchange1');
+    });
+
+    it('should receive messages from second exchange binding', async () => {
+      amqpConnection.publish(
+        exchange2,
+        bindingsRoutingKey2,
+        'message-from-exchange2',
+      );
+
+      await setTimeout(50);
+
+      expect(bindingsHandler).toHaveBeenCalledTimes(1);
+      expect(bindingsHandler).toHaveBeenCalledWith('message-from-exchange2');
+    });
+
+    it('should receive messages from both exchange bindings', async () => {
+      amqpConnection.publish(exchange, bindingsRoutingKey1, 'msg1');
+      amqpConnection.publish(exchange2, bindingsRoutingKey2, 'msg2');
+
+      await setTimeout(50);
+
+      expect(bindingsHandler).toHaveBeenCalledTimes(2);
+      expect(bindingsHandler).toHaveBeenCalledWith('msg1');
+      expect(bindingsHandler).toHaveBeenCalledWith('msg2');
     });
   });
 });
