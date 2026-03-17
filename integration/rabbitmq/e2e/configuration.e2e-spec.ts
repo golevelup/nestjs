@@ -12,6 +12,10 @@ import * as amqplib from 'amqplib';
 import { Options } from 'amqplib';
 import { RABBIT_HOST, RABBIT_PORT, getRabbitMQUri } from './utils';
 
+vi.mock('amqplib', async (importOriginal) => {
+  return await importOriginal<typeof import('amqplib')>();
+});
+
 const uri: Options.Connect = {
   hostname: RABBIT_HOST,
   port: RABBIT_PORT,
