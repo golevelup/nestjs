@@ -110,7 +110,12 @@ export class StripeModule
             undefined,
             undefined,
             undefined,
-            { filters: false },
+            { 
+              // Disable NestJS exception filters for externally-created webhook handlers because
+              // global/Sentry filters expect an HTTP response context, which is missing here.
+              // Let exceptions bubble back to the HTTP controller instead.
+              filters: false,
+            },
             STRIPE_WEBHOOK_CONTEXT_TYPE,
           ),
         }));
