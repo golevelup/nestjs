@@ -1,5 +1,5 @@
 import { GenericContainer, Wait } from 'testcontainers';
-import { provide } from 'vitest/suite';
+import { provide } from 'vitest/node';
 
 export default async function setup() {
   const container = await new GenericContainer('rabbitmq:3-management')
