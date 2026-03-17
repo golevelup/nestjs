@@ -32,31 +32,35 @@ import {
   MessageHandlerOptions,
   RabbitHandlerConfig,
   RabbitMQConfig,
+  RabbitMQHandlers,
 } from './rabbitmq.interfaces';
 
 /**
  * Resolves the list of per-registration handler configs to apply for a given
- * handler, given the raw value found in the module-level `handlers` map and the
- * key that was used to look it up.
+ * handler.
  *
  * Rules:
- * - Array value  → use it as-is (zero or more registrations).
- * - Non-empty lookup key with no matching entry (`undefined`) → return `[]`
- *   to skip registration and avoid asserting random `amq.gen-*` queues.
- * - No lookup key / explicit `undefined` value → wrap in a single-element
- *   array so the handler is registered using only the decorator config.
+ * - No lookup key → return `[undefined]` so the handler is registered using
+ *   only the decorator config.
+ * - Lookup key absent from `handlers` map → return `[]` to skip registration
+ *   and avoid asserting random `amq.gen-*` queues.
+ * - Lookup key present, value is an array → return the array as-is (zero or
+ *   more registrations).
+ * - Lookup key present, value is a single object → wrap in a single-element
+ *   array.
  */
 export function resolveHandlerConfigs(
-  raw: MessageHandlerOptions | MessageHandlerOptions[] | undefined,
+  handlers: RabbitMQHandlers,
   lookupKey: string | undefined,
 ): (MessageHandlerOptions | undefined)[] {
-  if (Array.isArray(raw)) {
-    return raw;
+  if (!lookupKey) {
+    return [undefined];
   }
-  if (lookupKey && raw === undefined) {
+  if (!Object.prototype.hasOwnProperty.call(handlers, lookupKey)) {
     return [];
   }
-  return [raw];
+  const raw = handlers[lookupKey];
+  return Array.isArray(raw) ? raw : [raw];
 }
 
 @Module({
@@ -284,15 +288,12 @@ export class RabbitMQModule
             const handlerLookupKey =
               config.name || connection.configuration.defaultHandler;
 
-            const moduleHandlerConfigRaw =
-              connection.configuration.handlers[handlerLookupKey || ''];
-
             // When a handler name or defaultHandler is configured but no
             // matching entry exists in the handlers map, skip registration to
             // prevent random amq.gen-* queues from being asserted (consistent
             // with the behaviour of an explicitly empty array entry).
             const moduleHandlerConfigs = resolveHandlerConfigs(
-              moduleHandlerConfigRaw,
+              connection.configuration.handlers,
               handlerLookupKey,
             );
 
