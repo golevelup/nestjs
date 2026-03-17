@@ -82,7 +82,7 @@ describe(validateRabbitMqUris.name, () => {
         'amqps://rabbitmq:rabbitmq@localhost:5671/%2F?heartbeat=10',
         'amqps://user:pass@rabbit.example.com:5671/vhost?frameMax=65536&channelMax=2047',
       ]),
-    ).not.toThrowError();
+    ).not.toThrow();
   });
 
   it('should throw when malformed uris are provided', () => {
@@ -91,7 +91,7 @@ describe(validateRabbitMqUris.name, () => {
         'amqp://rabbitmq:rabbitmq@localhost:hello',
         'superbawl://rabbitmq:rabbitmq@localhost:4444',
       ]),
-    ).toThrowError();
+    ).toThrow();
   });
 });
 
@@ -142,6 +142,6 @@ describe(converUriConfigObjectsToUris.name, () => {
       converUriConfigObjectsToUris({
         hostname: undefined,
       }),
-    ).toThrowError("Configuration object must contain a 'hostname' key.");
+    ).toThrow("Configuration object must contain a 'hostname' key.");
   });
 });
