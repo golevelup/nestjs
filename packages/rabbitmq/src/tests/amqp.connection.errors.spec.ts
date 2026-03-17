@@ -14,7 +14,7 @@ describe('Custom RabbitMQ Errors', () => {
 
       const connection = new AmqpConnection(mockConfig);
 
-      expect(() => connection.channel).toThrowError(ChannelNotAvailableError);
+      expect(() => connection.channel).toThrow(ChannelNotAvailableError);
     });
 
     it('should throw ChannelNotAvailableError with correct properties', () => {
@@ -45,9 +45,7 @@ describe('Custom RabbitMQ Errors', () => {
 
       const connection = new AmqpConnection(mockConfig);
 
-      expect(() => connection.connection).toThrowError(
-        ConnectionNotAvailableError,
-      );
+      expect(() => connection.connection).toThrow(ConnectionNotAvailableError);
     });
 
     it('should throw ConnectionNotAvailableError with correct properties', () => {

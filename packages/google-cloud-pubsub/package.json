@@ -39,9 +39,9 @@
     "@golevelup/nestjs-discovery": "workspace:^"
   },
   "devDependencies": {
-    "avsc": "^5.7.9",
-    "@google-cloud/pubsub": "^5.2.2",
-    "@protobuf-ts/runtime": "^2.11.1"
+    "@google-cloud/pubsub": "^5.3.0",
+    "@protobuf-ts/runtime": "^2.11.1",
+    "avsc": "^5.7.9"
   },
   "peerDependencies": {
     "@google-cloud/pubsub": "^5.2.2",

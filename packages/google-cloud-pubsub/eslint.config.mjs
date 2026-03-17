@@ -8,7 +8,7 @@ const baseRulesConfig = baseConfig.at(-1) ?? {};
 export default [
   {
     ...baseIgnoreConfig,
-    ignores: ['**/*.d.ts', '**/node_modules/', '**/*.js'],
+    ignores: ['**/*.d.ts', '**/node_modules/', '**/*.js', 'e2e/proto/**'],
   },
   ...baseConfig.slice(1, -1),
   {

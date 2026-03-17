@@ -287,8 +287,8 @@ describe('Mocks', () => {
       const testFnNumber = () => mock.nested > 0;
       const testFnString = () => `${mock.nested}`;
 
-      expect(testFnNumber).not.toThrowError();
-      expect(testFnString).not.toThrowError();
+      expect(testFnNumber).not.toThrow();
+      expect(testFnString).not.toThrow();
     });
 
     it('mocked functions returned values can be implicitly casted to string/number', async () => {
@@ -298,8 +298,8 @@ describe('Mocks', () => {
       const testFnNumber = () => result.prop > 0;
       const testFnString = () => `${result.prop}`;
 
-      expect(testFnNumber).not.toThrowError();
-      expect(testFnString).not.toThrowError();
+      expect(testFnNumber).not.toThrow();
+      expect(testFnString).not.toThrow();
     });
 
     it('should work with RegExp.test on mocked string property', () => {
