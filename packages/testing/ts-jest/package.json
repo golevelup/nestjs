@@ -41,7 +41,7 @@
     "@aws-sdk/client-s3": "^3.1011.0",
     "@jest/globals": "^30.3.0",
     "jest": "^30.3.0",
-    "jest-mock": "27.5.1",
+    "jest-mock": "^30.3.0",
     "typeorm": "^0.3.28"
   },
   "jest": {

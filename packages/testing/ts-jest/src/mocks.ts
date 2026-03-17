@@ -35,12 +35,9 @@ type DeepMockedInternal<T, D extends number> = D extends 0
   : {
       [K in keyof T]: IsExactlyUnknown<T[K]> extends true
         ? any
-        : NonNullable<T[K]> extends (...args: any[]) => infer U
-          ? jest.MockInstance<
-              ReturnType<NonNullable<T[K]>>,
-              jest.ArgsType<T[K]>
-            > &
-              ((...args: jest.ArgsType<T[K]>) => DeepMockedInternal<U, Prev[D]>)
+        : NonNullable<T[K]> extends (...args: infer A) => infer U
+          ? jest.Mock<(...args: A) => U> &
+              ((...args: A) => DeepMockedInternal<U, Prev[D]>)
           : NonNullable<T[K]> extends object
             ? undefined extends T[K]
               ? DeepMockedInternal<NonNullable<T[K]>, Prev[D]> | undefined
@@ -74,8 +71,11 @@ const jestFnProps = new Set([
 
 const createProxy: {
   <T extends object>(name: string, strict: boolean, base: T): T;
-  <T extends Mock<any, any> = Mock<any, any>>(name: string, strict: boolean): T;
-} = <T extends object | Mock<any, any>>(
+  <T extends Mock<(...args: any[]) => any> = Mock<(...args: any[]) => any>>(
+    name: string,
+    strict: boolean,
+  ): T;
+} = <T extends object | Mock<(...args: any[]) => any>>(
   name: string,
   strict: boolean,
   base?: T,
@@ -126,7 +126,7 @@ const createProxy: {
     },
   };
   if (!base) {
-    (handler as ProxyHandler<Mock<any, any>>).apply = (
+    (handler as ProxyHandler<Mock<(...args: any[]) => any>>).apply = (
       target,
       thisArg,
       argsArray,
