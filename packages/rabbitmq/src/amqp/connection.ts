@@ -1071,6 +1071,7 @@ export class AmqpConnection {
     const {
       exchange,
       routingKey,
+      bindings,
       createQueueIfNotExists = true,
       assertQueueErrorHandler = defaultAssertQueueErrorHandler,
       queueOptions,
@@ -1117,6 +1118,19 @@ export class AmqpConnection {
             );
           }
         }),
+      );
+    }
+
+    if (bindings && bindings.length > 0) {
+      await Promise.all(
+        bindings.map(({ exchange: bindingExchange, routingKey: bindingKey }) =>
+          channel.bindQueue(
+            actualQueue as string,
+            bindingExchange,
+            bindingKey,
+            bindQueueArguments,
+          ),
+        ),
       );
     }
 

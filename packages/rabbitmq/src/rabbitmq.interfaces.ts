@@ -88,6 +88,23 @@ export interface QueueOptions {
 export type MessageDeserializer = (message: Buffer, msg: ConsumeMessage) => any;
 export type MessageSerializer = (value: any) => Buffer;
 
+/**
+ * Represents a single queue binding to an exchange with a specific routing key.
+ * Use this in the `bindings` array of `MessageHandlerOptions` to bind a queue
+ * to routing keys from multiple exchanges.
+ */
+export interface RabbitSubscribeBinding {
+  /**
+   * The name of the exchange to bind to.
+   */
+  exchange: string;
+
+  /**
+   * The routing key (or pattern) to bind to the given exchange.
+   */
+  routingKey: string;
+}
+
 export interface MessageHandlerOptions {
   /**
    * You can use a handler config specified in module level.
@@ -97,6 +114,26 @@ export interface MessageHandlerOptions {
   connection?: string;
   exchange?: string;
   routingKey?: string | string[];
+  /**
+   * An array of exchange/routing-key pairs to bind the queue to.
+   * Use this when you need to bind a queue to routing keys from multiple
+   * different exchanges. Each entry specifies an exchange and a routing key.
+   *
+   * When `bindings` is provided alongside `exchange` and `routingKey`, both
+   * sets of bindings are applied.
+   *
+   * @example
+   * ```typescript
+   * @RabbitSubscribe({
+   *   queue: 'my-queue',
+   *   bindings: [
+   *     { exchange: 'exchange1', routingKey: 'route.a' },
+   *     { exchange: 'exchange2', routingKey: 'route.b' },
+   *   ],
+   * })
+   * ```
+   */
+  bindings?: RabbitSubscribeBinding[];
   queue?: string;
   queueOptions?: QueueOptions;
   /**
