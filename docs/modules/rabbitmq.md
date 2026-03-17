@@ -654,7 +654,7 @@ This is done with the `errorHandler` property that is available both in RPC and 
 
 > it should be used with `rpcOptions` for RPC
 
-The default is `defaultNackErrorHandler` and it just nack the message without requeue (which is usually ok to avoid the message coming back in the queue again and again)
+The default behavior is to nack and **requeue** the message (i.e. `MessageHandlerErrorBehavior.REQUEUE`). You can change this globally via the `defaultSubscribeErrorBehavior` connection option, or per-handler via the `errorBehavior` option on `@RabbitSubscribe` / `@RabbitRPC`. Be aware that requeuing indefinitely can cause an infinite loop — consider using a dead-letter exchange or setting `defaultSubscribeErrorBehavior: MessageHandlerErrorBehavior.NACK` to nack without requeueing.
 
 However, you can do more fancy stuff like inspecting the message properties to decide to requeue or not. Be aware that you should not requeue indefinitely...
 
