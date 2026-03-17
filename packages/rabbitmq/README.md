@@ -471,31 +471,6 @@ For example:
 amqpConnection.publish('some-exchange', 'routing-key', { msg: 'hello world' });
 ```
 
-To make published messages durable (so they survive a RabbitMQ broker restart and are not lost if they end up in a dead-letter queue), pass `{ persistent: true }` as the options argument:
-
-```typescript
-amqpConnection.publish(
-  'some-exchange',
-  'routing-key',
-  { msg: 'hello world' },
-  { persistent: true },
-);
-```
-
-Alternatively, configure `defaultPublishOptions` in the module configuration to apply persistence to **all** published messages by default:
-
-```typescript
-RabbitMQModule.forRoot(RabbitMQModule, {
-  exchanges: [{ name: 'some-exchange', type: 'topic' }],
-  uri: 'amqp://rabbitmq:rabbitmq@localhost:5672',
-  defaultPublishOptions: {
-    persistent: true,
-  },
-});
-```
-
-Per-call options passed to `publish()` are merged on top of `defaultPublishOptions`, so individual calls can still override specific properties.
-
 ### Requesting Data from an RPC
 
 If you'd like to request data from another RPC handler that's been set up using this library, you can use the `request<T>` method of the `AmqpConnection`.
