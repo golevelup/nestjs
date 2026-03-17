@@ -9,18 +9,15 @@ import { Logger, Provider } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as amqplib from 'amqplib';
 import { Options } from 'amqplib';
+import { RABBIT_HOST, RABBIT_PORT, getRabbitMQUri } from './utils';
 
-const rabbitHost =
-  process.env.NODE_ENV === 'ci' ? process.env.RABBITMQ_HOST : 'localhost';
-const rabbitPort =
-  process.env.NODE_ENV === 'ci' ? Number(process.env.RABBITMQ_PORT) : 5672;
 const uri: Options.Connect = {
-  hostname: rabbitHost,
-  port: rabbitPort,
+  hostname: RABBIT_HOST,
+  port: RABBIT_PORT,
   username: 'rabbitmq',
   password: 'rabbitmq',
 };
-const amqplibUri = `amqp://rabbitmq:rabbitmq@${rabbitHost}:${rabbitPort}?heartbeat=5`;
+const amqplibUri = `${getRabbitMQUri()}?heartbeat=5`;
 const customLogger = createMock<Logger>({
   log: jest.fn(),
   error: jest.fn(),
