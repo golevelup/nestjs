@@ -174,8 +174,8 @@ importers:
         specifier: ^27.4.3
         version: 27.5.1(ts-node@10.9.2(@types/node@22.16.5)(typescript@4.9.5))
       prettier:
-        specifier: 3.5.3
-        version: 3.5.3
+        specifier: ^3.8.1
+        version: 3.8.1
       supertest:
         specifier: 7.1.4
         version: 7.1.4
@@ -229,8 +229,8 @@ importers:
         specifier: 3.1.11
         version: 3.1.11
       prettier:
-        specifier: 3.5.3
-        version: 3.5.3
+        specifier: ^3.8.1
+        version: 3.8.1
       supertest:
         specifier: 7.1.4
         version: 7.1.4
@@ -393,8 +393,8 @@ importers:
         version: link:../discovery
     devDependencies:
       stripe:
-        specifier: ^20.3.0
-        version: 20.3.0(@types/node@22.19.7)
+        specifier: ^20.4.1
+        version: 20.4.1(@types/node@22.19.7)
 
   packages/testing/ts-jest:
     devDependencies:
@@ -6331,11 +6331,6 @@ packages:
     engines: {node: '>=10.13.0'}
     hasBin: true
 
-  prettier@3.5.3:
-    resolution: {integrity: sha512-QQtaxnoDJeAkDvDKWCLiwIXkTgRhwYDEQCghU9Z6q03iyek/rxRh/2lC3HB7P8sWT2xC/y5JDctPLBIGzHKbhw==}
-    engines: {node: '>=14'}
-    hasBin: true
-
   prettier@3.8.1:
     resolution: {integrity: sha512-UOnG6LftzbdaHZcKoPFtOcCKztrQ57WkHDeRD9t/PTQtmT0NHSeWWepj6pS0z/N7+08BHFDQVUrfmfMRcZwbMg==}
     engines: {node: '>=14'}
@@ -6948,8 +6943,8 @@ packages:
     resolution: {integrity: sha512-6fPc+R4ihwqP6N/aIv2f1gMH8lOVtWQHoqC4yK6oSDVVocumAsfCqjkXnqiYMhmMwS/mEHLp7Vehlt3ql6lEig==}
     engines: {node: '>=8'}
 
-  stripe@20.3.0:
-    resolution: {integrity: sha512-DYzcmV1MfYhycr1GwjCjeQVYk9Gu8dpxyTlu7qeDCsuguug7oUTxPsUQuZeSf/OPzK7pofqobvOKVqAwlpgf/Q==}
+  stripe@20.4.1:
+    resolution: {integrity: sha512-axCguHItc8Sxt0HC6aSkdVRPffjYPV7EQqZRb2GkIa8FzWDycE7nHJM19C6xAIynH1Qp1/BHiopSi96jGBxT0w==}
     engines: {node: '>=16'}
     peerDependencies:
       '@types/node': '>=16'
@@ -15246,8 +15241,6 @@ snapshots:
 
   prettier@2.8.8: {}
 
-  prettier@3.5.3: {}
-
   prettier@3.8.1: {}
 
   pretty-format@27.5.1:
@@ -15910,7 +15903,7 @@ snapshots:
 
   strip-json-comments@3.1.1: {}
 
-  stripe@20.3.0(@types/node@22.19.7):
+  stripe@20.4.1(@types/node@22.19.7):
     optionalDependencies:
       '@types/node': 22.19.7
 
