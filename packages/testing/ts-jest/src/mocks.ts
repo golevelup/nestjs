@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-empty-object-type */
 import { jest } from '@jest/globals';
-import { Mock } from 'jest-mock';
+import { Mock, MockInstance } from 'jest-mock';
 
 type DeepPartial<T> = {
   [P in keyof T]?: T[P] extends Array<infer U>
@@ -36,7 +36,7 @@ type DeepMockedInternal<T, D extends number> = D extends 0
       [K in keyof T]: IsExactlyUnknown<T[K]> extends true
         ? any
         : NonNullable<T[K]> extends (...args: infer A) => infer U
-          ? jest.Mock<(...args: A) => U> &
+          ? MockInstance<(...args: A) => U> &
               ((...args: A) => DeepMockedInternal<U, Prev[D]>)
           : NonNullable<T[K]> extends object
             ? undefined extends T[K]
