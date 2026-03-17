@@ -122,7 +122,7 @@ describe.each(cases)(
 
       hydratePayloadFn = jest
         .spyOn(stripePayloadService, 'tryHydratePayload')
-        .mockImplementationOnce((sig, buff) => buff as any);
+        .mockResolvedValueOnce(expectedEvent as any);
     });
 
     it('returns an error if the stripe signature is missing', () => {
