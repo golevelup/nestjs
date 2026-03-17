@@ -5,10 +5,10 @@ type DeepPartial<T> = {
   [P in keyof T]?: T[P] extends Array<infer U>
     ? Array<DeepPartial<U>>
     : T[P] extends ReadonlyArray<infer U>
-    ? ReadonlyArray<DeepPartial<U>>
-    : unknown extends T[P]
-    ? T[P]
-    : DeepPartial<T[P]>;
+      ? ReadonlyArray<DeepPartial<U>>
+      : unknown extends T[P]
+        ? T[P]
+        : DeepPartial<T[P]>;
 };
 
 export type PartialFuncReturn<T> = {
@@ -71,6 +71,7 @@ const createMockHandler = (name: string) => {
       if (
         prop === 'inspect' ||
         prop === 'then' ||
+        prop === Symbol.toPrimitive ||
         (typeof prop === 'symbol' &&
           prop.toString() === 'Symbol(util.inspect.custom)')
       ) {
@@ -107,7 +108,7 @@ const createMockHandler = (name: string) => {
 
 export const createMock = <T>(
   partialObject: PartialFuncReturn<T> = {},
-  options: MockCreationOptions = {}
+  options: MockCreationOptions = {},
 ): DeepMocked<T> => {
   const { name = 'mock' } = options;
   const proxyObject = new Proxy(partialObject, createMockHandler(name));

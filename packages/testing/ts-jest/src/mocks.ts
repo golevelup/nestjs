@@ -76,6 +76,7 @@ const createProxy: {
         prop === 'inspect' ||
         prop === 'then' ||
         prop === 'asymmetricMatch' ||
+        prop === Symbol.toPrimitive ||
         (typeof prop === 'symbol' && propName === 'Symbol(util.inspect.custom)')
       ) {
         return undefined;
