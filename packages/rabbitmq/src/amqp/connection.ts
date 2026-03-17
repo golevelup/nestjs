@@ -125,6 +125,7 @@ const defaultConfig = {
   handlers: {},
   defaultHandler: '',
   enableControllerDiscovery: false,
+  defaultPublishOptions: {} as Options.Publish,
 };
 
 export class AmqpConnection {
@@ -1032,7 +1033,17 @@ export class AmqpConnection {
       buffer = Buffer.alloc(0);
     }
 
-    return this._managedChannel.publish(exchange, routingKey, buffer, options);
+    const publishOptions = {
+      ...this.config.defaultPublishOptions,
+      ...options,
+    };
+
+    return this._managedChannel.publish(
+      exchange,
+      routingKey,
+      buffer,
+      publishOptions,
+    );
   }
 
   private deserializeMessage<T>(
