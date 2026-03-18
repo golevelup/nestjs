@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v2
+      - uses: pnpm/action-setup@v4
         with:
           version: 10
       - name: Install dependencies
@@ -34,9 +34,9 @@ jobs:
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/master') || startsWith(github.ref, 'refs/heads/main')
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v2
+      - uses: pnpm/action-setup@v4
         with:
-          version: 8
+          version: 10
       - name: Install dependencies
         run: pnpm install
       - name: Build
