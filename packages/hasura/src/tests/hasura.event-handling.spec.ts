@@ -1,7 +1,7 @@
 import { INestApplication, Injectable } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { pick } from 'lodash';
-import * as request from 'supertest';
+import { request as pactumRequest, spec } from 'pactum';
 import { HasuraEventHandler } from '../hasura.decorators';
 import { EventHandlerController } from '../hasura.event-handler.controller';
 import {
@@ -117,55 +117,62 @@ describe.each(cases)(
       }).compile();
 
       app = moduleFixture.createNestApplication();
-      await app.init();
+      await app.listen(0);
+      pactumRequest.setBaseUrl(await app.getUrl());
     });
 
-    afterEach(() => {
+    afterEach(async () => {
       triggerBoundEventHandler.mockReset();
       scheduledEventHandler.mockReset();
+      await app.close();
     });
 
-    it('should return forbidden if the secret api header is missing', () => {
-      return request(app.getHttpServer())
+    it('should return forbidden if the secret api header is missing', async () => {
+      await spec()
         .post(hasuraEndpoint)
-        .send(eventPayload)
-        .expect(403);
+        .withJson(eventPayload)
+        .expectStatus(403)
+        .toss();
     });
 
-    it('should return forbidden if the secret api header value does not match', () => {
-      return request(app.getHttpServer())
+    it('should return forbidden if the secret api header value does not match', async () => {
+      await spec()
         .post(hasuraEndpoint)
-        .set(secretHeader, 'wrong Value')
-        .send(eventPayload)
-        .expect(403);
+        .withHeaders({ [secretHeader]: 'wrong Value' })
+        .withJson(eventPayload)
+        .expectStatus(403)
+        .toss();
     });
 
-    it('should return bad request if there is no event handler for the event', () => {
-      return request(app.getHttpServer())
+    it('should return bad request if there is no event handler for the event', async () => {
+      await spec()
         .post(hasuraEndpoint)
-        .set(secretHeader, secret)
-        .send(eventPayloadMissingTableAndTrigger)
-        .expect(400);
+        .withHeaders({ [secretHeader]: secret })
+        .withJson(eventPayloadMissingTableAndTrigger)
+        .expectStatus(400)
+        .toss();
     });
 
     it('should pass the event to the correct handler', async () => {
-      const response = await request(app.getHttpServer())
+      await spec()
         .post(hasuraEndpoint)
-        .set(secretHeader, secret)
-        .send(eventPayload);
+        .withHeaders({ [secretHeader]: secret })
+        .withJson(eventPayload)
+        .expectStatus(202)
+        .toss();
 
-      expect(response.status).toEqual(202);
       expect(triggerBoundEventHandler).toHaveBeenCalledTimes(1);
       expect(triggerBoundEventHandler).toHaveBeenCalledWith(eventPayload);
     });
 
     it('should pass the scheduled one off event payload to the correct handler', async () => {
-      const response = await request(app.getHttpServer())
+      await spec()
         .post(hasuraEndpoint)
-        .set(secretHeader, secret)
-        .send(scheduledOneOffEventPayload);
+        .withHeaders({ [secretHeader]: secret })
+        .withJson(scheduledOneOffEventPayload)
+        .expectStatus(202)
+        .toss();
 
-      expect(response.status).toEqual(202);
       expect(scheduledEventHandler).toHaveBeenCalledTimes(1);
       expect(scheduledEventHandler).toHaveBeenCalledWith(
         expect.objectContaining(
@@ -175,12 +182,13 @@ describe.each(cases)(
     });
 
     it('should pass the scheduled event payload to the correct handler', async () => {
-      const response = await request(app.getHttpServer())
+      await spec()
         .post(hasuraEndpoint)
-        .set(secretHeader, secret)
-        .send(scheduledEventPayload);
+        .withHeaders({ [secretHeader]: secret })
+        .withJson(scheduledEventPayload)
+        .expectStatus(202)
+        .toss();
 
-      expect(response.status).toEqual(202);
       expect(scheduledEventHandler).toHaveBeenCalledTimes(1);
       expect(scheduledEventHandler).toHaveBeenCalledWith(
         expect.objectContaining(
