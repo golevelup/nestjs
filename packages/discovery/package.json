@@ -41,9 +41,5 @@
   },
   "bugs": {
     "url": "https://github.com/golevelup/nestjs/issues"
-  },
-  "devDependencies": {
-    "vite": "^8.0.0",
-    "vitest": "^4.1.0"
   }
 }
