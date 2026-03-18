@@ -29,7 +29,7 @@ jobs:
         with:
           fetch-depth: 0 # Not needed if lastUpdated is not enabled
       - name: Install mise tools (Node.js, pnpm)
-        uses: jdx/mise-action@v2
+        uses: jdx/mise-action@v4
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Install dependencies
