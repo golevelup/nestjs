@@ -6,21 +6,21 @@ This is a **pnpm monorepo** containing a collection of NestJS modules and utilit
 
 ### Packages
 
-| Package                                 | Path                           | Purpose                                               |
-| --------------------------------------- | ------------------------------ | ----------------------------------------------------- |
-| `@golevelup/nestjs-common`              | `packages/common`              | Shared types and mixins                               |
-| `@golevelup/nestjs-discovery`           | `packages/discovery`           | Find providers, controllers, and handlers by metadata |
-| `@golevelup/nestjs-modules`             | `packages/modules`             | Dynamic module creation helper                        |
-| `@golevelup/nestjs-rabbitmq`            | `packages/rabbitmq`            | RabbitMQ pub/sub and RPC integration                  |
-| `@golevelup/nestjs-hasura`              | `packages/hasura`              | Hasura event handler integration                      |
-| `@golevelup/nestjs-graphql-request`     | `packages/graphql-request`     | GraphQL client dependency injection                   |
-| `@golevelup/nestjs-webhooks`            | `packages/webhooks`            | Webhook processing middleware                         |
-| `@golevelup/nestjs-stripe`              | `packages/stripe`              | Stripe client and webhook integration                 |
-| `@golevelup/nestjs-google-cloud-pubsub` | `packages/google-cloud-pubsub` | Google Cloud Pub/Sub integration                      |
-| `@golevelup/nestjs-graphile-worker`     | `packages/graphile-worker`     | Graphile Worker job queue integration                 |
-| `@golevelup/ts-jest`                    | `packages/testing/ts-jest`     | Jest utilities for NestJS testing                     |
-| `@golevelup/ts-sinon`                   | `packages/testing/ts-sinon`    | Sinon utilities for NestJS testing                    |
-| `@golevelup/ts-vitest`                  | `packages/testing/ts-vitest`   | Vitest utilities for NestJS testing                   |
+| Package | Path | Purpose |
+|---|---|---|
+| `@golevelup/nestjs-common` | `packages/common` | Shared types and mixins |
+| `@golevelup/nestjs-discovery` | `packages/discovery` | Find providers, controllers, and handlers by metadata |
+| `@golevelup/nestjs-modules` | `packages/modules` | Dynamic module creation helper |
+| `@golevelup/nestjs-rabbitmq` | `packages/rabbitmq` | RabbitMQ pub/sub and RPC integration |
+| `@golevelup/nestjs-hasura` | `packages/hasura` | Hasura event handler integration |
+| `@golevelup/nestjs-graphql-request` | `packages/graphql-request` | GraphQL client dependency injection |
+| `@golevelup/nestjs-webhooks` | `packages/webhooks` | Webhook processing middleware |
+| `@golevelup/nestjs-stripe` | `packages/stripe` | Stripe client and webhook integration |
+| `@golevelup/nestjs-google-cloud-pubsub` | `packages/google-cloud-pubsub` | Google Cloud Pub/Sub integration |
+| `@golevelup/nestjs-graphile-worker` | `packages/graphile-worker` | Graphile Worker job queue integration |
+| `@golevelup/ts-jest` | `packages/testing/ts-jest` | Jest utilities for NestJS testing |
+| `@golevelup/ts-sinon` | `packages/testing/ts-sinon` | Sinon utilities for NestJS testing |
+| `@golevelup/ts-vitest` | `packages/testing/ts-vitest` | Vitest utilities for NestJS testing |
 
 ## Tech Stack
 

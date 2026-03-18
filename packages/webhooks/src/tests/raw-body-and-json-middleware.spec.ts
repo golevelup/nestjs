@@ -9,9 +9,10 @@ import {
 } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { request as pactumRequest, spec } from 'pactum';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { applyRawBodyOnlyTo } from '../webhooks.utilities';
 
-const testBodyFn = jest.fn();
+const testBodyFn = vi.fn();
 
 const expectedBody = { message: 'hello' };
 const expectedRawBody = Buffer.from(JSON.stringify(expectedBody));
