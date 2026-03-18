@@ -11,8 +11,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+
       - name: Install mise tools (Node.js, pnpm)
         uses: jdx/mise-action@v4
+
       - name: Install dependencies
         run: pnpm install
       - name: Configure git
@@ -33,8 +35,10 @@ jobs:
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/master') || startsWith(github.ref, 'refs/heads/main')
     steps:
       - uses: actions/checkout@v6
+
       - name: Install mise tools (Node.js, pnpm)
         uses: jdx/mise-action@v4
+
       - name: Install dependencies
         run: pnpm install
       - name: Build
