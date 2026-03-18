@@ -13,7 +13,7 @@
     "target": "es2017",
     "sourceMap": true,
     "skipLibCheck": true,
-    "lib": ["es7"],
+    "lib": ["ES2017"],
     "baseUrl": "./src",
     "paths": {
       "@golevelup/*": ["./*/src"]
