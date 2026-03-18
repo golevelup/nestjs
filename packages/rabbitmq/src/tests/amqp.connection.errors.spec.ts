@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest';
 import { AmqpConnection } from '../amqp/connection';
 import {
   RpcTimeoutError,

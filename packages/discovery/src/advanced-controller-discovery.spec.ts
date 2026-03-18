@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { METHOD_METADATA, PATH_METADATA } from '@nestjs/common/constants';
 import { Test, TestingModule } from '@nestjs/testing';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { DiscoveryModule, DiscoveryService } from '.';
 import { getComponentMetaAtKey } from './discovery.service';
 

@@ -11,5 +11,7 @@ module.exports = {
     '/graphile-worker/',
     '/graphql-request/',
     '/webhooks/',
+    '/rabbitmq/src/tests/',
+    '/discovery/',
   ],
 };
