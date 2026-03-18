@@ -71,13 +71,11 @@ describe('RMQ Context in Global interceptor', () => {
     await app?.close();
   });
 
-  it('should recognize as rmq context type and not the default (HTTP)', (done) => {
+  it('should recognize as rmq context type and not the default (HTTP)', async () => {
     amqpConnection.publish(exchange, 'x', `test-message`);
     expect.assertions(1);
 
-    setTimeout(() => {
-      expect(validRmqTypeHandler).toHaveBeenCalled();
-      done();
-    }, 100);
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    expect(validRmqTypeHandler).toHaveBeenCalled();
   });
 });

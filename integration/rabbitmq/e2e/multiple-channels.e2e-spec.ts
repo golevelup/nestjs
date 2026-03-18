@@ -194,16 +194,13 @@ describe('Rabbit Multiple Channels', () => {
     vi.resetAllMocks();
   });
 
-  it('should receive pub/sub message over channel 2', (done) => {
+  it('should receive pub/sub message over channel 2', async () => {
     const payload = { message: 'hello' };
     amqpConnection.publish(exchange, `${routePrefix}1`, payload);
 
-    setTimeout(() => {
-      expect(pubsubMessageHandler).toHaveBeenCalledTimes(1);
-      expect(pubsubMessageHandler).toHaveBeenCalledWith(payload);
-
-      done();
-    }, 50);
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(pubsubMessageHandler).toHaveBeenCalledTimes(1);
+    expect(pubsubMessageHandler).toHaveBeenCalledWith(payload);
   });
 
   it('should receive rpc message over channel 1', async () => {
@@ -220,16 +217,13 @@ describe('Rabbit Multiple Channels', () => {
     });
   });
 
-  it('should receive pub/sub message over non-existing channel', (done) => {
+  it('should receive pub/sub message over non-existing channel', async () => {
     const payload = { message: 'hi' };
     amqpConnection.publish(exchange, `${routePrefix}3`, payload);
 
-    setTimeout(() => {
-      expect(pubsubMessageHandler).toHaveBeenCalledTimes(1);
-      expect(pubsubMessageHandler).toHaveBeenCalledWith(payload);
-
-      done();
-    }, 50);
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(pubsubMessageHandler).toHaveBeenCalledTimes(1);
+    expect(pubsubMessageHandler).toHaveBeenCalledWith(payload);
   });
 
   it('should receive rpc message over non-existing channel', async () => {
@@ -246,16 +240,13 @@ describe('Rabbit Multiple Channels', () => {
     });
   });
 
-  it('should receive pub/sub message over default channel', (done) => {
+  it('should receive pub/sub message over default channel', async () => {
     const payload = { message: 'guten tag' };
     amqpConnection.publish(exchange, `${routePrefix}5`, payload);
 
-    setTimeout(() => {
-      expect(pubsubMessageHandler).toHaveBeenCalledTimes(1);
-      expect(pubsubMessageHandler).toHaveBeenCalledWith(payload);
-
-      done();
-    }, 50);
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(pubsubMessageHandler).toHaveBeenCalledTimes(1);
+    expect(pubsubMessageHandler).toHaveBeenCalledWith(payload);
   });
 
   it('should receive rpc message over default channel', async () => {
@@ -272,24 +263,21 @@ describe('Rabbit Multiple Channels', () => {
     });
   });
 
-  it('should receive pub/sub messages in order with prefetch 1 on channel 1', (done) => {
+  it('should receive pub/sub messages in order with prefetch 1 on channel 1', async () => {
     const numbers = [1, 2, 3, 4, 5];
 
     numbers.forEach((n) =>
       amqpConnection.publish(exchange, `${routePrefix}7`, { n }),
     );
 
-    setTimeout(() => {
-      expect(pubsubMessageHandler).toHaveBeenCalledTimes(numbers.length);
-      numbers.forEach((n) =>
-        expect(pubsubMessageHandler).toHaveBeenCalledWith({
-          actual: n,
-          received: n,
-        }),
-      );
-
-      done();
-    }, 50);
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(pubsubMessageHandler).toHaveBeenCalledTimes(numbers.length);
+    numbers.forEach((n) =>
+      expect(pubsubMessageHandler).toHaveBeenCalledWith({
+        actual: n,
+        received: n,
+      }),
+    );
   });
 
   it('should receive rpc messages in order with prefetch 1 on channel 3', async () => {
