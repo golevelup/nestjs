@@ -127,7 +127,7 @@ Commits must follow the **Conventional Commits** specification. Use the interact
 pnpm commit
 ```
 
-Reference issue numbers in the commit footer using `closes #<number>` or `re #<number>`.
+Reference issue numbers in the commit footer using `closes #<number>` or `refs #<number>`.
 
 Branch naming:
 
