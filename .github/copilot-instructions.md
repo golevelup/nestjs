@@ -28,8 +28,8 @@ This is a **pnpm monorepo** containing a collection of NestJS modules and utilit
 - **Framework:** NestJS v11
 - **Package manager:** pnpm v10 (workspaces)
 - **Monorepo tooling:** Lerna v9 (independent versioning)
-- **Unit tests:** Jest v30 with `ts-jest`, or Vitest v4
-- **Integration tests:** Jest with `jest-e2e.json` config
+- **Unit tests:** Vitest v4 (Jest is only used inside the `@golevelup/ts-jest` and `@golevelup/ts-sinon` packages)
+- **Integration tests:** Vitest v4
 - **Linter:** Oxlint
 - **Formatter:** Oxfmt
 - **Versioning/changelog:** Changesets
@@ -165,4 +165,4 @@ All steps must pass before a PR can be merged.
 - Do **not** commit build artifacts (`lib/`, `*.tsbuildinfo`) — they are gitignored.
 - Do **not** skip or delete existing tests to make a build pass.
 - Do **not** introduce breaking changes to public APIs without a corresponding changeset and major version bump.
-- Do **not** use `eslint` or `prettier`; this project uses `oxlint` and `oxfmt` instead.
+- Do **not** use Jest for unit or integration tests; use **Vitest** instead. The only exception is the `@golevelup/ts-jest` package itself.
