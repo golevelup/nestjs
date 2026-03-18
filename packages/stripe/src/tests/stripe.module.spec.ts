@@ -1,11 +1,12 @@
 import { INestApplication, Injectable, SetMetadata } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import Stripe from 'stripe';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { InjectStripeClient } from '../stripe.decorators';
 import { StripeWebhookController } from '../stripe.webhook.controller';
 import { StripeModule } from '../stripe.module';
 
-const testReceiveStripeFn = jest.fn();
+const testReceiveStripeFn = vi.fn();
 
 const TestDecorator = () => SetMetadata('TEST:METADATA', 'metadata');
 

@@ -28,7 +28,7 @@
     "copy-readme": "cp ../../docs/modules/stripe.md ./README.md",
     "build": "tsc --build tsconfig.build.json",
     "build:watch": "tsc --build tsconfig.build.json --watch",
-    "test": "jest",
+    "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },
   "bugs": {
@@ -41,24 +41,12 @@
     "@golevelup/nestjs-discovery": "workspace:^"
   },
   "devDependencies": {
-    "stripe": "^20.4.1"
+    "stripe": "^20.4.1",
+    "vite": "^8.0.0",
+    "vitest": "^4.1.0"
   },
   "peerDependencies": {
     "stripe": "^20.4.1"
-  },
-  "jest": {
-    "moduleFileExtensions": [
-      "js",
-      "json",
-      "ts"
-    ],
-    "rootDir": "src",
-    "testRegex": ".spec.ts$",
-    "transform": {
-      "^.+\\.ts$": "ts-jest"
-    },
-    "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
   },
   "gitHead": "6f97aab8ce9d65dc074750a3ee467ec5ff3b9908"
 }
