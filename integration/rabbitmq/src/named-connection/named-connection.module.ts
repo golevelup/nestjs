@@ -3,10 +3,8 @@ import { Module } from '@nestjs/common';
 import { CONNECTION_NAME } from './named-connection.constants';
 import { NamedConnectionController } from './named-connection.controller';
 
-const rabbitHost =
-  process.env.NODE_ENV === 'ci' ? process.env.RABBITMQ_HOST : 'localhost';
-const rabbitPort =
-  process.env.NODE_ENV === 'ci' ? process.env.RABBITMQ_PORT : '5672';
+const rabbitHost = process.env.RABBITMQ_HOST ?? 'localhost';
+const rabbitPort = process.env.RABBITMQ_PORT ?? '5672';
 const uri = `amqp://rabbitmq:rabbitmq@${rabbitHost}:${rabbitPort}`;
 
 @Module({

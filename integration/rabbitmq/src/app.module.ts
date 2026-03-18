@@ -5,10 +5,8 @@ import { ControllerDiscoveryModule } from './controller-discovery/controller-dis
 import { NamedConnectionModule } from './named-connection/named-connection.module';
 import { RpcService } from './rpc/rpc.service';
 
-const rabbitHost =
-  process.env.NODE_ENV === 'ci' ? process.env.RABBITMQ_HOST : 'localhost';
-const rabbitPort =
-  process.env.NODE_ENV === 'ci' ? process.env.RABBITMQ_PORT : '5672';
+const rabbitHost = process.env.RABBITMQ_HOST ?? 'localhost';
+const rabbitPort = process.env.RABBITMQ_PORT ?? '5672';
 const uri = `amqp://rabbitmq:rabbitmq@${rabbitHost}:${rabbitPort}`;
 
 @Module({

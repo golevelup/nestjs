@@ -11,5 +11,14 @@ export default defineConfig({
     sequence: {
       concurrent: false,
     },
+    server: {
+      deps: {
+        // amqp-connection-manager is externalized by default; inlining it
+        // ensures vi.mock('amqplib', …) applies to its imports too, so that
+        // vi.spyOn(amqplib, 'connect') correctly intercepts calls made from
+        // within the amqp-connection-manager package during tests.
+        inline: ['amqp-connection-manager'],
+      },
+    },
   },
 });
