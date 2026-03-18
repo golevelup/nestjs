@@ -30,7 +30,7 @@
     "copy-readme": "cp ../../docs/webhooks.md ./README.md",
     "build": "tsc --build tsconfig.build.json",
     "build:watch": "tsc --build tsconfig.build.json --watch",
-    "test": "vitest",
+    "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },
   "bugs": {
