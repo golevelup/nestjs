@@ -16,7 +16,7 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r tsx node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ../../jest-e2e.json integration/google-cloud-pubsub"
+    "test:e2e": "jest --config ../../jest-e2e.json apps/google-cloud-pubsub"
   },
   "dependencies": {
     "rimraf": "^6.1.3"

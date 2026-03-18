@@ -1,4 +1,4 @@
 packages:
-  - packages/*
-  - packages/testing/*
-  - integration/*
+  - libs/*
+  - libs/testing/*
+  - apps/*

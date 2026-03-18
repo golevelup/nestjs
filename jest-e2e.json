@@ -8,8 +8,8 @@
     "^.+\\.ts$": ["ts-jest", { "diagnostics": false }]
   },
   "moduleNameMapper": {
-    "^@golevelup/nestjs-rabbitmq$": "<rootDir>/packages/rabbitmq/src",
-    "^@golevelup/nestjs-discovery$": "<rootDir>/packages/discovery/src"
+    "^@golevelup/nestjs-rabbitmq$": "<rootDir>/libs/rabbitmq/src",
+    "^@golevelup/nestjs-discovery$": "<rootDir>/libs/discovery/src"
   },
   "setupFilesAfterEnv": [
     "<rootDir>/jest.setup.js"

@@ -7,7 +7,7 @@ module.exports = {
   preset: 'ts-jest',
   testPathIgnorePatterns: [
     '/ts-vitest/',
-    '/packages/google-cloud-pubsub/e2e/proto/',
+    '/libs/google-cloud-pubsub/e2e/proto/',
     '/graphile-worker/',
     '/graphql-request/',
   ],
