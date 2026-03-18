@@ -10,6 +10,7 @@ module.exports = {
     '/packages/google-cloud-pubsub/e2e/proto/',
     '/graphile-worker/',
     '/graphql-request/',
+    '/stripe/',
     '/webhooks/',
     '/rabbitmq/src/tests/',
     '/discovery/',

@@ -9,12 +9,13 @@ import {
 } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { request as pactumRequest, spec } from 'pactum';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { StripeWebhookHandler } from '../stripe.decorators';
 import { StripeModuleConfig, StripeWebhookMode } from '../stripe.interfaces';
 import { StripePayloadService } from '../stripe.payload.service';
 import { StripeModule } from '../stripe.module';
 
-const testReceiveStripeFn = jest.fn();
+const testReceiveStripeFn = vi.fn();
 const defaultStripeWebhookEndpoint = '/stripe/webhook';
 const eventType = 'payment_intent.created';
 const expectedEvent = { type: eventType };
@@ -79,7 +80,7 @@ describe.each(cases)(
   'Stripe Module %p with controller prefix %p (e2e)',
   (moduleType, controllerPrefix) => {
     let app: INestApplication;
-    let hydratePayloadFn: jest.SpyInstance;
+    let hydratePayloadFn: ReturnType<typeof vi.spyOn>;
 
     const stripeWebhookEndpoint = controllerPrefix
       ? `/${controllerPrefix}/webhook`
@@ -121,7 +122,7 @@ describe.each(cases)(
       const stripePayloadService =
         app.get<StripePayloadService>(StripePayloadService);
 
-      hydratePayloadFn = jest
+      hydratePayloadFn = vi
         .spyOn(stripePayloadService, 'tryHydratePayload')
         .mockResolvedValueOnce(expectedEvent as any);
     });
@@ -153,7 +154,7 @@ describe.each(cases)(
     });
 
     afterEach(async () => {
-      jest.resetAllMocks();
+      vi.resetAllMocks();
       await app.close();
     });
   },
@@ -191,9 +192,9 @@ describe('Stripe Webhook error propagation', () => {
     const stripePayloadService =
       app.get<StripePayloadService>(StripePayloadService);
 
-    jest
-      .spyOn(stripePayloadService, 'tryHydratePayload')
-      .mockImplementationOnce((sig, buff) => buff as any);
+    vi.spyOn(stripePayloadService, 'tryHydratePayload').mockImplementationOnce(
+      (sig, buff) => buff as any,
+    );
   });
 
   it('returns 500 when a webhook handler throws, without crashing due to missing response context', async () => {
@@ -206,7 +207,7 @@ describe('Stripe Webhook error propagation', () => {
   });
 
   afterEach(async () => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
     await app.close();
   });
 });
