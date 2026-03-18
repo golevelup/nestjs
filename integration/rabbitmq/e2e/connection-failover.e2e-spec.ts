@@ -1,4 +1,4 @@
-import { vi, describe, it, inject, beforeAll, afterAll, beforeEach } from 'vitest';
+import { vi, describe, it, beforeAll, afterAll, beforeEach } from 'vitest';
 import {
   RabbitMQModule,
   RabbitRPC,
@@ -9,8 +9,8 @@ import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
 
-const rabbitHost = inject<string>('RABBITMQ_HOST') ?? 'localhost';
-const rabbitPort = inject<string>('RABBITMQ_PORT') ?? '5672';
+const rabbitHost = process.env.RABBITMQ_HOST ?? 'localhost';
+const rabbitPort = process.env.RABBITMQ_PORT ?? '5672';
 const uri = `amqp://user:bitnami@${rabbitHost}:${rabbitPort}2`;
 
 const prefix = 'multiplechannels-';
