@@ -3,9 +3,8 @@ import {
   AmqpConnection,
   RabbitMQModule,
   RabbitSubscribe,
-  MessageSerializer,
-  MessageDeserializer,
 } from '@golevelup/nestjs-rabbitmq';
+import type { MessageSerializer, MessageDeserializer } from '@golevelup/nestjs-rabbitmq';
 import { INestApplication, Injectable, LoggerService } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { createMock } from '@golevelup/ts-vitest';

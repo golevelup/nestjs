@@ -21,7 +21,8 @@ import {
 } from 'rxjs';
 import { catchError, filter, first, map, take, timeout } from 'rxjs/operators';
 import { randomUUID } from 'crypto';
-import { defaultAssertQueueErrorHandler, RabbitMQQueueConfig } from '..';
+import { defaultAssertQueueErrorHandler } from './errorBehaviors';
+import type { RabbitMQQueueConfig } from '../rabbitmq.interfaces';
 import {
   ConnectionInitOptions,
   MessageHandlerOptions,

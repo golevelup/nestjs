@@ -187,7 +187,7 @@ describe('Rabbit Multiple Channels', () => {
   });
 
   afterAll(async () => {
-    await app.close();
+    await app?.close();
   });
 
   beforeEach(() => {

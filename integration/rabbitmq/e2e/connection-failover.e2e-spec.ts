@@ -97,7 +97,7 @@ describe('Rabbit Subscribe and RPC connection failover test', () => {
   });
 
   afterAll(async () => {
-    await app.close();
+    await app?.close();
   });
 
   beforeEach(() => {

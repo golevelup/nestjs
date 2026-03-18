@@ -68,7 +68,7 @@ describe('RMQ Context in Global interceptor', () => {
   });
 
   afterAll(async () => {
-    await app.close();
+    await app?.close();
   });
 
   it('should recognize as rmq context type and not the default (HTTP)', (done) => {
