@@ -10,6 +10,9 @@ export default defineConfig({
       '**/graphile-worker/src/**.spec.ts',
       '**/graphql-request/src/**.spec.ts',
       '**/stripe/src/tests/**.spec.ts',
+      '**/webhooks/src/**/*.spec.ts',
+      '**/rabbitmq/src/tests/**.spec.ts',
+      '**/discovery/src/**.spec.ts',
     ],
     coverage: {
       report: {
@@ -20,6 +23,9 @@ export default defineConfig({
         '**/graphile-worker/src/**.spec.ts',
         '**/graphql-request/src/**.spec.ts',
         '**/stripe/src/tests/**.spec.ts',
+        '**/webhooks/src/**/*.spec.ts',
+        '**/rabbitmq/src/tests/**.spec.ts',
+        '**/discovery/src/**.spec.ts',
       ],
     },
   },
