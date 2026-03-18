@@ -1,5 +1,15 @@
 # Change Log
 
+## 3.0.0
+
+### Major Changes
+
+- Upgraded TypeScript peer dependency from v4 to v5. Internal tests migrated from Jest to Vitest.
+
+### Patch Changes
+
+- Updated dependencies: `@golevelup/nestjs-discovery@7.0.0`
+
 ## 2.0.0
 
 ### Major Changes
