@@ -6,17 +6,9 @@ concurrency:
   group: ${{ github.head_ref }}
   cancel-in-progress: true
 
-env:
-  LATEST_NODE_VERSION: 20
-
 jobs:
   ci:
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node: [24]
-      fail-fast: false
 
     services:
       rabbitmq:
@@ -33,16 +25,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - uses: actions/checkout@v4
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10
-
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
+      - name: Install mise tools (Node.js, pnpm)
+        uses: jdx/mise-action@v2
 
       - name: Install dependencies
         run: pnpm i --prefer-offline
@@ -50,8 +34,11 @@ jobs:
       - name: Build
         run: pnpm build --concurrency=12
 
-      - name: Lint & Typecheck
-        run: pnpm lint && pnpm lerna:typecheck
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm lerna:typecheck
 
       - name: Run unit tests
         run: pnpm test:ci
