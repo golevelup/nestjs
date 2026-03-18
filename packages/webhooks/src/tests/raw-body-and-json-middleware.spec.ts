@@ -8,7 +8,7 @@ import {
   RequestMethod,
 } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import * as request from 'supertest';
+import { request as pactumRequest, spec } from 'pactum';
 import { applyRawBodyOnlyTo } from '../webhooks.utilities';
 
 const testBodyFn = jest.fn();
@@ -55,29 +55,26 @@ describe('Webhooks Raw Body And JSON middleware', () => {
       app = moduleFixture.createNestApplication({
         bodyParser: false,
       });
-      await app.init();
+      await app.listen(0);
+      pactumRequest.setBaseUrl(await app.getUrl());
     });
 
-    it('should make the raw body available on the correct request property', () => {
-      return request(app.getHttpServer())
-        .post('/raw')
-        .send(expectedBody)
-        .expect(201)
-        .then(() => {
-          expect(testBodyFn).toHaveBeenCalledTimes(1);
-          expect(testBodyFn).toHaveBeenCalledWith(expectedRawBody);
-        });
+    afterEach(async () => {
+      await app.close();
     });
 
-    it('should use body parser json on all other routes', () => {
-      return request(app.getHttpServer())
-        .post('/api')
-        .send(expectedBody)
-        .expect(201)
-        .then(() => {
-          expect(testBodyFn).toHaveBeenCalledTimes(1);
-          expect(testBodyFn).toHaveBeenCalledWith(expectedBody);
-        });
+    it('should make the raw body available on the correct request property', async () => {
+      await spec().post('/raw').withJson(expectedBody).expectStatus(201).toss();
+
+      expect(testBodyFn).toHaveBeenCalledTimes(1);
+      expect(testBodyFn).toHaveBeenCalledWith(expectedRawBody);
+    });
+
+    it('should use body parser json on all other routes', async () => {
+      await spec().post('/api').withJson(expectedBody).expectStatus(201).toss();
+
+      expect(testBodyFn).toHaveBeenCalledTimes(1);
+      expect(testBodyFn).toHaveBeenCalledWith(expectedBody);
     });
   });
 });

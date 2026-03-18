@@ -1,6 +1,6 @@
 import { ConsoleLogger, INestApplication, Injectable } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import * as request from 'supertest';
+import { request as pactumRequest, spec } from 'pactum';
 import {
   StripeWebhookHandler,
   StripeThinWebhookHandler,
@@ -90,7 +90,8 @@ describe('Stripe Thin Webhooks (e2e)', () => {
 
     app = moduleFixture.createNestApplication();
     app.useLogger(new SilentLogger());
-    await app.init();
+    await app.listen(0);
+    pactumRequest.setBaseUrl(await app.getUrl());
 
     const stripePayloadService =
       app.get<StripePayloadService>(StripePayloadService);
@@ -100,48 +101,52 @@ describe('Stripe Thin Webhooks (e2e)', () => {
       .mockResolvedValue(expectedThinEvent as any);
   });
 
-  it('routes thin events to their handlers when mode=thin', () => {
-    return request(app.getHttpServer())
+  it('routes thin events to their handlers when mode=thin', async () => {
+    await spec()
       .post(`${defaultStripeWebhookEndpoint}?mode=${StripeWebhookMode.THIN}`)
-      .send(expectedThinEvent)
-      .set('stripe-signature', stripeSig)
-      .expect(201)
-      .then(() => {
-        expect(testReceiveThinStripeFn).toHaveBeenCalledTimes(1);
-        expect(hydratePayloadFn).toHaveBeenCalledTimes(1);
-        expect(hydratePayloadFn).toHaveBeenCalledWith(
-          stripeSig,
-          expectedThinEvent,
-          StripeWebhookMode.THIN,
-        );
-        expect(testReceiveThinStripeFn).toHaveBeenCalledWith(expectedThinEvent);
-      });
+      .withJson(expectedThinEvent)
+      .withHeaders({ 'stripe-signature': stripeSig })
+      .expectStatus(201)
+      .toss();
+
+    expect(testReceiveThinStripeFn).toHaveBeenCalledTimes(1);
+    expect(hydratePayloadFn).toHaveBeenCalledTimes(1);
+    expect(hydratePayloadFn).toHaveBeenCalledWith(
+      stripeSig,
+      expectedThinEvent,
+      StripeWebhookMode.THIN,
+    );
+    expect(testReceiveThinStripeFn).toHaveBeenCalledWith(expectedThinEvent);
   });
 
-  it('returns error for invalid mode parameter', () => {
-    return request(app.getHttpServer())
+  it('returns error for invalid mode parameter', async () => {
+    await spec()
       .post(`${defaultStripeWebhookEndpoint}?mode=invalid`)
-      .send(expectedEvent)
-      .set('stripe-signature', stripeSig)
-      .expect(500);
+      .withJson(expectedEvent)
+      .withHeaders({ 'stripe-signature': stripeSig })
+      .expectStatus(500)
+      .toss();
   });
 
-  it('defaults to snapshot mode when mode parameter is missing', () => {
-    return request(app.getHttpServer())
+  it('defaults to snapshot mode when mode parameter is missing', async () => {
+    await spec()
       .post(defaultStripeWebhookEndpoint)
-      .send(expectedEvent)
-      .set('stripe-signature', stripeSig)
-      .expect(201)
-      .then(() => {
-        expect(hydratePayloadFn).toHaveBeenCalledWith(
-          stripeSig,
-          expectedEvent,
-          StripeWebhookMode.SNAPSHOT,
-        );
-      });
+      .withJson(expectedEvent)
+      .withHeaders({ 'stripe-signature': stripeSig })
+      .expectStatus(201)
+      .toss();
+
+    expect(hydratePayloadFn).toHaveBeenCalledWith(
+      stripeSig,
+      expectedEvent,
+      StripeWebhookMode.SNAPSHOT,
+    );
   });
 
-  afterEach(() => jest.resetAllMocks());
+  afterEach(async () => {
+    jest.resetAllMocks();
+    await app.close();
+  });
 });
 
 // Tests for mixed snapshot and thin handlers
@@ -172,44 +177,48 @@ describe('Stripe Mixed Snapshot and Thin Webhooks (e2e)', () => {
 
     app = moduleFixture.createNestApplication();
     app.useLogger(new SilentLogger());
-    await app.init();
+    await app.listen(0);
+    pactumRequest.setBaseUrl(await app.getUrl());
 
     stripePayloadService = app.get<StripePayloadService>(StripePayloadService);
   });
 
-  it('routes snapshot events to snapshot handlers', () => {
+  it('routes snapshot events to snapshot handlers', async () => {
     jest
       .spyOn(stripePayloadService, 'tryHydratePayload')
       .mockResolvedValue(expectedEvent as any);
 
-    return request(app.getHttpServer())
+    await spec()
       .post(defaultStripeWebhookEndpoint)
-      .send(expectedEvent)
-      .set('stripe-signature', stripeSig)
-      .expect(201)
-      .then(() => {
-        expect(testReceiveStripeFn).toHaveBeenCalledTimes(1);
-        expect(testReceiveThinStripeFn).toHaveBeenCalledTimes(0);
-      });
+      .withJson(expectedEvent)
+      .withHeaders({ 'stripe-signature': stripeSig })
+      .expectStatus(201)
+      .toss();
+
+    expect(testReceiveStripeFn).toHaveBeenCalledTimes(1);
+    expect(testReceiveThinStripeFn).toHaveBeenCalledTimes(0);
   });
 
-  it('routes thin events to thin handlers', () => {
+  it('routes thin events to thin handlers', async () => {
     jest
       .spyOn(stripePayloadService, 'tryHydratePayload')
       .mockResolvedValue(expectedThinEvent as any);
 
-    return request(app.getHttpServer())
+    await spec()
       .post(`${defaultStripeWebhookEndpoint}?mode=${StripeWebhookMode.THIN}`)
-      .send(expectedThinEvent)
-      .set('stripe-signature', stripeSig)
-      .expect(201)
-      .then(() => {
-        expect(testReceiveThinStripeFn).toHaveBeenCalledTimes(1);
-        expect(testReceiveStripeFn).toHaveBeenCalledTimes(0);
-      });
+      .withJson(expectedThinEvent)
+      .withHeaders({ 'stripe-signature': stripeSig })
+      .expectStatus(201)
+      .toss();
+
+    expect(testReceiveThinStripeFn).toHaveBeenCalledTimes(1);
+    expect(testReceiveStripeFn).toHaveBeenCalledTimes(0);
   });
 
-  afterEach(() => jest.resetAllMocks());
+  afterEach(async () => {
+    jest.resetAllMocks();
+    await app.close();
+  });
 });
 
 // Tests for wildcard handlers
@@ -237,60 +246,62 @@ describe('Stripe Wildcard Handlers (e2e)', () => {
 
     app = moduleFixture.createNestApplication();
     app.useLogger(new SilentLogger());
-    await app.init();
+    await app.listen(0);
+    pactumRequest.setBaseUrl(await app.getUrl());
 
     stripePayloadService = app.get<StripePayloadService>(StripePayloadService);
   });
 
-  it('wildcard snapshot handler receives all snapshot events', () => {
+  it('wildcard snapshot handler receives all snapshot events', async () => {
     jest
       .spyOn(stripePayloadService, 'tryHydratePayload')
       .mockResolvedValue(expectedEvent as any);
 
-    return request(app.getHttpServer())
+    await spec()
       .post(defaultStripeWebhookEndpoint)
-      .send(expectedEvent)
-      .set('stripe-signature', stripeSig)
-      .expect(201)
-      .then(() => {
-        expect(testReceiveWildcardFn).toHaveBeenCalledTimes(1);
-        expect(testReceiveWildcardFn).toHaveBeenCalledWith(expectedEvent);
-      });
+      .withJson(expectedEvent)
+      .withHeaders({ 'stripe-signature': stripeSig })
+      .expectStatus(201)
+      .toss();
+
+    expect(testReceiveWildcardFn).toHaveBeenCalledTimes(1);
+    expect(testReceiveWildcardFn).toHaveBeenCalledWith(expectedEvent);
   });
 
-  it('wildcard thin handler receives all thin events', () => {
+  it('wildcard thin handler receives all thin events', async () => {
     jest
       .spyOn(stripePayloadService, 'tryHydratePayload')
       .mockResolvedValue(expectedThinEvent as any);
 
-    return request(app.getHttpServer())
+    await spec()
       .post(`${defaultStripeWebhookEndpoint}?mode=${StripeWebhookMode.THIN}`)
-      .send(expectedThinEvent)
-      .set('stripe-signature', stripeSig)
-      .expect(201)
-      .then(() => {
-        expect(testReceiveThinWildcardFn).toHaveBeenCalledTimes(1);
-        expect(testReceiveThinWildcardFn).toHaveBeenCalledWith(
-          expectedThinEvent,
-        );
-      });
+      .withJson(expectedThinEvent)
+      .withHeaders({ 'stripe-signature': stripeSig })
+      .expectStatus(201)
+      .toss();
+
+    expect(testReceiveThinWildcardFn).toHaveBeenCalledTimes(1);
+    expect(testReceiveThinWildcardFn).toHaveBeenCalledWith(expectedThinEvent);
   });
 
-  it('wildcard handlers do not cross between modes', () => {
+  it('wildcard handlers do not cross between modes', async () => {
     jest
       .spyOn(stripePayloadService, 'tryHydratePayload')
       .mockResolvedValue(expectedEvent as any);
 
-    return request(app.getHttpServer())
+    await spec()
       .post(defaultStripeWebhookEndpoint)
-      .send(expectedEvent)
-      .set('stripe-signature', stripeSig)
-      .expect(201)
-      .then(() => {
-        expect(testReceiveWildcardFn).toHaveBeenCalledTimes(1);
-        expect(testReceiveThinWildcardFn).toHaveBeenCalledTimes(0);
-      });
+      .withJson(expectedEvent)
+      .withHeaders({ 'stripe-signature': stripeSig })
+      .expectStatus(201)
+      .toss();
+
+    expect(testReceiveWildcardFn).toHaveBeenCalledTimes(1);
+    expect(testReceiveThinWildcardFn).toHaveBeenCalledTimes(0);
   });
 
-  afterEach(() => jest.resetAllMocks());
+  afterEach(async () => {
+    jest.resetAllMocks();
+    await app.close();
+  });
 });
