@@ -8,7 +8,7 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import * as request from 'supertest';
+import * as pactum from 'pactum';
 import { StripeWebhookHandler } from '../stripe.decorators';
 import { StripeModuleConfig, StripeWebhookMode } from '../stripe.interfaces';
 import { StripePayloadService } from '../stripe.payload.service';
@@ -115,7 +115,8 @@ describe.each(cases)(
       // For debugging purposes, It's safe to remove silent logger but this prevents polluting the console
       // with expected errors
       app.useLogger(new SilentLogger());
-      await app.init();
+      await app.listen(0);
+      pactum.request.setBaseUrl(await app.getUrl());
 
       const stripePayloadService =
         app.get<StripePayloadService>(StripePayloadService);
@@ -126,31 +127,34 @@ describe.each(cases)(
     });
 
     it('returns an error if the stripe signature is missing', () => {
-      return request(app.getHttpServer())
+      return pactum
+        .spec()
         .post(stripeWebhookEndpoint)
-        .send(expectedEvent)
-        .expect(500);
+        .withJson(expectedEvent)
+        .expectStatus(500);
     });
 
-    it('routes incoming events to their handlers based on event type', () => {
-      return request(app.getHttpServer())
+    it('routes incoming events to their handlers based on event type', async () => {
+      await pactum
+        .spec()
         .post(stripeWebhookEndpoint)
-        .send(expectedEvent)
-        .set('stripe-signature', stripeSig)
-        .expect(201)
-        .then(() => {
-          expect(testReceiveStripeFn).toHaveBeenCalledTimes(1);
-          expect(hydratePayloadFn).toHaveBeenCalledTimes(1);
-          expect(hydratePayloadFn).toHaveBeenCalledWith(
-            stripeSig,
-            expectedEvent,
-            StripeWebhookMode.SNAPSHOT,
-          );
-          expect(testReceiveStripeFn).toHaveBeenCalledWith(expectedEvent);
-        });
+        .withJson(expectedEvent)
+        .withHeaders({ 'stripe-signature': stripeSig })
+        .expectStatus(201);
+      expect(testReceiveStripeFn).toHaveBeenCalledTimes(1);
+      expect(hydratePayloadFn).toHaveBeenCalledTimes(1);
+      expect(hydratePayloadFn).toHaveBeenCalledWith(
+        stripeSig,
+        expectedEvent,
+        StripeWebhookMode.SNAPSHOT,
+      );
+      expect(testReceiveStripeFn).toHaveBeenCalledWith(expectedEvent);
     });
 
-    afterEach(() => jest.resetAllMocks());
+    afterEach(async () => {
+      jest.resetAllMocks();
+      await app.close();
+    });
   },
 );
 
@@ -180,7 +184,8 @@ describe('Stripe Webhook error propagation', () => {
     // (reading 'headersSent')" because the external context had no HTTP
     // response object.
     app.useGlobalFilters(new SentryLikeGlobalFilter());
-    await app.init();
+    await app.listen(0);
+    pactum.request.setBaseUrl(await app.getUrl());
 
     const stripePayloadService =
       app.get<StripePayloadService>(StripePayloadService);
@@ -191,12 +196,16 @@ describe('Stripe Webhook error propagation', () => {
   });
 
   it('returns 500 when a webhook handler throws, without crashing due to missing response context', () => {
-    return request(app.getHttpServer())
+    return pactum
+      .spec()
       .post(defaultStripeWebhookEndpoint)
-      .send(expectedEvent)
-      .set('stripe-signature', stripeSig)
-      .expect(500);
+      .withJson(expectedEvent)
+      .withHeaders({ 'stripe-signature': stripeSig })
+      .expectStatus(500);
   });
 
-  afterEach(() => jest.resetAllMocks());
+  afterEach(async () => {
+    jest.resetAllMocks();
+    await app.close();
+  });
 });

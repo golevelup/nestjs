@@ -6,7 +6,7 @@ import {
 import { Controller, Get, Injectable, Module } from '@nestjs/common';
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
-import request from 'supertest';
+import * as pactum from 'pactum';
 
 const rabbitHost =
   process.env.NODE_ENV === 'ci' ? process.env.RABBITMQ_HOST : 'localhost';
@@ -94,7 +94,8 @@ describe('Rabbit Subscribe and RPC connection failover test', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
-    await app.init();
+    await app.listen(0);
+    pactum.request.setBaseUrl(await app.getUrl());
   });
 
   afterAll(async () => {
@@ -106,6 +107,6 @@ describe('Rabbit Subscribe and RPC connection failover test', () => {
   });
 
   it('should start http server when the connection uri is wrong', () => {
-    return request(app.getHttpServer()).get('/rest').expect(200);
+    return pactum.spec().get('/rest').expectStatus(200);
   });
 });
