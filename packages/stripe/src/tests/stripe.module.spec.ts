@@ -1,7 +1,7 @@
 import { INestApplication, Injectable, SetMetadata } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import Stripe from 'stripe';
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterAll, vi } from 'vitest';
 import { InjectStripeClient } from '../stripe.decorators';
 import { StripeWebhookController } from '../stripe.webhook.controller';
 import { StripeModule } from '../stripe.module';
@@ -32,6 +32,10 @@ describe('Stripe Module', () => {
 
     app = moduleFixture.createNestApplication();
     await app.init();
+  });
+
+  afterAll(async () => {
+    await app.close();
   });
 
   it('exposes a Stripe client', () => {
