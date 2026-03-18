@@ -39,10 +39,6 @@
   "publishConfig": {
     "access": "public"
   },
-  "devDependencies": {
-    "vite": "^8.0.0",
-    "vitest": "^4.1.0"
-  },
   "peerDependencies": {
     "body-parser": "^2.2.0"
   },
