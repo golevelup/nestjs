@@ -1,0 +1,18 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "env": {
+    "node": true,
+    "jest": true
+  },
+  "ignorePatterns": [
+    "**/*.d.ts",
+    "**/node_modules/",
+    "**/*.js",
+    "**/e2e/proto/**/*.ts",
+    "**/proto/**/*.ts"
+  ],
+  "rules": {
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/explicit-function-return-type": "off"
+  }
+}

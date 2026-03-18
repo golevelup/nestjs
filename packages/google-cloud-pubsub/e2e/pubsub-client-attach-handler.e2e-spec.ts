@@ -87,25 +87,21 @@ describe.skip('PubsubClient.attachHandler()', () => {
       const testData = { message: 'hello world', value: 12345 };
       let receivedData: any = null;
 
-      const messageReceivedPromise = new Promise<void>(
-        async (resolve, reject) => {
-          try {
-            await pubsubClient.attachHandler(
-              subscriptionName,
-              async (message: GoogleCloudPubsubMessage) => {
-                try {
-                  receivedData = JSON.parse(message.data.toString());
-                  resolve();
-                } catch (processingError) {
-                  reject(processingError);
-                }
-              },
-            );
-          } catch (attachError) {
-            reject(attachError);
-          }
-        },
-      );
+      const messageReceivedPromise = new Promise<void>((resolve, reject) => {
+        pubsubClient
+          .attachHandler(
+            subscriptionName,
+            async (message: GoogleCloudPubsubMessage) => {
+              try {
+                receivedData = JSON.parse(message.data.toString());
+                resolve();
+              } catch (processingError) {
+                reject(processingError);
+              }
+            },
+          )
+          .catch(reject);
+      });
 
       await pubsubClient.publish(topicConfiguration.name, {
         data: Buffer.from(JSON.stringify(testData)),
@@ -165,25 +161,21 @@ describe.skip('PubsubClient.attachHandler()', () => {
       };
       let receivedData: any = null;
 
-      const messageReceivedPromise = new Promise<void>(
-        async (resolve, reject) => {
-          try {
-            await pubsubClient.attachHandler(
-              subscriptionName,
-              async (message: GoogleCloudPubsubMessage) => {
-                try {
-                  receivedData = message.data;
-                  resolve();
-                } catch (processingError) {
-                  reject(processingError);
-                }
-              },
-            );
-          } catch (attachError) {
-            reject(attachError);
-          }
-        },
-      );
+      const messageReceivedPromise = new Promise<void>((resolve, reject) => {
+        pubsubClient
+          .attachHandler(
+            subscriptionName,
+            async (message: GoogleCloudPubsubMessage) => {
+              try {
+                receivedData = message.data;
+                resolve();
+              } catch (processingError) {
+                reject(processingError);
+              }
+            },
+          )
+          .catch(reject);
+      });
 
       await pubsubClient.publish(topicConfiguration.name, { data: testData });
 
@@ -241,25 +233,21 @@ describe.skip('PubsubClient.attachHandler()', () => {
       };
       let receivedData: any = null;
 
-      const messageReceivedPromise = new Promise<void>(
-        async (resolve, reject) => {
-          try {
-            await pubsubClient.attachHandler(
-              subscriptionName,
-              async (message: GoogleCloudPubsubMessage) => {
-                try {
-                  receivedData = message.data;
-                  resolve();
-                } catch (processingError) {
-                  reject(processingError);
-                }
-              },
-            );
-          } catch (attachError) {
-            reject(attachError);
-          }
-        },
-      );
+      const messageReceivedPromise = new Promise<void>((resolve, reject) => {
+        pubsubClient
+          .attachHandler(
+            subscriptionName,
+            async (message: GoogleCloudPubsubMessage) => {
+              try {
+                receivedData = message.data;
+                resolve();
+              } catch (processingError) {
+                reject(processingError);
+              }
+            },
+          )
+          .catch(reject);
+      });
 
       await pubsubClient.publish(topicConfiguration.name, { data: testData });
 
@@ -323,25 +311,21 @@ describe.skip('PubsubClient.attachHandler()', () => {
       };
       let receivedData: any = null;
 
-      const messageReceivedPromise = new Promise<void>(
-        async (resolve, reject) => {
-          try {
-            await pubsubClient.attachHandler(
-              subscriptionName,
-              async (message: GoogleCloudPubsubMessage) => {
-                try {
-                  receivedData = message.data;
-                  resolve();
-                } catch (processingError) {
-                  reject(processingError);
-                }
-              },
-            );
-          } catch (attachError) {
-            reject(attachError);
-          }
-        },
-      );
+      const messageReceivedPromise = new Promise<void>((resolve, reject) => {
+        pubsubClient
+          .attachHandler(
+            subscriptionName,
+            async (message: GoogleCloudPubsubMessage) => {
+              try {
+                receivedData = message.data;
+                resolve();
+              } catch (processingError) {
+                reject(processingError);
+              }
+            },
+          )
+          .catch(reject);
+      });
 
       await pubsubClient.publish(topicConfiguration.name, { data: testData });
 
@@ -405,25 +389,21 @@ describe.skip('PubsubClient.attachHandler()', () => {
       };
       let receivedData: any = null;
 
-      const messageReceivedPromise = new Promise<void>(
-        async (resolve, reject) => {
-          try {
-            await pubsubClient.attachHandler(
-              subscriptionName,
-              async (message: GoogleCloudPubsubMessage) => {
-                try {
-                  receivedData = message.data;
-                  resolve();
-                } catch (processingError) {
-                  reject(processingError);
-                }
-              },
-            );
-          } catch (attachError) {
-            reject(attachError);
-          }
-        },
-      );
+      const messageReceivedPromise = new Promise<void>((resolve, reject) => {
+        pubsubClient
+          .attachHandler(
+            subscriptionName,
+            async (message: GoogleCloudPubsubMessage) => {
+              try {
+                receivedData = message.data;
+                resolve();
+              } catch (processingError) {
+                reject(processingError);
+              }
+            },
+          )
+          .catch(reject);
+      });
 
       await pubsubClient.publish(topicConfiguration.name, { data: testData });
 

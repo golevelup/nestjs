@@ -6,7 +6,7 @@
   "license": "MIT",
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
-    "format": "prettier --write \"src/**/*.ts\" \"e2e/**/*.ts\"",
+    "format": "oxfmt \"src/**/*.ts\" \"e2e/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --watch --debug",
@@ -34,7 +34,6 @@
     "@types/supertest": "6.0.3",
     "avsc": "^5.7.9",
     "jest": "^30.3.0",
-    "prettier": "^3.8.1",
     "supertest": "7.1.4",
     "ts-jest": "^29.4.6",
     "tsconfig-paths": "4.2.0",
