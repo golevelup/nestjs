@@ -9,6 +9,7 @@ export default defineConfig({
       '**/ts-vitest/src/mocks.spec.ts',
       '**/graphile-worker/src/**.spec.ts',
       '**/graphql-request/src/**.spec.ts',
+      '**/rabbitmq/src/tests/**.spec.ts',
     ],
     coverage: {
       report: {
@@ -18,6 +19,7 @@ export default defineConfig({
         '**/ts-vitest/src/mocks.ts',
         '**/graphile-worker/src/**.spec.ts',
         '**/graphql-request/src/**.spec.ts',
+        '**/rabbitmq/src/tests/**.spec.ts',
       ],
     },
   },

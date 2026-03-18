@@ -29,7 +29,7 @@
     "copy-readme": "cp ../../docs/modules/rabbitmq.md ./README.md",
     "build": "tsc --build tsconfig.build.json",
     "build:watch": "tsc --build tsconfig.build.json --watch",
-    "test": "jest",
+    "test": "vitest",
     "typecheck": "tsc --noEmit"
   },
   "bugs": {
@@ -42,7 +42,9 @@
     "lodash": "^4.17.23"
   },
   "devDependencies": {
-    "@types/amqplib": "^0.10.8"
+    "@types/amqplib": "^0.10.8",
+    "vite": "^8.0.0",
+    "vitest": "^4.1.0"
   },
   "peerDependencies": {
     "@nestjs/common": "^11.1.17",
@@ -52,20 +54,6 @@
   },
   "publishConfig": {
     "access": "public"
-  },
-  "jest": {
-    "moduleFileExtensions": [
-      "js",
-      "json",
-      "ts"
-    ],
-    "rootDir": "src",
-    "testRegex": ".spec.ts$",
-    "transform": {
-      "^.+\\.ts$": "ts-jest"
-    },
-    "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
   },
   "gitHead": "6f97aab8ce9d65dc074750a3ee467ec5ff3b9908"
 }
