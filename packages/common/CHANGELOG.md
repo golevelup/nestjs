@@ -1,5 +1,11 @@
 # Change Log
 
+## 6.0.0
+
+### Major Changes
+
+- Upgraded TypeScript peer dependency from v4 to v5. Internal tests migrated from Jest to Vitest.
+
 ## 5.1.2
 
 ### Patch Changes
