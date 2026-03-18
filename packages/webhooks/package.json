@@ -30,7 +30,7 @@
     "copy-readme": "cp ../../docs/webhooks.md ./README.md",
     "build": "tsc --build tsconfig.build.json",
     "build:watch": "tsc --build tsconfig.build.json --watch",
-    "test": "jest",
+    "test": "vitest",
     "typecheck": "tsc --noEmit"
   },
   "bugs": {
@@ -39,22 +39,12 @@
   "publishConfig": {
     "access": "public"
   },
+  "devDependencies": {
+    "vite": "^8.0.0",
+    "vitest": "^4.1.0"
+  },
   "peerDependencies": {
     "body-parser": "^2.2.0"
-  },
-  "jest": {
-    "moduleFileExtensions": [
-      "js",
-      "json",
-      "ts"
-    ],
-    "rootDir": "src",
-    "testRegex": ".spec.ts$",
-    "transform": {
-      "^.+\\.ts$": "ts-jest"
-    },
-    "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
   },
   "gitHead": "6f97aab8ce9d65dc074750a3ee467ec5ff3b9908"
 }
