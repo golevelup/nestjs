@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { PATH_METADATA } from '@nestjs/common/constants';
 import { Test, TestingModule } from '@nestjs/testing';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { DiscoveryModule, DiscoveryService, withMetaAtKey } from '.';
 
 // Set up a Controller and Provider that can be used by the Testing Module

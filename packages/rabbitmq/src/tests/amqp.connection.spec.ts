@@ -1,3 +1,4 @@
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { AmqpConnection } from '../amqp/connection';
 import { ChannelWrapper } from 'amqp-connection-manager';
 
@@ -23,27 +24,30 @@ describe('AmqpConnection', () => {
   let connection: AmqpConnection;
 
   beforeEach(async () => {
-    jest.clearAllMocks();
-    jest
-      .spyOn(AmqpConnection.prototype as any, 'selectManagedChannel')
-      .mockReturnValue({
-        addSetup: jest.fn((callback) => callback(mockChannel)),
-      });
-    jest
-      .spyOn(AmqpConnection.prototype as any, 'setupSubscriberChannel')
-      .mockReturnValue(mockConsumerTag);
-    jest
-      .spyOn(AmqpConnection.prototype as any, 'setupRpcChannel')
-      .mockReturnValue(mockConsumerTag);
-    jest
-      .spyOn(AmqpConnection.prototype as any, 'setupQueue')
-      .mockResolvedValue('test-queue');
+    vi.clearAllMocks();
+    vi.spyOn(
+      AmqpConnection.prototype as any,
+      'selectManagedChannel',
+    ).mockReturnValue({
+      addSetup: vi.fn((callback) => callback(mockChannel)),
+    });
+    vi.spyOn(
+      AmqpConnection.prototype as any,
+      'setupSubscriberChannel',
+    ).mockReturnValue(mockConsumerTag);
+    vi.spyOn(
+      AmqpConnection.prototype as any,
+      'setupRpcChannel',
+    ).mockReturnValue(mockConsumerTag);
+    vi.spyOn(AmqpConnection.prototype as any, 'setupQueue').mockResolvedValue(
+      'test-queue',
+    );
 
     connection = new AmqpConnection(mockConfig);
   });
 
   it('should return consumer tag when resolves', async () => {
-    const mockHandler = jest.fn();
+    const mockHandler = vi.fn();
     const mockMsgOptions = { queueOptions: { channel: mockChannel } };
     const mockHandlerName = 'mockHandlerName';
     const mockConsumeOptions = {};
@@ -59,7 +63,7 @@ describe('AmqpConnection', () => {
   });
 
   it('should return consumer tag when resolves', async () => {
-    const mockHandler = jest.fn();
+    const mockHandler = vi.fn();
     const mockRpcOptions = { queueOptions: { channel: mockChannel } };
 
     const result = await connection.createRpc(mockHandler, mockRpcOptions);
@@ -68,7 +72,7 @@ describe('AmqpConnection', () => {
   });
 
   it('should inherit consumer tag from global config', async () => {
-    const mockHandler = jest.fn();
+    const mockHandler = vi.fn();
     const mockRpcOptions = {
       queue: 'queue_1',
     };
@@ -90,7 +94,7 @@ describe('AmqpConnection', () => {
   });
 
   it('should use locally defined consumer tag', async () => {
-    const mockHandler = jest.fn();
+    const mockHandler = vi.fn();
     const mockRpcOptions = {
       queue: 'queue_1',
       queueOptions: {
@@ -117,7 +121,7 @@ describe('AmqpConnection', () => {
   });
 
   it('should throw when shared queue handlers use different exchanges', async () => {
-    const mockHandler = jest.fn();
+    const mockHandler = vi.fn();
     await connection.createRpc(mockHandler, {
       queue: 'test-queue',
       exchange: 'exchange-a',
@@ -133,7 +137,7 @@ describe('AmqpConnection', () => {
   });
 
   it('should throw when shared queue handlers use different consumerOptions', async () => {
-    const mockHandler = jest.fn();
+    const mockHandler = vi.fn();
     await connection.createRpc(mockHandler, {
       queue: 'test-queue',
       exchange: 'exchange1',
@@ -151,7 +155,7 @@ describe('AmqpConnection', () => {
   });
 
   it('should only call setupRpcChannel once for shared queue', async () => {
-    const mockHandler = jest.fn();
+    const mockHandler = vi.fn();
     await connection.createRpc(mockHandler, {
       queue: 'shared-queue',
       exchange: 'exchange1',
@@ -167,7 +171,7 @@ describe('AmqpConnection', () => {
   });
 
   describe('publish with defaultPublishOptions', () => {
-    const mockPublish = jest.fn().mockResolvedValue(true);
+    const mockPublish = vi.fn().mockResolvedValue(true);
 
     beforeEach(() => {
       // _managedChannel is private; bracket notation is used to inject the mock in tests

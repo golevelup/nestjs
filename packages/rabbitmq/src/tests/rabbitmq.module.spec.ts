@@ -1,10 +1,11 @@
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { Injectable } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { RABBIT_HANDLER } from '../rabbitmq.constants';
 import { RabbitSubscribe } from '../rabbitmq.decorators';
 import { resolveHandlerConfigs } from '../rabbitmq.module';
 
-const handlerSpy = jest.fn();
+const handlerSpy = vi.fn();
 
 @Injectable()
 class TestService {
