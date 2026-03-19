@@ -43,9 +43,7 @@
     "lodash": "^4.17.23"
   },
   "devDependencies": {
-    "@types/amqplib": "^0.10.8",
-    "vite": "^8.0.1",
-    "vitest": "^4.1.0"
+    "@types/amqplib": "^0.10.8"
   },
   "peerDependencies": {
     "@nestjs/common": "^11.1.17",
