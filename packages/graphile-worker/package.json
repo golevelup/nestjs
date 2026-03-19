@@ -54,8 +54,6 @@
   },
   "devDependencies": {
     "graphile-worker": "^0.16.6",
-    "vite": "^8.0.0",
-    "vitest": "^4.1.0",
     "zod": "^4.3.6"
   },
   "peerDependencies": {
