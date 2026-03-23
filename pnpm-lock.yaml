@@ -354,7 +354,7 @@ importers:
   packages/testing/ts-jest:
     devDependencies:
       '@aws-sdk/client-s3':
-        specifier: ^3.1012.0
+        specifier: ^3.1014.0
         version: 3.1014.0
       '@jest/globals':
         specifier: ^30.3.0
