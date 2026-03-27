@@ -348,8 +348,8 @@ importers:
         version: link:../discovery
     devDependencies:
       stripe:
-        specifier: ^20.4.1
-        version: 20.4.1(@types/node@25.5.0)
+        specifier: ^21.0.0
+        version: 21.0.1(@types/node@25.5.0)
 
   packages/testing/ts-jest:
     devDependencies:
@@ -7075,11 +7075,11 @@ packages:
     resolution: {integrity: sha512-6fPc+R4ihwqP6N/aIv2f1gMH8lOVtWQHoqC4yK6oSDVVocumAsfCqjkXnqiYMhmMwS/mEHLp7Vehlt3ql6lEig==}
     engines: {node: '>=8'}
 
-  stripe@20.4.1:
-    resolution: {integrity: sha512-axCguHItc8Sxt0HC6aSkdVRPffjYPV7EQqZRb2GkIa8FzWDycE7nHJM19C6xAIynH1Qp1/BHiopSi96jGBxT0w==}
-    engines: {node: '>=16'}
+  stripe@21.0.1:
+    resolution: {integrity: sha512-ocv0j7dWttswDWV2XL/kb6+yiLpDXNXL3RQAOB5OB2kr49z0cEatdQc12+zP/j5nrXk6rAsT4N3y/NUvBbK7Pw==}
+    engines: {node: '>=18'}
     peerDependencies:
-      '@types/node': '>=16'
+      '@types/node': '>=18'
     peerDependenciesMeta:
       '@types/node':
         optional: true
@@ -16076,7 +16076,7 @@ snapshots:
 
   strip-json-comments@3.1.1: {}
 
-  stripe@20.4.1(@types/node@25.5.0):
+  stripe@21.0.1(@types/node@25.5.0):
     optionalDependencies:
       '@types/node': 25.5.0
 
