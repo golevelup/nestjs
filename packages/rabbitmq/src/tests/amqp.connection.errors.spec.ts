@@ -201,13 +201,12 @@ describe('Error logging in message handlers', () => {
     );
   });
 
-  async function waitForOutstandingProcessing(
-    conn: AmqpConnection,
-  ): Promise<void> {
-    const set: Set<Promise<void>> = (conn as any).outstandingMessageProcessing;
+  async function waitForMessageProcessing(conn: AmqpConnection): Promise<void> {
+    const messageProcessingSet: Set<Promise<void>> = (conn as any)
+      .outstandingMessageProcessing;
     // Poll until the set is empty (all message processing promises resolved)
-    while (set.size > 0) {
-      await Promise.allSettled(set);
+    while (messageProcessingSet.size > 0) {
+      await Promise.allSettled(messageProcessingSet);
     }
   }
 
@@ -227,7 +226,7 @@ describe('Error logging in message handlers', () => {
       const msg = buildMockMessage(Buffer.from(JSON.stringify({ key: 'val' })));
 
       wrappedConsumer(msg);
-      await waitForOutstandingProcessing(connection);
+      await waitForMessageProcessing(connection);
 
       expect(mockLoggerError).toHaveBeenCalledWith(
         expect.stringContaining('myTestHandler'),
@@ -251,7 +250,7 @@ describe('Error logging in message handlers', () => {
       const msg = buildMockMessage(Buffer.from('this is not valid json!!!'));
 
       wrappedConsumer(msg);
-      await waitForOutstandingProcessing(connection);
+      await waitForMessageProcessing(connection);
 
       expect(mockLoggerError).toHaveBeenCalledWith(
         expect.stringContaining('malformedHandler'),
@@ -276,7 +275,7 @@ describe('Error logging in message handlers', () => {
       const msg = buildMockMessage(Buffer.alloc(0));
 
       wrappedConsumer(msg);
-      await waitForOutstandingProcessing(connection);
+      await waitForMessageProcessing(connection);
 
       expect(mockLoggerError).toHaveBeenCalledWith(
         expect.stringContaining('emptyPayloadHandler'),
