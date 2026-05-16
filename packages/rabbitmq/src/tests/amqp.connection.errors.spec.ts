@@ -1,4 +1,11 @@
-import { vi, describe, it, expect, beforeEach } from 'vitest';
+import {
+  vi,
+  describe,
+  it,
+  expect,
+  beforeEach,
+  type MockInstance,
+} from 'vitest';
 import { AmqpConnection } from '../amqp/connection';
 import {
   RpcTimeoutError,
@@ -170,7 +177,9 @@ function buildMockMessage(content: Buffer): ConsumeMessage {
 
 describe('Error logging in message handlers', () => {
   let connection: AmqpConnection;
-  let mockLoggerError: ReturnType<typeof vi.fn>;
+  let mockLoggerError: MockInstance<
+    (message: any, ...optionalParams: any[]) => any
+  >;
   let mockChannel: {
     consume: ReturnType<typeof vi.fn>;
     ack: ReturnType<typeof vi.fn>;
@@ -179,7 +188,7 @@ describe('Error logging in message handlers', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    mockLoggerError = vi.fn();
+    mockLoggerError = vi.fn<(message: any, ...optionalParams: any[]) => any>();
     mockChannel = {
       consume: vi.fn().mockResolvedValue({ consumerTag: 'test-consumer-tag' }),
       ack: vi.fn(),
