@@ -13,6 +13,7 @@
     "target": "es2017",
     "sourceMap": true,
     "skipLibCheck": true,
+    "ignoreDeprecations": "6.0",
     "lib": ["ES2017"],
     "baseUrl": "./src",
     "paths": {
