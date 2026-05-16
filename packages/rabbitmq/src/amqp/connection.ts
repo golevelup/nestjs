@@ -617,6 +617,11 @@ export class AmqpConnection {
           if (isNull(msg)) {
             return;
           } else {
+            this.logger.error(
+              `Error processing message on handler [${originalHandlerName}]`,
+              e instanceof Error ? e.stack : String(e),
+            );
+
             const errorHandler =
               msgOptions.errorHandler ||
               getHandlerForLegacyBehavior(
@@ -749,6 +754,11 @@ export class AmqpConnection {
         channel.ack(msg);
       }
     } catch (e) {
+      this.logger.error(
+        'Error processing batch of messages',
+        e instanceof Error ? e.stack : String(e),
+      );
+
       const batchErrorHandler = msgOptions.batchOptions?.errorHandler;
       const errorHandler = msgOptions.errorHandler;
       const defaultErrorHandler = getHandlerForLegacyBehavior(
@@ -980,6 +990,11 @@ export class AmqpConnection {
           if (msg == null) {
             return;
           } else {
+            this.logger.error(
+              `Error processing RPC message with routing key "${msg.fields.routingKey}"`,
+              e instanceof Error ? e.stack : String(e),
+            );
+
             const matchedOptions =
               handlers && handlers.length > 0
                 ? (this.findRpcHandler(handlers, msg.fields.routingKey)
