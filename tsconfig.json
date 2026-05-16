@@ -14,6 +14,7 @@
     "sourceMap": true,
     "skipLibCheck": true,
     "ignoreDeprecations": "6.0",
+    "types": ["node"],
     "lib": ["ES2017"],
     "baseUrl": "./src",
     "paths": {
