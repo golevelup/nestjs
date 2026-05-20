@@ -1,5 +1,12 @@
 # Change Log
 
+## 7.0.1
+
+### Patch Changes
+
+- chore(deps): update lodash to v4.18.1 [security]
+- chore(deps): update @nestjs/core and @nestjs/common to v11.1.21 [security]
+
 ## 7.0.0
 
 ### Major Changes

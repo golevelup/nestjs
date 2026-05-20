@@ -1,5 +1,13 @@
 # Change Log
 
+## 9.0.2
+
+### Patch Changes
+
+- chore(deps): update lodash to v4.18.1 [security]
+- chore(deps): update @nestjs/core and @nestjs/common to v11.1.21 [security]
+- Updated dependencies: `@golevelup/nestjs-discovery@7.0.1`
+
 ## 9.0.1
 
 ### Patch Changes
