@@ -1,5 +1,11 @@
 # Change Log
 
+## 6.0.1
+
+### Patch Changes
+
+- chore(deps): update lodash to v4.18.1 [security]
+
 ## 6.0.0
 
 ### Major Changes
