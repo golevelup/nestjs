@@ -19,7 +19,7 @@
     "@types/express": "5.0.6",
     "@types/jest": "^30.0.0",
     "@types/lodash": "^4.17.24",
-    "@types/node": "^25.5.0",
+    "@types/node": "^25.8.0",
     "all-contributors-cli": "^6.26.1",
     "commitizen": "^4.3.1",
     "cz-conventional-changelog": "^3.3.0",
@@ -37,8 +37,8 @@
     "vitepress": "^1.6.4"
   },
   "optionalDependencies": {
-    "@vitest/coverage-v8": "^4.1.0",
-    "vitest": "^4.1.0"
+    "@vitest/coverage-v8": "^4.1.6",
+    "vitest": "^4.1.6"
   },
   "scripts": {
     "commit": "pnpm git-cz",

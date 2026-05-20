@@ -8,8 +8,7 @@
     "esModuleInterop": true,
     "target": "es6",
     "sourceMap": true,
-    "outDir": "./dist",
-    "baseUrl": "./"
+    "outDir": "./dist"
   },
   "exclude": ["node_modules"]
 }

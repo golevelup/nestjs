@@ -2,3 +2,9 @@ packages:
   - packages/*
   - packages/testing/*
   - integration/*
+allowBuilds:
+  '@nestjs/core': true
+  esbuild: true
+  nx: true
+  protobufjs: true
+  unrs-resolver: true

@@ -201,7 +201,7 @@ export class AmqpConnection {
     return this._channels;
   }
 
-  get managedChannels() {
+  get managedChannels(): Record<string, ChannelWrapper> {
     return this._managedChannels;
   }
 

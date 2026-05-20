@@ -13,6 +13,7 @@
     "target": "es2017",
     "sourceMap": true,
     "skipLibCheck": true,
+    "types": ["node"],
     "lib": ["ES2017"],
     "baseUrl": "./src",
     "paths": {

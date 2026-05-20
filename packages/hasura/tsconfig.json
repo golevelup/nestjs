@@ -4,7 +4,8 @@
     "outDir": "./lib",
     "rootDir": "./src",
     "skipLibCheck": true,
-    "allowJs": true
+    "allowJs": true,
+    "types": ["node", "jest"]
   },
   "include": ["./src"],
   "references": [{ "path": "../discovery" }, { "path": "../modules" }]
