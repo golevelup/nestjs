@@ -37,8 +37,8 @@
     "vitepress": "^1.6.4"
   },
   "optionalDependencies": {
-    "@vitest/coverage-v8": "^4.1.6",
-    "vitest": "^4.1.6"
+    "@vitest/coverage-v8": "^4.1.7",
+    "vitest": "^4.1.7"
   },
   "scripts": {
     "commit": "pnpm git-cz",
