@@ -1,5 +1,11 @@
 # Change Log
 
+## 9.0.1
+
+### Patch Changes
+
+- Improve RabbitMQ logging output for clearer diagnostics.
+
 ## 9.0.0
 
 ### Major Changes
