@@ -101,10 +101,10 @@ importers:
         version: 1.6.4(@algolia/client-search@5.18.0)(@types/node@25.8.0)(axios@1.13.6)(lightningcss@1.32.0)(postcss@8.5.8)(search-insights@2.17.3)(terser@5.44.1)(typescript@5.9.3)
     optionalDependencies:
       '@vitest/coverage-v8':
-        specifier: ^4.1.6
+        specifier: ^4.1.7
         version: 4.1.7(vitest@4.1.7)
       vitest:
-        specifier: ^4.1.6
+        specifier: ^4.1.7
         version: 4.1.7(@opentelemetry/api@1.9.0)(@types/node@25.8.0)(@vitest/coverage-v8@4.1.7)(vite@8.0.1(@types/node@25.8.0)(esbuild@0.27.2)(jiti@2.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2))
 
   integration/google-cloud-pubsub:
@@ -9398,7 +9398,7 @@ snapshots:
       proggy: 3.0.0
       promise-all-reject-late: 1.0.1
       promise-call-limit: 3.0.2
-      semver: 7.7.3
+      semver: 7.8.0
       ssri: 12.0.0
       treeverse: 3.0.0
       walk-up-path: 4.0.0
@@ -9407,11 +9407,11 @@ snapshots:
 
   '@npmcli/fs@4.0.0':
     dependencies:
-      semver: 7.7.3
+      semver: 7.8.0
 
   '@npmcli/fs@5.0.0':
     dependencies:
-      semver: 7.7.2
+      semver: 7.8.0
 
   '@npmcli/git@6.0.3':
     dependencies:
@@ -9421,7 +9421,7 @@ snapshots:
       npm-pick-manifest: 10.0.0
       proc-log: 5.0.0
       promise-retry: 2.0.1
-      semver: 7.7.3
+      semver: 7.8.0
       which: 5.0.0
 
   '@npmcli/git@7.0.2':
@@ -9432,7 +9432,7 @@ snapshots:
       lru-cache: 11.2.7
       npm-pick-manifest: 11.0.3
       proc-log: 6.1.0
-      semver: 7.7.3
+      semver: 7.8.0
       which: 6.0.1
 
   '@npmcli/installed-package-contents@3.0.0':
@@ -9458,7 +9458,7 @@ snapshots:
       json-parse-even-better-errors: 5.0.0
       pacote: 21.5.0
       proc-log: 6.1.0
-      semver: 7.7.3
+      semver: 7.8.0
     transitivePeerDependencies:
       - supports-color
 
@@ -9477,7 +9477,7 @@ snapshots:
       hosted-git-info: 9.0.2
       json-parse-even-better-errors: 5.0.0
       proc-log: 6.1.0
-      semver: 7.7.3
+      semver: 7.8.0
       validate-npm-package-license: 3.0.4
 
   '@npmcli/promise-spawn@8.0.3':
@@ -9518,7 +9518,7 @@ snapshots:
       enquirer: 2.3.6
       minimatch: 10.2.4
       nx: 22.5.4
-      semver: 7.7.3
+      semver: 7.8.0
       tslib: 2.8.1
       yargs-parser: 21.1.1
 
@@ -11239,7 +11239,7 @@ snapshots:
       handlebars: 4.7.8
       json-stringify-safe: 5.0.1
       meow: 8.1.2
-      semver: 7.7.3
+      semver: 7.8.0
       split: 1.0.1
 
   conventional-commit-types@3.0.0: {}
@@ -11757,10 +11757,6 @@ snapshots:
     dependencies:
       bser: 2.1.1
 
-  fdir@6.5.0(picomatch@4.0.3):
-    optionalDependencies:
-      picomatch: 4.0.3
-
   fdir@6.5.0(picomatch@4.0.4):
     optionalDependencies:
       picomatch: 4.0.4
@@ -12016,7 +12012,7 @@ snapshots:
   git-semver-tags@5.0.1:
     dependencies:
       meow: 8.1.2
-      semver: 7.7.3
+      semver: 7.8.0
 
   git-up@7.0.0:
     dependencies:
@@ -12151,7 +12147,7 @@ snapshots:
       chalk: 4.1.2
       debug: 4.4.3(supports-color@5.5.0)
       interpret: 3.1.1
-      semver: 7.7.3
+      semver: 7.8.0
       tslib: 2.8.1
       yargs: 17.7.2
     transitivePeerDependencies:
@@ -12385,7 +12381,7 @@ snapshots:
       npm-package-arg: 13.0.1
       promzard: 2.0.0
       read: 4.1.0
-      semver: 7.7.3
+      semver: 7.8.0
       validate-npm-package-license: 3.0.4
       validate-npm-package-name: 6.0.2
 
@@ -12850,7 +12846,7 @@ snapshots:
       jest-message-util: 30.3.0
       jest-util: 30.3.0
       pretty-format: 30.3.0
-      semver: 7.7.3
+      semver: 7.8.0
       synckit: 0.11.12
     transitivePeerDependencies:
       - supports-color
@@ -13091,7 +13087,7 @@ snapshots:
       npm-package-arg: 13.0.1
       npm-registry-fetch: 19.1.0
       proc-log: 5.0.0
-      semver: 7.7.3
+      semver: 7.8.0
       sigstore: 4.1.0
       ssri: 12.0.0
     transitivePeerDependencies:
@@ -13556,9 +13552,9 @@ snapshots:
       make-fetch-happen: 15.0.2
       nopt: 9.0.0
       proc-log: 6.1.0
-      semver: 7.7.3
+      semver: 7.8.0
       tar: 7.5.11
-      tinyglobby: 0.2.12
+      tinyglobby: 0.2.16
       which: 6.0.1
     transitivePeerDependencies:
       - supports-color
@@ -13601,7 +13597,7 @@ snapshots:
     dependencies:
       hosted-git-info: 4.1.0
       is-core-module: 2.16.1
-      semver: 7.7.3
+      semver: 7.8.0
       validate-npm-package-license: 3.0.4
 
   normalize-path@3.0.0: {}
@@ -13616,11 +13612,11 @@ snapshots:
 
   npm-install-checks@7.1.2:
     dependencies:
-      semver: 7.7.3
+      semver: 7.8.0
 
   npm-install-checks@8.0.0:
     dependencies:
-      semver: 7.7.3
+      semver: 7.8.0
 
   npm-normalize-package-bin@4.0.0: {}
 
@@ -13630,14 +13626,14 @@ snapshots:
     dependencies:
       hosted-git-info: 8.1.0
       proc-log: 5.0.0
-      semver: 7.7.3
+      semver: 7.8.0
       validate-npm-package-name: 6.0.2
 
   npm-package-arg@13.0.1:
     dependencies:
       hosted-git-info: 9.0.2
       proc-log: 5.0.0
-      semver: 7.7.3
+      semver: 7.8.0
       validate-npm-package-name: 6.0.2
 
   npm-packlist@10.0.3:
@@ -13650,14 +13646,14 @@ snapshots:
       npm-install-checks: 7.1.2
       npm-normalize-package-bin: 4.0.0
       npm-package-arg: 12.0.2
-      semver: 7.7.3
+      semver: 7.8.0
 
   npm-pick-manifest@11.0.3:
     dependencies:
       npm-install-checks: 8.0.0
       npm-normalize-package-bin: 5.0.0
       npm-package-arg: 13.0.1
-      semver: 7.7.3
+      semver: 7.8.0
 
   npm-registry-fetch@19.1.0:
     dependencies:
@@ -13704,7 +13700,7 @@ snapshots:
       ora: 5.3.0
       picocolors: 1.1.1
       resolve.exports: 2.0.3
-      semver: 7.7.3
+      semver: 7.8.0
       string-width: 4.2.3
       tar-stream: 2.2.0
       tmp: 0.2.3
@@ -14913,14 +14909,13 @@ snapshots:
 
   tinyglobby@0.2.15:
     dependencies:
-      fdir: 6.5.0(picomatch@4.0.3)
-      picomatch: 4.0.3
+      fdir: 6.5.0(picomatch@4.0.4)
+      picomatch: 4.0.4
 
   tinyglobby@0.2.16:
     dependencies:
       fdir: 6.5.0(picomatch@4.0.4)
       picomatch: 4.0.4
-    optional: true
 
   tinypool@2.1.0: {}
 
