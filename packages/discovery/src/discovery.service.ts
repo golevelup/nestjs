@@ -98,12 +98,12 @@ export class DiscoveryService {
       await this.controllerMethodsWithMetaAtKey<T>(metaKey)
     ).filter((x) => metaFilter(x.meta));
 
-    const uniqueMethods = new Map();
+    const uniqueMethods = new Map<Function, DiscoveredMethodWithMeta<T>>();
     [...methodsFromDecoratedControllers, ...decoratedMethods].forEach(
       (method) => {
-        const methodIdentifier = `${method.discoveredMethod.parentClass.name}#${method.discoveredMethod.methodName}`;
-        if (!uniqueMethods.has(methodIdentifier)) {
-          uniqueMethods.set(methodIdentifier, method);
+        const { handler } = method.discoveredMethod;
+        if (!uniqueMethods.has(handler)) {
+          uniqueMethods.set(handler, method);
         }
       },
     );
