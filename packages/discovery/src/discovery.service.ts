@@ -175,7 +175,7 @@ export class DiscoveryService {
       .map((name) =>
         this.extractMethodMetaAtKey<T>(metaKey, component, prototype, name),
       )
-      .filter((x) => !!x.meta);
+      .filter((x) => x.meta !== null && x.meta !== undefined);
   }
 
   /**

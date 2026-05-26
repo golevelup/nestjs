@@ -16,6 +16,8 @@ const ExampleClassSymbol = Symbol('ExampleClassSymbol');
 
 const ExampleMethodSymbol = Symbol('ExampleMethodSymbol');
 
+const FalsyMethodSymbol = Symbol('FalsyMethodSymbol');
+
 const NullProviderSymbol = Symbol('NullProvider');
 
 const ExampleClassDecorator = (config: any) =>
@@ -46,6 +48,12 @@ class ExampleController {
   @ExampleMethodDecorator('example controller method meta')
   public get() {
     return 42;
+  }
+
+  @Get('falsy-route')
+  @SetMetadata(FalsyMethodSymbol, false)
+  public falsyMeta() {
+    return false;
   }
 }
 
@@ -149,12 +157,13 @@ describe('Discovery', () => {
         await discoveryService.controllerMethodsWithMetaAtKey<string>(
           PATH_METADATA,
         );
-      const [first] = controllerMethodMeta;
-      expect(first).toBeDefined();
+      expect(controllerMethodMeta.length).toBe(2);
 
-      expect(controllerMethodMeta.length).toBe(1);
+      const meta = controllerMethodMeta.find(
+        (method) => method.discoveredMethod.methodName === 'get',
+      );
 
-      const meta = controllerMethodMeta[0];
+      expect(meta).toBeDefined();
 
       expect(meta).toMatchObject({
         meta: 'route',
@@ -172,9 +181,24 @@ describe('Discovery', () => {
         },
       });
 
-      expect(meta.discoveredMethod.parentClass.instance).toBeInstanceOf(
+      expect(meta?.discoveredMethod.parentClass.instance).toBeInstanceOf(
         ExampleController,
       );
+    });
+
+    it('should preserve falsy method metadata values', async () => {
+      const controllerMethodMeta =
+        await discoveryService.controllerMethodsWithMetaAtKey<boolean>(
+          FalsyMethodSymbol,
+        );
+
+      expect(controllerMethodMeta).toHaveLength(1);
+      expect(controllerMethodMeta[0]).toMatchObject({
+        meta: false,
+        discoveredMethod: {
+          methodName: 'falsyMeta',
+        },
+      });
     });
   });
 });
