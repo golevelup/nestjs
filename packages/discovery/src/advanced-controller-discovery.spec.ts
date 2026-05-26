@@ -61,6 +61,34 @@ class AdminController {
 })
 class ExampleModule {}
 
+function createDuplicateController(path: string, response: string) {
+  @Controller(path)
+  @Roles(['guest'])
+  class DuplicateController {
+    @Get(response)
+    method() {
+      return response;
+    }
+  }
+
+  return DuplicateController;
+}
+
+const DuplicateControllerOne = createDuplicateController(
+  'duplicate-one',
+  'duplicate-route-one',
+);
+const DuplicateControllerTwo = createDuplicateController(
+  'duplicate-two',
+  'duplicate-route-two',
+);
+
+@Module({
+  imports: [DiscoveryModule],
+  controllers: [DuplicateControllerOne, DuplicateControllerTwo],
+})
+class DuplicateControllerModule {}
+
 describe('Advanced Controller Discovery', () => {
   let app: TestingModule;
   let discover: DiscoveryService;
@@ -147,5 +175,42 @@ describe('Advanced Controller Discovery', () => {
       verb: RequestMethod.PUT,
       path: 'guest/some-put-route',
     });
+  });
+
+  it('deduplicates methods by handler identity', async () => {
+    const duplicateApp = await Test.createTestingModule({
+      imports: [DuplicateControllerModule],
+    }).compile();
+
+    await duplicateApp.init();
+
+    const duplicateDiscover =
+      duplicateApp.get<DiscoveryService>(DiscoveryService);
+
+    const methods =
+      await duplicateDiscover.methodsAndControllerMethodsWithMetaAtKey<
+        string[]
+      >(rolesKey, (x) => x.includes('guest'));
+
+    expect(methods).toHaveLength(2);
+
+    const fullPaths = methods.map((x) => {
+      const controllerPath = getComponentMetaAtKey<string>(
+        PATH_METADATA,
+        x.discoveredMethod.parentClass,
+      );
+
+      const methodPath = Reflect.getMetadata(
+        PATH_METADATA,
+        x.discoveredMethod.handler,
+      );
+
+      return `${controllerPath}/${methodPath}`;
+    });
+
+    expect(fullPaths).toContain('duplicate-one/duplicate-route-one');
+    expect(fullPaths).toContain('duplicate-two/duplicate-route-two');
+
+    await duplicateApp.close();
   });
 });

@@ -225,9 +225,6 @@ importers:
       '@nestjs/core':
         specifier: ^11.1.21
         version: 11.1.21(@nestjs/common@11.1.21(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/platform-express@11.1.21)(reflect-metadata@0.2.2)(rxjs@7.8.2)
-      lodash:
-        specifier: ^4.18.1
-        version: 4.18.1
 
   packages/google-cloud-pubsub:
     dependencies:
