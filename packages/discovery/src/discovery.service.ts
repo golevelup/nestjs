@@ -4,7 +4,6 @@ import { PATH_METADATA } from '@nestjs/common/constants';
 import { STATIC_CONTEXT } from '@nestjs/core/injector/constants';
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 import { Module } from '@nestjs/core/injector/module';
-import { flatMap, get, isNil, some, uniqBy } from 'lodash';
 import {
   DiscoveredClass,
   DiscoveredClassWithMeta,
@@ -44,11 +43,11 @@ export function getComponentMetaAtKey<T>(
 export const withMetaAtKey: (key: MetaKey) => Filter<DiscoveredClass> =
   (key) => (component) => {
     const metaTargets: Function[] = [
-      get(component, 'instance.constructor') as any,
+      component?.instance?.constructor,
       component.injectType as Function,
-    ].filter((x) => !isNil(x));
+    ].filter((x) => !!x);
 
-    return some(metaTargets, (x) => Reflect.getMetadata(key, x));
+    return metaTargets.some((x) => Reflect.getMetadata(key, x));
   };
 
 @Injectable()
@@ -86,8 +85,7 @@ export class DiscoveryService {
       await this.controllersWithMetaAtKey<T>(metaKey)
     ).filter((x) => metaFilter(x.meta));
 
-    const methodsFromDecoratedControllers = flatMap(
-      controllersWithMeta,
+    const methodsFromDecoratedControllers = controllersWithMeta.flatMap(
       (controller) => {
         return this.classMethodsWithMetaAtKey<T>(
           controller.discoveredClass,
@@ -100,10 +98,16 @@ export class DiscoveryService {
       await this.controllerMethodsWithMetaAtKey<T>(metaKey)
     ).filter((x) => metaFilter(x.meta));
 
-    return uniqBy(
-      [...methodsFromDecoratedControllers, ...decoratedMethods],
-      (x) => x.discoveredMethod.handler,
+    const uniqueMethods = new Map();
+    [...methodsFromDecoratedControllers, ...decoratedMethods].forEach(
+      (method) => {
+        const methodIdentifier = `${method.discoveredMethod.parentClass.name}#${method.discoveredMethod.methodName}`;
+        if (!uniqueMethods.has(methodIdentifier)) {
+          uniqueMethods.set(methodIdentifier, method);
+        }
+      },
     );
+    return Array.from(uniqueMethods.values());
   }
 
   /**
@@ -171,7 +175,7 @@ export class DiscoveryService {
       .map((name) =>
         this.extractMethodMetaAtKey<T>(metaKey, component, prototype, name),
       )
-      .filter((x) => !isNil(x.meta));
+      .filter((x) => !!x.meta);
   }
 
   /**
@@ -185,7 +189,7 @@ export class DiscoveryService {
   ): Promise<DiscoveredMethodWithMeta<T>[]> {
     const providers = await this.providers(providerFilter);
 
-    return flatMap(providers, (provider) =>
+    return providers.flatMap((provider) =>
       this.classMethodsWithMetaAtKey<T>(provider, metaKey),
     );
   }
@@ -201,7 +205,7 @@ export class DiscoveryService {
   ): Promise<DiscoveredMethodWithMeta<T>[]> {
     const controllers = await this.controllers(controllerFilter);
 
-    return flatMap(controllers, (controller) =>
+    return controllers.flatMap((controller) =>
       this.classMethodsWithMetaAtKey<T>(controller, metaKey),
     );
   }
@@ -224,7 +228,7 @@ export class DiscoveryService {
       instance: instanceHost.instance,
       // TODO: remove nullish coalescing operator to return undefined when dropping NestJS 10 support
       injectType: wrapper.metatype ?? undefined,
-      dependencyType: get(instanceHost, 'instance.constructor'),
+      dependencyType: instanceHost?.instance?.constructor,
       parentModule: {
         name: nestModule.metatype.name,
         instance: nestModule.instance,
@@ -257,7 +261,7 @@ export class DiscoveryService {
     const modulesMap = [...this.modulesContainer.entries()];
     return Promise.all(
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      flatMap(modulesMap, ([key, nestModule]) => {
+      modulesMap.flatMap(([key, nestModule]) => {
         const components = [...nestModule[component].values()];
         return components
           .filter((component) => component.scope !== Scope.REQUEST)
