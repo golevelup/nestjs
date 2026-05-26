@@ -1,6 +1,6 @@
 {
   "name": "@golevelup/nestjs-discovery",
-  "version": "7.0.2",
+  "version": "7.0.3",
   "description": "A Badass NestJS module for querying your app's controllers, providers and handlers",
   "keywords": [
     "NestJS",
@@ -33,8 +33,7 @@
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit"
   },
-  "dependencies": {
-  },
+  "dependencies": {},
   "peerDependencies": {
     "@nestjs/common": "^11.1.21",
     "@nestjs/core": "^11.1.21"
