@@ -45,7 +45,7 @@ export const withMetaAtKey: (key: MetaKey) => Filter<DiscoveredClass> =
     const metaTargets: Function[] = [
       component?.instance?.constructor,
       component.injectType as Function,
-    ].filter((x) => !!x);
+    ].filter((x) => x != null);
 
     return metaTargets.some((x) => Reflect.getMetadata(key, x));
   };
@@ -175,7 +175,7 @@ export class DiscoveryService {
       .map((name) =>
         this.extractMethodMetaAtKey<T>(metaKey, component, prototype, name),
       )
-      .filter((x) => x.meta !== null && x.meta !== undefined);
+      .filter((x) => x.meta != null);
   }
 
   /**
