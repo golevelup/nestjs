@@ -1,5 +1,11 @@
 # Change Log
 
+## 7.0.2
+
+### Patch Changes
+
+- refactor(discovery): replace lodash with native JavaScript functions — removed lodash as the last external runtime dependency in favor of native JS alternatives. Thanks to [@jdebarochez](https://github.com/jdebarochez) for this contribution!
+
 ## 7.0.1
 
 ### Patch Changes
