@@ -35,8 +35,8 @@
   },
   "dependencies": {},
   "peerDependencies": {
-    "@nestjs/common": "^11.1.21",
-    "@nestjs/core": "^11.1.21"
+    "@nestjs/common": "^11.1.24",
+    "@nestjs/core": "^11.1.24"
   },
   "bugs": {
     "url": "https://github.com/golevelup/nestjs/issues"
