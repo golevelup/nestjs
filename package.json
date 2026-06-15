@@ -31,7 +31,7 @@
     "oxlint": "^1.56.0",
     "pactum": "^3.9.1",
     "rimraf": "^6.1.3",
-    "ts-jest": "^29.4.6",
+    "ts-jest": "^29.4.11",
     "typescript": "5.9.3",
     "vite": "^8.0.5",
     "vitepress": "^1.6.4"
