@@ -49,7 +49,7 @@
     "@nestjs/common": "^11.1.24",
     "@nestjs/core": "^11.1.24",
     "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.2"
   },
   "publishConfig": {
     "access": "public"
