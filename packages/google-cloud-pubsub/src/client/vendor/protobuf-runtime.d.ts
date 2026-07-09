@@ -53,6 +53,24 @@ export interface IBinaryWriter {
   string(value: string): IBinaryWriter;
 }
 
+export declare enum ScalarType {
+  DOUBLE = 1,
+  FLOAT = 2,
+  INT64 = 3,
+  UINT64 = 4,
+  INT32 = 5,
+  FIXED64 = 6,
+  FIXED32 = 7,
+  BOOL = 8,
+  STRING = 9,
+  BYTES = 12,
+  UINT32 = 13,
+  SFIXED32 = 15,
+  SFIXED64 = 16,
+  SINT32 = 17,
+  SINT64 = 18,
+}
+
 export declare enum WireType {
   Varint = 0,
   Bit64 = 1,

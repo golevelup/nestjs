@@ -12,7 +12,6 @@ import { PubsubSerializer } from '../src/client/pubsub.serializer';
 
 import { assertRejectsWith } from './pubsub-client.spec-utils';
 
-import { Level3ProtocolBuffer } from './proto/level3';
 import { Level3ProtocolBuffer as Level3ProtocolBufferExtended } from './proto/level3-extended';
 import { TestEvent } from './proto/test';
 
@@ -286,7 +285,7 @@ describe.skip('PubsubSchemaClient.connectAndValidateSchema()', () => {
     );
   });
 
-  it(`${PubsubConfigurationMismatchError.name}: if ${SchemaTypes.Avro} schema definition does not match any of remote revisions.`, async () => {
+  it(`should throw error if ${SchemaTypes.Avro} schema definition is not compatible with remote schema.`, async () => {
     const topicConfiguration = {
       name: `topic-${crypto.randomUUID()}`,
       schema: {
@@ -325,23 +324,21 @@ describe.skip('PubsubSchemaClient.connectAndValidateSchema()', () => {
 
     await assertRejectsWith(
       () => pubsubSchemaClient.connectAndValidateSchema(topicContainer),
-      PubsubConfigurationMismatchError,
+      Error,
       (error) => {
-        expect(error.mismatchEntry).toEqual({
-          key: 'schema.definition',
-          local: JSON.stringify(topicConfiguration.schema.definition),
-          remote: JSON.stringify([JSON.stringify(remoteAvroSchemaDefinition)]),
-        });
+        expect(error.message).toContain(
+          `Schema compatibility validation failed for topic (${topicConfiguration.name})`,
+        );
       },
     );
   });
 
-  it(`${PubsubConfigurationMismatchError.name}: if ${SchemaTypes.ProtocolBuffer} schema definition does not match any of remote revisions.`, async () => {
+  it(`should throw error if ${SchemaTypes.ProtocolBuffer} schema definition is not compatible with remote schema.`, async () => {
     const topicConfiguration = {
       name: `topic-${crypto.randomUUID()}`,
       schema: {
         definition: TestEvent,
-        encoding: Encodings.Binary,
+        encoding: Encodings.Json,
         name: `schema-${crypto.randomUUID()}`,
         type: SchemaTypes.ProtocolBuffer,
       },
@@ -359,7 +356,7 @@ describe.skip('PubsubSchemaClient.connectAndValidateSchema()', () => {
     await pubsub.createTopic({
       name: topicConfiguration.name,
       schemaSettings: {
-        encoding: Encodings.Binary,
+        encoding: Encodings.Json,
         schema: await remoteSchema.getName(),
       },
     });
@@ -373,13 +370,11 @@ describe.skip('PubsubSchemaClient.connectAndValidateSchema()', () => {
 
     await assertRejectsWith(
       () => pubsubSchemaClient.connectAndValidateSchema(topicContainer),
-      PubsubConfigurationMismatchError,
+      Error,
       (error) => {
-        expect(error.mismatchEntry).toEqual({
-          key: 'schema.definition',
-          local: TestEvent.typeName,
-          remote: JSON.stringify([remoteProtoDefinition]),
-        });
+        expect(error.message).toContain(
+          `Schema compatibility validation failed for topic (${topicConfiguration.name})`,
+        );
       },
     );
   });
@@ -463,7 +458,7 @@ describe.skip('PubsubSchemaClient.connectAndValidateSchema()', () => {
     ).resolves.toBeUndefined();
   });
 
-  it(`should successfully connect ${SchemaTypes.Avro} schema if definition matches *any* of remote revisions.`, async () => {
+  it(`should successfully connect ${SchemaTypes.Avro} schema with latest revision after multiple commits.`, async () => {
     const revision1 = avroSchemaDefinition;
 
     const revision2 = {
@@ -482,8 +477,6 @@ describe.skip('PubsubSchemaClient.connectAndValidateSchema()', () => {
       ],
     } satisfies schema.RecordType;
 
-    const allDefinitions = [revision1, revision2, revision3];
-
     const schemaClient = await pubsub.getSchemaClient();
 
     const schemaName = `schema-${crypto.randomUUID()}`;
@@ -495,7 +488,7 @@ describe.skip('PubsubSchemaClient.connectAndValidateSchema()', () => {
       JSON.stringify(revision1),
     );
 
-    for (const definition of allDefinitions.slice(1)) {
+    for (const definition of [revision2, revision3]) {
       const name = await createdSchema.getName();
 
       await schemaClient.commitSchema({
@@ -518,34 +511,29 @@ describe.skip('PubsubSchemaClient.connectAndValidateSchema()', () => {
 
     const topic = pubsub.topic(topicName);
 
-    for (const definition of allDefinitions) {
-      const topicConfiguration = {
-        name: topicName,
-        schema: {
-          definition,
-          encoding: Encodings.Binary,
-          name: schemaName,
-          type: SchemaTypes.Avro,
-        },
-        subscriptions: [],
-      } as const satisfies PubsubTopicConfiguration;
+    const topicConfiguration = {
+      name: topicName,
+      schema: {
+        definition: revision3,
+        encoding: Encodings.Binary,
+        name: schemaName,
+        type: SchemaTypes.Avro,
+      },
+      subscriptions: [],
+    } as const satisfies PubsubTopicConfiguration;
 
-      const topicContainer = new PubsubTopicContainer(
-        topic,
-        topicConfiguration,
-        new PubsubSerializer(
-          topicConfiguration.name,
-          topicConfiguration.schema,
-        ),
-      );
+    const topicContainer = new PubsubTopicContainer(
+      topic,
+      topicConfiguration,
+      new PubsubSerializer(topicConfiguration.name, topicConfiguration.schema),
+    );
 
-      await expect(
-        pubsubSchemaClient.connectAndValidateSchema(topicContainer),
-      ).resolves.toBeUndefined();
-    }
+    await expect(
+      pubsubSchemaClient.connectAndValidateSchema(topicContainer),
+    ).resolves.toBeUndefined();
   });
 
-  it(`should successfully connect ${SchemaTypes.ProtocolBuffer} schema if definition matches *any* of remote revisions.`, async () => {
+  it(`should successfully connect ${SchemaTypes.ProtocolBuffer} schema with latest revision after multiple commits.`, async () => {
     const protoRevisionPaths = [
       resolve(__dirname, `./proto/level3.proto`),
       resolve(__dirname, `./proto/level3-extended.proto`),
@@ -555,7 +543,6 @@ describe.skip('PubsubSchemaClient.connectAndValidateSchema()', () => {
       readFileSync(protoRevisionPaths[0], 'utf-8'),
       readFileSync(protoRevisionPaths[1], 'utf-8'),
     ];
-    const allDefinitions = [Level3ProtocolBuffer, Level3ProtocolBufferExtended];
 
     const schemaClient = await pubsub.getSchemaClient();
 
@@ -588,32 +575,25 @@ describe.skip('PubsubSchemaClient.connectAndValidateSchema()', () => {
 
     const topic = pubsub.topic(topicName);
 
-    for (let i = 0; i < allDefinitions.length; i++) {
-      const definition = allDefinitions[i];
+    const topicConfiguration = {
+      name: topicName,
+      schema: {
+        definition: Level3ProtocolBufferExtended,
+        encoding: Encodings.Binary,
+        name: schemaName,
+        type: SchemaTypes.ProtocolBuffer,
+      },
+      subscriptions: [],
+    } as const satisfies PubsubTopicConfiguration;
 
-      const topicConfiguration = {
-        name: topicName,
-        schema: {
-          definition,
-          encoding: Encodings.Binary,
-          name: schemaName,
-          type: SchemaTypes.ProtocolBuffer,
-        },
-        subscriptions: [],
-      } as const satisfies PubsubTopicConfiguration;
+    const topicContainer = new PubsubTopicContainer(
+      topic,
+      topicConfiguration,
+      new PubsubSerializer(topicConfiguration.name, topicConfiguration.schema),
+    );
 
-      const topicContainer = new PubsubTopicContainer(
-        topic,
-        topicConfiguration,
-        new PubsubSerializer(
-          topicConfiguration.name,
-          topicConfiguration.schema,
-        ),
-      );
-
-      await expect(
-        pubsubSchemaClient.connectAndValidateSchema(topicContainer),
-      ).resolves.toBeUndefined();
-    }
+    await expect(
+      pubsubSchemaClient.connectAndValidateSchema(topicContainer),
+    ).resolves.toBeUndefined();
   });
 });

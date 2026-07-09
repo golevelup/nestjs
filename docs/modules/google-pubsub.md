@@ -5,8 +5,13 @@ A type-safe Google Cloud Pub/Sub integration for NestJS. The module validates to
 ## Installation
 
 ```bash
-npm install @golevelup/nestjs-google-cloud-pubsub
-npm install @google-cloud/pubsub avsc @protobuf-ts/runtime
+npm install @golevelup/nestjs-google-cloud-pubsub @google-cloud/pubsub
+
+# Avro schemas only:
+npm install avsc
+
+# Protocol Buffer schemas only:
+npm install @protobuf-ts/runtime
 ```
 
 ## Quick Start
@@ -53,17 +58,6 @@ export const topics = [
       type: SchemaTypes.Avro,
     },
     subscriptions: [
-      /**
-       * High Density Configuration (Designed for up to 100 subscriptions per instance):
-       *
-       * 1. Flow Control:
-       *    - Limits each subscription to 10MB or 500 messages.
-       *    - Math: 100 subs * 10MB = 1GB Raw Buffer (~2GB Real RAM Usage).
-       *
-       * 2. Batch Manager:
-       *    - Aggregates up to 125 messages.
-       *    - Flushes every 200ms even if 125 messages weren't aggregated.
-       */
       {
         name: 'order.created.subscription.order-processor-service',
         batchManagerOptions: { maxMessages: 125 },
@@ -195,8 +189,6 @@ export class AppService {
 
 - Custom error hooks / metric emitters.
 - Push subscription support.
-- Split optional dependencies so Avro (`avsc`) and Protocol Buffer runtimes are only required when those schema types are used.
 - Publisher.ready() helper that awaits PubsubClient initialization.
 - Manual ack/nack.
-- Iterate over schema revisions page by page instead of fetching them all at once.
 - Support for custom Avro serialization options (e.g. `wrapUnions`, `logicalTypes`) with adaptive type inference.

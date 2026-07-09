@@ -60,13 +60,6 @@ export class PubsubSubscriptionBatchManager {
     this.listener = listener;
   }
 
-  public setConcurrency(concurrency: number) {
-    this.options.concurrency = concurrency;
-    this.limiter = pLimit(this.options.concurrency);
-
-    this.processQueue();
-  }
-
   public add(message: Message) {
     const deferred = promiseWithResolvers<void>();
 
@@ -108,7 +101,11 @@ export class PubsubSubscriptionBatchManager {
   public async flush() {
     this.enqueueBuffer();
 
-    while (this.queue.length > 0 || this.limiter.activeCount > 0) {
+    while (
+      this.queue.length > 0 ||
+      this.limiter.activeCount > 0 ||
+      this.limiter.pendingCount > 0
+    ) {
       await new Promise((resolve) => setTimeout(resolve, 50));
     }
   }

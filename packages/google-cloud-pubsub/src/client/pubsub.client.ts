@@ -17,7 +17,7 @@ import {
 } from './pubsub.client-types';
 import { PubsubSerializer } from './pubsub.serializer';
 import { PubsubSubscriptionBatchManager } from './pubsub-subscription.batch-manager';
-import { ResourceManager, ResourceState } from './resource-manager';
+import { ResourceManager } from './resource-manager';
 
 const DEFAULT_BATCH_MANAGER_CONCURRENCY = 3;
 
@@ -113,7 +113,7 @@ export class PubsubClient {
       container.instance.removeAllListeners('error');
 
       if (container.batchManager) {
-        flushPromises.push(container.batchManager.instance.flush());
+        flushPromises.push(container.batchManager.flush());
       }
     }
 
@@ -260,7 +260,7 @@ export class PubsubClient {
 
     const subscription = subscriptionContainer.instance;
     const serializer = subscriptionContainer.topicContainer.serializer;
-    const batchManager = subscriptionContainer.batchManager.instance;
+    const batchManager = subscriptionContainer.batchManager;
 
     batchManager.addListener(async (batch, deferreds) => {
       try {
@@ -274,19 +274,19 @@ export class PubsubClient {
           await handler(deserializedMessages);
         }
 
-        for (let i = 0; i < batch.length; i++) {
-          batch[i].ack();
+        batch.forEach((msg, i) => {
+          msg.ack();
           deferreds[i].resolve();
-        }
+        });
       } catch (error: any) {
         this.logger.error(
           `Failed to process batch messages on subscription (${subscription.name}). Error: ${error.message}.`,
         );
 
-        for (let i = 0; i < batch.length; i++) {
-          batch[i].nack();
+        batch.forEach((msg, i) => {
+          msg.nack();
           deferreds[i].resolve();
-        }
+        });
       }
     });
 
@@ -408,48 +408,32 @@ export class PubsubClient {
       throw error;
     }
 
+    let batchManager: PubsubSubscriptionBatchManager | undefined;
+
+    if (configuration.batchManagerOptions) {
+      const maxMessages = configuration.batchManagerOptions.maxMessages;
+      const concurrency =
+        configuration.batchManagerOptions.concurrency ??
+        DEFAULT_BATCH_MANAGER_CONCURRENCY;
+      const maxWaitTimeMilliseconds = Math.min(
+        Math.max(Math.ceil(Math.log2(maxMessages) * 50), 50),
+        500,
+      );
+
+      batchManager = new PubsubSubscriptionBatchManager({
+        maxMessages,
+        concurrency,
+        maxWaitTimeMilliseconds,
+      });
+    }
+
     const subscriptionContainer = new PubsubSubscriptionContainer(
       subscription,
       configuration,
       topicContainer,
-      this.createBatchManager(configuration),
+      batchManager,
     );
 
     this.subscriptionContainers.set(name, subscriptionContainer);
-  }
-
-  private createBatchManager(configuration: PubsubSubscriptionConfiguration) {
-    if (!configuration.batchManagerOptions) {
-      return;
-    }
-
-    const maxMessages = configuration.batchManagerOptions.maxMessages;
-    const concurrency =
-      configuration.batchManagerOptions.concurrency ??
-      DEFAULT_BATCH_MANAGER_CONCURRENCY;
-    const maxWaitTimeMilliseconds = Math.min(
-      Math.max(Math.ceil(Math.log2(maxMessages) * 50), 50),
-      500,
-    );
-
-    const concurrencyPerResourceStateMap = {
-      [ResourceState.Healthy]: concurrency,
-      [ResourceState.Pressure]: Math.max(1, Math.floor(concurrency / 2)),
-      [ResourceState.Critical]: 1,
-    };
-
-    const instance = new PubsubSubscriptionBatchManager({
-      maxMessages,
-      concurrency,
-      maxWaitTimeMilliseconds,
-    });
-
-    if (this.resourceManager) {
-      this.resourceManager.on('stateChanged', ({ newState }) => {
-        instance.setConcurrency(concurrencyPerResourceStateMap[newState]);
-      });
-    }
-
-    return { instance, concurrencyPerResourceStateMap };
   }
 }
