@@ -40,7 +40,7 @@
     "access": "public"
   },
   "dependencies": {
-    "graphql": "^16.14.0",
+    "graphql": "^16.14.2",
     "graphql-request": "^7.4.0"
   }
 }
