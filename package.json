@@ -3,9 +3,9 @@
   "private": true,
   "license": "MIT",
   "dependencies": {
-    "@nestjs/common": "^11.1.24",
-    "@nestjs/core": "^11.1.24",
-    "@nestjs/platform-express": "^11.1.24",
+    "@nestjs/common": "^11.1.28",
+    "@nestjs/core": "^11.1.28",
+    "@nestjs/platform-express": "^11.1.28",
     "lodash": "^4.18.1",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2"
@@ -15,7 +15,7 @@
     "@commitlint/cli": "^20.5.3",
     "@commitlint/config-conventional": "^20.5.3",
     "@commitlint/prompt": "^20.5.3",
-    "@nestjs/testing": "^11.1.24",
+    "@nestjs/testing": "^11.1.28",
     "@types/express": "5.0.6",
     "@types/jest": "^30.0.0",
     "@types/lodash": "^4.17.24",
