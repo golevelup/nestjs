@@ -1,7 +1,10 @@
 import { PubSub, SchemaTypes, SchemaViews } from '@google-cloud/pubsub';
 import { SchemaServiceClient } from '@google-cloud/pubsub/build/src/v1';
 import type { Type as AvroType, Schema as AvroSchema } from './vendor/avsc';
-import { ScalarType, IMessageType } from './vendor/protobuf-runtime';
+import type {
+  ScalarType as ScalarTypeEnum,
+  IMessageType,
+} from './vendor/protobuf-runtime';
 
 import { PubsubConfigurationMismatchError } from './pubsub-configuration.errors';
 import { PubsubTopicContainer } from './pubsub-topic.container';
@@ -22,6 +25,7 @@ export class PubsubSchemaClient {
 
   private getProtocolBufferStubMessage(
     definition: IMessageType<any>,
+    ScalarType: typeof ScalarTypeEnum,
   ): Record<string, any> {
     const stub: Record<string, any> = {};
 
@@ -34,7 +38,7 @@ export class PubsubSchemaClient {
       let value: any;
 
       if (field.kind === 'scalar') {
-        switch (field.T as ScalarType) {
+        switch (field.T as ScalarTypeEnum) {
           case ScalarType.STRING:
             value = 'stub';
             break;
@@ -59,7 +63,7 @@ export class PubsubSchemaClient {
             value = 1;
         }
       } else if (field.kind === 'message' && field.T) {
-        value = this.getProtocolBufferStubMessage(field.T());
+        value = this.getProtocolBufferStubMessage(field.T(), ScalarType);
       } else if (field.kind === 'enum') {
         value = 0;
       } else {
@@ -146,8 +150,13 @@ export class PubsubSchemaClient {
         schemaConfiguration.definition as AvroSchema,
       ).random();
     } else if (schemaConfiguration.type === SchemaTypes.ProtocolBuffer) {
+      const { ScalarType } = loadPackage<{
+        ScalarType: typeof ScalarTypeEnum;
+      }>('@protobuf-ts/runtime');
+
       stubData = this.getProtocolBufferStubMessage(
         schemaConfiguration.definition,
+        ScalarType,
       );
     } else {
       throw new Error(
