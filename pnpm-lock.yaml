@@ -273,7 +273,7 @@ importers:
   packages/graphql-request:
     dependencies:
       graphql:
-        specifier: ^16.14.0
+        specifier: ^16.14.2
         version: 16.14.2
       graphql-request:
         specifier: ^7.4.0
