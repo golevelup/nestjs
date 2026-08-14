@@ -378,8 +378,8 @@ importers:
         specifier: ^30.3.0
         version: 30.4.1
       typeorm:
-        specifier: ^0.3.28
-        version: 0.3.28(pg@8.16.3)(ts-node@10.9.2(@types/node@25.9.5)(typescript@5.9.3))
+        specifier: ^0.3.31
+        version: 0.3.31(pg@8.16.3)(ts-node@10.9.2(@types/node@25.9.5)(typescript@5.9.3))
 
   packages/testing/ts-sinon:
     devDependencies:
@@ -7181,8 +7181,8 @@ packages:
   typedarray@0.0.6:
     resolution: {integrity: sha512-/aCDEGatGvZ2BIk+HmLf4ifCJFwvKFNb9/JeZPMulfgFracn9QFcAf5GO8B/mweUjSoblS5In0cWhqpfs/5PQA==}
 
-  typeorm@0.3.28:
-    resolution: {integrity: sha512-6GH7wXhtfq2D33ZuRXYwIsl/qM5685WZcODZb7noOOcRMteM9KF2x2ap3H0EBjnSV0VO4gNAfJT5Ukp0PkOlvg==}
+  typeorm@0.3.31:
+    resolution: {integrity: sha512-6u9EFtdLBgHjnPm78NStVeM+I/1MolTzKykDDcydzKUkh6E++YS6XViU/fePJbvDvEGU4Xq34KOM/CLeer9I2A==}
     engines: {node: '>=16.13.0'}
     hasBin: true
     peerDependencies:
@@ -7193,13 +7193,13 @@ packages:
       mongodb: ^5.8.0 || ^6.0.0
       mssql: ^9.1.1 || ^10.0.0 || ^11.0.0 || ^12.0.0
       mysql2: ^2.2.5 || ^3.0.1
-      oracledb: ^6.3.0
+      oracledb: ^6.3.0 || ^7.0.0
       pg: ^8.5.1
       pg-native: ^3.0.0
       pg-query-stream: ^4.0.0
       redis: ^3.1.1 || ^4.0.0 || ^5.0.14
       sql.js: ^1.4.0
-      sqlite3: ^5.0.3
+      sqlite3: ^5.0.3 || ^6.0.0
       ts-node: ^10.7.0
       typeorm-aurora-data-api-driver: ^2.0.0 || ^3.0.0
     peerDependenciesMeta:
@@ -15497,7 +15497,7 @@ snapshots:
 
   typedarray@0.0.6: {}
 
-  typeorm@0.3.28(pg@8.16.3)(ts-node@10.9.2(@types/node@25.9.5)(typescript@5.9.3)):
+  typeorm@0.3.31(pg@8.16.3)(ts-node@10.9.2(@types/node@25.9.5)(typescript@5.9.3)):
     dependencies:
       '@sqltools/formatter': 1.2.5
       ansis: 4.2.0

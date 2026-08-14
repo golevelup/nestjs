@@ -42,7 +42,7 @@
     "@jest/globals": "^30.3.0",
     "jest": "^30.3.0",
     "jest-mock": "^30.3.0",
-    "typeorm": "^0.3.28"
+    "typeorm": "^0.3.31"
   },
   "jest": {
     "moduleFileExtensions": [
