@@ -1,11 +1,28 @@
-export function promiseWithResolvers<T = void>() {
-  let resolve!: (value: T | PromiseLike<T>) => void;
+export type Deferred<T> = {
+  promise: Promise<T>;
+  resolve: (value: T) => void;
+  reject: (reason?: any) => void;
+};
+
+export function promiseWithResolvers<T>(): Deferred<T> {
+  let resolve!: (value: T) => void;
   let reject!: (reason?: any) => void;
 
-  const promise = new Promise<T>((res, rej) => {
-    resolve = res;
-    reject = rej;
+  const promise = new Promise<T>((_resolve, _reject) => {
+    resolve = _resolve;
+    reject = _reject;
   });
 
   return { promise, resolve, reject };
+}
+
+export function loadPackage<T = any>(packageName: string): T {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    return require(packageName);
+  } catch {
+    throw new Error(
+      `The "${packageName}" package is missing. Please, install it to use the requested feature.`,
+    );
+  }
 }

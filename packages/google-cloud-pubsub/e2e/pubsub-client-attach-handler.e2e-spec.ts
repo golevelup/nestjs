@@ -268,7 +268,6 @@ describe.skip('PubsubClient.attachHandler()', () => {
         definition: Level3ProtocolBuffer,
         encoding: Encodings.Binary,
         name: `schema-${crypto.randomUUID()}`,
-        protoPath,
         type: SchemaTypes.ProtocolBuffer,
       },
       subscriptions: [{ name: `subscription-${crypto.randomUUID()}` }],
@@ -276,10 +275,7 @@ describe.skip('PubsubClient.attachHandler()', () => {
 
     const subscriptionName = topicConfiguration.subscriptions[0].name;
 
-    const definition = fs.readFileSync(
-      topicConfiguration.schema.protoPath,
-      'utf-8',
-    );
+    const definition = fs.readFileSync(protoPath, 'utf-8');
     const remoteSchema = await pubsub.createSchema(
       topicConfiguration.schema.name,
       topicConfiguration.schema.type,
@@ -346,7 +342,6 @@ describe.skip('PubsubClient.attachHandler()', () => {
         definition: Level3ProtocolBuffer,
         encoding: Encodings.Json,
         name: `schema-${crypto.randomUUID()}`,
-        protoPath,
         type: SchemaTypes.ProtocolBuffer,
       },
       subscriptions: [{ name: `subscription-${crypto.randomUUID()}` }],
@@ -354,10 +349,7 @@ describe.skip('PubsubClient.attachHandler()', () => {
 
     const subscriptionName = topicConfiguration.subscriptions[0].name;
 
-    const definition = fs.readFileSync(
-      topicConfiguration.schema.protoPath,
-      'utf-8',
-    );
+    const definition = fs.readFileSync(protoPath, 'utf-8');
     const remoteSchema = await pubsub.createSchema(
       topicConfiguration.schema.name,
       topicConfiguration.schema.type,

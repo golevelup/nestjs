@@ -9,7 +9,7 @@ export abstract class GoogleCloudPubsubAbstractPublisher<
 > {
   constructor(
     @Inject(GOOGLE_CLOUD_PUBSUB_CLIENT_TOKEN)
-    private readonly pubsubClient: PubsubClient,
+    protected readonly pubsubClient: PubsubClient,
   ) {}
 
   public async publish<TopicName extends keyof PayloadMap & string>(

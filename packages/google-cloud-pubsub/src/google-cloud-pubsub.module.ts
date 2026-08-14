@@ -63,8 +63,6 @@ export class GoogleCloudPubsubModule
     private readonly discoveryService: DiscoveryService,
   ) {
     super();
-
-    this.logger = options?.logger || new Logger(GoogleCloudPubsubModule.name);
   }
 
   public static initializeKit<
@@ -101,21 +99,17 @@ export class GoogleCloudPubsubModule
     moduleDefinition.providers = moduleDefinition.providers || [];
     moduleDefinition.exports = moduleDefinition.exports || [];
 
-    if (!options.publisher) {
-      throw new Error(
-        '`publisher` class must be provided in GcpPubsubModule.registerAsync.',
-      );
+    if (options.publisher) {
+      const publisherProvider: Provider = {
+        inject: [GOOGLE_CLOUD_PUBSUB_CLIENT_TOKEN],
+        provide: options.publisher,
+        useFactory: (pubsubClient: PubsubClient) =>
+          new options.publisher!(pubsubClient),
+      };
+
+      moduleDefinition.providers.push(publisherProvider);
+      moduleDefinition.exports.push(options.publisher);
     }
-
-    const publisherProvider: Provider = {
-      inject: [GOOGLE_CLOUD_PUBSUB_CLIENT_TOKEN],
-      provide: options.publisher,
-      useFactory: (pubsubClient: PubsubClient) =>
-        new options.publisher!(pubsubClient),
-    };
-
-    moduleDefinition.providers.push(publisherProvider);
-    moduleDefinition.exports.push(options.publisher);
 
     return moduleDefinition;
   }

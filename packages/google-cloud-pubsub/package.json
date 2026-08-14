@@ -27,7 +27,7 @@
   "scripts": {
     "test:e2e": "jest --config ../../jest-e2e.json packages/google-cloud-pubsub",
     "copy-readme": "cp ../../docs/modules/google-pubsub.md ./README.md",
-    "build": "tsc --build tsconfig.build.json",
+    "build": "tsc --build tsconfig.build.json && mkdir -p lib/client/vendor && cp src/client/vendor/*.d.ts lib/client/vendor/",
     "build:watch": "tsc --build tsconfig.build.json --watch",
     "test": "jest",
     "typecheck": "tsc --noEmit"
@@ -36,7 +36,8 @@
     "url": "https://github.com/golevelup/nestjs/issues"
   },
   "dependencies": {
-    "@golevelup/nestjs-discovery": "workspace:^"
+    "@golevelup/nestjs-discovery": "workspace:^",
+    "p-limit": "3.1.0"
   },
   "devDependencies": {
     "@google-cloud/pubsub": "^5.3.0",
@@ -51,6 +52,14 @@
     "rxjs": "^7.8.2",
     "avsc": "^5.7.9",
     "@protobuf-ts/runtime": "^2.11.1"
+  },
+  "peerDependenciesMeta": {
+    "avsc": {
+      "optional": true
+    },
+    "@protobuf-ts/runtime": {
+      "optional": true
+    }
   },
   "publishConfig": {
     "access": "public"

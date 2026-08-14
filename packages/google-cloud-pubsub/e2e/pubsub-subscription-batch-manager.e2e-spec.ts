@@ -52,13 +52,14 @@ describe('PubsubSubscriptionBatchManager', () => {
   it('timer cleanup: should cancel the timer if batch is flushed by size limit.', async () => {
     const manager = new PubsubSubscriptionBatchManager({
       maxMessages: 10,
+      concurrency: 1,
       maxWaitTimeMilliseconds: 50,
     });
 
     let callsCount = 0;
 
-    manager.on(async (batch) => {
-      batch.forEach((i) => i.deferred.resolve());
+    manager.addListener(async (batch, deferreds) => {
+      deferreds.forEach((d) => d.resolve());
       callsCount++;
     });
 
@@ -70,6 +71,8 @@ describe('PubsubSubscriptionBatchManager', () => {
       manager.add(createMessage(i.toString()));
     }
 
+    await delay(10);
+
     expect(callsCount).toBe(1);
 
     await delay(35);
@@ -80,6 +83,7 @@ describe('PubsubSubscriptionBatchManager', () => {
   it('big data processing: should process all items without losing data.', async () => {
     const manager = new PubsubSubscriptionBatchManager({
       maxMessages: 10,
+      concurrency: 1,
       maxWaitTimeMilliseconds: 50,
     });
 
@@ -87,11 +91,10 @@ describe('PubsubSubscriptionBatchManager', () => {
     const processedIds: string[] = [];
     const completionPromises: Promise<void>[] = [];
 
-    manager.on(async (batch) => {
-      batch.forEach((item) => {
-        processedIds.push(item.message.id);
-
-        item.deferred.resolve();
+    manager.addListener(async (batch, deferreds) => {
+      batch.forEach((message, i) => {
+        processedIds.push(message.id);
+        deferreds[i].resolve();
       });
     });
 
@@ -112,12 +115,13 @@ describe('PubsubSubscriptionBatchManager', () => {
     const manager = new PubsubSubscriptionBatchManager({
       maxMessages: 10,
       maxWaitTimeMilliseconds: 50,
+      concurrency: 1,
     });
 
-    manager.on(async (batch) => {
+    manager.addListener(async (batch, deferreds) => {
       await delay(100);
 
-      batch.forEach((item) => item.deferred.resolve());
+      deferreds.forEach((d) => d.resolve());
     });
 
     const firstBatchItems: Promise<void>[] = [];
@@ -147,15 +151,16 @@ describe('PubsubSubscriptionBatchManager', () => {
   it('concurrent and big data processing: should handle spikes, pauses, and manual flushes.', async () => {
     const manager = new PubsubSubscriptionBatchManager({
       maxMessages: 10,
+      concurrency: 1,
       maxWaitTimeMilliseconds: 50,
     });
 
     const batchSizes: number[] = [];
 
-    manager.on(async (batch) => {
+    manager.addListener(async (batch, deferreds) => {
       batchSizes.push(batch.length);
 
-      batch.forEach((i) => i.deferred.resolve());
+      deferreds.forEach((d) => d.resolve());
     });
 
     const allPromises: Promise<void>[] = [];
@@ -195,6 +200,7 @@ describe('PubsubSubscriptionBatchManager', () => {
   it('high throughput: should wait for more messages but flush quickly if time limit reached.', async () => {
     const manager = new PubsubSubscriptionBatchManager({
       maxMessages: 100,
+      concurrency: 1,
       maxWaitTimeMilliseconds: 20,
     });
 
@@ -202,9 +208,9 @@ describe('PubsubSubscriptionBatchManager', () => {
 
     const processedPromise = promiseWithResolvers<void>();
 
-    manager.on(async (batch) => {
+    manager.addListener(async (batch, deferreds) => {
       batchSize = batch.length;
-      batch.forEach((i) => i.deferred.resolve());
+      deferreds.forEach((d) => d.resolve());
       processedPromise.resolve();
     });
 
@@ -223,15 +229,16 @@ describe('PubsubSubscriptionBatchManager', () => {
   it('low latency: should flush immediately when small size limit is reached.', async () => {
     const manager = new PubsubSubscriptionBatchManager({
       maxMessages: 5,
+      concurrency: 1,
       maxWaitTimeMilliseconds: 500,
     });
 
     let batchSize = 0;
     const processedPromise = promiseWithResolvers<void>();
 
-    manager.on(async (batch) => {
+    manager.addListener(async (batch, deferreds) => {
       batchSize = batch.length;
-      batch.forEach((i) => i.deferred.resolve());
+      deferreds.forEach((d) => d.resolve());
       processedPromise.resolve();
     });
 

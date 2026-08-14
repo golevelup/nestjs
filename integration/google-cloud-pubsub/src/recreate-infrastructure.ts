@@ -52,7 +52,7 @@ async function bootstrap() {
         definition = JSON.stringify(topicConfiguration.schema.definition);
       } else {
         definition = await readFile(
-          path.resolve(topicConfiguration.schema.protoPath),
+          path.resolve(process.cwd(), 'proto/level5.proto'),
           'utf-8',
         );
       }

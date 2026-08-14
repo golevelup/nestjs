@@ -11,3 +11,5 @@ integration/rabbitmq/dist
 # doc ignored directories
 docs/.vitepress/dist
 docs/.vitepress/cache
+# Claude Code
+.claude/

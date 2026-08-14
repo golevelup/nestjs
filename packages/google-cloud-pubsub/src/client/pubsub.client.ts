@@ -17,11 +17,15 @@ import {
 } from './pubsub.client-types';
 import { PubsubSerializer } from './pubsub.serializer';
 import { PubsubSubscriptionBatchManager } from './pubsub-subscription.batch-manager';
+import { ResourceManager } from './resource-manager';
+
+const DEFAULT_BATCH_MANAGER_CONCURRENCY = 3;
 
 export class PubsubClient {
   private readonly pubsub: PubSub;
   private readonly pubsubSchemaClient: PubsubSchemaClient;
 
+  private readonly resourceManager?: ResourceManager;
   private readonly logger: PubsubClientLogger;
 
   private readonly topicContainers = new Map<string, PubsubTopicContainer>();
@@ -35,12 +39,16 @@ export class PubsubClient {
   private readonly outstandingMessageProcessing = new Set<Promise<void>>();
 
   constructor(configuration: PubsubClientConfiguration) {
-    const { logger, ...restConfiguration } = configuration;
+    const { logger, adaptiveFlowControl, ...restConfiguration } = configuration;
 
     this.pubsub = new PubSub(restConfiguration);
     this.pubsubSchemaClient = new PubsubSchemaClient(this.pubsub);
 
     this.logger = logger || console;
+
+    if (adaptiveFlowControl) {
+      this.resourceManager = new ResourceManager();
+    }
   }
 
   public async initialize(
@@ -96,6 +104,8 @@ export class PubsubClient {
   }
 
   public async close(): Promise<void> {
+    this.resourceManager?.stop();
+
     const flushPromises: Promise<void>[] = [];
 
     for (const container of this.subscriptionContainers.values()) {
@@ -178,17 +188,24 @@ export class PubsubClient {
     const messageHandler = (message: Message) => {
       const task = async () => {
         try {
-          const deserializedMessage = this.deserializeMessage(
-            message,
+          const [deserializedMessage] = this.deserializeMessages(
+            [message],
             serializer,
+            subscription.name,
           );
+
+          if (!deserializedMessage) {
+            message.ack();
+
+            return;
+          }
 
           await handler(deserializedMessage);
 
           message.ack();
         } catch (error: any) {
           this.logger.error(
-            `Failed to process message with id(${message.id}) on subscription (${subscription.name}). Error: ${error.message}`,
+            `Failed to process message with id(${message.id}) on subscription (${subscription.name}). Error: ${error.message}.`,
           );
 
           message.nack();
@@ -213,7 +230,7 @@ export class PubsubClient {
     subscription.on('message', messageHandler);
     subscription.on('error', errorHandler);
 
-    this.attachedHandlers.add(subscription.name);
+    this.attachedHandlers.add(subscriptionName);
 
     this.logger.log(`Handler attached to ${subscriptionName}.`);
   }
@@ -235,35 +252,40 @@ export class PubsubClient {
       throw new Error(`Subscription (${subscriptionName}) is not registered.`);
     }
 
+    if (!subscriptionContainer.batchManager) {
+      throw new Error(
+        `Subscription (${subscriptionName}) does not have batch manager options configured. Ensure 'batchManagerOptions' is defined in the subscription configuration.`,
+      );
+    }
+
     const subscription = subscriptionContainer.instance;
     const serializer = subscriptionContainer.topicContainer.serializer;
+    const batchManager = subscriptionContainer.batchManager;
 
-    const batchManager = new PubsubSubscriptionBatchManager(
-      subscriptionContainer.configuration.batchManagerOptions,
-    );
-
-    subscriptionContainer.batchManager = batchManager;
-
-    batchManager.on(async (batch) => {
+    batchManager.addListener(async (batch, deferreds) => {
       try {
-        const deserializedMessages = batch.map((item) =>
-          this.deserializeMessage(item.message, serializer),
+        const deserializedMessages = this.deserializeMessages(
+          batch,
+          serializer,
+          subscription.name,
         );
 
-        await handler(deserializedMessages);
+        if (deserializedMessages.length > 0) {
+          await handler(deserializedMessages);
+        }
 
-        batch.forEach((item) => {
-          item.message.ack();
-          item.deferred.resolve();
+        batch.forEach((msg, i) => {
+          msg.ack();
+          deferreds[i].resolve();
         });
       } catch (error: any) {
         this.logger.error(
-          `Failed to process batch messages on subscription (${subscription.name}). Error: ${error.message}`,
+          `Failed to process batch messages on subscription (${subscription.name}). Error: ${error.message}.`,
         );
 
-        batch.forEach((item) => {
-          item.message.nack();
-          item.deferred.resolve();
+        batch.forEach((msg, i) => {
+          msg.nack();
+          deferreds[i].resolve();
         });
       }
     });
@@ -287,22 +309,37 @@ export class PubsubClient {
     subscription.on('message', messageHandler);
     subscription.on('error', errorHandler);
 
-    this.attachedHandlers.add(subscription.name);
+    this.attachedHandlers.add(subscriptionName);
+
     this.logger.log(`Handler attached to ${subscriptionName}.`);
   }
 
-  private deserializeMessage(
-    message: Message,
+  private deserializeMessages(
+    messages: Message[],
     serializer: PubsubSerializer,
-  ): GoogleCloudPubsubMessage {
-    return {
-      attributes: message.attributes,
-      data: serializer.deserialize(message),
-      deliveryAttempt: message.deliveryAttempt,
-      id: message.id,
-      orderingKey: message.orderingKey,
-      publishTime: message.publishTime,
-    };
+    subscriptionName: string,
+  ): GoogleCloudPubsubMessage[] {
+    const deserializedMessages: GoogleCloudPubsubMessage[] = [];
+
+    for (const message of messages) {
+      try {
+        deserializedMessages.push({
+          attributes: message.attributes,
+          data: serializer.deserialize(message),
+          deliveryAttempt: message.deliveryAttempt,
+          id: message.id,
+          orderingKey: message.orderingKey,
+          publishTime: message.publishTime,
+        });
+      } catch (error: unknown) {
+        this.logger.error(
+          `Serialization error for message ${message.id} on subscription ${subscriptionName}.`,
+          error,
+        );
+      }
+    }
+
+    return deserializedMessages;
   }
 
   private async connectAndValidateTopic(
@@ -371,10 +408,30 @@ export class PubsubClient {
       throw error;
     }
 
+    let batchManager: PubsubSubscriptionBatchManager | undefined;
+
+    if (configuration.batchManagerOptions) {
+      const maxMessages = configuration.batchManagerOptions.maxMessages;
+      const concurrency =
+        configuration.batchManagerOptions.concurrency ??
+        DEFAULT_BATCH_MANAGER_CONCURRENCY;
+      const maxWaitTimeMilliseconds = Math.min(
+        Math.max(Math.ceil(Math.log2(maxMessages) * 50), 50),
+        500,
+      );
+
+      batchManager = new PubsubSubscriptionBatchManager({
+        maxMessages,
+        concurrency,
+        maxWaitTimeMilliseconds,
+      });
+    }
+
     const subscriptionContainer = new PubsubSubscriptionContainer(
       subscription,
       configuration,
       topicContainer,
+      batchManager,
     );
 
     this.subscriptionContainers.set(name, subscriptionContainer);

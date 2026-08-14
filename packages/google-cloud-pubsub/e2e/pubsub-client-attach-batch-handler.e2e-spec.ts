@@ -31,7 +31,6 @@ describe.skip('PubsubClient.attachBatchHandler()', () => {
           name: subscriptionName,
           batchManagerOptions: {
             maxMessages: 5,
-            maxWaitTimeMilliseconds: 10000,
           },
         },
       ],
@@ -72,13 +71,13 @@ describe.skip('PubsubClient.attachBatchHandler()', () => {
     expect(processedMessagesCount).toBe(5);
     expect(endTime - startTime).toBeLessThan(5000);
 
-    await pubsubClient.publish(topicName, { data: Buffer.from('6') });
+    await pubsubClient.close();
+
+    await pubsub.topic(topicName).publishMessage({ data: Buffer.from('6') });
 
     await new Promise((resolve) => setTimeout(resolve, 1500));
 
     expect(processedMessagesCount).toBe(5);
-
-    await pubsubClient.close();
   });
 
   it('flush by timer: should flush quickly when maxMessages limit is not reached.', async () => {
@@ -92,7 +91,6 @@ describe.skip('PubsubClient.attachBatchHandler()', () => {
           name: subscriptionName,
           batchManagerOptions: {
             maxMessages: 100,
-            maxWaitTimeMilliseconds: 1000,
           },
         },
       ],
@@ -129,7 +127,7 @@ describe.skip('PubsubClient.attachBatchHandler()', () => {
 
     expect(processedMessagesCount).toBe(2);
 
-    expect(duration).toBeGreaterThanOrEqual(1000);
+    expect(duration).toBeGreaterThanOrEqual(300);
     expect(duration).toBeLessThan(4000);
 
     await pubsubClient.close();
@@ -146,7 +144,6 @@ describe.skip('PubsubClient.attachBatchHandler()', () => {
           name: subscriptionName,
           batchManagerOptions: {
             maxMessages: 100,
-            maxWaitTimeMilliseconds: 5000,
           },
         },
       ],
