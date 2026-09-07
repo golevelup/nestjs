@@ -18,7 +18,7 @@
     "@nestjs/testing": "^11.1.24",
     "@types/express": "5.0.6",
     "@types/jest": "^30.0.0",
-    "@types/lodash": "^4.17.24",
+    "@types/lodash": "^4.17.25",
     "@types/node": "^25.8.0",
     "all-contributors-cli": "^6.26.1",
     "commitizen": "^4.3.2",
