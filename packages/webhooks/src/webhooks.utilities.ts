@@ -1,5 +1,5 @@
 import { MiddlewareConsumer, Type } from '@nestjs/common';
-import { RouteInfo } from '@nestjs/common/interfaces';
+import { RouteInfo } from '@nestjs/common/interfaces/index.js';
 import {
   ConfigurableRawBodyMiddleware,
   JsonBodyMiddleware,
@@ -9,7 +9,7 @@ import {
 export const applyRawBodyWebhookMiddleware = (
   consumer: MiddlewareConsumer,
   rawBodyRoutes: (string | Type<any> | RouteInfo)[],
-  jsonBodyRoutes: (string | Type<any> | RouteInfo)[]
+  jsonBodyRoutes: (string | Type<any> | RouteInfo)[],
 ) => {
   consumer
     .apply(RawBodyMiddleware)
@@ -41,7 +41,7 @@ export const applyRawBodyOnlyTo = (
 export const applyConfigurableRawBodyWebhookMiddleware = (
   consumer: MiddlewareConsumer,
   rawBodyRoutes: (string | Type<any> | RouteInfo)[],
-  jsonBodyRoutes: (string | Type<any> | RouteInfo)[] = ['*']
+  jsonBodyRoutes: (string | Type<any> | RouteInfo)[] = ['*'],
 ) => {
   consumer
     .apply(ConfigurableRawBodyMiddleware)

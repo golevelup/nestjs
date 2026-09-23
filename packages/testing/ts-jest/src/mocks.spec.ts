@@ -1,5 +1,5 @@
 import { ExecutionContext } from '@nestjs/common';
-import { HttpArgumentsHost } from '@nestjs/common/interfaces';
+import { HttpArgumentsHost } from '@nestjs/common/interfaces/index.js';
 import { Test, TestingModule } from '@nestjs/testing';
 import { S3Client } from '@aws-sdk/client-s3';
 import { createMock, DeepMocked } from './mocks';
