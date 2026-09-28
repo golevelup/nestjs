@@ -3,7 +3,11 @@ module.exports = {
   testEnvironment: 'node',
   transform: {
     '^.+.tsx?$': ['ts-jest', { tsconfig: 'tsconfig.spec.json' }],
+    '/node_modules/.+/@nestjs/.+\\.js$': '<rootDir>/jest.nest-esm.transform.js',
   },
+  transformIgnorePatterns: [
+    '/node_modules/(?!(\\.pnpm/[^/]+/node_modules/)?@nestjs/)',
+  ],
   preset: 'ts-jest',
   testPathIgnorePatterns: [
     '/ts-vitest/',

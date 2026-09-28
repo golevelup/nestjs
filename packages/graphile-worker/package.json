@@ -54,7 +54,8 @@
   },
   "devDependencies": {
     "graphile-worker": "^0.16.6",
-    "zod": "^4.3.6"
+    "zod": "^4.3.6",
+    "typescript": "5.9.3"
   },
   "peerDependencies": {
     "graphile-worker": "^0.16.6",
