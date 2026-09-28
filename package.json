@@ -69,7 +69,7 @@
   "lint-staged": {
     "*.ts": [
       "oxfmt --write",
-      "oxlint",
+      "oxlint --no-error-on-unmatched-pattern",
       "git add"
     ],
     "*.md": [
