@@ -1,5 +1,5 @@
 import { ExecutionContext } from '@nestjs/common';
-import { HttpArgumentsHost } from '@nestjs/common/interfaces';
+import { HttpArgumentsHost } from '@nestjs/common/interfaces/index.js';
 import { createMock, DeepMocked } from './mocks';
 import { SinonStub } from 'sinon';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -202,7 +202,7 @@ describe('Mocks', () => {
 
       expect(mock.switchToHttp.calledThrice).toBeTruthy();
       expect(
-        (mock.switchToHttp().getRequest as SinonStub).calledTwice
+        (mock.switchToHttp().getRequest as SinonStub).calledTwice,
       ).toBeTruthy();
     });
 
@@ -282,8 +282,9 @@ describe('Mocks', () => {
       }).compile();
 
       mockedProvider = module.get<DeepMocked<ExecutionContext>>(diToken);
-      dependentProvider =
-        module.get<{ dependent: () => string }>(dependentToken);
+      dependentProvider = module.get<{ dependent: () => string }>(
+        dependentToken,
+      );
     });
 
     it('should correctly resolve mocked providers', async () => {
@@ -294,7 +295,7 @@ describe('Mocks', () => {
       mockedProvider.switchToHttp.returns(
         createMock<HttpArgumentsHost>({
           getRequest: () => request,
-        })
+        }),
       );
 
       const mockResult = mockedProvider.switchToHttp().getRequest();

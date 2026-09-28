@@ -1,13 +1,15 @@
 import { Type } from '@nestjs/common';
-import { ModuleMetadata, Provider } from '@nestjs/common/interfaces';
+import { ModuleMetadata, Provider } from '@nestjs/common';
 import { get } from 'lodash';
 
 export interface OptionsFactory<T> {
   createOptions(): Promise<T> | T;
 }
 
-export interface AsyncOptionsFactoryProvider<T>
-  extends Pick<ModuleMetadata, 'imports' | 'exports'> {
+export interface AsyncOptionsFactoryProvider<T> extends Pick<
+  ModuleMetadata,
+  'imports' | 'exports'
+> {
   useExisting?: {
     value: OptionsFactory<T>;
     provide?: string | symbol | Type<any>;

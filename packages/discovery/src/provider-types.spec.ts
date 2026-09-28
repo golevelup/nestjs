@@ -2,7 +2,7 @@ import { Injectable, Module, SetMetadata } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { describe, it, expect, beforeEach } from 'vitest';
 import { DiscoveryModule, DiscoveryService, withMetaAtKey } from '.';
-import { ModuleMetadata } from '@nestjs/common/interfaces';
+import { ModuleMetadata } from '@nestjs/common';
 
 const TestDecorator = (config: any) => SetMetadata('test', config);
 

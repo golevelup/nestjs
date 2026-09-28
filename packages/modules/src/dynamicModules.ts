@@ -1,8 +1,12 @@
-import { DynamicModule, Provider, Type } from '@nestjs/common';
-import { ModuleMetadata } from '@nestjs/common/interfaces';
+import {
+  DynamicModule,
+  ModuleMetadata,
+  OptionalFactoryDependency,
+  Provider,
+  Type,
+} from '@nestjs/common';
 import { interval, lastValueFrom, race, Subject } from 'rxjs';
 import { first, map } from 'rxjs/operators';
-import { OptionalFactoryDependency } from '@nestjs/common/interfaces/modules/optional-factory-dependency.interface';
 
 type InjectionToken = string | symbol | Type;
 

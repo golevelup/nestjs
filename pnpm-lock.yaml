@@ -211,7 +211,7 @@ importers:
   packages/common:
     dependencies:
       '@nestjs/common':
-        specifier: ^11.1.24
+        specifier: ^11.1.24 || ^12.0.0
         version: 11.1.28(reflect-metadata@0.2.2)(rxjs@7.8.2)
       lodash:
         specifier: ^4.18.1
@@ -220,10 +220,10 @@ importers:
   packages/discovery:
     dependencies:
       '@nestjs/common':
-        specifier: ^11.1.24
+        specifier: ^11.1.24 || ^12.0.0
         version: 11.1.28(reflect-metadata@0.2.2)(rxjs@7.8.2)
       '@nestjs/core':
-        specifier: ^11.1.24
+        specifier: ^11.1.24 || ^12.0.0
         version: 11.1.28(@nestjs/common@11.1.28(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/platform-express@11.1.28)(reflect-metadata@0.2.2)(rxjs@7.8.2)
 
   packages/google-cloud-pubsub:
@@ -232,10 +232,10 @@ importers:
         specifier: workspace:^
         version: link:../discovery
       '@nestjs/common':
-        specifier: ^11.1.24
+        specifier: ^11.1.24 || ^12.0.0
         version: 11.1.28(reflect-metadata@0.2.2)(rxjs@7.8.2)
       '@nestjs/core':
-        specifier: ^11.1.24
+        specifier: ^11.1.24 || ^12.0.0
         version: 11.1.28(@nestjs/common@11.1.28(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/platform-express@11.1.28)(reflect-metadata@0.2.2)(rxjs@7.8.2)
       p-limit:
         specifier: 3.1.0
@@ -288,10 +288,10 @@ importers:
         specifier: ^1.0.2
         version: 1.0.2
       '@nestjs/common':
-        specifier: ^11.1.24
+        specifier: ^11.1.24 || ^12.0.0
         version: 11.1.28(reflect-metadata@0.2.2)(rxjs@7.8.2)
       '@nestjs/core':
-        specifier: ^11.1.24
+        specifier: ^11.1.24 || ^12.0.0
         version: 11.1.28(@nestjs/common@11.1.28(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/platform-express@11.1.28)(reflect-metadata@0.2.2)(rxjs@7.8.2)
       js-yaml:
         specifier: ^4.1.1
@@ -313,7 +313,7 @@ importers:
   packages/modules:
     dependencies:
       '@nestjs/common':
-        specifier: ^11.1.24
+        specifier: ^11.1.24 || ^12.0.0
         version: 11.1.28(reflect-metadata@0.2.2)(rxjs@7.8.2)
       lodash:
         specifier: ^4.18.1
@@ -328,10 +328,10 @@ importers:
         specifier: workspace:^
         version: link:../discovery
       '@nestjs/common':
-        specifier: ^11.1.24
+        specifier: ^11.1.24 || ^12.0.0
         version: 11.1.28(reflect-metadata@0.2.2)(rxjs@7.8.2)
       '@nestjs/core':
-        specifier: ^11.1.24
+        specifier: ^11.1.24 || ^12.0.0
         version: 11.1.28(@nestjs/common@11.1.28(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/platform-express@11.1.28)(reflect-metadata@0.2.2)(rxjs@7.8.2)
       amqp-connection-manager:
         specifier: ^5.0.0
