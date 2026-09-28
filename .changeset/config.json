@@ -7,5 +7,5 @@
   "baseBranch": "master",
   "changelog": "./changelog.cjs",
   "updateInternalDependencies": "patch",
-  "ignore": ["google-cloud-pubsub-integration", "rabbitmq-integration"]
+  "ignore": ["google-cloud-pubsub", "rabbitmq-integration"]
 }
