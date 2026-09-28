@@ -37,7 +37,7 @@
     "vitepress": "^1.6.4"
   },
   "optionalDependencies": {
-    "@vitest/coverage-v8": "^4.1.7",
+    "@vitest/coverage-v8": "^4.1.11",
     "vitest": "^4.1.7"
   },
   "scripts": {
