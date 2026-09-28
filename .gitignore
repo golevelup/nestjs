@@ -7,6 +7,7 @@ packages/testing/*/lib
 coverage/
 tsconfig.build.tsbuildinfo
 integration/rabbitmq/dist
+integration/google-cloud-pubsub/dist
 
 # doc ignored directories
 docs/.vitepress/dist
