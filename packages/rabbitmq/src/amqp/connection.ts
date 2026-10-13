@@ -346,6 +346,26 @@ export class AmqpConnection {
 
     await channel.prefetch(config.prefetchCount || this.config.prefetchCount);
 
+    if (!config.default) {
+      // Named channels also bind queues to the configured exchanges. Assert the
+      // exchanges here first: a channel runs its setups in order, so they exist
+      // before any bind on this channel, even when the default channel hasn't
+      // re-asserted them yet after a reconnect.
+      await Promise.all(
+        this.config.exchanges
+          .filter(
+            ({ createExchangeIfNotExists = true }) => createExchangeIfNotExists,
+          )
+          .map((x) =>
+            channel.assertExchange(
+              x.name,
+              x.type || this.config.defaultExchangeType,
+              x.options,
+            ),
+          ),
+      );
+    }
+
     if (config.default) {
       this._channel = channel;
 
