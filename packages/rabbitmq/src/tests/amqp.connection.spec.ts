@@ -263,4 +263,65 @@ describe('AmqpConnection', () => {
       );
     });
   });
+
+  // https://github.com/golevelup/nestjs/issues/1275
+  describe('channel setup', () => {
+    const exchanges = [
+      { name: 'orders', type: 'topic' },
+      { name: 'audit', createExchangeIfNotExists: false },
+    ];
+
+    const createMockChannel = () => ({
+      prefetch: vi.fn().mockResolvedValue(undefined),
+      assertExchange: vi.fn().mockResolvedValue(undefined),
+      checkExchange: vi.fn().mockResolvedValue(undefined),
+      bindExchange: vi.fn().mockResolvedValue(undefined),
+    });
+
+    it('should assert the configured exchanges on a named channel', async () => {
+      const connectionWithExchanges = new AmqpConnection({
+        ...mockConfig,
+        exchanges,
+      });
+      const channel = createMockChannel();
+
+      // setupInitChannel is private; bracket notation is used to call it in tests
+      await connectionWithExchanges['setupInitChannel'](
+        channel as any,
+        'named',
+        { prefetchCount: 1 },
+      );
+
+      expect(channel.prefetch).toHaveBeenCalledWith(1);
+      expect(channel.assertExchange).toHaveBeenCalledTimes(1);
+      expect(channel.assertExchange).toHaveBeenCalledWith(
+        'orders',
+        'topic',
+        undefined,
+      );
+      // Exchanges that must not be created are left to the default channel.
+      expect(channel.checkExchange).not.toHaveBeenCalled();
+    });
+
+    it('should assert exchanges on a named channel before resolving its setup', async () => {
+      const connectionWithExchanges = new AmqpConnection({
+        ...mockConfig,
+        exchanges: [{ name: 'orders', type: 'topic' }],
+      });
+      const channel = createMockChannel();
+      let asserted = false;
+      channel.assertExchange.mockImplementation(async () => {
+        await Promise.resolve();
+        asserted = true;
+      });
+
+      await connectionWithExchanges['setupInitChannel'](
+        channel as any,
+        'named',
+        { prefetchCount: 1 },
+      );
+
+      expect(asserted).toBe(true);
+    });
+  });
 });
