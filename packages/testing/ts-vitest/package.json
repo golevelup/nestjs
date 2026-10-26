@@ -39,5 +39,8 @@
   },
   "publishConfig": {
     "access": "public"
+  },
+  "peerDependencies": {
+    "vitest": ">=2.0.0"
   }
 }
