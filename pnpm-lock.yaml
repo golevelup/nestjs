@@ -98,7 +98,7 @@ importers:
         version: 5.9.3
       vite:
         specifier: ^8.0.5
-        version: 8.2.1(@types/node@25.9.5)(esbuild@0.28.2)(jiti@2.4.2)(tsx@4.23.11)(yaml@2.9.0)
+        version: 8.2.1(@types/node@25.9.5)(esbuild@0.28.2)(jiti@2.4.2)(tsx@4.23.15)(yaml@2.9.0)
       vitepress:
         specifier: ^1.6.4
         version: 1.6.4(@algolia/client-search@5.18.0)(@types/node@25.9.5)(axios@1.18.1)(lightningcss@1.33.0)(postcss@8.5.26)(search-insights@2.17.3)(typescript@5.9.3)
@@ -108,7 +108,7 @@ importers:
         version: 4.1.11(vitest@4.1.11)
       vitest:
         specifier: ^4.1.11
-        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@25.9.5)(@vitest/coverage-v8@4.1.11)(vite@8.2.1(@types/node@25.9.5)(esbuild@0.28.2)(jiti@2.4.2)(tsx@4.23.11)(yaml@2.9.0))
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@25.9.5)(@vitest/coverage-v8@4.1.11)(vite@8.2.1(@types/node@25.9.5)(esbuild@0.28.2)(jiti@2.4.2)(tsx@4.23.15)(yaml@2.9.0))
 
   integration/google-cloud-pubsub:
     dependencies:
@@ -156,8 +156,8 @@ importers:
         specifier: 4.2.0
         version: 4.2.0
       tsx:
-        specifier: ^4.21.0
-        version: 4.23.11
+        specifier: ^4.23.15
+        version: 4.23.15
       typescript:
         specifier: 5.9.3
         version: 5.9.3
@@ -205,8 +205,8 @@ importers:
         specifier: 4.2.0
         version: 4.2.0
       tsx:
-        specifier: ^4.21.0
-        version: 4.23.11
+        specifier: ^4.23.15
+        version: 4.23.15
       typescript:
         specifier: 5.9.3
         version: 5.9.3
@@ -400,7 +400,7 @@ importers:
     dependencies:
       vitest:
         specifier: '>=2.0.0'
-        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@25.9.5)(@vitest/coverage-v8@4.1.11)(vite@8.2.1(@types/node@25.9.5)(esbuild@0.28.2)(jiti@2.4.2)(tsx@4.23.11)(yaml@2.9.0))
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@25.9.5)(@vitest/coverage-v8@4.1.11)(vite@8.2.1(@types/node@25.9.5)(esbuild@0.28.2)(jiti@2.4.2)(tsx@4.23.15)(yaml@2.9.0))
 
   packages/webhooks:
     dependencies:
@@ -2619,6 +2619,7 @@ packages:
   '@smithy/core@3.31.1':
     resolution: {integrity: sha512-CyogUINxvi7C7LDsh8Syo6hVJOT9ckz4rG8dRZfTJ8r91HkMY59PnNooaj7WcHyxEkxPfBAmbgztZU+xTo76lg==}
     engines: {node: '>=18.0.0'}
+    deprecated: Deprecated due to a bug in custom logger data redaction. See https://github.com/aws/aws-sdk-js-v3/issues/8393.
 
   '@smithy/credential-provider-imds@4.4.16':
     resolution: {integrity: sha512-QfuLWAkLzptffFW980AFeHZFdqds2B64rpEd3uJ6lgs3xVn9QegGMUgUcj+4d7dRrAsya3r58ZKpku97WcFb4w==}
@@ -6682,8 +6683,8 @@ packages:
   tslib@2.8.1:
     resolution: {integrity: sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==}
 
-  tsx@4.23.11:
-    resolution: {integrity: sha512-Ry2oTEUnhBdeEdWIztY8kf3/nBGnPnjMLVGL0YfdRXMORuPER5NlKmayqxtxRxwB1xBN+RivRaJfe7PM1rtiyw==}
+  tsx@4.23.15:
+    resolution: {integrity: sha512-Yiex1Ovn8z2xPpOWckIiysV1SSyRMY9BkLF++q0yKiDxCqRhosKfMg3janKkiLBwZ5c/YryloKwGZcrEmtwxKw==}
     engines: {node: '>=18.0.0'}
     hasBin: true
 
@@ -9781,7 +9782,7 @@ snapshots:
       obug: 2.1.1
       std-env: 4.2.0
       tinyrainbow: 3.1.1
-      vitest: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@25.9.5)(@vitest/coverage-v8@4.1.11)(vite@8.2.1(@types/node@25.9.5)(esbuild@0.28.2)(jiti@2.4.2)(tsx@4.23.11)(yaml@2.9.0))
+      vitest: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@25.9.5)(@vitest/coverage-v8@4.1.11)(vite@8.2.1(@types/node@25.9.5)(esbuild@0.28.2)(jiti@2.4.2)(tsx@4.23.15)(yaml@2.9.0))
     optional: true
 
   '@vitest/expect@4.1.11':
@@ -9793,13 +9794,13 @@ snapshots:
       chai: 6.2.2
       tinyrainbow: 3.1.1
 
-  '@vitest/mocker@4.1.11(vite@8.2.1(@types/node@25.9.5)(esbuild@0.28.2)(jiti@2.4.2)(tsx@4.23.11)(yaml@2.9.0))':
+  '@vitest/mocker@4.1.11(vite@8.2.1(@types/node@25.9.5)(esbuild@0.28.2)(jiti@2.4.2)(tsx@4.23.15)(yaml@2.9.0))':
     dependencies:
       '@vitest/spy': 4.1.11
       estree-walker: 3.0.3
       magic-string: 0.30.21
     optionalDependencies:
-      vite: 8.2.1(@types/node@25.9.5)(esbuild@0.28.2)(jiti@2.4.2)(tsx@4.23.11)(yaml@2.9.0)
+      vite: 8.2.1(@types/node@25.9.5)(esbuild@0.28.2)(jiti@2.4.2)(tsx@4.23.15)(yaml@2.9.0)
 
   '@vitest/pretty-format@4.1.11':
     dependencies:
@@ -14202,7 +14203,7 @@ snapshots:
 
   tslib@2.8.1: {}
 
-  tsx@4.23.11:
+  tsx@4.23.15:
     dependencies:
       esbuild: 0.28.2
     optionalDependencies:
@@ -14405,7 +14406,7 @@ snapshots:
       fsevents: 2.3.3
       lightningcss: 1.33.0
 
-  vite@8.2.1(@types/node@25.9.5)(esbuild@0.28.2)(jiti@2.4.2)(tsx@4.23.11)(yaml@2.9.0):
+  vite@8.2.1(@types/node@25.9.5)(esbuild@0.28.2)(jiti@2.4.2)(tsx@4.23.15)(yaml@2.9.0):
     dependencies:
       lightningcss: 1.33.0
       picomatch: 4.0.7
@@ -14417,7 +14418,7 @@ snapshots:
       esbuild: 0.28.2
       fsevents: 2.3.3
       jiti: 2.4.2
-      tsx: 4.23.11
+      tsx: 4.23.15
       yaml: 2.9.0
 
   vitepress@1.6.4(@algolia/client-search@5.18.0)(@types/node@25.9.5)(axios@1.18.1)(lightningcss@1.33.0)(postcss@8.5.26)(search-insights@2.17.3)(typescript@5.9.3):
@@ -14469,10 +14470,10 @@ snapshots:
       - typescript
       - universal-cookie
 
-  vitest@4.1.11(@opentelemetry/api@1.9.0)(@types/node@25.9.5)(@vitest/coverage-v8@4.1.11)(vite@8.2.1(@types/node@25.9.5)(esbuild@0.28.2)(jiti@2.4.2)(tsx@4.23.11)(yaml@2.9.0)):
+  vitest@4.1.11(@opentelemetry/api@1.9.0)(@types/node@25.9.5)(@vitest/coverage-v8@4.1.11)(vite@8.2.1(@types/node@25.9.5)(esbuild@0.28.2)(jiti@2.4.2)(tsx@4.23.15)(yaml@2.9.0)):
     dependencies:
       '@vitest/expect': 4.1.11
-      '@vitest/mocker': 4.1.11(vite@8.2.1(@types/node@25.9.5)(esbuild@0.28.2)(jiti@2.4.2)(tsx@4.23.11)(yaml@2.9.0))
+      '@vitest/mocker': 4.1.11(vite@8.2.1(@types/node@25.9.5)(esbuild@0.28.2)(jiti@2.4.2)(tsx@4.23.15)(yaml@2.9.0))
       '@vitest/pretty-format': 4.1.11
       '@vitest/runner': 4.1.11
       '@vitest/snapshot': 4.1.11
@@ -14489,7 +14490,7 @@ snapshots:
       tinyexec: 1.3.0
       tinyglobby: 0.2.17
       tinyrainbow: 3.1.1
-      vite: 8.2.1(@types/node@25.9.5)(esbuild@0.28.2)(jiti@2.4.2)(tsx@4.23.11)(yaml@2.9.0)
+      vite: 8.2.1(@types/node@25.9.5)(esbuild@0.28.2)(jiti@2.4.2)(tsx@4.23.15)(yaml@2.9.0)
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@opentelemetry/api': 1.9.0
