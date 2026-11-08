@@ -590,9 +590,19 @@ export class AmqpConnection {
    */
   private wrapConsumer(consumer: Consumer): Consumer {
     return (msg: ConsumeMessage | null) => {
-      const messageProcessingPromise = Promise.resolve(consumer(msg));
+      // The consumers handle their own errors, but the error handler itself can
+      // throw (e.g. a nack on a closing channel). Catch here so that nothing is
+      // left as an unhandled rejection and close() can always await the promise.
+      const messageProcessingPromise = Promise.resolve(consumer(msg)).catch(
+        (e) => {
+          this.logger.error(
+            'Unhandled error while processing message',
+            e instanceof Error ? e.stack : String(e),
+          );
+        },
+      );
       this.outstandingMessageProcessing.add(messageProcessingPromise);
-      messageProcessingPromise.finally(() =>
+      void messageProcessingPromise.finally(() =>
         this.outstandingMessageProcessing.delete(messageProcessingPromise),
       );
     };
@@ -1294,19 +1304,36 @@ export class AmqpConnection {
     return newConsumerTag;
   }
 
+  private async cancelAllConsumers(): Promise<void> {
+    await Promise.allSettled(
+      Object.values(this._consumers).map(async ({ consumerTag, channel }) =>
+        // Tags of a channel that was replaced after a reconnect cannot be
+        // cancelled anymore; that channel no longer delivers, so ignore them
+        channel.cancel(consumerTag),
+      ),
+    );
+  }
+
   public async close(): Promise<void> {
     const managedChannels = Object.values(this._managedChannels);
 
-    // First cancel all consumers so they stop getting new messages
+    // First cancel all consumers so they stop getting new messages.
+    // Subscribers are registered with `consume()` on the raw channel inside
+    // `addSetup()`, so `ChannelWrapper.cancelAll()` does not know about them and
+    // they have to be cancelled by their tags.
+    await this.cancelAllConsumers();
     await Promise.all(managedChannels.map((channel) => channel.cancelAll()));
 
-    // Wait for all the outstanding messages to be processed
+    // Wait for all the outstanding messages to be processed, including the ones
+    // delivered while the consumers were being cancelled
     if (this.outstandingMessageProcessing.size) {
       this.logger.log(
         `Waiting for outstanding consumers, outstanding message count: ${this.outstandingMessageProcessing.size}`,
       );
     }
-    await Promise.all(this.outstandingMessageProcessing);
+    while (this.outstandingMessageProcessing.size) {
+      await Promise.all(this.outstandingMessageProcessing);
+    }
 
     // Close all channels
     await Promise.all(managedChannels.map((channel) => channel.close()));
