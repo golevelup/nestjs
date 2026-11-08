@@ -19,7 +19,7 @@
     "@types/express": "5.0.6",
     "@types/jest": "^30.0.0",
     "@types/lodash": "^4.17.25",
-    "@types/node": "^25.8.0",
+    "@types/node": "^25.9.9",
     "all-contributors-cli": "^6.26.1",
     "commitizen": "^4.3.2",
     "cz-conventional-changelog": "^3.3.0",
