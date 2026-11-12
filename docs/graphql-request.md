@@ -1,6 +1,6 @@
 # GraphQL Request
 
-This library provides the `GraphQLRequestModule` which makes it easy to initialize an instance of `GraphQLClient` for use in Depdendency Injection. This can be combined with automatic codegen for type safe access to third party GQL APIs from your Nest services
+This library provides the `GraphQLRequestModule` which makes it easy to initialize an instance of `GraphQLClient` for use in Dependency Injection. This can be combined with automatic codegen for type safe access to third party GQL APIs from your Nest services
 
 <div style="display: flex; gap: 10px;">
 <a href="https://www.npmjs.com/package/@golevelup/nestjs-graphql-request"><img src="https://img.shields.io/npm/v/@golevelup/nestjs-graphql-request.svg?style=flat" alt="version" /></a>
@@ -70,7 +70,7 @@ export class ExampleService {
 
 The GraphQL client works best when combined with GraphQL code generation tools for communicating to a GraphQL endpoint. Follow the [GraphQL Code Generator GraphQL Request Plugin Instructions](https://graphql-code-generator.com/docs/plugins/typescript-graphql-request).
 
-Running the code generator against a GraphQL Endpoint will produce typescript interfaces for all operations and types exposed by the API as well as a `getSdk` function which you can use in conjunction with GraphQL Request to get intellisense and type saftey for all requests you make. The `getSdk` function only requires a GraphQLClient instance (which this library provides). However because each generated SDK is unique per endpoint, it's up to you to wire up the provider for this in your application. This can be done using a Provider Factory with minimal code.
+Running the code generator against a GraphQL Endpoint will produce typescript interfaces for all operations and types exposed by the API as well as a `getSdk` function which you can use in conjunction with GraphQL Request to get intellisense and type safety for all requests you make. The `getSdk` function only requires a GraphQLClient instance (which this library provides). However because each generated SDK is unique per endpoint, it's up to you to wire up the provider for this in your application. This can be done using a Provider Factory with minimal code.
 
 ```typescript
 import {
