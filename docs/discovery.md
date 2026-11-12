@@ -28,7 +28,7 @@ pnpm add @golevelup/nestjs-discovery
 
 ## Import
 
-Import and add `DiscoveryModule` to the `imports` section of the module you wish to implement Discovery features in. It's common to inject it directly into consuming Module's contructor so that it can be used during the `onModuleInit` lifecycle hook at application startup.
+Import and add `DiscoveryModule` to the `imports` section of the module you wish to implement Discovery features in. It's common to inject it directly into consuming Module's constructor so that it can be used during the `onModuleInit` lifecycle hook at application startup.
 
 ```typescript
 import { DiscoveryModule } from '@golevelup/nestjs-discovery';
@@ -69,7 +69,7 @@ This gives access to the (singleton) `instance` of the matching provider or cont
 
 The `injectType` can contain the constructor function of the provider token if it is provided as an @Injectable class. In the case of custom providers, this value will either contain the type of the factory function that created the dependency, or undefined if a value was directly provided with `useValue`.
 
-The `dependencyType` is a shortcut to retrieve the constructor function of the actual provided dependency itself. For @Injectable providers/controllers this will simply be the decorated class but for dyanmic providers it will return the constructor function of whatever dependency was actually returned from `useValue` or `useFactory`.
+The `dependencyType` is a shortcut to retrieve the constructor function of the actual provided dependency itself. For @Injectable providers/controllers this will simply be the decorated class but for dynamic providers it will return the constructor function of whatever dependency was actually returned from `useValue` or `useFactory`.
 
 It also provides the string based name for convenience. A `DiscoveredClass` contains a `parentModule` which provides the same set of information for the `@Module` class that the dependency was discovered in.
 
