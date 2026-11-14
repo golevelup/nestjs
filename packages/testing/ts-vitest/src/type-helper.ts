@@ -53,21 +53,31 @@ type Prev = [never, 0, 1, 2, 3, 4];
 // Internal recursive implementation. The depth counter `D` prevents unbounded
 // type instantiation on complex SDK types (e.g. S3Client, PrismaClient) that
 // would cause type-checking performance regressions.
-type DeepMockedInternal<T, D extends keyof Prev & number> = D extends 0
-  ? T
-  : {
-      [K in keyof T]: IsExactlyUnknown<T[K]> extends true
-        ? any
-        : NonNullable<T[K]> extends (...args: any[]) => any
-          ? undefined extends T[K]
-            ? DeepMockedFunction<NonNullable<T[K]>, Prev[D]> | undefined
-            : DeepMockedFunction<NonNullable<T[K]>, Prev[D]>
-          : NonNullable<T[K]> extends object
+//
+// `T extends unknown ? ... : never` distributes over union members BEFORE the
+// mapped type and the `& T` intersection are applied. Without it, the
+// homomorphic mapped type distributes over `T = A | B` on its own, but the
+// trailing `& T` then intersects every distributed member with the FULL union,
+// producing cross-member intersections (`mappedA & B`, `mappedB & A`, ...) that
+// explode combinatorially for large unions (see golevelup/nestjs#1280).
+// Distributing first keeps `& T` scoped to a single member.
+type DeepMockedInternal<T, D extends keyof Prev & number> = T extends unknown
+  ? D extends 0
+    ? T
+    : {
+        [K in keyof T]: IsExactlyUnknown<T[K]> extends true
+          ? any
+          : NonNullable<T[K]> extends (...args: any[]) => any
             ? undefined extends T[K]
-              ? DeepMockedInternal<NonNullable<T[K]>, Prev[D]> | undefined
-              : DeepMockedInternal<T[K], Prev[D]>
-            : T[K]; // primitive
-    } & T;
+              ? DeepMockedFunction<NonNullable<T[K]>, Prev[D]> | undefined
+              : DeepMockedFunction<NonNullable<T[K]>, Prev[D]>
+            : NonNullable<T[K]> extends object
+              ? undefined extends T[K]
+                ? DeepMockedInternal<NonNullable<T[K]>, Prev[D]> | undefined
+                : DeepMockedInternal<T[K], Prev[D]>
+              : T[K]; // primitive
+      } & T
+  : never;
 
 /**
  * Recursively transforms a type into a deeply mocked version.

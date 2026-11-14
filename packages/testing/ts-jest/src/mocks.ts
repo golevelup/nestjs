@@ -30,20 +30,32 @@ type Prev = [never, 0, 1, 2, 3, 4];
 // Internal recursive implementation. The depth counter `D` prevents unbounded
 // type instantiation on complex SDK types (e.g. S3Client, PrismaClient) that
 // caused the type-checking performance regression introduced in v1.0.0.
-type DeepMockedInternal<T, D extends number> = D extends 0
-  ? T
-  : {
-      [K in keyof T]: IsExactlyUnknown<T[K]> extends true
-        ? any
-        : NonNullable<T[K]> extends (...args: infer A) => infer U
-          ? MockInstance<(...args: A) => U> &
-              ((...args: A) => DeepMockedInternal<U, Prev[D]>)
-          : NonNullable<T[K]> extends object
-            ? undefined extends T[K]
-              ? DeepMockedInternal<NonNullable<T[K]>, Prev[D]> | undefined
-              : DeepMockedInternal<T[K], Prev[D]>
-            : T[K];
-    } & T;
+//
+// `T extends unknown ? ... : never` distributes over union members BEFORE the
+// mapped type and the `& T` intersection are applied. Without it, the
+// homomorphic mapped type distributes over `T = A | B` on its own, but the
+// trailing `& T` then intersects every distributed member with the FULL union,
+// producing cross-member intersections (`mappedA & B`, `mappedB & A`, ...).
+// For large unions those cross terms explode combinatorially (see #1280, where
+// a 42-member union expanded into hundreds of intersected members and pushed
+// `tsc` past 5 GB / OOM on array literals). Distributing first keeps `& T`
+// scoped to a single member, so each union member is mocked independently.
+type DeepMockedInternal<T, D extends number> = T extends unknown
+  ? D extends 0
+    ? T
+    : {
+        [K in keyof T]: IsExactlyUnknown<T[K]> extends true
+          ? any
+          : NonNullable<T[K]> extends (...args: infer A) => infer U
+            ? MockInstance<(...args: A) => U> &
+                ((...args: A) => DeepMockedInternal<U, Prev[D]>)
+            : NonNullable<T[K]> extends object
+              ? undefined extends T[K]
+                ? DeepMockedInternal<NonNullable<T[K]>, Prev[D]> | undefined
+                : DeepMockedInternal<T[K], Prev[D]>
+              : T[K];
+      } & T
+  : never;
 
 export type DeepMocked<T> = DeepMockedInternal<T, 4>;
 

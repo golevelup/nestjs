@@ -272,6 +272,39 @@ describe('Mocks', () => {
         expect(mock.func(1, 'test')).toBe(true);
       });
     });
+
+    describe('union types', () => {
+      type ActionUnion =
+        | {
+            type: 'create';
+            payload: { name: string };
+            execute: (x: number) => string;
+          }
+        | {
+            type: 'delete';
+            payload: { id: string };
+            execute: (x: number) => boolean;
+          };
+
+      it('should correctly mock union members and support array literals of mocks', () => {
+        const createAction = createMock<ActionUnion>({
+          type: 'create',
+          payload: { name: 'item' },
+          execute: () => 'created',
+        });
+
+        const deleteAction = createMock<ActionUnion>({
+          type: 'delete',
+          payload: { id: '123' },
+          execute: () => true,
+        });
+
+        const actions: DeepMocked<ActionUnion>[] = [createAction, deleteAction];
+        expect(actions).toHaveLength(2);
+        expect(actions[0].type).toBe('create');
+        expect(actions[1].type).toBe('delete');
+      });
+    });
   });
 
   describe('Nest DI', () => {
